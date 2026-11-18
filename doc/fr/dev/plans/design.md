@@ -301,15 +301,15 @@ Le dépôt `Kazo-ca/jarvis` reprend la méthode de Kazo Os au complet. Voici ce 
 
 Premiers ADR à écrire, dans cet ordre :
 
-1. ADR 0001 : cible .NET 10 et liste des projets.
-2. ADR 0002 : tranches verticales, noyau partagé et règles de dépendance.
-3. ADR 0003 : hôtes (Windows WPF, Web de test, Android) et services natifs.
-4. ADR 0004 : configuration, stockage et coffre de secrets.
-5. ADR 0005 : machine à états de l'assistant et contrat de l'orbe.
-6. ADR 0006 : chaîne vocale (mot d'éveil, reconnaissance, synthèse), après E4 et E5.
-7. ADR 0007 : fournisseurs LLM et format des outils.
-8. ADR 0008 : langues et localisation.
-9. ADR 0009 : modèle de permissions et de confirmation.
+1. [ADR 0001](../adr/0001-target-dotnet-10-and-projects.md) : cible .NET 10 et liste des projets.
+2. [ADR 0002](../adr/0002-vertical-slices-kernel-and-dependency-rules.md) : tranches verticales, noyau partagé et règles de dépendance.
+3. [ADR 0003](../adr/0003-hosts-and-native-services.md) : hôtes (Windows WPF, Web de test, Android) et services natifs.
+4. [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md) : configuration, stockage et coffre de secrets.
+5. [ADR 0005](../adr/0005-assistant-state-machine-and-orb-contract.md) : machine à états de l'assistant et contrat de l'orbe.
+6. [ADR 0006](../adr/0006-voice-chain.md) : chaîne vocale (mot d'éveil, reconnaissance, synthèse), après E4 et E5.
+7. [ADR 0007](../adr/0007-llm-providers-and-tool-format.md) : fournisseurs LLM et format des outils.
+8. [ADR 0008](../adr/0008-languages-and-localization.md) : langues et localisation.
+9. [ADR 0009](../adr/0009-permission-and-confirmation-model.md) : modèle de permissions et de confirmation.
 
 Les ADR des étapes 2 à 5 s'écrivent au début de chaque série, une fois les essais techniques correspondants terminés.
 

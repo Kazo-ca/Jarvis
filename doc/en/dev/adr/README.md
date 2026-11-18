@@ -1,7 +1,21 @@
 # Architecture decision records (ADR)
 
 One numbered ADR per decision, written and merged before the code it
-describes. An accepted ADR is never edited: a new one supersedes it.
+describes. An accepted ADR is never edited: a new one supersedes it. The next
+free number is given in the [project memory](../../memory/README.md).
 
-No ADR is written yet. The first nine are listed in the
+| ADR | Title | Status |
+| --- | --- | --- |
+| [0001](0001-target-dotnet-10-and-projects.md) | .NET 10 target and list of projects | Proposed |
+| [0002](0002-vertical-slices-kernel-and-dependency-rules.md) | Vertical slices, shared kernel and dependency rules | Proposed |
+| [0003](0003-hosts-and-native-services.md) | Hosts (Windows WPF, Web test, Android) and native services | Proposed |
+| [0004](0004-configuration-storage-and-secret-vault.md) | Configuration, storage and secret vault | Proposed |
+| [0005](0005-assistant-state-machine-and-orb-contract.md) | Assistant state machine and orb contract | Proposed |
+| [0006](0006-voice-chain.md) | Voice chain (wake word, recognition, synthesis) | Proposed |
+| [0007](0007-llm-providers-and-tool-format.md) | LLM providers and tool format | Proposed |
+| [0008](0008-languages-and-localization.md) | Languages and localization | Proposed |
+| [0009](0009-permission-and-confirmation-model.md) | Permission and confirmation model | Proposed |
+
+The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).
+The ADRs of the later stages are written at the start of each series.

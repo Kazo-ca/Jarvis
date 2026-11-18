@@ -19,15 +19,24 @@ de relancer chaque essai sont dans `spikes/<nom>/`.
 
 ## Décisions prises le 18 novembre 2026
 
-Benoit a accepté les recommandations issues des essais. Elles seront écrites dans les ADR de l'étape 1.
+Benoit a accepté les recommandations issues des essais. Elles sont reprises dans les [ADR](adr/README.md) de
+l'étape 1, indiqués à la fin de chaque ligne.
 
 1. **Orbe en veille** (E6) : immobile en veille (image fixe, 1,3 % d'un cœur) ; l'animation complète ne
    tourne qu'en écoute, réflexion et parole. Le composant Razor partagé avec le mobile est conservé.
+   ([ADR 0005](adr/0005-assistant-state-machine-and-orb-contract.md))
 2. **Modèle local par défaut** (E7) : `qwen3:14b` avec la réflexion coupée (`think: false`), et un analyseur
    tolérant pour les modèles qui écrivent leurs appels d'outils en texte.
+   ([ADR 0007](adr/0007-llm-providers-and-tool-format.md))
 3. **Voix par défaut** (E4) : Piper (sherpa-onnx 1.13.8) ; Kokoro en option tant qu'il ne tourne pas sur le GPU.
+   ([ADR 0006](adr/0006-voice-chain.md))
 4. **Mot d'éveil** (E4) : modèle « hey_jarvis » d'openWakeWord ; seuil réglable et indicateur de score
-   (US1.5), à ajuster avec la voix de Benoit pendant l'étape 1.
+   (US1.5), à ajuster avec la voix de Benoit pendant l'étape 1. ([ADR 0006](adr/0006-voice-chain.md))
 5. **Pilotage de Claude Code** (E8) : `claude -p` en flux JSON, avec des réglages propres à Jarvis.
+   ([ADR 0009](adr/0009-permission-and-confirmation-model.md) pour le principe ; la ligne de commande exacte
+   attend l'ADR de l'étape 2.)
 6. **Déclencheurs Home Assistant** (E9) : API WebSocket (`subscribe_trigger`) ; MCP pour les commandes.
+   ([ADR 0009](adr/0009-permission-and-confirmation-model.md) pour le principe ; le détail attend l'ADR de
+   l'étape 3.)
 7. **Mobile** (E10) : l'étape 1 commence sans les essais sur le téléphone ; ils seront faits avant l'étape 4.
+   ([ADR 0003](adr/0003-hosts-and-native-services.md))

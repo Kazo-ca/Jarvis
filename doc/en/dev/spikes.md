@@ -19,15 +19,23 @@ each spike are in `spikes/<name>/` (French).
 
 ## Decisions taken on November 18, 2026
 
-Benoit accepted the recommendations from the spikes. They will be written in the stage 1 ADRs.
+Benoit accepted the recommendations from the spikes. They are carried into the stage 1 [ADRs](adr/README.md),
+named at the end of each line.
 
 1. **Idle orb** (E6): still when idle (still frame, 1.3 % of one core); the full animation only runs while
    listening, thinking and speaking. The Razor component shared with mobile is kept.
+   ([ADR 0005](adr/0005-assistant-state-machine-and-orb-contract.md))
 2. **Default local model** (E7): `qwen3:14b` with thinking turned off (`think: false`), plus a lenient parser
-   for models that write their tool calls as text.
+   for models that write their tool calls as text. ([ADR 0007](adr/0007-llm-providers-and-tool-format.md))
 3. **Default voice** (E4): Piper (sherpa-onnx 1.13.8); Kokoro as an option until it runs on the GPU.
+   ([ADR 0006](adr/0006-voice-chain.md))
 4. **Wake word** (E4): openWakeWord "hey_jarvis" model; adjustable threshold and score indicator (US1.5),
-   tuned with Benoit's voice during stage 1.
+   tuned with Benoit's voice during stage 1. ([ADR 0006](adr/0006-voice-chain.md))
 5. **Driving Claude Code** (E8): `claude -p` with JSON streams, with Jarvis's own settings.
+   ([ADR 0009](adr/0009-permission-and-confirmation-model.md) for the principle; the exact command line waits
+   for the stage 2 ADR.)
 6. **Home Assistant triggers** (E9): WebSocket API (`subscribe_trigger`); MCP for commands.
+   ([ADR 0009](adr/0009-permission-and-confirmation-model.md) for the principle; the detail waits for the
+   stage 3 ADR.)
 7. **Mobile** (E10): stage 1 starts without the phone spikes; they will be done before stage 4.
+   ([ADR 0003](adr/0003-hosts-and-native-services.md))

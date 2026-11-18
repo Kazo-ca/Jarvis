@@ -302,15 +302,15 @@ The `Kazo-ca/jarvis` repository takes over Kazo Os's method in full. Here is wha
 
 First ADRs to write, in this order:
 
-1. ADR 0001: .NET 10 target and list of projects.
-2. ADR 0002: vertical slices, shared kernel and dependency rules.
-3. ADR 0003: hosts (Windows WPF, Web test, Android) and native services.
-4. ADR 0004: configuration, storage and secrets vault.
-5. ADR 0005: assistant state machine and orb contract.
-6. ADR 0006: voice chain (wake word, recognition, synthesis), after E4 and E5.
-7. ADR 0007: LLM providers and tool format.
-8. ADR 0008: languages and localization.
-9. ADR 0009: permission and confirmation model.
+1. [ADR 0001](../adr/0001-target-dotnet-10-and-projects.md): .NET 10 target and list of projects.
+2. [ADR 0002](../adr/0002-vertical-slices-kernel-and-dependency-rules.md): vertical slices, shared kernel and dependency rules.
+3. [ADR 0003](../adr/0003-hosts-and-native-services.md): hosts (Windows WPF, Web test, Android) and native services.
+4. [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md): configuration, storage and secrets vault.
+5. [ADR 0005](../adr/0005-assistant-state-machine-and-orb-contract.md): assistant state machine and orb contract.
+6. [ADR 0006](../adr/0006-voice-chain.md): voice chain (wake word, recognition, synthesis), after E4 and E5.
+7. [ADR 0007](../adr/0007-llm-providers-and-tool-format.md): LLM providers and tool format.
+8. [ADR 0008](../adr/0008-languages-and-localization.md): languages and localization.
+9. [ADR 0009](../adr/0009-permission-and-confirmation-model.md): permission and confirmation model.
 
 The ADRs for stages 2 to 5 are written at the start of each series, once the corresponding technical spikes are finished.
 
