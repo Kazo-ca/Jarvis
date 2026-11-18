@@ -1,0 +1,9 @@
+<Project>
+  <!-- Kazo.Jarvis version, compared with GitHub release tags by the update check. -->
+  <PropertyGroup>
+    <Version>0.0.1</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>
