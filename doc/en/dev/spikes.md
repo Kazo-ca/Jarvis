@@ -1,6 +1,26 @@
 # Technical spikes
 
-Summary of the ten spikes of the [design document](plans/design.md).
-Each spike's detail is in `spikes/<name>/RESULTS.md`.
+Summary of the ten spikes of the [design document](plans/design.md#technical-spikes-to-do-before-coding),
+run on November 18, 2026 on Benoit's PC (RTX 3060 12 GB, .NET 10). Details, measurements and how to rerun
+each spike are in `spikes/<name>/` (French).
 
-*(in progress)*
+| Spike | Verdict | In one sentence | Detail |
+| --- | --- | --- | --- |
+| E1 3CX | **Pending** | Needs 3CX installed on a Debian machine and an extension created. | [e1-3cx-sip](../../../spikes/e1-3cx-sip/README.md) |
+| E2 Claude Code sessions | **Passed** | The `~/.claude/sessions/<pid>.json` registry gives every session and its state (`busy`, `idle`, `waiting`), read in 73 ms. | [e2-claude-sessions](../../../spikes/e2-claude-sessions/RESULTS.md) |
+| E3 Claude Desktop | **Passed** | Its code sessions are Claude Code processes listed in the same registry. | [e2-claude-sessions](../../../spikes/e2-claude-sessions/RESULTS.md) |
+| E4 voice chain | **Passed, two caveats** | 1.6 to 1.8 s from end of sentence to first sound, in C# with no Python; a French-accented "hey jarvis" is poorly detected; Kokoro is slow on CPU. | [e4-voice-chain](../../../spikes/e4-voice-chain/RESULTS.md) |
+| E5 GPU memory | **Passed, thin margin** | Whisper turbo and the 14B model fit together: 11.7 GB of 12.3. Whisper on CPU is too slow. | [e4-voice-chain](../../../spikes/e4-voice-chain/RESULTS.md) |
+| E6 WPF orb | **Missed the target** | Animated orb: 6 to 18 % of one core with WebView2, 4 to 7 % in pure WPF. Still frame: 1.3 %. | [e6-orb-window](../../../spikes/e6-orb-window/RESULTS.md) |
+| E7 local model tools | **Passed, change model** | qwen3 14B (thinking off): 42 of 42, 0.9 s. qwen2.5-coder writes its calls as text. | [e7-local-tool-calls](../../../spikes/e7-local-tool-calls/RESULTS.md) |
+| E8 drive Claude Code | **Chosen, to finish** | `claude -p` with JSON streams from C#, no SDK. Run blocked: the CLI sign-in expired. | [e8-drive-claude-code](../../../spikes/e8-drive-claude-code/RESULTS.md) |
+| E9 Home Assistant events | **Not through MCP** | Home Assistant's MCP server has no notifications; triggers go through the WebSocket API, to try with a token. | [e9-home-assistant-events](../../../spikes/e9-home-assistant-events/RESULTS.md) |
+| E10 mobile audio | **Pending** | Needs an Android phone and a night of battery measurement. | [e10-mobile-audio](../../../spikes/e10-mobile-audio/README.md) |
+
+## Decisions to take before the stage 1 ADRs
+
+1. **Idle orb** (E6): still idle orb animated only while Jarvis listens or speaks, or a slowly animated idle
+   orb at about 6 % of one core, or a native GPU orb on the desktop.
+2. **Default local model** (E7): qwen3:14b with thinking turned off.
+3. **Default voice** (E4): Piper, Kokoro as an option until it runs on the GPU.
+4. **Wake word** (E4): to try with Benoit's voice before choosing the threshold or a trained model.
