@@ -226,6 +226,8 @@ Les paramètres complets restent sur le PC. Le téléphone ne règle que ce qui 
 
 ## Étape 5 : téléphonie 3CX
 
+> **Abandonnée le 18 novembre 2026** par Benoit : pas de 3CX, on parle à Jarvis seulement par l'application MAUI Blazor Hybrid. Le texte ci-dessous est gardé pour mémoire ; l'essai E1 n'est plus nécessaire.
+
 À la fin de cette étape, on compose un numéro de poste pour converser avec Jarvis, et Jarvis appelle quand une tâche autonome a besoin d'une décision.
 
 Cette étape dépend de l'essai technique E1. L'édition gratuite de 3CX annoncée le 8 janvier 2026 est auto-hébergée et limitée à 4 appels simultanés, ce qui suffit. Elle est présentée pour les applications de 3CX, et rien d'officiel ne confirme qu'un client SIP générique peut s'y enregistrer ([](https://www.3cx.com/blog/news/free-edition/)).

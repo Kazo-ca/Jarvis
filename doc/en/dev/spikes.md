@@ -6,15 +6,15 @@ each spike are in `spikes/<name>/` (French).
 
 | Spike | Verdict | In one sentence | Detail |
 | --- | --- | --- | --- |
-| E1 3CX | **Pending** | Needs 3CX installed on a Debian machine and an extension created. | [e1-3cx-sip](../../../spikes/e1-3cx-sip/README.md) |
+| E1 3CX | **Dropped** | Benoit removed 3CX telephony: only the MAUI app. | [e1-3cx-sip](../../../spikes/e1-3cx-sip/README.md) |
 | E2 Claude Code sessions | **Passed** | The `~/.claude/sessions/<pid>.json` registry gives every session and its state (`busy`, `idle`, `waiting`), read in 73 ms. | [e2-claude-sessions](../../../spikes/e2-claude-sessions/RESULTS.md) |
 | E3 Claude Desktop | **Passed** | Its code sessions are Claude Code processes listed in the same registry. | [e2-claude-sessions](../../../spikes/e2-claude-sessions/RESULTS.md) |
 | E4 voice chain | **Passed, two caveats** | 1.6 to 1.8 s from end of sentence to first sound, in C# with no Python; a French-accented "hey jarvis" is poorly detected; Kokoro is slow on CPU. | [e4-voice-chain](../../../spikes/e4-voice-chain/RESULTS.md) |
 | E5 GPU memory | **Passed, thin margin** | Whisper turbo and the 14B model fit together: 11.7 GB of 12.3. Whisper on CPU is too slow. | [e4-voice-chain](../../../spikes/e4-voice-chain/RESULTS.md) |
 | E6 WPF orb | **Missed the target** | Animated orb: 6 to 18 % of one core with WebView2, 4 to 7 % in pure WPF. Still frame: 1.3 %. | [e6-orb-window](../../../spikes/e6-orb-window/RESULTS.md) |
 | E7 local model tools | **Passed, change model** | qwen3 14B (thinking off): 42 of 42, 0.9 s. qwen2.5-coder writes its calls as text. | [e7-local-tool-calls](../../../spikes/e7-local-tool-calls/RESULTS.md) |
-| E8 drive Claude Code | **Chosen, to finish** | `claude -p` with JSON streams from C#, no SDK. Run blocked: the CLI sign-in expired. | [e8-drive-claude-code](../../../spikes/e8-drive-claude-code/RESULTS.md) |
-| E9 Home Assistant events | **Not through MCP** | Home Assistant's MCP server has no notifications; triggers go through the WebSocket API, to try with a token. | [e9-home-assistant-events](../../../spikes/e9-home-assistant-events/RESULTS.md) |
+| E8 drive Claude Code | **Passed** | `claude -p` with JSON streams from C#, no SDK: file read, unauthorized writes refused and reported. | [e8-drive-claude-code](../../../spikes/e8-drive-claude-code/RESULTS.md) |
+| E9 Home Assistant events | **Not through MCP, yes through WebSocket** | MCP has no notifications; `subscribe_trigger` on the WebSocket API works (4 triggers out of 4). | [e9-home-assistant-events](../../../spikes/e9-home-assistant-events/RESULTS.md) |
 | E10 mobile audio | **Pending** | Needs an Android phone and a night of battery measurement. | [e10-mobile-audio](../../../spikes/e10-mobile-audio/README.md) |
 
 ## Decisions to take before the stage 1 ADRs

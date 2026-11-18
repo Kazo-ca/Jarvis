@@ -3,7 +3,7 @@
 **Project:** Kazo.Jarvis is a voice assistant for Windows written in C# on .NET 10,
 with no Python at run time. It shows as an animated orb, answers first with a
 local model, and hands off to Claude when a task is beyond it. An Android
-satellite app and a 3CX phone extension let the user talk to it away from the PC.
+satellite app (MAUI Blazor Hybrid) lets the user talk to it away from the PC.
 
 The behavioral reference is OpenJarvis (fork `Kazo-ca/OpenJarvis`, read-only).
 Never copy Python code: port the behavior.
