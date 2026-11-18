@@ -10,8 +10,10 @@ ce qu'il décrit.
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
 - **Prochain numéro d'ADR libre :** 0001.
 - **Décisions prises mais pas construites :** tout le document de conception.
-- **Décisions ouvertes issues des essais :** orbe en veille (E6), modèle local par défaut (E7, qwen3:14b
-  recommandé), voix par défaut (E4, Piper recommandé), seuil du mot d'éveil (E4, à essayer avec la voix de Benoit).
+- **Décisions issues des essais (prises le 18 novembre 2026, à écrire dans les ADR) :** voir
+  [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
+  sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
+- **Prochaine étape :** écrire les ADR 0001 à 0009 de l'étape 1 (liste dans la conception), avant tout code.
 - **Échecs de tests connus :** aucun (pas encore de tests).
 
 ## Environnement de développement de Benoit

@@ -9,8 +9,10 @@ Resume point for any agent. Update it in the same change as what it describes.
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
 - **Next free ADR number:** 0001.
 - **Decisions taken but not built:** the whole design document.
-- **Open decisions from the spikes:** idle orb (E6), default local model (E7, qwen3:14b recommended),
-  default voice (E4, Piper recommended), wake word threshold (E4, to try with Benoit's voice).
+- **Decisions from the spikes (taken on November 18, 2026, to write in the ADRs):** see
+  [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
+  without thinking, Piper by default, E10 postponed until before stage 4.
+- **Next step:** write ADRs 0001 to 0009 of stage 1 (listed in the design), before any code.
 - **Known test failures:** none (no tests yet).
 
 ## Benoit's development environment
