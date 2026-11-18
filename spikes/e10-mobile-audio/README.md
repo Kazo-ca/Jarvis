@@ -1,7 +1,7 @@
-# E10 : audio entre téléphone et PC, batterie — en attente
+# E10 : audio entre téléphone et PC, batterie — en attente du téléphone
 
-**Pas encore fait : demande un téléphone Android.** Le coût en batterie de l'écoute permanente ne se mesure
-que sur l'appareil, sur plusieurs heures. Cet essai ne bloque que l'étape 4.
+Le coût en batterie de l'écoute permanente ne se mesure que sur l'appareil, sur plusieurs heures. Cet essai
+ne bloque que l'étape 4.
 
 ## Ce qu'il faut prouver
 
@@ -15,6 +15,22 @@ que sur l'appareil, sur plusieurs heures. Cet essai ne bloque que l'étape 4.
   notifications. WebRTC n'apporte un gain que pour l'écho et la gigue sur un réseau lointain (VPN).
 - Mot d'éveil sur le téléphone : le même modèle ONNX que sur le PC (E4), par ONNX Runtime pour Android.
 
-## Ce qui demande Benoit
+## Préparer le téléphone (à faire par Benoit)
 
-Un téléphone Android pour installer une version de développement, et une nuit de mesure batterie.
+Le PC a déjà ce qu'il faut : `adb` (Android SDK de Visual Studio) et la charge de travail .NET `android`.
+
+1. **Activer les options pour les développeurs** : Paramètres, À propos du téléphone, toucher 7 fois
+   « Numéro de build ».
+2. **Activer le débogage** : Paramètres, Système, Options pour les développeurs :
+   - « Débogage USB » pour un câble, ou
+   - « Débogage sans fil » si le téléphone et le PC sont sur le même Wi-Fi (Associer l'appareil avec un
+     code ; donner l'adresse IP, le port et le code de six chiffres).
+3. **Brancher le téléphone au PC** et accepter l'empreinte de l'ordinateur sur l'écran du téléphone.
+4. **Laisser le téléphone branché et déverrouillé** au début de l'essai ; je vérifierai qu'il apparaît avec
+   `adb devices`.
+5. **Pour la mesure de batterie** : le débrancher, le charger à 100 %, laisser l'application tourner une nuit,
+   puis le rebrancher. Je lirai la consommation avec `adb shell dumpsys batterystats`.
+
+Ce que j'installerai : une application de développement « Jarvis E10 » (désinstallable), qui demande la
+permission du micro et affiche une notification permanente pendant l'écoute. Rien d'autre sur le téléphone
+n'est lu ni modifié.

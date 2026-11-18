@@ -227,6 +227,8 @@ The full settings stay on the PC. The phone only adjusts what concerns it: serve
 
 ## Stage 5: 3CX telephony
 
+> **Dropped on November 18, 2026** by Benoit: no 3CX, Jarvis is reached only through the MAUI Blazor Hybrid app. The text below is kept for the record; spike E1 is no longer needed.
+
 At the end of this stage, you dial an extension number to converse with Jarvis, and Jarvis calls when an autonomous task needs a decision.
 
 This stage depends on technical spike E1. The free edition of 3CX announced on January 8, 2026 is self-hosted and limited to 4 simultaneous calls, which is enough. It is presented for 3CX's own apps, and nothing official confirms that a generic SIP client can register with it ([](https://www.3cx.com/blog/news/free-edition/)).

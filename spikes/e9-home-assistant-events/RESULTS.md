@@ -1,25 +1,35 @@
 # Résultats E9 — 18 novembre 2026
 
-**E9 : la réponse est non, par la documentation ; le plan B reste à essayer.** Les événements de Home
-Assistant ne peuvent pas arriver par MCP. La documentation de l'intégration « Model Context Protocol Server »
-liste ses limites : outils et invites pris en charge, une seule ressource en lecture (photo de l'état des
-entités exposées), **notifications non prises en charge**. Sans notification, un client MCP ne peut que
-demander l'état, pas être prévenu d'un changement.
+**E9 : non par MCP, oui par l'API WebSocket.** Les événements de Home Assistant ne peuvent pas arriver par
+MCP : la documentation de l'intégration « Model Context Protocol Server » indique que les **notifications ne
+sont pas prises en charge** ([Known limitations](https://www.home-assistant.io/integrations/mcp_server/#known-limitations)).
+Le plan B est essayé et fonctionne : un client C# de 120 lignes, sans bibliothèque, reçoit les événements et
+les déclencheurs de Home Assistant par son API WebSocket.
 
-Source : [mcp_server, « Known limitations »](https://www.home-assistant.io/integrations/mcp_server/#known-limitations).
+## Mesures (Home Assistant 2026.10.2, `ha.kazo.ca`, 40 s, lecture seule)
+
+| | |
+| --- | --- |
+| Connexion et authentification par jeton longue durée | `auth_ok` |
+| `subscribe_events` sur `state_changed` | 96 événements en 40 s (91 capteurs, 5 capteurs binaires) |
+| `subscribe_trigger` avec un déclencheur `time_pattern` toutes les 10 s | 4 déclenchements sur 4, reçus à moins de 40 ms de la seconde ronde |
+| Délai `time_fired` → reçu | non mesurable finement : l'horloge du PC est environ 240 ms en avance sur celle de Home Assistant |
+
+L'essai n'appelle aucun service et ne change rien dans la maison.
 
 ## Conséquence pour la conception
 
 - **Commandes et questions** (US2.3, « allume le salon ») : par MCP, comme prévu par la décision n° 14.
-- **Déclencheurs** (US3.3) : par l'API WebSocket de Home Assistant, `subscribe_trigger` (mêmes déclencheurs
-  que les automatisations : changement d'état, seuil numérique, heure, etc.) ou `subscribe_events` filtré
-  sur `state_changed`. Il faut un jeton d'accès longue durée, rangé dans le coffre.
-- Interroger l'état toutes les quelques secondes par MCP serait possible mais lent et coûteux ; à écarter.
+- **Déclencheurs** (US3.3) : par l'API WebSocket. `subscribe_trigger` accepte les mêmes déclencheurs que les
+  automatisations (changement d'état, seuil numérique, heure, modèle) et c'est Home Assistant qui les évalue :
+  Jarvis n'a pas à filtrer le flot d'événements. C'est la voie recommandée.
+- Le jeton longue durée va dans le coffre. Un adaptateur Home Assistant porte donc deux canaux (MCP et
+  WebSocket) avec la même adresse et le même jeton.
 
-## Ce qui demande Benoit
+## Relancer
 
-L'essai du plan B demande l'adresse de Home Assistant et un jeton d'accès longue durée (Profil, Sécurité,
-Jetons d'accès longue durée). `config.local.yaml` de jarvis.py n'en contient pas, et je n'ai pas repris les
-jetons des serveurs MCP configurés dans Claude. Une fois le jeton déposé dans `C:\jarvis\temp`, l'essai est
-court : se connecter en WebSocket depuis C#, s'abonner à un déclencheur sur une lumière, l'allumer, mesurer
-le délai.
+```bash
+dotnet run -c Release -- 40 C:\jarvis\temp\home-assistant.md
+```
+
+Le fichier contient `Host: https://…` et ``Token: `…` `` ; il reste hors du dépôt.

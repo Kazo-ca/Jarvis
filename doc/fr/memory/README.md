@@ -6,8 +6,8 @@ ce qu'il décrit.
 ## État
 
 - **Série en cours :** `spikes` (essais techniques E1 à E10), branche `spikes/base`.
-  Faits le 18 novembre 2026 : E2 à E9. En attente de Benoit : E1 (3CX), E8 (reconnexion de `claude`),
-  E9 plan B (jeton Home Assistant), E10 (téléphone Android). Synthèse : [dev/spikes.md](../dev/spikes.md).
+  Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX, étape 5 retirée). En attente : E10
+  (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
 - **Prochain numéro d'ADR libre :** 0001.
 - **Décisions prises mais pas construites :** tout le document de conception.
 - **Décisions ouvertes issues des essais :** orbe en veille (E6), modèle local par défaut (E7, qwen3:14b

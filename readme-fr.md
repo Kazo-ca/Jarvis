@@ -5,8 +5,7 @@
 Un assistant vocal pour Windows, écrit en C# sur .NET 10, sans Python à
 l'exécution. Il prend la forme d'un orbe animé, répond d'abord avec un modèle
 local, et passe la main à Claude quand la tâche le dépasse. Une application
-Android et un poste téléphonique 3CX permettent de lui parler ailleurs que
-devant le PC.
+Android permet de lui parler ailleurs que devant le PC.
 
 **État :** conception terminée, essais techniques en cours. Pas encore de code
 produit.
