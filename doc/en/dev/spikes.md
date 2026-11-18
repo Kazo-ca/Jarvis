@@ -17,10 +17,17 @@ each spike are in `spikes/<name>/` (French).
 | E9 Home Assistant events | **Not through MCP, yes through WebSocket** | MCP has no notifications; `subscribe_trigger` on the WebSocket API works (4 triggers out of 4). | [e9-home-assistant-events](../../../spikes/e9-home-assistant-events/RESULTS.md) |
 | E10 mobile audio | **Pending** | Needs an Android phone and a night of battery measurement. | [e10-mobile-audio](../../../spikes/e10-mobile-audio/README.md) |
 
-## Decisions to take before the stage 1 ADRs
+## Decisions taken on November 18, 2026
 
-1. **Idle orb** (E6): still idle orb animated only while Jarvis listens or speaks, or a slowly animated idle
-   orb at about 6 % of one core, or a native GPU orb on the desktop.
-2. **Default local model** (E7): qwen3:14b with thinking turned off.
-3. **Default voice** (E4): Piper, Kokoro as an option until it runs on the GPU.
-4. **Wake word** (E4): to try with Benoit's voice before choosing the threshold or a trained model.
+Benoit accepted the recommendations from the spikes. They will be written in the stage 1 ADRs.
+
+1. **Idle orb** (E6): still when idle (still frame, 1.3 % of one core); the full animation only runs while
+   listening, thinking and speaking. The Razor component shared with mobile is kept.
+2. **Default local model** (E7): `qwen3:14b` with thinking turned off (`think: false`), plus a lenient parser
+   for models that write their tool calls as text.
+3. **Default voice** (E4): Piper (sherpa-onnx 1.13.8); Kokoro as an option until it runs on the GPU.
+4. **Wake word** (E4): openWakeWord "hey_jarvis" model; adjustable threshold and score indicator (US1.5),
+   tuned with Benoit's voice during stage 1.
+5. **Driving Claude Code** (E8): `claude -p` with JSON streams, with Jarvis's own settings.
+6. **Home Assistant triggers** (E9): WebSocket API (`subscribe_trigger`); MCP for commands.
+7. **Mobile** (E10): stage 1 starts without the phone spikes; they will be done before stage 4.

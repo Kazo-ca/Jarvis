@@ -17,10 +17,17 @@ de relancer chaque essai sont dans `spikes/<nom>/`.
 | E9 événements Home Assistant | **Non par MCP, oui par WebSocket** | MCP sans notifications ; `subscribe_trigger` par l'API WebSocket fonctionne (4 déclenchements sur 4). | [e9-home-assistant-events](../../../spikes/e9-home-assistant-events/RESULTS.md) |
 | E10 audio mobile | **En attente** | Demande un téléphone Android et une nuit de mesure batterie. | [e10-mobile-audio](../../../spikes/e10-mobile-audio/README.md) |
 
-## Décisions à prendre avant les ADR de l'étape 1
+## Décisions prises le 18 novembre 2026
 
-1. **Orbe en veille** (E6) : veille immobile et animation seulement quand Jarvis écoute ou parle, ou bien
-   une veille animée à environ 6 % d'un cœur, ou bien un orbe natif GPU pour le bureau.
-2. **Modèle local par défaut** (E7) : qwen3:14b avec la réflexion coupée.
-3. **Voix par défaut** (E4) : Piper, Kokoro en option tant qu'il n'est pas accéléré par le GPU.
-4. **Mot d'éveil** (E4) : à essayer avec la voix de Benoit avant de choisir le seuil ou un modèle entraîné.
+Benoit a accepté les recommandations issues des essais. Elles seront écrites dans les ADR de l'étape 1.
+
+1. **Orbe en veille** (E6) : immobile en veille (image fixe, 1,3 % d'un cœur) ; l'animation complète ne
+   tourne qu'en écoute, réflexion et parole. Le composant Razor partagé avec le mobile est conservé.
+2. **Modèle local par défaut** (E7) : `qwen3:14b` avec la réflexion coupée (`think: false`), et un analyseur
+   tolérant pour les modèles qui écrivent leurs appels d'outils en texte.
+3. **Voix par défaut** (E4) : Piper (sherpa-onnx 1.13.8) ; Kokoro en option tant qu'il ne tourne pas sur le GPU.
+4. **Mot d'éveil** (E4) : modèle « hey_jarvis » d'openWakeWord ; seuil réglable et indicateur de score
+   (US1.5), à ajuster avec la voix de Benoit pendant l'étape 1.
+5. **Pilotage de Claude Code** (E8) : `claude -p` en flux JSON, avec des réglages propres à Jarvis.
+6. **Déclencheurs Home Assistant** (E9) : API WebSocket (`subscribe_trigger`) ; MCP pour les commandes.
+7. **Mobile** (E10) : l'étape 1 commence sans les essais sur le téléphone ; ils seront faits avant l'étape 4.
