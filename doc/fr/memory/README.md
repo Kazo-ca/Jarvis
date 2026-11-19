@@ -12,7 +12,10 @@ ce qu'il décrit.
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX, étape 5 retirée). En attente : E10
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
-- **Prochain numéro d'ADR libre :** 0013. ADR 0012 (le script est permis dans le balisage, le style
+- **Prochain numéro d'ADR libre :** 0014. **ADR 0013 (préparer le module Relais, v2) : accepté** par Benoit le 19
+  novembre 2026 (chantier `stage1/relais-architecture-adr`) ; rien ne se construit avant la v2, sauf l'hôte
+  générique au chantier `stage1/4-hosts`. Benoit a choisi le même
+  jour un tunnel pour tout le bus Relais (fermé par défaut, aucune route sans jeton). ADR 0012 (le script est permis dans le balisage, le style
   reste interdit) : accepté par Benoit le 19 novembre 2026, remplace en partie l'ADR 0002, section 7. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
   19 novembre 2026 (chantier `spikes/11-stage-1-adrs`). Ils ne se modifient plus : un nouvel ADR les remplace.
 - **ADR 0010 (éventail des tâches et clic sur l'orbe) : accepté** par Benoit le 19 novembre 2026 (chantier

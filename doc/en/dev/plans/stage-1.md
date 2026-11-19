@@ -124,6 +124,9 @@ the other, and 16 (updates) at any time after 4.
   (inactive until work item 8), Quit.
 - Global hotkey (US1.6): contract, hotkey setting, activation event to the state machine.
 - Start with Windows: on by default, a setting to turn it off (assumption 3).
+- .NET generic host (ADR 0013, section 4): the Windows host is built on `Host.CreateApplicationBuilder`;
+  its background services start after the orb is shown, with `StartAsync` without blocking the UI thread,
+  and stop on "Quit" with `StopAsync` within 10 seconds at most.
 - Web host: simulated services, dialogs over the page, a button that simulates the hotkey.
 - **Windows checks:** clicks around the orb reach the application below; the hotkey works while another
   application has the focus; a second launch shows the already open orb; the position comes back after a

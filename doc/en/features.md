@@ -13,3 +13,4 @@
 | Task fan: a double click on the orb brings out the running tasks | 2 | [ADR 0010](dev/adr/0010-task-fan-and-orb-click.md) |
 | Autonomous mode, triggers and email | 3 | [Design](dev/plans/design.md) |
 | Android mobile app | 4 | [Design](dev/plans/design.md) |
+| Relais: Claude, ChatGPT and other agents talk to each other through MCP and hooks while the human sees the exchanges, and their work is tracked as projects, subjects, tasks and sub-tasks with an orchestrator | v2 | [ADR 0013](dev/adr/0013-relais-readiness.md) |

@@ -130,6 +130,9 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
   le micro (inactif jusqu'au chantier 8), Quitter.
 - Raccourci global (US1.6) : contrat, réglage du raccourci, événement d'activation vers la machine à états.
 - Démarrage avec Windows : activé par défaut, réglage pour le couper (hypothèse n° 3).
+- Hôte générique .NET (ADR 0013, section 4) : l'hôte Windows est bâti sur `Host.CreateApplicationBuilder` ;
+  ses services de fond démarrent après l'affichage de l'orbe, par `StartAsync` sans bloquer le fil
+  d'interface, et s'arrêtent à « Quitter » par `StopAsync` en 10 secondes au plus.
 - Hôte Web : services simulés, dialogues par-dessus la page, bouton qui simule le raccourci.
 - **Vérifications sur Windows :** les clics autour de l'orbe atteignent l'application dessous ; le raccourci
   marche quand une autre application a le focus ; un second lancement montre l'orbe déjà ouvert ; la position
