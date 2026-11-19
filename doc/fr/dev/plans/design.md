@@ -301,15 +301,15 @@ Le dépôt `Kazo-ca/jarvis` reprend la méthode de Kazo Os au complet. Voici ce 
 
 Premiers ADR à écrire, dans cet ordre :
 
-1. ADR 0001 : cible .NET 10 et liste des projets.
-2. ADR 0002 : tranches verticales, noyau partagé et règles de dépendance.
-3. ADR 0003 : hôtes (Windows WPF, Web de test, Android) et services natifs.
-4. ADR 0004 : configuration, stockage et coffre de secrets.
-5. ADR 0005 : machine à états de l'assistant et contrat de l'orbe.
-6. ADR 0006 : chaîne vocale (mot d'éveil, reconnaissance, synthèse), après E4 et E5.
-7. ADR 0007 : fournisseurs LLM et format des outils.
-8. ADR 0008 : langues et localisation.
-9. ADR 0009 : modèle de permissions et de confirmation.
+1. [ADR 0001](../adr/0001-target-dotnet-10-and-projects.md) : cible .NET 10 et liste des projets.
+2. [ADR 0002](../adr/0002-vertical-slices-kernel-and-dependency-rules.md) : tranches verticales, noyau partagé et règles de dépendance.
+3. [ADR 0003](../adr/0003-hosts-and-native-services.md) : hôtes (Windows WPF, Web de test, Android) et services natifs.
+4. [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md) : configuration, stockage et coffre de secrets.
+5. [ADR 0005](../adr/0005-assistant-state-machine-and-orb-contract.md) : machine à états de l'assistant et contrat de l'orbe.
+6. [ADR 0006](../adr/0006-voice-chain.md) : chaîne vocale (mot d'éveil, reconnaissance, synthèse), après E4 et E5.
+7. [ADR 0007](../adr/0007-llm-providers-and-tool-format.md) : fournisseurs LLM et format des outils.
+8. [ADR 0008](../adr/0008-languages-and-localization.md) : langues et localisation.
+9. [ADR 0009](../adr/0009-permission-and-confirmation-model.md) : modèle de permissions et de confirmation.
 
 Les ADR des étapes 2 à 5 s'écrivent au début de chaque série, une fois les essais techniques correspondants terminés.
 
@@ -317,14 +317,14 @@ Les ADR des étapes 2 à 5 s'écrivent au début de chaque série, une fois les 
 
 J'ai pris neuf décisions de détail sans te les demander. Coche celles qui te conviennent, et commente celles que tu veux changer.
 
-- [ ] Un seul utilisateur par installation. Pas de comptes ni de reconnaissance de la voix de chaque personne.
-- [ ] L'historique des conversations et la mémoire sont stockés en local dans `%APPDATA%\Kazo\Jarvis`, sans limite de durée, avec un bouton pour tout effacer.
-- [ ] Jarvis démarre avec Windows par défaut, et l'option se désactive dans les paramètres.
+- [x] Un seul utilisateur par installation. Pas de comptes ni de reconnaissance de la voix de chaque personne.
+- [x] L'historique des conversations et la mémoire sont stockés en local dans `%USERPROFILE%\.kazo\jarvis`, sans limite de durée, avec un bouton pour tout effacer. (Emplacement corrigé par Benoit le 19 novembre 2026 : le dossier de l'utilisateur, pas `%APPDATA%`. Voir l'[ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md).)
+- [x] Jarvis démarre avec Windows par défaut, et l'option se désactive dans les paramètres.
 - [ ] Il n'y a pas de module Jarvis dans Kazo Bar pour l'instant (tu as choisi 4A, pas 4C).
 - [ ] Gmail et Agenda sont en lecture seule dans la première version. Envoyer un courriel ou créer un événement viendra plus tard.
 - [ ] Le téléphone ne règle pas les paramètres du PC. Il ne règle que les siens.
-- [ ] Le dépôt est public et sous la même licence que Kazo Bar.
+- [x] Le dépôt est public et sous la même licence que Kazo Bar.
 - [ ] `jarvis.py` continue de tourner tel quel jusqu'à la fin de l'étape 2, puis Kazo.Jarvis le remplace.
-- [ ] Le mot d'éveil reste « hey jarvis » dans les deux langues. Un mot d'éveil personnalisé demanderait d'entraîner un modèle et attend la v2.
+- [x] Le mot d'éveil reste « hey jarvis » dans les deux langues. Un mot d'éveil personnalisé demanderait d'entraîner un modèle et attend la v2.
 
 Prochaine action : créer le dépôt `Kazo-ca/jarvis`, y déposer ce plan avec `AGENTS.md`, puis lancer les essais E4, E5 et E6.

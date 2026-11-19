@@ -302,15 +302,15 @@ The `Kazo-ca/jarvis` repository takes over Kazo Os's method in full. Here is wha
 
 First ADRs to write, in this order:
 
-1. ADR 0001: .NET 10 target and list of projects.
-2. ADR 0002: vertical slices, shared kernel and dependency rules.
-3. ADR 0003: hosts (Windows WPF, Web test, Android) and native services.
-4. ADR 0004: configuration, storage and secrets vault.
-5. ADR 0005: assistant state machine and orb contract.
-6. ADR 0006: voice chain (wake word, recognition, synthesis), after E4 and E5.
-7. ADR 0007: LLM providers and tool format.
-8. ADR 0008: languages and localization.
-9. ADR 0009: permission and confirmation model.
+1. [ADR 0001](../adr/0001-target-dotnet-10-and-projects.md): .NET 10 target and list of projects.
+2. [ADR 0002](../adr/0002-vertical-slices-kernel-and-dependency-rules.md): vertical slices, shared kernel and dependency rules.
+3. [ADR 0003](../adr/0003-hosts-and-native-services.md): hosts (Windows WPF, Web test, Android) and native services.
+4. [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md): configuration, storage and secrets vault.
+5. [ADR 0005](../adr/0005-assistant-state-machine-and-orb-contract.md): assistant state machine and orb contract.
+6. [ADR 0006](../adr/0006-voice-chain.md): voice chain (wake word, recognition, synthesis), after E4 and E5.
+7. [ADR 0007](../adr/0007-llm-providers-and-tool-format.md): LLM providers and tool format.
+8. [ADR 0008](../adr/0008-languages-and-localization.md): languages and localization.
+9. [ADR 0009](../adr/0009-permission-and-confirmation-model.md): permission and confirmation model.
 
 The ADRs for stages 2 to 5 are written at the start of each series, once the corresponding technical spikes are finished.
 
@@ -318,14 +318,14 @@ The ADRs for stages 2 to 5 are written at the start of each series, once the cor
 
 I made nine detail decisions without asking you. Check the ones you agree with, and comment on those you want to change.
 
-- [ ] One user per installation. No accounts and no recognition of each person's voice.
-- [ ] Conversation history and memory are stored locally in `%APPDATA%\Kazo\Jarvis`, with no time limit, with a button to erase everything.
-- [ ] Jarvis starts with Windows by default, and the option can be turned off in the settings.
+- [x] One user per installation. No accounts and no recognition of each person's voice.
+- [x] Conversation history and memory are stored locally in `%USERPROFILE%\.kazo\jarvis`, with no time limit, with a button to erase everything. (Location corrected by Benoit on November 19, 2026: the user's folder, not `%APPDATA%`. See [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md).)
+- [x] Jarvis starts with Windows by default, and the option can be turned off in the settings.
 - [ ] There is no Jarvis module in Kazo Bar for now (you chose 4A, not 4C).
 - [ ] Gmail and Calendar are read-only in the first version. Sending an email or creating an event will come later.
 - [ ] The phone does not change the PC's settings. It only changes its own.
-- [ ] The repository is public and under the same license as Kazo Bar.
+- [x] The repository is public and under the same license as Kazo Bar.
 - [ ] `jarvis.py` keeps running as is until the end of stage 2, then Kazo.Jarvis replaces it.
-- [ ] The wake word stays "hey jarvis" in both languages. A custom wake word would require training a model and waits for v2.
+- [x] The wake word stays "hey jarvis" in both languages. A custom wake word would require training a model and waits for v2.
 
 Next action: create the `Kazo-ca/jarvis` repository, put this plan in it along with `AGENTS.md`, then launch spikes E4, E5 and E6.

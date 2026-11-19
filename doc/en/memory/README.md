@@ -7,12 +7,28 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Current series:** `spikes` (technical spikes E1 to E10), branch `spikes/base`.
   Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
-- **Next free ADR number:** 0001.
+- **Next free ADR number:** 0010. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
+  November 19, 2026 (work item `spikes/11-stage-1-adrs`). They are no longer edited: a new ADR supersedes them.
+- **ADR to come during stage 1:** the orb, from a mockup (referred by ADR 0005): colors, drawing, and
+  Benoit's request of November 19, 2026: a click on the orb makes the windows of the running tasks come out
+  like a hologram, a second click pulls them back in. To be reconciled with activation by click (US1.6).
+  Visual proposals as images are prepared in another thread.
 - **Decisions taken but not built:** the whole design document.
-- **Decisions from the spikes (taken on November 18, 2026, to write in the ADRs):** see
+- **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** write ADRs 0001 to 0009 of stage 1 (listed in the design), before any code.
+- **Next step:** write the plan of the stage 1 series, then code. Benoit decides when `spikes/base` goes to
+  `main`.
+- **Benoit's answers of November 19, 2026 (written in the ADRs):** SQLite database for the conversation,
+  memory and log (ADR 0004); `Microsoft.Extensions.AI` abstractions (ADR 0007); a click required for security
+  home automation only (ADR 0009); assumptions 1, 2, 3, 7 and 9 of the design accepted; data goes to
+  `%USERPROFILE%\.kazo\jarvis`, not `%APPDATA%` (the folder name was chosen by the agent; changing it
+  needs a new ADR).
+- **To check at the start of stage 1** (the spikes did not): wake word with Benoit's voice and while Jarvis
+  speaks, real microphone, end of utterance through Silero, click-through around the orb, idle cost of the
+  orb on the real host, window reload on a language change.
+- **Licenses to settle before a public distribution:** espeak-ng (GPLv3, in sherpa-onnx 1.13.8),
+  openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).
 - **Known test failures:** none (no tests yet).
 
 ## Benoit's development environment
