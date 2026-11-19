@@ -1,6 +1,13 @@
-/* Host page of the Windows host. The shared style of the slices arrives with stage1/5-shared-ui-language. */
+/* Host pages of the Windows host: index.html for the dialogs, orb.html for the orb window.
+   The shared style of the slices arrives with stage1/5-shared-ui-language. */
 html, body {
     margin: 0;
     height: 100%;
     background: #05080d;
+    overflow: hidden;
+}
+
+/* The orb window is transparent: only the orb's own pixels are drawn and catch clicks. */
+html:has(body.orb), body.orb {
+    background: transparent;
 }

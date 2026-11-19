@@ -1,0 +1,18 @@
+/* Provisional orb: a cyan disc centred in the transparent window. Around it, the pixels stay fully
+   transparent so that clicks reach the application below (ADR 0003, section 2). */
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.orb-disc {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #b8f1ff 0%, #4fd8ff 45%, #0a6f9c 100%);
+    box-shadow: 0 0 18px 4px rgba(79, 216, 255, 0.45);
+    cursor: pointer;
+}

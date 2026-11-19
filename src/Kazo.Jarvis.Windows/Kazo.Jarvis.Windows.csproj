@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <!--
-    Windows host (ADR 0003, section 2): WPF with BlazorWebView, the product on the PC.
-    Start-up, service composition and platform code only; no feature is written here.
-    Work item stage1/1-solution opens an empty window; the transparent orb window, the tray icon
-    and the global hotkey come with stage1/4-hosts.
+    Windows host (ADR 0003, section 2): WPF with BlazorWebView, the product on the PC, built on the .NET
+    generic host (ADR 0013, section 4). Start-up, service composition and platform code only; no feature
+    is written here.
   -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -14,6 +13,8 @@
     <WindowsSdkPackageVersion>10.0.19041.57</WindowsSdkPackageVersion>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWPF>true</UseWPF>
+    <!-- Only for the tray icon (NotifyIcon); WPF has none. -->
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>Kazo.Jarvis.Windows</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <StartupObject>Kazo.Jarvis.Windows.Program</StartupObject>
@@ -22,7 +23,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Windows Forms brings these global usings; their Application, MessageBox... clash with WPF's. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 
   <ItemGroup>

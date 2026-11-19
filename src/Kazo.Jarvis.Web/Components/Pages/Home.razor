@@ -1,3 +1,46 @@
 @page "/"
-@* Empty page of the Web host. The orb demonstration page arrives with stage1/6-orb. *@
-<main id="jarvis-root" data-host="web"></main>
+@rendermode InteractiveServer
+@implements IDisposable
+@inject SimulatedOrbWindow Orb
+@inject SimulatedGlobalHotkey Hotkey
+@inject IDialogService Dialogs
+@inject IAssistantStateReader State
+@inject IMessageBus Bus
+
+@* Page of the Web host: provisional orb, simulated hotkey and dialogs (stage1/4-hosts). The orb
+   demonstration page arrives with stage1/6-orb. *@
+<main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
+    <div class="orb-disc" hidden="@(!Orb.IsVisible)"></div>
+    <nav class="host-controls">
+        <button type="button" id="simulate-hotkey" @onclick="PressHotkey">Simulate the hotkey (@(Hotkey.Current?.ToString() ?? "none"))</button>
+        <button type="button" id="toggle-orb" @onclick="Orb.ToggleVisibility">Show or hide the orb</button>
+        <button type="button" id="open-sample-dialog" @onclick="OpenSample">Open a sample dialog</button>
+    </nav>
+    <DialogOverlay />
+</main>
+
+@code {
+    private IDisposable? stateSubscription;
+
+    protected override void OnInitialized()
+    {
+        Orb.VisibilityChanged += OnChanged;
+        stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
+    }
+
+    public void Dispose()
+    {
+        Orb.VisibilityChanged -= OnChanged;
+        stateSubscription?.Dispose();
+    }
+
+    private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    private void PressHotkey() => Hotkey.Press();
+
+    private void OpenSample() => Dialogs.Open(new DialogRequest(
+        "Web.Sample",
+        typeof(SampleDialog),
+        "Sample dialog",
+        new Dictionary<string, object?> { ["Message"] = "Opened through the dialog contract." }));
+}

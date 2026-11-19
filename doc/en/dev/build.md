@@ -44,6 +44,9 @@ From the repository root:
 
 The Playwright tests start the Web host themselves on a free port: nothing to run first.
 
+The Windows host writes its log to `%USERPROFILE%\.kazo\jarvis\logs`; run from `bin\`, it does not register
+the start with Windows ([hosts](hosts.md#start-with-windows)).
+
 ## Windows-only tests
 
 A test that needs Windows (Windows vault, windows, real audio) carries `[Category("Windows")]`. Continuous

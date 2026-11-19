@@ -44,6 +44,9 @@ Depuis la racine du dépôt :
 
 Les tests Playwright démarrent eux-mêmes l'hôte Web sur un port libre : rien à lancer avant.
 
+L'hôte Windows écrit son journal dans `%USERPROFILE%\.kazo\jarvis\logs` ; lancé depuis `bin\`, il ne
+s'inscrit pas au démarrage avec Windows ([hôtes](hosts.md#démarrage-avec-windows)).
+
 ## Tests propres à Windows
 
 Un test qui a besoin de Windows (coffre Windows, fenêtres, audio réel) porte `[Category("Windows")]`.

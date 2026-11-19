@@ -1,3 +1,4 @@
+using Kazo.Jarvis.Kernel.Desktop;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Storage;
@@ -104,6 +105,67 @@ public sealed class SimulatedServicesTests
             Assert.That(await vault.ListAsync(), Is.EqualTo(new[] { new SecretRef("a"), new SecretRef("b") }));
             Assert.That((await vault.GetAsync(new SecretRef("a")))?.Reveal(), Is.EqualTo("1"));
             Assert.That(await vault.DeleteAsync(new SecretRef("a")), Is.True);
+        });
+    }
+
+    [Test]
+    public void The_dialogs_keep_one_layer_per_key()
+    {
+        var dialogs = provider.GetRequiredService<OverlayDialogService>();
+        var changes = 0;
+        dialogs.Changed += (_, _) => changes++;
+
+        dialogs.Open(new DialogRequest("Settings.Main", typeof(object), "Settings"));
+        provider.GetRequiredService<IDialogService>().Open(new DialogRequest("Settings.Main", typeof(string), "Again"));
+        dialogs.Open(new DialogRequest("Conversation.Main", typeof(object), "Conversation"));
+        dialogs.Close("Settings.Main");
+        dialogs.Close("Settings.Main");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dialogs.OpenDialogs.Select(dialog => dialog.Key), Is.EqualTo(new[] { "Conversation.Main" }));
+            Assert.That(dialogs.IsOpen("Settings.Main"), Is.False);
+            Assert.That(changes, Is.EqualTo(3));
+        });
+    }
+
+    [Test]
+    public void The_simulated_hotkey_calls_back_only_while_registered()
+    {
+        var hotkey = provider.GetRequiredService<SimulatedGlobalHotkey>();
+        var presses = 0;
+
+        var before = hotkey.Press();
+        var result = provider.GetRequiredService<IGlobalHotkey>().Register(HotkeyGesture.Parse("Ctrl+Alt+J"), () => presses++);
+        var during = hotkey.Press();
+        hotkey.Unregister();
+        var after = hotkey.Press();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo(HotkeyRegistration.Registered));
+            Assert.That((before, during, after), Is.EqualTo((false, true, false)));
+            Assert.That(presses, Is.EqualTo(1));
+            Assert.That(hotkey.Current, Is.Null);
+        });
+    }
+
+    [Test]
+    public void The_simulated_orb_reports_its_visibility_changes()
+    {
+        var orb = provider.GetRequiredService<IOrbWindow>();
+        var changes = 0;
+        orb.VisibilityChanged += (_, _) => changes++;
+
+        orb.Show();
+        orb.ToggleVisibility();
+        orb.Hide();
+        orb.ToggleVisibility();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(orb.IsVisible, Is.True);
+            Assert.That(changes, Is.EqualTo(2));
         });
     }
 
