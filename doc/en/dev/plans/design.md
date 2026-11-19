@@ -116,7 +116,7 @@ The orb has seven states, and each must be recognizable out of the corner of the
 | Listening | Wake word picked up, shortcut or click | Cyan, gentle rotation; the voice raises the light |
 | Thinking | Transcription, then waiting for the model | Violet, fast rotation |
 | Speaking | Synthesis in progress | Cyan; the light follows the voice, or the rings pulse at random |
-| Long task | Claude or a long task is working in the background | Green, progress ring |
+| Long task | Claude or a long task is working in the background | Green, slow rotation, progress ring |
 | Mic muted | Deliberate mute | Gray, still, label "microphone muted" |
 | Error | Microphone, model or network unreachable | Red, a flash then still, cause shown on hover |
 

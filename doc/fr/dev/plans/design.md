@@ -115,7 +115,7 @@ L'orbe a sept états, et chacun doit se reconnaître du coin de l'œil sans lire
 | Écoute | Mot d'éveil capté, raccourci ou clic | Cyan, rotation douce ; la voix fait monter la lumière |
 | Réflexion | Transcription puis attente du modèle | Violet, rotation rapide |
 | Parole | Synthèse en cours | Cyan ; la lumière suit la voix, ou les anneaux pulsent au hasard |
-| Tâche longue | Claude ou une tâche longue travaille en arrière-plan | Vert, anneau de progression |
+| Tâche longue | Claude ou une tâche longue travaille en arrière-plan | Vert, rotation lente, anneau de progression |
 | Micro coupé | Coupure volontaire | Gris, immobile, mention « micro coupé » |
 | Erreur | Micro, modèle ou réseau injoignable | Rouge, un éclair puis immobile, cause affichée au survol |
 
