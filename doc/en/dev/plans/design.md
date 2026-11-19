@@ -108,23 +108,23 @@ Dependency rules, to be fixed in ADR 0002:
 
 ## The orb and its seven states
 
-The orb has seven states, and each must be recognizable out of the corner of the eye without reading any text. The animation reacts to the real volume: that of the microphone while listening, that of the synthesized voice while speaking.
+The orb has seven states, and each must be recognizable out of the corner of the eye without reading any text. The light reacts to the real volume: that of the microphone while listening, that of the synthesized voice while speaking.
 
-| State | When | Visual intent |
+| State | When | Look |
 | --- | --- | --- |
-| Idle | Waiting for the wake word | Slow rings, low brightness, calm breathing |
-| Listening | Wake word picked up, shortcut or click | Open rings that pulse with the microphone volume |
-| Thinking | Transcription, then waiting for the model | Arcs that turn at different speeds, unrelated to sound |
-| Speaking | Synthesis in progress | Central wave that follows the volume of the voice |
-| Delegated task | Claude or a long task is working in the background | Idle orb with one satellite in orbit per active task |
-| Mic muted | Deliberate mute | Orb off, gray, crossed-out ring |
-| Error | Microphone, model or network unreachable | Alert tint, brief pulse, cause shown on hover |
+| Idle | Waiting for the wake word | Cyan, still, low brightness |
+| Listening | Wake word picked up, shortcut or click | Cyan, gentle rotation; the voice raises the light |
+| Thinking | Transcription, then waiting for the model | Violet, fast rotation |
+| Speaking | Synthesis in progress | Cyan; the light follows the voice, or the rings pulse at random |
+| Long task | Claude or a long task is working in the background | Green, slow rotation, progress ring |
+| Mic muted | Deliberate mute | Gray, still, label "microphone muted" |
+| Error | Microphone, model or network unreachable | Red, a flash then still, cause shown on hover |
 
 Common rules:
 
-- The "delegated task" state overlays the others. Jarvis can listen or speak while Claude works.
-- The exact colors and the design are to be decided on a mockup, in a dedicated ADR.
-- A "reduced motion" option replaces the animations with color changes.
+- The progress ring of a long task stays visible over the other states. Jarvis can listen or speak while Claude works.
+- The colors and the drawing are set by [ADR 0011](../adr/0011-orb-colors-and-drawing.md), from the [design catalog](../ui/catalog.md). The orb exists in two versions: high quality and light.
+- A "reduced motion" option removes the rotations and the pulses.
 - The same component is used on Windows, in the Web test host and on mobile.
 
 ## Stage 1: orb, voice, local model and settings
@@ -227,6 +227,8 @@ The full settings stay on the PC. The phone only adjusts what concerns it: serve
 
 ## Stage 5: 3CX telephony
 
+> **Dropped on November 18, 2026** by Benoit: no 3CX, Jarvis is reached only through the MAUI Blazor Hybrid app. The text below is kept for the record; spike E1 is no longer needed.
+
 At the end of this stage, you dial an extension number to converse with Jarvis, and Jarvis calls when an autonomous task needs a decision.
 
 This stage depends on technical spike E1. The free edition of 3CX announced on January 8, 2026 is self-hosted and limited to 4 simultaneous calls, which is enough. It is presented for 3CX's own apps, and nothing official confirms that a generic SIP client can register with it ([](https://www.3cx.com/blog/news/free-edition/)).
@@ -300,15 +302,15 @@ The `Kazo-ca/jarvis` repository takes over Kazo Os's method in full. Here is wha
 
 First ADRs to write, in this order:
 
-1. ADR 0001: .NET 10 target and list of projects.
-2. ADR 0002: vertical slices, shared kernel and dependency rules.
-3. ADR 0003: hosts (Windows WPF, Web test, Android) and native services.
-4. ADR 0004: configuration, storage and secrets vault.
-5. ADR 0005: assistant state machine and orb contract.
-6. ADR 0006: voice chain (wake word, recognition, synthesis), after E4 and E5.
-7. ADR 0007: LLM providers and tool format.
-8. ADR 0008: languages and localization.
-9. ADR 0009: permission and confirmation model.
+1. [ADR 0001](../adr/0001-target-dotnet-10-and-projects.md): .NET 10 target and list of projects.
+2. [ADR 0002](../adr/0002-vertical-slices-kernel-and-dependency-rules.md): vertical slices, shared kernel and dependency rules.
+3. [ADR 0003](../adr/0003-hosts-and-native-services.md): hosts (Windows WPF, Web test, Android) and native services.
+4. [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md): configuration, storage and secrets vault.
+5. [ADR 0005](../adr/0005-assistant-state-machine-and-orb-contract.md): assistant state machine and orb contract.
+6. [ADR 0006](../adr/0006-voice-chain.md): voice chain (wake word, recognition, synthesis), after E4 and E5.
+7. [ADR 0007](../adr/0007-llm-providers-and-tool-format.md): LLM providers and tool format.
+8. [ADR 0008](../adr/0008-languages-and-localization.md): languages and localization.
+9. [ADR 0009](../adr/0009-permission-and-confirmation-model.md): permission and confirmation model.
 
 The ADRs for stages 2 to 5 are written at the start of each series, once the corresponding technical spikes are finished.
 
@@ -316,14 +318,14 @@ The ADRs for stages 2 to 5 are written at the start of each series, once the cor
 
 I made nine detail decisions without asking you. Check the ones you agree with, and comment on those you want to change.
 
-- [ ] One user per installation. No accounts and no recognition of each person's voice.
-- [ ] Conversation history and memory are stored locally in `%APPDATA%\Kazo\Jarvis`, with no time limit, with a button to erase everything.
-- [ ] Jarvis starts with Windows by default, and the option can be turned off in the settings.
+- [x] One user per installation. No accounts and no recognition of each person's voice.
+- [x] Conversation history and memory are stored locally in `%USERPROFILE%\.kazo\jarvis`, with no time limit, with a button to erase everything. (Location corrected by Benoit on November 19, 2026: the user's folder, not `%APPDATA%`. See [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md).)
+- [x] Jarvis starts with Windows by default, and the option can be turned off in the settings.
 - [ ] There is no Jarvis module in Kazo Bar for now (you chose 4A, not 4C).
 - [ ] Gmail and Calendar are read-only in the first version. Sending an email or creating an event will come later.
 - [ ] The phone does not change the PC's settings. It only changes its own.
-- [ ] The repository is public and under the same license as Kazo Bar.
+- [x] The repository is public and under the same license as Kazo Bar.
 - [ ] `jarvis.py` keeps running as is until the end of stage 2, then Kazo.Jarvis replaces it.
-- [ ] The wake word stays "hey jarvis" in both languages. A custom wake word would require training a model and waits for v2.
+- [x] The wake word stays "hey jarvis" in both languages. A custom wake word would require training a model and waits for v2.
 
 Next action: create the `Kazo-ca/jarvis` repository, put this plan in it along with `AGENTS.md`, then launch spikes E4, E5 and E6.

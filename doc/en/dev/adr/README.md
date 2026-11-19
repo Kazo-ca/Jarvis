@@ -1,7 +1,26 @@
 # Architecture decision records (ADR)
 
 One numbered ADR per decision, written and merged before the code it
-describes. An accepted ADR is never edited: a new one supersedes it.
+describes. An accepted ADR is never edited: a new one supersedes it. The next
+free number is given in the [project memory](../../memory/README.md).
 
-No ADR is written yet. The first nine are listed in the
+| ADR | Title | Status |
+| --- | --- | --- |
+| [0001](0001-target-dotnet-10-and-projects.md) | .NET 10 target and list of projects | Accepted |
+| [0002](0002-vertical-slices-kernel-and-dependency-rules.md) | Vertical slices, shared kernel and dependency rules | Accepted |
+| [0003](0003-hosts-and-native-services.md) | Hosts (Windows WPF, Web test, Android) and native services | Accepted |
+| [0004](0004-configuration-storage-and-secret-vault.md) | Configuration, storage and secret vault | Accepted |
+| [0005](0005-assistant-state-machine-and-orb-contract.md) | Assistant state machine and orb contract | Accepted |
+| [0006](0006-voice-chain.md) | Voice chain (wake word, recognition, synthesis) | Accepted |
+| [0007](0007-llm-providers-and-tool-format.md) | LLM providers and tool format | Accepted |
+| [0008](0008-languages-and-localization.md) | Languages and localization | Accepted |
+| [0009](0009-permission-and-confirmation-model.md) | Permission and confirmation model | Accepted |
+| [0010](0010-task-fan-and-orb-click.md) | Task fan and click on the orb | Accepted |
+| [0011](0011-orb-colors-and-drawing.md) | Colors and drawing of the orb | Accepted |
+
+The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).
+The ADRs of the later stages are written at the start of each series.
+
+The mockups of ADR 0010 are the `0010-task-fan-*.png` images. They are only stored in the
+[French folder](../../../fr/dev/adr/README.md); the English ADR links to them.

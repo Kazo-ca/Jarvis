@@ -1,0 +1,127 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:#5fe6ff;--a:#ffb347;--r:#ff5f6d;--g:#5fffb0;--tx:#cdeff8;--dim:#7fa6b5}
+html,body{width:1600px;height:900px;overflow:hidden;font-family:Inter,sans-serif;color:var(--tx);
+ background:radial-gradient(ellipse at 50% 0%,#0f3550 0,transparent 60%),radial-gradient(ellipse at 50% 120%,#0a2a3d 0,transparent 60%),#050b14}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,#5fe6ff08 0 1px,transparent 1px 3px);pointer-events:none}
+.mono{font-family:'DejaVu Sans Mono',monospace}
+header{height:56px;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid #5fe6ff33;gap:16px}
+header .logo{font:700 14px 'DejaVu Sans Mono';letter-spacing:6px;color:var(--c)}
+header .st{font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:2px}
+header .st b{color:var(--g)}
+header .r{margin-left:auto;display:flex;gap:18px;font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:1.5px}
+.grid{display:grid;grid-template-columns:380px 1fr 400px;gap:18px;padding:18px 24px;height:844px}
+.pan{border:1px solid #5fe6ff44;background:linear-gradient(180deg,#0b2a3e55,#06182644);border-radius:4px;position:relative;display:flex;flex-direction:column;overflow:hidden;box-shadow:inset 0 0 40px #2bb8e011}
+.pan>h2{font:700 11px 'DejaVu Sans Mono';letter-spacing:3px;color:var(--c);padding:12px 14px;border-bottom:1px solid #5fe6ff33;display:flex;align-items:center;gap:8px}
+.pan>h2 .n{margin-left:auto;background:var(--a);color:#1a1000;border-radius:10px;padding:1px 8px;font-size:11px}
+.corner{position:absolute;width:14px;height:14px;border:2px solid var(--c)}
+.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.sec{font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--dim);padding:10px 14px 4px}
+.card{margin:6px 12px;padding:10px 12px;border:1px solid #5fe6ff33;border-left:3px solid var(--c);background:#0a2333aa;border-radius:3px}
+.card.a{border-left-color:var(--a);background:#2a1d0844;border-color:#ffb34755}
+.card.r{border-left-color:var(--r);background:#2a0a1044;border-color:#ff5f6d55}
+.card.g{border-left-color:var(--g)}
+.card .k{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--dim);display:flex}
+.card .k span:last-child{margin-left:auto}
+.card.a .k b{color:var(--a)}.card.r .k b{color:var(--r)}.card.g .k b{color:var(--g)}
+.card .t{font-size:14px;font-weight:600;color:#effcff;margin:3px 0}
+.card .d{font-size:12px;color:var(--dim)}
+.btn{display:inline-block;margin:8px 6px 0 0;border:1px solid currentColor;padding:3px 9px;font:600 10px 'DejaVu Sans Mono';letter-spacing:1px;border-radius:2px}
+.card.a .btn{color:var(--a)} .card.r .btn{color:var(--r)} .card.g .btn{color:var(--c)}
+.card.sel{box-shadow:0 0 0 1px var(--a),0 0 18px #ffb34744}
+/* center */
+.center .top{display:flex;align-items:center;gap:22px;padding:16px 20px;border-bottom:1px solid #5fe6ff33}
+.orb{width:84px;height:84px;border-radius:50%;position:relative;flex:none}
+.orb::before{content:"";position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#eaffff 0,#8ef1ff 18%,#1fb6e6 45%,#0a4f78 75%,#04233a 100%);box-shadow:0 0 30px #34d4ffaa,0 0 70px #1aa8e055}
+.orb::after{content:"";position:absolute;inset:3px;border-radius:50%;border:2px solid #5fe6ff77}
+.orb .bdg{position:absolute;right:-4px;top:-2px;background:var(--a);color:#1a1000;font:700 11px Inter;border-radius:10px;padding:1px 7px;z-index:2;box-shadow:0 0 10px #ffb347}
+.center .top .tt{font-size:20px;font-weight:600;color:#fff}
+.center .top .ss{font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:1px;margin-top:4px}
+.tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid #5fe6ff22}
+.tabs span{font:10px 'DejaVu Sans Mono';letter-spacing:2px;padding:10px 12px;color:var(--dim)}
+.tabs span.on{color:var(--c);border-bottom:2px solid var(--c)}
+.body{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.msg{max-width:78%;padding:10px 14px;border-radius:4px;font-size:13.5px;line-height:1.5}
+.msg.j{background:#0b3047aa;border:1px solid #5fe6ff44}
+.msg.u{align-self:flex-end;background:#18243a;border:1px solid #33415c}
+.msg .w{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--c);margin-bottom:4px}
+.msg.u .w{color:#9aa4ba}
+.code{font:11.5px 'DejaVu Sans Mono';background:#03101aaa;border:1px solid #5fe6ff22;padding:10px 12px;border-radius:3px;color:#9fefff;line-height:1.6}
+.code .p{color:var(--g)} .code .m{color:var(--r)}
+.decide{border:1px solid var(--a);background:#2a1d0866;padding:12px 14px;border-radius:4px}
+.decide .h{font:700 11px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--a)}
+.decide .btn{color:var(--a);padding:6px 14px;font-size:11px}
+.decide .btn.p{background:var(--a);color:#1a1000}
+.input{margin:0 20px 16px;border:1px solid #5fe6ff55;border-radius:4px;padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);background:#06182699}
+.input .mic{width:26px;height:26px;border-radius:50%;border:1px solid var(--c);display:flex;align-items:center;justify-content:center;color:var(--c);font-size:12px}
+.input .k{margin-left:auto;font:10px 'DejaVu Sans Mono';letter-spacing:1px}
+/* right */
+.search{margin:12px;border:1px solid var(--c);border-radius:4px;padding:10px 12px;display:flex;gap:10px;align-items:center;background:#06263a99;box-shadow:0 0 14px #5fe6ff33;font-size:13px}
+.search .q{color:#effcff}
+.search .k{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim);border:1px solid #5fe6ff44;padding:2px 6px;border-radius:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
+.chips span{font:10px 'DejaVu Sans Mono';letter-spacing:1px;border:1px solid #5fe6ff44;padding:3px 8px;border-radius:12px;color:var(--dim)}
+.chips span.on{background:#5fe6ff22;color:var(--c);border-color:var(--c)}
+.row{display:flex;gap:10px;padding:8px 14px;align-items:flex-start;border-bottom:1px solid #5fe6ff11}
+.row .ic{width:26px;height:26px;flex:none;border:1px solid #5fe6ff55;border-radius:3px;display:flex;align-items:center;justify-content:center;font:700 10px 'DejaVu Sans Mono';color:var(--c)}
+.row .ic.cc{color:#d9a6ff;border-color:#d9a6ff66}.row .ic.ta{color:var(--g);border-color:#5fffb066}
+.row .t{font-size:13px;color:#effcff}
+.row .t mark{background:#5fe6ff33;color:#fff;padding:0 2px}
+.row .d{font:10.5px 'DejaVu Sans Mono';color:var(--dim);margin-top:2px}
+.row .h{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim);white-space:nowrap}
+.row.sel{background:#5fe6ff12}
+.ann{position:absolute;z-index:9;background:#ffffff;color:#0a1a26;font:600 12px Inter;padding:6px 10px;border-radius:14px;box-shadow:0 4px 16px #0008;white-space:nowrap}
+.ann i{font-style:normal;background:#0a1a26;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;margin-right:6px;font-size:11px}
+</style></head><body>
+<header>
+ <div class="logo">J.A.R.V.I.S</div>
+ <div class="st">● <b>EN VEILLE</b> · « HEY JARVIS » ACTIF · QWEN3:14B LOCAL</div>
+ <div class="r"><span>CLAUDE : 3 SESSIONS</span><span>CLOUD 4,20 $ / 30 $</span><span>MER. 18 NOV · 21:00</span><span>⚙</span></div>
+</header>
+<div class="grid">
+ <!-- LEFT -->
+ <div class="pan"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <h2>◆ À TRAITER <span class="n">4</span></h2>
+  <div class="sec">DÉCISIONS</div>
+  <div class="card a sel"><div class="k"><b>● DÉCISION</b><span>il y a 3 min</span></div><div class="t">Claude veut écrire dans OpenJarvis</div><div class="d">Refactor Kazo.Bar — Plugins · 4 fichiers</div><span class="btn">AUTORISER</span><span class="btn">REFUSER</span></div>
+  <div class="card a"><div class="k"><b>● DÉCISION</b><span>il y a 22 min</span></div><div class="t">Lancer « Mode nuit » ? 3 lumières allumées</div><div class="d">Home Assistant · déclencheur 21:00</div><span class="btn">OUI</span><span class="btn">PLUS TARD</span></div>
+  <div class="sec">ERREURS</div>
+  <div class="card r"><div class="k"><b>● ÉCHEC</b><span>20:41</span></div><div class="t">Build #41 — 2 tests en échec</div><div class="d">Kazo-ca/Jarvis · spikes/base</div><span class="btn">VOIR</span><span class="btn">CONFIER À CLAUDE</span></div>
+  <div class="sec">TERMINÉ · NON LU</div>
+  <div class="card g"><div class="k"><b>● TERMINÉ</b><span>19:12</span></div><div class="t">Résumé des courriels de la journée</div><div class="d">7 courriels · 1 important</div></div>
+  <div class="sec" style="margin-top:auto;padding-bottom:12px">EN COURS · 3 TÂCHES ▸</div>
+ </div>
+ <!-- CENTER -->
+ <div class="pan center"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <div class="top"><div class="orb"><span class="bdg">4</span></div>
+   <div><div class="tt">Refactor Kazo.Bar — Plugins</div><div class="ss">CLAUDE CODE · SESSION 3F2A · DÉMARRÉE 20:35 · 62 %</div></div></div>
+  <div class="tabs"><span class="on">CONVERSATION</span><span>JOURNAL</span><span>FICHIERS (4)</span><span>DÉTAILS</span></div>
+  <div class="body">
+   <div class="msg u"><div class="w">VOUS · 20:34</div>Jarvis, demande à Claude de séparer le chargeur de plugins de Kazo Bar en tranche verticale.</div>
+   <div class="msg j"><div class="w">JARVIS · 20:35</div>Bien, Monsieur. J'ai confié la tâche à Claude Code, en lecture seule comme convenu. Il a terminé l'analyse et propose les modifications suivantes.</div>
+   <div class="code"><span class="p">+ Features/Plugins/LoadPlugin/LoadPluginHandler.cs</span><br><span class="p">+ Features/Plugins/LoadPlugin/LoadPluginEndpoint.cs</span><br><span class="m">− src/Plugins/Loader.cs (−212)</span><br>~ src/Plugins/PluginHost.cs (+48 −12)</div>
+   <div class="decide"><div class="h">◆ VOTRE ACCORD EST REQUIS</div><div style="font-size:13px;margin:6px 0 2px">Claude doit écrire 4 fichiers dans <span class="mono">C:\jarvis\OpenJarvis</span>.</div><span class="btn p">AUTORISER</span><span class="btn">REFUSER</span><span class="btn">VOIR LE DIFF</span></div>
+  </div>
+  <div class="input"><span class="mic">🎙</span>Parlez ou écrivez à Jarvis…<span class="k">ESPACE MAINTENU = PARLER</span></div>
+ </div>
+ <!-- RIGHT -->
+ <div class="pan"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <h2>◇ RETROUVER</h2>
+  <div class="search">⌕ <span class="q">build</span><span class="k">CTRL+K</span></div>
+  <div class="chips"><span class="on">TOUT</span><span>CONVERSATIONS</span><span>TÂCHES</span><span>CLAUDE</span><span>ÉPINGLÉS ★</span><span>7 JOURS</span></div>
+  <div class="sec">AUJOURD'HUI</div>
+  <div class="row"><div class="ic">GH</div><div><div class="t">Kazo-ca/Jarvis — <mark>build</mark> #42</div><div class="d">tâche · en cours · test</div></div><div class="h">20:52</div></div>
+  <div class="row"><div class="ic" style="color:var(--r);border-color:#ff5f6d66">GH</div><div><div class="t"><mark>Build</mark> #41 — 2 tests en échec</div><div class="d">tâche · erreur</div></div><div class="h">20:41</div></div>
+  <div class="row sel"><div class="ic cc">CC</div><div><div class="t">Refactor Kazo.Bar — Plugins</div><div class="d">claude · « …relancer le <mark>build</mark> après… »</div></div><div class="h">20:35</div></div>
+  <div class="sec">HIER</div>
+  <div class="row"><div class="ic">💬</div><div><div class="t">Pourquoi le <mark>build</mark> MAUI est lent ?</div><div class="d">conversation · 14 messages</div></div><div class="h">mar.</div></div>
+  <div class="row"><div class="ic ta">⏱</div><div><div class="t">Nuit : <mark>build</mark> complet + rapport</div><div class="d">tâche planifiée · 02:00 · réussie</div></div><div class="h">mar.</div></div>
+  <div class="sec">CETTE SEMAINE</div>
+  <div class="row"><div class="ic cc">CC</div><div><div class="t">Spikes E2-E9 — Kazo.Jarvis</div><div class="d">claude · « …<mark>build</mark> sherpa-onnx 1.13.8… »</div></div><div class="h">lun.</div></div>
+  <div class="row"><div class="ic">💬</div><div><div class="t">Choix du modèle local ★</div><div class="d">conversation · épinglée</div></div><div class="h">lun.</div></div>
+ </div>
+</div>
+<div class="ann" style="left:60px;top:780px"><i>1</i>Ce qui demande votre attention</div>
+<div class="ann" style="left:820px;top:690px"><i>2</i>L'élément ouvert</div>
+<div class="ann" style="left:1240px;top:690px"><i>3</i>Tout retrouver (texte ou voix)</div>
+</body></html>
