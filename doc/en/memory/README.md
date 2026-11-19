@@ -73,8 +73,11 @@ Resume point for any agent. Update it in the same change as what it describes.
   `secrets.json` encrypted value by value; a newer database makes storage unavailable without touching it;
   `JarvisPaths` stays in `Adapters` (to move to the kernel if a slice needs the models folder, work items 9
   and 14).
-- **Windows check of work items 2 and 3: to do** by an agent on Benoit's PC: full `dotnet test`, including
-  the `Windows` tests (Credential Manager, DPAPI).
+- **Windows check of work items 2 and 3: done** on November 19, 2026 by an agent on Benoit's PC (SDK
+  10.0.402): build without warnings, unit tests 252/252 including the 5 `Windows` tests (Credential Manager,
+  DPAPI, vault registration), E2E 5/5, no test credential left, Windows host started without a crash and the
+  `%USERPROFILE%\.kazo\jarvis` folders created. `C:\jarvis\OpenJarvis` is a clone of OpenJarvis, not of
+  Jarvis: the agent cloned the branch into `C:\jarvis\temp\jarvis-check`.
 - **Choice of work item 2 that ADR 0005 does not settle:** an interruption while the microphone is muted or
   missing stops Jarvis without starting to listen ([dev/kernel.md](../dev/kernel.md#case-adr-0005-does-not-cover)).
 

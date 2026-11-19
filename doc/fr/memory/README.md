@@ -76,8 +76,12 @@ ce qu'il décrit.
   au plus ; `secrets.json` chiffré valeur par valeur ; une base plus récente rend le stockage indisponible
   sans y toucher ; `JarvisPaths` reste dans `Adapters` (à remonter dans le noyau si une tranche a besoin
   du dossier des modèles, chantiers 9 et 14).
-- **Vérification sur Windows des chantiers 2 et 3 : à faire** par un agent sur le PC de Benoit :
-  `dotnet test` complet, y compris les tests `Windows` (gestionnaire d'identification, DPAPI).
+- **Vérification sur Windows des chantiers 2 et 3 : faite** le 19 novembre 2026 par un agent sur le PC de
+  Benoit (SDK 10.0.402) : construction sans avertissement, tests unitaires 252/252 dont les 5 tests `Windows`
+  (gestionnaire d'identification, DPAPI, enregistrement des coffres), E2E 5/5, aucune identification de test
+  restante, hôte Windows démarré sans plantage et dossiers `%USERPROFILE%\.kazo\jarvis` créés.
+  `C:\jarvis\OpenJarvis` est un clone d'OpenJarvis, pas de Jarvis : l'agent a cloné la branche dans
+  `C:\jarvis\temp\jarvis-check`.
 - **Choix du chantier 2 que l'ADR 0005 ne tranche pas :** une interruption alors que le micro est coupé ou
   absent arrête Jarvis sans démarrer l'écoute ([dev/kernel.md](../dev/kernel.md#cas-que-ladr-0005-ne-couvre-pas)).
 
