@@ -1,7 +1,7 @@
 # Plan de la série de l'étape 1 : orbe, voix, modèle local et paramètres
 
-2026-11-19 · Proposé, en attente de la validation de Benoit (chantier `spikes/15-stage-1-plan`). S'appuie sur
-l'ADR 0011 (couleurs et dessin de l'orbe), accepté le même jour.
+2026-11-19 · **Validé par Benoit le 2026-11-19** (chantier `spikes/15-stage-1-plan`, réponses inscrites par
+`spikes/17-stage-1-answers`). S'appuie sur l'ADR 0011 (couleurs et dessin de l'orbe), accepté le même jour.
 
 ## But
 
@@ -16,7 +16,8 @@ construit à l'étape 1.
 
 ## Branches et fusion
 
-- Série `stage1`, branche de base `stage1/base`, partie de `main` (question n° 1 plus bas).
+- Série `stage1`, branche de base `stage1/base`, partie de `main` une fois `spikes/base` fusionné
+  dans `main` (réponse n° 1 plus bas).
 - Un chantier par branche `stage1/<n>-<sujet>`, une PR par chantier vers `stage1/base`.
 - Un agent fusionne lui-même sa PR dans `stage1/base` quand la construction et les tests sont verts
   (AGENTS.md, IV.5). Seul Benoit fusionne `stage1/base` dans `main`, à la fin de la série.
@@ -88,7 +89,8 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
 - L'hôte Windows ouvre une fenêtre vide, l'hôte Web sert une page vide, Playwright ouvre cette page.
 - Les **tests d'architecture** de l'ADR 0002, section 7, tous écrits ici : ils sont verts sur un dépôt
   presque vide et le resteront.
-- Intégration continue selon la réponse à la question n° 2.
+- Intégration continue GitHub Actions sous Linux (réponse n° 2) : construction de tous les projets, tests
+  unitaires hors Windows, Playwright contre l'hôte Web.
 - **Vérification sur Windows :** les deux hôtes démarrent, les tests passent.
 
 ### 2. Noyau (`stage1/2-kernel`)
@@ -236,8 +238,8 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
 - Ce qui est enregistré à chaque réponse : fournisseur, modèle, jetons, durée (ADR 0007, section 7).
 - Personnalité (US1.15) : message système du majordome en français et en anglais, modifiable et
   réinitialisable par langue, plus les règles techniques fixes (ADR 0007, section 6).
-- Une demande écrite est-elle aussi dite à voix haute : réponse à la question n° 3, que l'ADR 0005 renvoie à
-  ce plan.
+- Une demande écrite reçoit une réponse écrite seulement ; Jarvis ne parle que si on lui a parlé (réponse
+  n° 3, le point que l'ADR 0005 renvoie à ce plan).
 - **Test Playwright :** un tour complet simulé dans l'hôte Web, avec une interruption.
 - **Vérifications sur Windows :** délai entre la fin de la phrase et le premier son, avec le micro et le
   haut-parleur réels (cible sous 2 s à chaud) ; mot d'éveil pendant que Jarvis parle. S'il n'est pas
@@ -302,19 +304,20 @@ vérifier au début de l'étape 1 » de la mémoire du projet.
 | Mise à jour de bout en bout | 16 |
 | Aucune connexion sortante par défaut | 17 |
 
-## Questions posées à Benoit
+## Réponses de Benoit
 
-Posées dans la conversation le 2026-11-19 ; ses réponses seront écrites ici.
+Questions posées dans la conversation le 2026-11-19. Benoit a répondu le même jour : « 1. Crée la PR. Pour le
+reste je suis d'accord avec tes recommandations. »
 
-1. **Base de la série.** Recommandé : Benoit fusionne `spikes/base` dans `main`, puis `stage1/base` part de
-   `main`, comme le veut AGENTS.md.
-2. **Intégration continue.** Recommandé : GitHub Actions sur Linux (construction de tous les projets, tests
-   unitaires hors Windows, Playwright contre l'hôte Web) ; les tests marqués Windows et les vérifications
-   restent sur le PC de Benoit.
-3. **Réponse à une demande écrite.** Recommandé : dite à voix haute seulement si la demande était parlée ;
-   une demande écrite reçoit une réponse écrite.
-4. **Qui fait les vérifications sur Windows.** Recommandé : un agent sur le PC de Benoit (Contrôle à
-   distance), Benoit seulement pour ce qui demande sa voix ou ses oreilles (chantiers 9, 10, 12, 13, 17).
+1. **Base de la série.** `spikes/base` va dans `main` par une PR que Benoit fusionne ; `stage1/base` part
+   ensuite de `main`, comme le veut AGENTS.md.
+2. **Intégration continue.** GitHub Actions sous Linux : construction de tous les projets, tests unitaires
+   hors Windows, Playwright contre l'hôte Web. Les tests marqués Windows et les vérifications restent sur le
+   PC de Benoit. Mise en place au chantier 1.
+3. **Réponse à une demande écrite.** Écrite seulement. Jarvis ne répond à voix haute que si la demande était
+   parlée.
+4. **Qui fait les vérifications sur Windows.** Un agent sur le PC de Benoit, par le contrôle à distance.
+   Benoit seulement pour ce qui demande sa voix ou ses oreilles (chantiers 9, 10, 12, 13 et 17).
 
 ## Hors de cette série
 
