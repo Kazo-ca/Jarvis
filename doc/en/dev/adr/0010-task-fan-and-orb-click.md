@@ -7,12 +7,13 @@ Proposed on 2026-11-19 (work item `spikes/12-task-fan-adr`). Waiting for Benoit'
 - **Sources:** Benoit's request of 2026-11-19 (a click on the orb makes the windows of the running tasks
   come out like a hologram, a second click pulls them back in); his choice of the same day between three
   mockups (fan, orbit, projection): **the fan**, on the computer only, with the orb in any corner of the
-  screen; decisions 4, 15, 18, 24 and 29 of the
+  screen; his answer of the same day about the click: "Double click, ouvre l'éventail. Simple click, écoute"
+  (double click opens the fan, single click listens); decisions 4, 15, 18, 24 and 29 of the
   [design](../plans/design.md); stories US1.1, US1.6, US1.12, US2.9, US2.11, US2.15 and US3.2; spike E6
   ([results](../../../../spikes/e6-orb-window/RESULTS.md)).
-- **Partly supersedes:** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md), for what a click on
-  the orb does (section 3 below). The rest of ADR 0005 still holds.
-- **Completes:** [ADR 0003](0003-hosts-and-native-services.md) (windows of the Windows host) and
+- **Completes:** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md) (adds the double click to
+  the outputs of the orb; its transition table does not change),
+  [ADR 0003](0003-hosts-and-native-services.md) (windows of the Windows host) and
   [ADR 0009](0009-permission-and-confirmation-model.md) (confirmation request).
 
 ## Context
@@ -40,9 +41,9 @@ The mockups are in French.
 
 ![The fan in the four corners of the screen](../../../fr/dev/adr/0010-task-fan-four-corners.png)
 
-- **Opening.** On a click on the orb, the panels of the running tasks shoot out of the orb and settle in an
-  arc around it, one panel per task. A dotted line links each panel to the orb.
-- **Closing.** A second click on the orb pulls the panels back into the orb.
+- **Opening.** On a double click on the orb, the panels of the running tasks shoot out of the orb and settle
+  in an arc around it, one panel per task. A dotted line links each panel to the orb.
+- **Closing.** A second double click on the orb pulls the panels back into the orb.
 - **Dimmed desktop.** While the fan is open, the desktop behind it is dimmed.
 - **Hues.** Panels are cyan. A panel waiting for a decision is **amber**, and so is its line.
 - **Counter.** Near the orb, one line gives the number of tasks and the number of pending decisions.
@@ -62,15 +63,17 @@ The mockups are in French.
   way to approve, and the request also stays shown near the orb when the fan is closed.
 - Panels are not Windows windows. They are drawn together, in a single surface.
 
-### 3. What a click on the orb does
+### 3. Single click and double click on the orb
 
-- **A click on the orb opens or closes the fan. It no longer activates listening.**
-- The user talks to Jarvis with the wake word or the global hotkey. Interruption (US1.12) and cancelling
-  the listening work the same way.
-- In the transition table of ADR 0005, "Activation (wake word, hotkey, click)" reads "Activation (wake
-  word, hotkey)", and "Hotkey or click" reads "Hotkey". The "click" output of the orb component no longer
-  means "activation": it means "open or close the fan".
-- **Until the fan is built**, the click keeps the behavior of ADR 0005.
+- **A single click on the orb keeps the behavior of ADR 0005**: it starts listening, cancels it or
+  interrupts Jarvis (US1.6, US1.12). The transition table of ADR 0005 does not change.
+- **A double click on the orb opens the fan. A second double click closes it.**
+- A double click is never also a single click: it does not start listening and does not interrupt Jarvis.
+  For that, the orb waits for the Windows double-click time (half a second by default) before handling a
+  single click. The wake word and the hotkey are not delayed.
+- The orb component gains a "double click" output, next to the click and the start of a move (ADR 0005,
+  section 5). The delay is given to it by the host.
+- **Until the fan is built**, there is no double click and no delay: the single click acts at once.
 - The fan also closes with the Escape key and with a click on the dimmed desktop.
 - **The fan is not an assistant state.** Open or closed, it changes neither the phase nor the conditions of
   ADR 0005. Jarvis can listen, think or speak while the fan is open, and the orb keeps its look.
@@ -88,7 +91,7 @@ The mockups are in French.
   visible above it.
 - **Closed, the fan costs nothing**: no drawing, no timer. The idle budget of ADR 0005 is measured with the
   fan closed and does not change.
-- The fan is a slice of its own, separate from the orb slice. It receives the orb click and the task list
+- The fan is a slice of its own, separate from the orb slice. It receives the orb double click and the task list
   through kernel messages (ADR 0002). Its native contract (open and close the fan window) is added when the
   slice is built.
 
@@ -106,9 +109,10 @@ The mockups are in French.
 - The cost of a transparent window this large is not measured. A spike (E11) measures it at the start of
   stage 2, with the method of spike E6:
   - the cost during opening and closing, and how smooth the animation is;
-  - the delay between the click and the first frame;
+  - the delay between the double click and the first frame;
   - the cost with the fan open and still, then with the fan closed;
-  - click-through: on a panel, on the dimmed desktop, on the orb.
+  - click-through: on a panel, on the dimmed desktop, on the orb;
+  - how the single click feels, delayed by the double-click time.
 - The spike also says whether the window is created at each opening or kept hidden.
 - If the animation does not hold on the real host, a new ADR says what to change before building.
 
@@ -130,11 +134,12 @@ The mockups are in French.
 
 ## Consequences
 
-- Story US1.6 changes: Jarvis is activated with the global hotkey, no longer with a click. Decision 15
-  ("wake word, global hotkey, click on the orb") and decision 18 (interruption "by wake word, hotkey or
-  click") lose the click. The design is updated when this ADR is accepted.
-- The click on the orb changes meaning at stage 2, when the fan arrives.
-- While Jarvis speaks, a click on the orb no longer silences it: the hotkey or the wake word is needed.
+- Story US1.6 and decisions 15 and 18 of the design do not change: a single click still activates
+  listening and still interrupts Jarvis.
+- From stage 2, activation by click is delayed by the double-click time (half a second by default). The
+  wake word and the hotkey stay immediate.
+- The mockups say "clic pour ouvrir" (click to open) and "clic pour ranger" (click to close): read "double
+  click".
 - The Windows host has a second transparent window to maintain, and one more native contract with its two
   implementations.
 - A critical action (ADR 0009) can be approved from the amber panel: it is a click on the PC.

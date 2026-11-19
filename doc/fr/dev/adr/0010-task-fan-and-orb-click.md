@@ -7,12 +7,12 @@ Proposé le 2026-11-19 (chantier `spikes/12-task-fan-adr`). En attente de l'acco
 - **Sources :** demande de Benoit du 2026-11-19 (un clic sur l'orbe fait sortir les fenêtres des tâches en
   cours comme un hologramme, un second clic les y fait rentrer) ; son choix du même jour entre trois
   maquettes (éventail, orbite, projection) : **l'éventail**, sur l'ordinateur seulement, l'orbe dans
-  n'importe quel coin de l'écran ; décisions n° 4, 15,
-  18, 24 et 29 de la [conception](../plans/design.md) ; récits US1.1, US1.6, US1.12, US2.9, US2.11, US2.15 et
-  US3.2 ; essai E6 ([résultats](../../../../spikes/e6-orb-window/RESULTS.md)).
-- **Remplace en partie :** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md), pour ce que fait un
-  clic sur l'orbe (section 3 ci-dessous). Le reste de l'ADR 0005 reste valable.
-- **Complète :** [ADR 0003](0003-hosts-and-native-services.md) (fenêtres de l'hôte Windows) et
+  n'importe quel coin de l'écran ; sa réponse du même jour sur le clic : « Double click, ouvre l'éventail.
+  Simple click, écoute » ; décisions n° 4, 15, 18, 24 et 29 de la [conception](../plans/design.md) ;
+  récits US1.1, US1.6, US1.12, US2.9, US2.11, US2.15 et US3.2 ; essai E6 ([résultats](../../../../spikes/e6-orb-window/RESULTS.md)).
+- **Complète :** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md) (ajoute le double-clic aux
+  sorties de l'orbe ; sa table des transitions ne change pas),
+  [ADR 0003](0003-hosts-and-native-services.md) (fenêtres de l'hôte Windows) et
   [ADR 0009](0009-permission-and-confirmation-model.md) (demande de confirmation).
 
 ## Contexte
@@ -39,9 +39,9 @@ Proposé le 2026-11-19 (chantier `spikes/12-task-fan-adr`). En attente de l'acco
 
 ![L'éventail dans les quatre coins de l'écran](0010-task-fan-four-corners.png)
 
-- **Ouverture.** Au clic sur l'orbe, les panneaux des tâches en cours jaillissent de l'orbe et se rangent en
-  arc autour de lui, un panneau par tâche. Un trait pointillé relie chaque panneau à l'orbe.
-- **Fermeture.** Un second clic sur l'orbe aspire les panneaux dans l'orbe.
+- **Ouverture.** Au double-clic sur l'orbe, les panneaux des tâches en cours jaillissent de l'orbe et se
+  rangent en arc autour de lui, un panneau par tâche. Un trait pointillé relie chaque panneau à l'orbe.
+- **Fermeture.** Un second double-clic sur l'orbe aspire les panneaux dans l'orbe.
 - **Bureau assombri.** Pendant que l'éventail est ouvert, le bureau derrière est assombri.
 - **Teintes.** Les panneaux sont cyan. Un panneau qui attend une décision est **ambre**, son trait aussi.
 - **Compteur.** Près de l'orbe, une ligne donne le nombre de tâches et le nombre de décisions en attente.
@@ -62,15 +62,18 @@ Proposé le 2026-11-19 (chantier `spikes/12-task-fan-adr`). En attente de l'acco
   l'éventail est fermé.
 - Les panneaux ne sont pas des fenêtres de Windows. Ils sont dessinés ensemble, dans une seule surface.
 
-### 3. Ce que fait un clic sur l'orbe
+### 3. Simple clic et double-clic sur l'orbe
 
-- **Un clic sur l'orbe ouvre ou range l'éventail. Il n'active plus l'écoute.**
-- On parle à Jarvis par le mot d'éveil ou par le raccourci global. L'interruption (US1.12) et l'annulation
-  de l'écoute se font de la même façon.
-- Dans la table des transitions de l'ADR 0005, « Activation (mot d'éveil, raccourci, clic) » se lit
-  « Activation (mot d'éveil, raccourci) », et « Raccourci ou clic » se lit « Raccourci ». La sortie « clic »
-  du composant de l'orbe ne veut plus dire « activation » : elle veut dire « ouvrir ou ranger l'éventail ».
-- **Tant que l'éventail n'est pas construit**, le clic garde le comportement de l'ADR 0005.
+- **Un simple clic sur l'orbe garde le comportement de l'ADR 0005** : il lance l'écoute, l'annule ou
+  interrompt Jarvis (US1.6, US1.12). La table des transitions de l'ADR 0005 ne change pas.
+- **Un double-clic sur l'orbe ouvre l'éventail. Un second double-clic le range.**
+- Un double-clic n'est jamais aussi un simple clic : il ne lance pas l'écoute et n'interrompt pas Jarvis.
+  Pour cela, l'orbe attend le délai de double-clic de Windows (une demi-seconde par défaut) avant de traiter
+  un simple clic. Le mot d'éveil et le raccourci ne sont pas retardés.
+- Le composant de l'orbe gagne une sortie « double-clic », à côté du clic et du début de déplacement
+  (ADR 0005, section 5). Le délai lui est donné par l'hôte.
+- **Tant que l'éventail n'est pas construit**, il n'y a ni double-clic ni délai : le simple clic agit tout de
+  suite.
 - L'éventail se range aussi par la touche Échap et par un clic sur le bureau assombri.
 - **L'éventail n'est pas un état de l'assistant.** Ouvert ou fermé, il ne change ni la phase ni les
   conditions de l'ADR 0005. Jarvis peut écouter, réfléchir ou parler pendant que l'éventail est ouvert, et
@@ -91,8 +94,8 @@ Proposé le 2026-11-19 (chantier `spikes/12-task-fan-adr`). En attente de l'acco
   l'orbe. L'orbe reste visible par-dessus.
 - **Fermé, l'éventail ne coûte rien** : aucun dessin, aucune minuterie. Le budget en veille de l'ADR 0005 se
   mesure éventail fermé et ne change pas.
-- L'éventail est une tranche à part, distincte de celle de l'orbe. Elle reçoit le clic de l'orbe et la liste
-  des tâches par des messages du noyau (ADR 0002). Son contrat natif (ouvrir et fermer la fenêtre de
+- L'éventail est une tranche à part, distincte de celle de l'orbe. Elle reçoit le double-clic de l'orbe et la
+  liste des tâches par des messages du noyau (ADR 0002). Son contrat natif (ouvrir et fermer la fenêtre de
   l'éventail) s'ajoute quand la tranche est construite.
 
 ### 6. Animation
@@ -109,9 +112,10 @@ Proposé le 2026-11-19 (chantier `spikes/12-task-fan-adr`). En attente de l'acco
 - Le coût d'une fenêtre transparente aussi grande n'est pas mesuré. Un essai (E11) le mesure au début de
   l'étape 2, avec la méthode de l'essai E6 :
   - le coût pendant l'ouverture et la fermeture, et la fluidité de l'animation ;
-  - le délai entre le clic et la première image ;
+  - le délai entre le double-clic et la première image ;
   - le coût éventail ouvert et immobile, puis éventail fermé ;
-  - le passage des clics : sur un panneau, sur le bureau assombri, sur l'orbe.
+  - le passage des clics : sur un panneau, sur le bureau assombri, sur l'orbe ;
+  - le confort du simple clic, retardé par le délai de double-clic.
 - L'essai dit aussi si la fenêtre est créée à chaque ouverture ou gardée cachée.
 - Si l'animation ne tient pas sur l'hôte réel, un nouvel ADR dit quoi changer avant de construire.
 
@@ -133,11 +137,11 @@ Proposé le 2026-11-19 (chantier `spikes/12-task-fan-adr`). En attente de l'acco
 
 ## Conséquences
 
-- Le récit US1.6 change : on active Jarvis par le raccourci global, plus par un clic. La décision n° 15
-  (« mot d'éveil, raccourci clavier global, clic sur l'orbe ») et la décision n° 18 (interruption « par mot
-  d'éveil, raccourci ou clic ») perdent le clic. La conception se met à jour quand cet ADR est accepté.
-- Le clic sur l'orbe change de sens à l'étape 2, quand l'éventail arrive.
-- Pendant que Jarvis parle, un clic sur l'orbe ne le fait plus taire : il faut le raccourci ou le mot d'éveil.
+- Le récit US1.6 et les décisions n° 15 et 18 de la conception ne changent pas : un simple clic active
+  toujours l'écoute et interrompt toujours Jarvis.
+- À partir de l'étape 2, l'activation par clic est retardée du délai de double-clic (une demi-seconde par
+  défaut). Le mot d'éveil et le raccourci restent immédiats.
+- Les maquettes disent « clic pour ouvrir » et « clic pour ranger » : il faut y lire « double-clic ».
 - L'hôte Windows a une deuxième fenêtre transparente à tenir, et un contrat natif de plus avec ses deux
   mises en œuvre.
 - Une action critique (ADR 0009) peut être approuvée depuis le panneau ambre : c'est un clic sur le PC.

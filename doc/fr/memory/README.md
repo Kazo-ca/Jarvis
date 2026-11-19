@@ -13,9 +13,8 @@ ce qu'il décrit.
 - **ADR 0010 (éventail des tâches et clic sur l'orbe) : proposé** le 19 novembre 2026 (chantier
   `spikes/12-task-fan-adr`), en attente de l'accord de Benoit. Benoit a choisi la maquette « éventail », sur
   l'ordinateur seulement, l'orbe dans n'importe quel coin de l'écran : décision ambre, bureau assombri,
-  animation à l'ouverture et à la fermeture seulement. Question ouverte posée à Benoit : ce que devient
-  l'activation par clic (US1.6) ; l'ADR retient « le clic ouvre l'éventail, on parle par le mot d'éveil ou
-  le raccourci ». À son acceptation : mettre à jour US1.6 et les décisions n° 15 et 18 de la conception.
+  animation à l'ouverture et à la fermeture seulement. Réponse de Benoit du 19 novembre 2026 sur le clic :
+  **le double-clic ouvre l'éventail, le simple clic lance l'écoute** (US1.6 et l'ADR 0005 ne changent pas).
 - **Essai à faire au début de l'étape 2 :** E11, coût et fluidité de la fenêtre transparente de l'éventail
   (ADR 0010).
 - **ADR à venir pendant l'étape 1 :** l'orbe, sur maquette (renvoyé par l'ADR 0005) : couleurs et dessin des

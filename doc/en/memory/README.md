@@ -12,9 +12,8 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **ADR 0010 (task fan and click on the orb): proposed** on November 19, 2026 (work item
   `spikes/12-task-fan-adr`), waiting for Benoit's approval. Benoit chose the "fan" mockup, on the computer
   only, with the orb in any corner of the screen: amber decision, dimmed desktop, animation at opening and
-  closing only. Open question asked to Benoit: what becomes of activation by click (US1.6); the ADR keeps
-  "the click opens the fan, the user talks with the wake word or the hotkey". When it is accepted: update
-  US1.6 and decisions 15 and 18 of the design.
+  closing only. Benoit's answer of November 19, 2026 about the click: **the double click opens the fan,
+  the single click starts listening** (US1.6 and ADR 0005 do not change).
 - **Spike to run at the start of stage 2:** E11, cost and smoothness of the transparent fan window
   (ADR 0010).
 - **ADR to come during stage 1:** the orb, from a mockup (referred by ADR 0005): colors and drawing of the
