@@ -1,0 +1,26 @@
+using Kazo.Jarvis.Kernel.Secrets;
+using Kazo.Jarvis.Kernel.Settings;
+using Kazo.Jarvis.Kernel.Storage;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace Kazo.Jarvis.Web.Simulated;
+
+/// <summary>Registers the simulated contracts of the Web host (ADR 0003, section 3).</summary>
+public static class SimulatedServiceCollectionExtensions
+{
+    /// <summary>Adds the in-memory settings, document store and vault. Called before <c>AddJarvisFeatures</c>.</summary>
+    /// <param name="services">The host's service collection.</param>
+    /// <returns>The same collection, for chaining.</returns>
+    public static IServiceCollection AddJarvisSimulatedServices(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.TryAddSingleton(TimeProvider.System);
+        services.TryAddSingleton<ISettingsStore, InMemorySettingsStore>();
+        services.TryAddSingleton<IDocumentStore>(provider => new InMemoryDocumentStore(provider.GetRequiredService<TimeProvider>()));
+        services.TryAddSingleton<InMemorySecretVault>();
+        services.TryAddSingleton<ISecretVault>(provider => provider.GetRequiredService<InMemorySecretVault>());
+        services.TryAddSingleton<ISecretVaultSelector>(provider => provider.GetRequiredService<InMemorySecretVault>());
+        return services;
+    }
+}

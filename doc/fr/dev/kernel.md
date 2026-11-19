@@ -15,6 +15,9 @@ src/Kazo.Jarvis.Kernel/
   Assistant/                             état, phase, conditions, tour, fonction d'aspect, machine, rédacteur unique
   Messages/Assistant/                    messages d'entrée de la machine et messages qu'elle publie
   Audio/                                 contrat du niveau sonore (hors du bus)
+  Settings/                              contrats des réglages (voir storage.md)
+  Storage/                               contrat de la base de documents (voir storage.md)
+  Secrets/                               contrat du coffre de secrets (voir storage.md)
 ```
 
 Un hôte n'appelle pas `AddJarvisKernel()` lui-même : `AddJarvisFeatures()` le fait. L'appel peut se répéter

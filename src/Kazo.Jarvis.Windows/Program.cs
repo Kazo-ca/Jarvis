@@ -1,5 +1,6 @@
 using System.Windows;
 using Kazo.Jarvis.Adapters;
+using Kazo.Jarvis.Adapters.Files;
 using Kazo.Jarvis.Features;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,8 +19,12 @@ public static class Program
 #if DEBUG
         services.AddBlazorWebViewDeveloperTools();
 #endif
+        // Every file goes under %USERPROFILE%\.kazo\jarvis (ADR 0004, section 1).
+        var paths = JarvisPaths.ForCurrentUser();
+        paths.EnsureCreated();
+
         // Contracts first (real adapters), then the slices (ADR 0002, section 6).
-        services.AddJarvisAdapters();
+        services.AddJarvisAdapters(paths);
         services.AddJarvisFeatures();
 
         using var provider = services.BuildServiceProvider();

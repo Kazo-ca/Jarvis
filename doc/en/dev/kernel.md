@@ -15,6 +15,9 @@ src/Kazo.Jarvis.Kernel/
   Assistant/                             state, phase, conditions, turn, look function, machine, single writer
   Messages/Assistant/                    input messages of the machine and the messages it publishes
   Audio/                                 sound level contract (outside the bus)
+  Settings/                              settings contracts (see storage.md)
+  Storage/                               document store contract (see storage.md)
+  Secrets/                               secret vault contract (see storage.md)
 ```
 
 A host does not call `AddJarvisKernel()` itself: `AddJarvisFeatures()` does. Calling it again has no effect.

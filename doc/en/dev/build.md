@@ -49,6 +49,8 @@ The Playwright tests start the Web host themselves on a free port: nothing to ru
 A test that needs Windows (Windows vault, windows, real audio) carries `[Category("Windows")]`. Continuous
 integration leaves them out (`--filter "TestCategory!=Windows"`); they run on Benoit's PC, where an agent
 does each work item's Windows checks through Remote Control.
+To run only them: `dotnet test tests/Kazo.Jarvis.Tests.Unit --filter "TestCategory=Windows"`. They also carry
+`[SupportedOSPlatform("windows")]`, which skips them elsewhere ([pitfalls](pitfalls.md)).
 
 ## Continuous integration
 
