@@ -7,7 +7,9 @@ ce qu'il décrit.
 
 - **Série en cours :** `stage1` (étape 1), branche `stage1/base`, partie de `main` le 19 novembre 2026.
   Chantier 1 (`stage1/1-solution`, squelette de la solution, tests d'architecture, intégration continue)
-  livré dans sa PR ; prochain chantier : `stage1/2-kernel`. Benoit fusionne `main` ; un agent fusionne
+  fusionné et vérifié sous Windows. Chantier 2 (`stage1/2-kernel`, bus de messages, machine à états, niveau
+  sonore, voir [dev/kernel.md](../dev/kernel.md)) livré dans sa PR ; prochain chantier :
+  `stage1/3-settings-storage-vault`. Benoit fusionne `main` ; un agent fusionne
   lui-même ses PR dans une branche `<série>/base` une fois les vérifications vertes (règle redite par Benoit
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX). L'étape 5 est réécrite le 19 novembre 2026 : appels entre Jarvis et l'application Android, dans les deux sens (US5.1 à US5.9 du document de conception), sans ADR pour l'instant ; elle dépend d'E10. En attente : E10
@@ -38,7 +40,7 @@ ce qu'il décrit.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
   sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
-- **Prochaine étape :** chantier `stage1/2-kernel` du [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Prochaine étape :** chantier `stage1/3-settings-storage-vault` du [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
@@ -67,6 +69,8 @@ ce qu'il décrit.
   (SDK 10.0.402) : construction sans avertissement, tests unitaires 29/29, Playwright 1/1, hôte Web en
   HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. **À traiter au chantier 4 :** lancé sur une
   session verrouillée, l'hôte Windows meurt (voir [pièges](../dev/pitfalls.md)).
+- **Choix du chantier 2 que l'ADR 0005 ne tranche pas :** une interruption alors que le micro est coupé ou
+  absent arrête Jarvis sans démarrer l'écoute ([dev/kernel.md](../dev/kernel.md#cas-que-ladr-0005-ne-couvre-pas)).
 
 ## Environnement de développement de Benoit
 
