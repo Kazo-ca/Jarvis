@@ -2,9 +2,8 @@
 
 ## Status
 
-Accepted by Benoit on 2026-11-19 (proposed the same day, work item `spikes/14-orb-look-adr`). Benoit merged
-the proposal himself. The question asked about the long task was left unanswered: the recommendation applies
-(still frame on Windows, section 5).
+Accepted by Benoit on 2026-11-19 (proposed the same day, work item `spikes/14-orb-look-adr`). On the question
+of the long task, he kept the recommendation: still frame on Windows (section 5).
 
 - **Sources:** the [design catalog](../ui/catalog.md), validated by Benoit on 2026-11-19 on animated
   prototypes ([`design/prototypes/`](../../../../design/README.md)); his request of the same day to write

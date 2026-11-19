@@ -2,9 +2,8 @@
 
 ## Statut
 
-Accepté par Benoit le 2026-11-19 (proposé le même jour, chantier `spikes/14-orb-look-adr`). Benoit a fusionné
-lui-même la proposition. La question posée sur la tâche longue est restée sans réponse : la recommandation
-s'applique (image fixe sur Windows, section 5).
+Accepté par Benoit le 2026-11-19 (proposé le même jour, chantier `spikes/14-orb-look-adr`). Sur la question
+de la tâche longue, il a retenu la recommandation : image fixe sur Windows (section 5).
 
 - **Sources :** le [catalogue des designs](../ui/catalog.md), validé par Benoit le 2026-11-19 sur prototypes
   animés ([`design/prototypes/`](../../../../design/README.md)) ; sa demande du même jour d'écrire cet ADR à
