@@ -1,7 +1,7 @@
 # Stage 1 series plan: orb, voice, local model and settings
 
-2026-11-19 · Proposed, waiting for Benoit's validation (work item `spikes/15-stage-1-plan`). Builds on ADR 0011
-(colors and drawing of the orb), proposed in parallel.
+2026-11-19 · **Validated by Benoit on 2026-11-19** (work item `spikes/15-stage-1-plan`, answers written by
+`spikes/17-stage-1-answers`). Builds on ADR 0011 (colors and drawing of the orb).
 
 ## Goal
 
@@ -15,7 +15,8 @@ and **how to know a piece is done**. ADR 0010 (task fan) is not built at stage 1
 
 ## Branches and merging
 
-- Series `stage1`, base branch `stage1/base`, started from `main` (question 1 below).
+- Series `stage1`, base branch `stage1/base`, started from `main` once `spikes/base` is merged into
+  `main` (answer 1 below).
 - One work item per `stage1/<n>-<topic>` branch, one PR per work item to `stage1/base`.
 - An agent merges its own PR into `stage1/base` once the build and tests are green (AGENTS.md, IV.5). Only
   Benoit merges `stage1/base` into `main`, at the end of the series.
@@ -87,7 +88,8 @@ the other, and 16 (updates) at any time after 4.
 - The Windows host opens an empty window, the Web host serves an empty page, Playwright opens that page.
 - The **architecture tests** of ADR 0002, section 7, all written here: they are green on an almost empty
   repository and will stay so.
-- Continuous integration according to the answer to question 2.
+- GitHub Actions continuous integration on Linux (answer 2): build of every project, non-Windows unit tests,
+  Playwright against the Web host.
 - **Windows check:** both hosts start, the tests pass.
 
 ### 2. Kernel (`stage1/2-kernel`)
@@ -226,8 +228,8 @@ the other, and 16 (updates) at any time after 4.
 - What is recorded for every answer: provider, model, tokens, duration (ADR 0007, section 7).
 - Personality (US1.15): butler system message in French and English, editable and resettable per language,
   plus the fixed technical rules (ADR 0007, section 6).
-- Whether a written request is also answered out loud: answer to question 3, which ADR 0005 refers to this
-  plan.
+- A written request gets a written answer only; Jarvis only speaks when spoken to (answer 3, the point ADR
+  0005 refers to this plan).
 - **Playwright test:** a full simulated turn in the Web host, with an interruption.
 - **Windows checks:** delay between the end of the utterance and the first sound, with the real microphone
   and speaker (target under 2 s, warm); wake word while Jarvis speaks. If it is not recognized reliably,
@@ -290,18 +292,20 @@ of the project memory.
 | End-to-end update | 16 |
 | No outgoing connection by default | 17 |
 
-## Questions asked to Benoit
+## Benoit's answers
 
-Asked in the conversation on 2026-11-19; his answers will be written here.
+Questions asked in the conversation on 2026-11-19. Benoit answered the same day: "1. Crée la PR. Pour le
+reste je suis d'accord avec tes recommandations." (1. Create the PR. For the rest I agree with your
+recommendations.)
 
-1. **Series base.** Recommended: Benoit merges `spikes/base` into `main`, then `stage1/base` starts from
-   `main`, as AGENTS.md wants.
-2. **Continuous integration.** Recommended: GitHub Actions on Linux (build of every project, non-Windows unit
-   tests, Playwright against the Web host); the tests marked Windows and the checks stay on Benoit's PC.
-3. **Answer to a written request.** Recommended: spoken out loud only if the request was spoken; a written
-   request gets a written answer.
-4. **Who does the Windows checks.** Recommended: an agent on Benoit's PC (Remote Control), Benoit only for
-   what needs his voice or his ears (work items 9, 10, 12, 13, 17).
+1. **Series base.** `spikes/base` goes into `main` through a PR that Benoit merges; `stage1/base` then starts
+   from `main`, as AGENTS.md wants.
+2. **Continuous integration.** GitHub Actions on Linux: build of every project, non-Windows unit tests,
+   Playwright against the Web host. The tests marked Windows and the checks stay on Benoit's PC. Set up in
+   work item 1.
+3. **Answer to a written request.** Written only. Jarvis only answers out loud when the request was spoken.
+4. **Who does the Windows checks.** An agent on Benoit's PC, through Remote Control. Benoit only for what
+   needs his voice or his ears (work items 9, 10, 12, 13 and 17).
 
 ## Out of this series
 

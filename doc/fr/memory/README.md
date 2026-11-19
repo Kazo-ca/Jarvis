@@ -29,9 +29,13 @@ ce qu'il décrit.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
   sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
-- **Prochaine étape :** le [plan de la série de l'étape 1](../dev/plans/stage-1.md) est proposé (chantier
-  `spikes/15-stage-1-plan`) : 17 chantiers `stage1/<n>-<sujet>`, quatre questions posées à Benoit. Une fois
-  validé, on commence par `stage1/1-solution`. Benoit décide quand `spikes/base` va dans `main`.
+- **Prochaine étape :** le [plan de la série de l'étape 1](../dev/plans/stage-1.md) est **validé** par Benoit
+  le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Une PR fait passer `spikes/base` dans `main` ;
+  quand Benoit l'a fusionnée, on crée `stage1/base` depuis `main` et on commence par `stage1/1-solution`.
+- **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
+  (tests Windows sur son PC) ; une demande écrite reçoit une réponse écrite seulement ; les vérifications sur
+  Windows sont faites par un agent sur son PC par le contrôle à distance, lui seulement pour sa voix et ses
+  oreilles (chantiers 9, 10, 12, 13 et 17).
 - **Réponses de Benoit du 19 novembre 2026 (inscrites dans les ADR) :** base SQLite pour la conversation, la
   mémoire et le journal (ADR 0004) ; abstractions `Microsoft.Extensions.AI` (ADR 0007) ; un clic exigé pour la
   domotique de sécurité seulement (ADR 0009) ; hypothèses n° 1, 2, 3, 7 et 9 de la conception acceptées ; les

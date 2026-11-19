@@ -28,9 +28,13 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** the [stage 1 series plan](../dev/plans/stage-1.md) is proposed (work item
-  `spikes/15-stage-1-plan`): 17 work items `stage1/<n>-<topic>`, four questions asked to Benoit. Once
-  validated, work starts with `stage1/1-solution`. Benoit decides when `spikes/base` goes to `main`.
+- **Next step:** the [stage 1 series plan](../dev/plans/stage-1.md) was **validated** by Benoit on
+  November 19, 2026 (17 work items `stage1/<n>-<topic>`). A PR takes `spikes/base` into `main`; once Benoit
+  has merged it, `stage1/base` is created from `main` and work starts with `stage1/1-solution`.
+- **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
+  (Windows tests on his PC); a written request gets a written answer only; the Windows checks are done by an
+  agent on his PC through Remote Control, by him only for his voice and ears (work items 9, 10, 12, 13
+  and 17).
 - **Benoit's answers of November 19, 2026 (written in the ADRs):** SQLite database for the conversation,
   memory and log (ADR 0004); `Microsoft.Extensions.AI` abstractions (ADR 0007); a click required for security
   home automation only (ADR 0009); assumptions 1, 2, 3, 7 and 9 of the design accepted; data goes to
