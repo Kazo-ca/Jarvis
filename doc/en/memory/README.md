@@ -7,12 +7,18 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Current series:** `spikes` (technical spikes E1 to E10), branch `spikes/base`.
   Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
-- **Next free ADR number:** 0010. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
+- **Next free ADR number:** 0011. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
   November 19, 2026 (work item `spikes/11-stage-1-adrs`). They are no longer edited: a new ADR supersedes them.
-- **ADR to come during stage 1:** the orb, from a mockup (referred by ADR 0005): colors, drawing, and
-  Benoit's request of November 19, 2026: a click on the orb makes the windows of the running tasks come out
-  like a hologram, a second click pulls them back in. To be reconciled with activation by click (US1.6).
-  Visual proposals as images are prepared in another thread.
+- **ADR 0010 (task fan and click on the orb): proposed** on November 19, 2026 (work item
+  `spikes/12-task-fan-adr`), waiting for Benoit's approval. Benoit chose the "fan" mockup, on the computer
+  only, with the orb in any corner of the screen: amber decision, dimmed desktop, animation at opening and
+  closing only. Open question asked to Benoit: what becomes of activation by click (US1.6); the ADR keeps
+  "the click opens the fan, the user talks with the wake word or the hotkey". When it is accepted: update
+  US1.6 and decisions 15 and 18 of the design.
+- **Spike to run at the start of stage 2:** E11, cost and smoothness of the transparent fan window
+  (ADR 0010).
+- **ADR to come during stage 1:** the orb, from a mockup (referred by ADR 0005): colors and drawing of the
+  six looks, values of the cyan and the amber, signal of a pending decision when the fan is closed.
 - **Decisions taken but not built:** the whole design document.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`

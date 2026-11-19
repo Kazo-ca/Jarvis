@@ -8,12 +8,18 @@ ce qu'il décrit.
 - **Série en cours :** `spikes` (essais techniques E1 à E10), branche `spikes/base`.
   Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX, étape 5 retirée). En attente : E10
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
-- **Prochain numéro d'ADR libre :** 0010. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
+- **Prochain numéro d'ADR libre :** 0011. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
   19 novembre 2026 (chantier `spikes/11-stage-1-adrs`). Ils ne se modifient plus : un nouvel ADR les remplace.
-- **ADR à venir pendant l'étape 1 :** l'orbe, sur maquette (renvoyé par l'ADR 0005) : couleurs, dessin, et la
-  demande de Benoit du 19 novembre 2026 : un clic sur l'orbe fait sortir les fenêtres des tâches en cours
-  comme un hologramme, un second clic les y fait rentrer. À concilier avec l'activation par clic (US1.6).
-  Des propositions visuelles en image sont préparées dans un autre fil.
+- **ADR 0010 (éventail des tâches et clic sur l'orbe) : proposé** le 19 novembre 2026 (chantier
+  `spikes/12-task-fan-adr`), en attente de l'accord de Benoit. Benoit a choisi la maquette « éventail », sur
+  l'ordinateur seulement, l'orbe dans n'importe quel coin de l'écran : décision ambre, bureau assombri,
+  animation à l'ouverture et à la fermeture seulement. Question ouverte posée à Benoit : ce que devient
+  l'activation par clic (US1.6) ; l'ADR retient « le clic ouvre l'éventail, on parle par le mot d'éveil ou
+  le raccourci ». À son acceptation : mettre à jour US1.6 et les décisions n° 15 et 18 de la conception.
+- **Essai à faire au début de l'étape 2 :** E11, coût et fluidité de la fenêtre transparente de l'éventail
+  (ADR 0010).
+- **ADR à venir pendant l'étape 1 :** l'orbe, sur maquette (renvoyé par l'ADR 0005) : couleurs et dessin des
+  six aspects, valeurs du cyan et de l'ambre, signal d'une décision en attente quand l'éventail est fermé.
 - **Décisions prises mais pas construites :** tout le document de conception.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
