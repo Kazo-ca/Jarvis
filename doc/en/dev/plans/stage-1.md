@@ -153,7 +153,8 @@ the other, and 16 (updates) at any time after 4.
 - **Playwright tests:** each look (the component exposes its current look in an attribute), reduced motion,
   the click.
 - **Windows check:** idle, microphone muted and error under 2 % of one core with the light version
-  (ADR 0005, mandatory); cost of the animated phases recorded.
+  (ADR 0005, mandatory); cost of the animated phases recorded, and that of the long task, which spins slowly
+  for the whole task (Benoit's choice, ADR 0011, section 5).
 
 ### 7. Orb, high-quality version (`stage1/7-orb-high-quality`)
 
@@ -281,7 +282,7 @@ of the project memory.
 | Clicks around the orb reach the application below | 4 |
 | Global hotkey while another application has the focus | 4 |
 | Windows reload on a language change | 5 |
-| Idle orb under 2 % of one core, both versions | 6, 7 |
+| Idle orb under 2 % of one core, both versions; cost of the long task recorded | 6, 7 |
 | Real microphone, real mute | 8 |
 | Wake word with Benoit's voice, threshold chosen | 9 |
 | End of utterance through Silero with a real microphone | 10 |
