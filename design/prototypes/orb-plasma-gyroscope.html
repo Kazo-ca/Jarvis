@@ -1,0 +1,226 @@
+<title>Orbe de Jarvis</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: two square stages side by side (stacked on phones), one shared state bar below. Single deliberate dark HUD look. */
+:root{
+  color-scheme:dark;
+  --bg:#040a12; --bg2:#08182a; --line:#5fe6ff2e; --fg:#d3f3fb; --muted:#7fa6b5;
+  --c:#5fe6ff; --amber:#ffb347;
+  --f-display:'Rajdhani','Inter',system-ui,sans-serif;
+  --f-body:'Inter',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono','DejaVu Sans Mono',ui-monospace,monospace;
+}
+html,body{height:100%}
+body{background:radial-gradient(ellipse at 50% -10%,#0f3550 0,transparent 55%),var(--bg);color:var(--fg);font-family:var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 28px}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#5fe6ff07 0 1px,transparent 1px 3px)}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font:700 30px/1 var(--f-display);letter-spacing:.18em;text-transform:uppercase;color:var(--c);text-wrap:balance}
+header p{color:var(--muted);font-size:14px;max-width:64ch}
+.stages{display:grid;grid-template-columns:minmax(0,760px);justify-content:center;gap:18px}
+.stage{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,#0a2236aa,#04101caa);border-radius:4px;overflow:hidden;min-width:0}
+.stage::before,.stage::after{content:"";position:absolute;width:16px;height:16px;border:2px solid var(--c);opacity:.8;z-index:3}
+.stage::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.stage::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.stage .lab{position:absolute;top:12px;left:16px;z-index:4;display:flex;flex-direction:column;gap:2px}
+.stage .lab b{font:600 11px var(--f-mono);letter-spacing:.2em;color:var(--c)}
+.stage .lab span{font:600 20px var(--f-display);letter-spacing:.06em}
+.stage .lab small{color:var(--muted);font-size:12.5px;max-width:34ch}
+.stage .still{position:absolute;right:14px;top:14px;z-index:4;font:600 10px var(--f-mono);letter-spacing:.15em;color:var(--muted);border:1px solid var(--line);padding:4px 8px;border-radius:2px}
+.box{aspect-ratio:1/1;max-width:100%;position:relative}
+canvas{display:block;width:100%;height:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.bar button{font:600 12px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:#06182699;border:1px solid var(--line);padding:9px 14px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.bar button i{width:8px;height:8px;border-radius:50%;background:var(--dot)}
+.bar button[aria-pressed="true"]{color:#03121e;background:var(--dot);border-color:var(--dot);box-shadow:0 0 16px color-mix(in srgb,var(--dot) 50%,transparent)}
+.bar button[aria-pressed="true"] i{background:#03121e}
+.bar button:focus-visible,.opts input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.opts{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:center;color:var(--muted);font-size:13px}
+.opts label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.desc{text-align:center;color:var(--fg);font-size:14px;min-height:1.4em}
+.desc b{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;color:var(--c)}
+
+/* --- Version 2 : gyroscope CSS 3D --- */
+.gyro{position:absolute;inset:0;perspective:1100px;color:var(--c);overflow:hidden}
+.gyro .world{position:absolute;left:50%;top:52%;width:0;height:0;transform-style:preserve-3d}
+.ring{position:absolute;transform-style:preserve-3d}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ring .spin{position:absolute;inset:0}
+.flat{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);pointer-events:none}
+.core{width:26%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 45% 42%,#ffffff 0,color-mix(in srgb,var(--c) 80%,#fff) 10%,color-mix(in srgb,var(--c) 55%,transparent) 32%,color-mix(in srgb,var(--c) 14%,transparent) 58%,transparent 72%);
+  mix-blend-mode:screen;filter:saturate(1.2)}
+.halo{width:78%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 22%,transparent) 0,transparent 65%)}
+.brk{width:24%;aspect-ratio:1}
+.badge{position:absolute;right:calc(50% - 21%);top:calc(52% - 21%);background:var(--amber);color:#1a1000;font:700 13px var(--f-body);border-radius:12px;padding:2px 9px;box-shadow:0 0 14px var(--amber);z-index:5}
+@media (prefers-reduced-motion:reduce){.bar button{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Orbe de Jarvis</h1>
+    <p>L'intérieur plasma dans les anneaux du gyroscope. Choisissez un état en bas pour voir l'orbe réagir.</p>
+  </header>
+
+  <div class="stages">
+    <section class="stage" id="s1" hidden>
+      <div class="lab"><b>VERSION 1</b><span>Plasma</span><small>Une seule sphère d'énergie, des filaments qui bougent lentement et un halo.</small></div>
+      <div class="still" id="still1" hidden>IMAGE FIXE</div>
+      <div class="box"><canvas id="plasma"></canvas></div>
+    </section>
+    <section class="stage" id="s2">
+      <div class="lab"><b>VERSION 3 · COMBINÉE</b><span>Gyroscope plasma</span><small>La sphère plasma au centre, entourée des anneaux translucides qui tournent en orbite pendant que l'ensemble pivote lentement.</small></div>
+      <div class="still" id="still2" hidden>IMAGE FIXE</div>
+      <div class="box"><div class="gyro" id="gyro"></div></div>
+    </section>
+  </div>
+
+  <div class="bar" id="bar" role="group" aria-label="État de Jarvis"></div>
+  <div class="desc" id="desc"></div>
+  <div class="opts">
+    <label><input type="checkbox" id="idleAnim"> Animer aussi en veille (coûte du processeur en continu)</label>
+    <label><input type="checkbox" id="badge"> Afficher le badge des décisions</label>
+  </div>
+</div>
+
+<script>
+const STATES={
+  veille:   {n:'Veille',      c:'#5fe6ff', sp:0,   en:.55, d:'Attend « Hey Jarvis ». Image fixe par défaut, comme convenu, pour ne rien coûter au processeur.'},
+  ecoute:   {n:'Écoute',      c:'#5fe6ff', sp:.8,  en:1,   au:1, d:'Suit le niveau de votre voix.'},
+  reflexion:{n:'Réflexion',   c:'#a08cff', sp:2.4, en:.9,  d:'Rotation plus rapide, en violet, pendant que le modèle réfléchit.'},
+  parole:   {n:'Parole',      c:'#5fe6ff', sp:1,   en:1.15,au:2, d:'Des ondes sortent au rythme de la voix de Jarvis.'},
+  tache:    {n:'Tâche longue',c:'#5fffb0', sp:.45, en:.7,  pr:.62, d:'Rotation lente et anneau de progression.'},
+  erreur:   {n:'Erreur',      c:'#ff5f6d', sp:.25, en:.8,  d:'Rouge, un clignotement puis presque fixe.'},
+  muet:     {n:'Micro coupé', c:'#7d8b99', sp:0,   en:.35, d:'Gris et fixe.'},
+};
+let cur='ecoute', S=STATES[cur], speed=S.sp, energy=S.en, flash=0;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const idleBox=document.getElementById('idleAnim'), badgeBox=document.getElementById('badge');
+function hexRgb(h){const n=parseInt(h.slice(1),16);return[n>>16,(n>>8)&255,n&255]}
+let col=hexRgb(S.c), colT=col.slice();
+
+/* state bar */
+const bar=document.getElementById('bar');
+for(const k in STATES){const b=document.createElement('button');b.type='button';b.id='st-'+k;b.style.setProperty('--dot',STATES[k].c);b.innerHTML='<i></i>'+STATES[k].n;b.setAttribute('aria-pressed',k===cur);b.onclick=()=>setState(k);bar.appendChild(b)}
+function setState(k){cur=k;S=STATES[k];colT=hexRgb(S.c);if(k==='erreur')flash=1;
+  bar.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.id==='st-'+k));
+  document.getElementById('desc').innerHTML='<b>'+S.n.toUpperCase()+'</b> · '+S.d;kick()}
+idleBox.onchange=kick;badgeBox.onchange=()=>{document.querySelectorAll('.badge').forEach(b=>b.hidden=!badgeBox.checked);kick()};
+
+function targetSpeed(){let s=S.sp;if(s===0&&idleBox.checked&&cur==='veille')s=.2;return reduced?0:s}
+function isStill(){return targetSpeed()===0&&Math.abs(speed)<.002&&flash<.01&&col.every((v,i)=>Math.abs(v-colT[i])<1)}
+function audio(t){if(!S.au)return 0;const a=Math.abs(Math.sin(t*5.3)*Math.sin(t*1.7+1))*.8+Math.abs(Math.sin(t*11.1))*.2;return S.au===2?a*1.1:a}
+
+/* ===== Version 1 : plasma (canvas 2D) ===== */
+const cv=document.getElementById('plasma'),ctx1=cv.getContext('2d');let ctx2=null;
+let W=0,DPR=1;
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=cv.getBoundingClientRect();W=r.width;cv.width=W*DPR;cv.height=W*DPR;buildGyro();kick()}
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const FIL=[...Array(18)].map(()=>{const a=rnd()*Math.PI*2,b=Math.acos(2*rnd()-1);const n=[Math.sin(b)*Math.cos(a),Math.sin(b)*Math.sin(a),Math.cos(b)];
+  let u=Math.abs(n[0])<.9?[1,0,0]:[0,1,0];const d=u[0]*n[0]+u[1]*n[1]+u[2]*n[2];u=[u[0]-d*n[0],u[1]-d*n[1],u[2]-d*n[2]];const l=Math.hypot(...u);u=u.map(x=>x/l);
+  const v=[n[1]*u[2]-n[2]*u[1],n[2]*u[0]-n[0]*u[2],n[0]*u[1]-n[1]*u[0]];return{u,v,ph:rnd()*6.28,k:2+Math.floor(rnd()*3),w:.4+rnd()*.8,a:.25+rnd()*.35}});
+const SPK=[...Array(60)].map(()=>({a:rnd()*6.28,r:.55+rnd()*.5,s:.2+rnd()*.6,z:rnd()}));
+let T=0,ry=0;
+function drawPlasma(t,lvl,ctx=ctx1,o={}){if(!ctx)return;
+  const w=ctx.canvas.width,cx=w/2,cy=w*.52,R=w*(o.r||.2)*(1+lvl*.06),[r,g,b]=col.map(Math.round),C=(a)=>`rgba(${r},${g},${b},${a})`;
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,w,w);
+  // halo
+  let gr=ctx.createRadialGradient(cx,cy,R*.6,cx,cy,R*3.2);gr.addColorStop(0,C(.32*energy+flash*.3));gr.addColorStop(1,C(0));ctx.fillStyle=gr;ctx.fillRect(0,0,w,w);
+  // speaking waves
+  if(S.au===2){for(let i=0;i<3;i++){const p=((t*.6+i/3)%1);ctx.beginPath();ctx.arc(cx,cy,R*(1.15+p*1.3),0,7);ctx.strokeStyle=C((1-p)*.55);ctx.lineWidth=2*DPR*(1-p)+.5;ctx.stroke()}}
+  // sphere body
+  gr=ctx.createRadialGradient(cx-R*.25,cy-R*.3,R*.05,cx,cy,R);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.18,C(.9));gr.addColorStop(.6,C(.35));gr.addColorStop(.92,C(.12));gr.addColorStop(1,C(.55));
+  ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fillStyle=gr;ctx.fill();
+  // filaments
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,R*.98,0,7);ctx.clip();ctx.globalCompositeOperation='lighter';
+  const cy_=Math.cos(ry),sy=Math.sin(ry),cx_=Math.cos(.45),sx=Math.sin(.45);
+  for(const f of FIL){ctx.beginPath();for(let i=0;i<=90;i++){const th=i/90*6.2832;const rr=.5+.38*Math.sin(f.k*th+f.ph+t*f.w*(.5+energy))*energy+lvl*.12;
+      let x=(Math.cos(th)*f.u[0]+Math.sin(th)*f.v[0])*rr,y=(Math.cos(th)*f.u[1]+Math.sin(th)*f.v[1])*rr,z=(Math.cos(th)*f.u[2]+Math.sin(th)*f.v[2])*rr;
+      let x2=x*cy_+z*sy,z2=-x*sy+z*cy_;let y2=y*cx_-z2*sx;
+      const px=cx+x2*R,py=cy+y2*R;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+    ctx.strokeStyle=`rgba(${Math.min(255,r+90)},${Math.min(255,g+60)},${Math.min(255,b+40)},${f.a*energy*.7})`;ctx.lineWidth=1*DPR;ctx.stroke()}
+  ctx.restore();
+  // rim + inner core
+  ctx.globalCompositeOperation='lighter';
+  gr=ctx.createRadialGradient(cx,cy,R*.82,cx,cy,R*1.04);gr.addColorStop(0,C(0));gr.addColorStop(.8,C(.55));gr.addColorStop(1,C(0));ctx.fillStyle=gr;ctx.beginPath();ctx.arc(cx,cy,R*1.05,0,7);ctx.fill();
+  gr=ctx.createRadialGradient(cx,cy,0,cx,cy,R*.45);gr.addColorStop(0,'rgba(255,255,255,'+(.55+lvl*.35)+')');gr.addColorStop(1,C(0));ctx.fillStyle=gr;ctx.beginPath();ctx.arc(cx,cy,R*.45,0,7);ctx.fill();
+  if(o.inner){ctx.globalCompositeOperation='source-over';return}
+  // sparks
+  for(const p of SPK){const a=p.a+t*p.s*.3,rr=R*(1.15+p.r*.9);ctx.fillStyle=C(.5*p.z*energy);ctx.beginPath();ctx.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr*.92,DPR*(.6+p.z),0,7);ctx.fill()}
+  ctx.globalCompositeOperation='source-over';
+  // thin outer ring + progress
+  ctx.beginPath();ctx.arc(cx,cy,R*1.32,0,7);ctx.strokeStyle=C(.25);ctx.lineWidth=DPR;ctx.stroke();
+  if(S.pr){ctx.beginPath();ctx.arc(cx,cy,R*1.32,-Math.PI/2,-Math.PI/2+S.pr*6.2832);ctx.strokeStyle=C(.95);ctx.lineWidth=3*DPR;ctx.lineCap='round';ctx.shadowColor=C(1);ctx.shadowBlur=10*DPR;ctx.stroke();ctx.shadowBlur=0;
+    ctx.fillStyle=C(.9);ctx.font=`600 ${13*DPR}px JetBrains Mono, monospace`;ctx.textAlign='center';ctx.fillText(Math.round(S.pr*100)+' %',cx,cy+R*1.32+22*DPR)}
+  if(cur==='muet'){ctx.fillStyle='rgba(160,175,190,.9)';ctx.font=`600 ${12*DPR}px JetBrains Mono, monospace`;ctx.textAlign='center';ctx.fillText('MICRO COUPÉ',cx,cy+R*1.32+22*DPR)}
+  if(badgeBox.checked){ctx.fillStyle='#ffb347';ctx.shadowColor='#ffb347';ctx.shadowBlur=12*DPR;ctx.beginPath();ctx.arc(cx+R*.85,cy-R*.85,11*DPR,0,7);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#1a1000';ctx.font=`700 ${13*DPR}px Inter, sans-serif`;ctx.textAlign='center';ctx.fillText('4',cx+R*.85,cy-R*.85+4.5*DPR)}
+}
+
+/* ===== Version 2 : gyroscope (CSS 3D + SVG) ===== */
+const gyro=document.getElementById('gyro');let RINGS=[],flatParts={};
+const NS='http://www.w3.org/2000/svg';
+function svgRing(kind){const s=1000,c=500;let o='';
+  if(kind==='scale'){o+=`<circle cx="${c}" cy="${c}" r="470" fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="3"/>`;
+    for(let i=0;i<180;i++){const a=i*2*Math.PI/180,L=i%15===0?40:i%5===0?24:12,r1=470,r2=470-L;o+=`<line x1="${c+r1*Math.cos(a)}" y1="${c+r1*Math.sin(a)}" x2="${c+r2*Math.cos(a)}" y2="${c+r2*Math.sin(a)}" stroke="currentColor" stroke-opacity="${i%15===0?.9:.45}" stroke-width="${i%15===0?4:2}"/>`;
+      if(i%15===0){const ar=405,deg=i*2;o+=`<text x="${c+ar*Math.cos(a)}" y="${c+ar*Math.sin(a)}" fill="currentColor" fill-opacity=".8" font-family="JetBrains Mono,monospace" font-size="26" text-anchor="middle" dominant-baseline="middle" transform="rotate(${deg+90} ${c+ar*Math.cos(a)} ${c+ar*Math.sin(a)})">${deg}°</text>`}}}
+  if(kind==='arcs'){[[200,300,26,.75],[320,345,26,.5],[20,110,14,.9],[130,150,14,.5],[160,175,14,.35]].forEach(([a1,a2,wd,op])=>{const r=455,p=d=>[c+r*Math.cos(d*Math.PI/180),c+r*Math.sin(d*Math.PI/180)];const[x1,y1]=p(a1),[x2,y2]=p(a2);
+      o+=`<path d="M${x1},${y1} A${r},${r} 0 ${a2-a1>180?1:0} 1 ${x2},${y2}" fill="none" stroke="currentColor" stroke-opacity="${op}" stroke-width="${wd}"/>`});
+    o+=`<circle cx="${c}" cy="${c}" r="420" fill="none" stroke="currentColor" stroke-opacity=".3" stroke-width="2" stroke-dasharray="4 14"/>`}
+  if(kind==='dash'){o+=`<circle cx="${c}" cy="${c}" r="470" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="4" stroke-dasharray="60 30 8 30"/>`;
+    [0,90,180,270].forEach(d=>{const a=d*Math.PI/180;o+=`<circle cx="${c+470*Math.cos(a)}" cy="${c+470*Math.sin(a)}" r="16" fill="#03121e" stroke="currentColor" stroke-width="5"/><circle cx="${c+470*Math.cos(a)}" cy="${c+470*Math.sin(a)}" r="6" fill="currentColor"/>`})}
+  if(kind==='band'){o+=`<defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".0"/><stop offset=".5" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
+    <circle cx="${c}" cy="${c}" r="440" fill="none" stroke="url(#bg)" stroke-width="60"/><circle cx="${c}" cy="${c}" r="472" fill="none" stroke="currentColor" stroke-opacity=".6" stroke-width="2"/><circle cx="${c}" cy="${c}" r="408" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2"/>`;
+    for(let i=0;i<24;i++){const a=i*Math.PI/12;o+=`<rect x="${c+440*Math.cos(a)-6}" y="${c+440*Math.sin(a)-14}" width="12" height="28" fill="currentColor" fill-opacity=".55" transform="rotate(${i*15} ${c+440*Math.cos(a)} ${c+440*Math.sin(a)})"/>`}}
+  if(kind==='inner'){for(let i=0;i<72;i++){const a=i*Math.PI/36,r1=470,r2=i%6===0?420:445;o+=`<line x1="${c+r1*Math.cos(a)}" y1="${c+r1*Math.sin(a)}" x2="${c+r2*Math.cos(a)}" y2="${c+r2*Math.sin(a)}" stroke="currentColor" stroke-opacity=".7" stroke-width="${i%6===0?6:3}"/>`}
+    o+=`<circle cx="${c}" cy="${c}" r="395" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="3"/>`}
+  return `<svg viewBox="0 0 ${s} ${s}">${o}</svg>`}
+const DEF=[ // size(fraction), kind, tilt, spin speed (rad/s at speed 1)
+  {f:.96,k:'scale', tilt:'rotateX(68deg)',              w:.12},
+  {f:.82,k:'arcs',  tilt:'rotateX(62deg) rotateY(24deg)', w:-.35},
+  {f:.70,k:'dash',  tilt:'rotateY(68deg) rotateX(10deg)', w:.5},
+  {f:.58,k:'band',  tilt:'rotateX(-48deg) rotateY(-32deg)', w:-.7},
+  {f:.36,k:'inner', tilt:'rotateZ(0deg)',               w:.9, flat:1},
+];
+function buildGyro(){const box=gyro.getBoundingClientRect(),D=box.width;gyro.innerHTML='';
+  const halo=document.createElement('div');halo.className='flat halo';gyro.appendChild(halo);
+  const pc=document.createElement('canvas');pc.style.cssText='position:absolute;inset:0;width:100%;height:100%';pc.width=pc.height=Math.round(D*DPR);gyro.appendChild(pc);ctx2=pc.getContext('2d');
+  const world=document.createElement('div');world.className='world';gyro.appendChild(world);
+  RINGS=DEF.map(d=>{const el=document.createElement('div');el.className='ring';const sz=D*d.f;el.style.cssText=`width:${sz}px;height:${sz}px;left:${-sz/2}px;top:${-sz/2}px;transform:${d.tilt}`;
+    const sp=document.createElement('div');sp.className='spin';sp.innerHTML=svgRing(d.k);el.appendChild(sp);(d.flat?gyro:world).appendChild(el);
+    if(d.flat){el.style.left='50%';el.style.top='52%';el.style.transform='translate(-50%,-50%)';el.style.marginLeft='0'}
+    return{el,sp,d,a:Math.random()*6}});
+  const waves=[0,1,2].map(()=>{const w=document.createElement('div');w.className='flat';w.style.cssText+='width:40%;aspect-ratio:1;border-radius:50%;border:2px solid currentColor;opacity:0';gyro.appendChild(w);return w});
+  const prog=document.createElement('div');prog.className='flat';prog.style.cssText+='width:46%;aspect-ratio:1';prog.innerHTML=`<svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible"><circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="1.6"/><circle id="pg" cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" pathLength="100" stroke-dasharray="62 100" transform="rotate(-90 50 50)" style="filter:drop-shadow(0 0 2px currentColor)"/><text x="50" y="112" text-anchor="middle" fill="currentColor" font-family="JetBrains Mono,monospace" font-size="6">62 %</text></svg>`;gyro.appendChild(prog);
+  const core=document.createElement('div');core.className='flat core';core.style.display='none';gyro.appendChild(core);
+  const brk=document.createElement('div');brk.className='flat brk';brk.innerHTML=`<svg viewBox="0 0 100 100" style="width:100%;height:100%"><g fill="none" stroke="currentColor" stroke-width="2" stroke-opacity=".9"><path d="M2 20V2h18M80 2h18v18M98 80v18H80M20 98H2V80"/></g><path d="M50 40v8M50 52v8M40 50h8M52 50h8" stroke="#fff" stroke-opacity=".7" stroke-width="1"/></svg>`;gyro.appendChild(brk);
+  const mute=document.createElement('div');mute.className='flat';mute.style.cssText+='top:auto;bottom:6%;font:600 12px var(--f-mono);letter-spacing:.15em;color:#a0afbe';mute.textContent='MICRO COUPÉ';gyro.appendChild(mute);
+  const bd=document.createElement('div');bd.className='badge';bd.textContent='4';bd.hidden=!badgeBox.checked;gyro.appendChild(bd);
+  flatParts={halo,world,waves,prog,core,mute}}
+let gy=0;
+function drawGyro(t,dt,lvl){const[r,g,b]=col.map(Math.round);gyro.style.color=`rgb(${r},${g},${b})`;gyro.style.setProperty('--c',`rgb(${r},${g},${b})`);
+  gy+=dt*speed*.18;
+  flatParts.world.style.transform=`rotateY(${gy}rad) rotateX(${-.3+Math.sin(gy*.7)*.2}rad)`;
+  for(const R of RINGS){R.a+=dt*speed*R.d.w;R.sp.style.transform=`rotate(${R.a}rad)`+(R.d.flat?` scale(${1+lvl*.07})`:'');R.el.style.opacity=.55+.45*energy}
+  flatParts.core.style.transform=`translate(-50%,-50%) scale(${.92+energy*.12+lvl*.18})`;flatParts.core.style.opacity=.75+.25*energy+flash*.5;
+  flatParts.halo.style.opacity=.5+energy*.5+lvl*.4;
+  flatParts.waves.forEach((w,i)=>{if(S.au===2){const p=(t*.6+i/3)%1;w.style.transform=`translate(-50%,-50%) scale(${1+p*1.1})`;w.style.opacity=(1-p)*.6}else w.style.opacity=0});
+  flatParts.prog.style.opacity=S.pr?1:0;flatParts.mute.style.opacity=cur==='muet'?1:0}
+
+/* ===== loop: runs only while something moves ===== */
+let raf=0,last=0;
+function frame(now){const dt=Math.min(.05,(now-(last||now))/1000);last=now;T+=dt*Math.max(speed,.0001);
+  const ts=targetSpeed();speed+=(ts-speed)*Math.min(1,dt*3);energy+=(S.en-energy)*Math.min(1,dt*3);
+  for(let i=0;i<3;i++)col[i]+=(colT[i]-col[i])*Math.min(1,dt*4);
+  if(flash>0){flash=Math.max(0,flash-dt*1.6)}
+  ry+=dt*speed*.35;const lvl=reduced?0:audio(now/1000)*(S.au?1:0);
+  drawPlasma(T,lvl);drawPlasma(T,lvl,ctx2,{r:.15,inner:1});drawGyro(now/1000,dt,lvl);
+  const still=isStill();document.getElementById('still1').hidden=document.getElementById('still2').hidden=!still;
+  if(still){col=colT.slice();drawPlasma(T,0);drawPlasma(T,0,ctx2,{r:.15,inner:1});drawGyro(now/1000,0,0);raf=0;last=0;return}
+  raf=requestAnimationFrame(frame)}
+function kick(){if(!raf)raf=requestAnimationFrame(frame)}
+addEventListener('resize',resize);
+setState('ecoute');resize();
+</script>

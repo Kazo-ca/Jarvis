@@ -27,6 +27,10 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **To check at the start of stage 1** (the spikes did not): wake word with Benoit's voice and while Jarvis
   speaks, real microphone, end of utterance through Silero, click-through around the orb, idle cost of the
   orb on the real host, window reload on a language change.
+- **UI designs validated on November 19, 2026:** high-quality orb (plasma, binary clouds, gyroscope rings),
+  light orb (still sphere, three open rings), full-screen "command post". Described in
+  [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes in `design/prototypes/`. The upcoming orb ADR builds on
+  this catalog.
 - **Licenses to settle before a public distribution:** espeak-ng (GPLv3, in sherpa-onnx 1.13.8),
   openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).
 - **Known test failures:** none (no tests yet).
