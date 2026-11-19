@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-19 (work item `spikes/12-task-fan-adr`). Waiting for Benoit's approval.
+Accepted by Benoit on 2026-11-19 (proposed the same day, work item `spikes/12-task-fan-adr`).
 
 - **Sources:** Benoit's request of 2026-11-19 (a click on the orb makes the windows of the running tasks
   come out like a hologram, a second click pulls them back in); his choice of the same day between three

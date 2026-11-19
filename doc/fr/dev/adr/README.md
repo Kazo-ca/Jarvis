@@ -15,7 +15,7 @@ libre est indiqué dans la [mémoire du projet](../../memory/README.md).
 | [0007](0007-llm-providers-and-tool-format.md) | Fournisseurs LLM et format des outils | Accepté |
 | [0008](0008-languages-and-localization.md) | Langues et localisation | Accepté |
 | [0009](0009-permission-and-confirmation-model.md) | Modèle de permissions et de confirmation | Accepté |
-| [0010](0010-task-fan-and-orb-click.md) | Éventail des tâches et clic sur l'orbe | Proposé |
+| [0010](0010-task-fan-and-orb-click.md) | Éventail des tâches et clic sur l'orbe | Accepté |
 
 Les neuf premiers ADR sont ceux de l'étape 1, listés dans le
 [document de conception](../plans/design.md#méthode-de-travail-et-premiers-adr).

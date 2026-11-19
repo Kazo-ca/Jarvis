@@ -10,8 +10,8 @@ ce qu'il décrit.
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
 - **Prochain numéro d'ADR libre :** 0011. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
   19 novembre 2026 (chantier `spikes/11-stage-1-adrs`). Ils ne se modifient plus : un nouvel ADR les remplace.
-- **ADR 0010 (éventail des tâches et clic sur l'orbe) : proposé** le 19 novembre 2026 (chantier
-  `spikes/12-task-fan-adr`), en attente de l'accord de Benoit. Benoit a choisi la maquette « éventail », sur
+- **ADR 0010 (éventail des tâches et clic sur l'orbe) : accepté** par Benoit le 19 novembre 2026 (chantier
+  `spikes/12-task-fan-adr`). Il ne se construit qu'à l'étape 2. Benoit a choisi la maquette « éventail », sur
   l'ordinateur seulement, l'orbe dans n'importe quel coin de l'écran : décision ambre, bureau assombri,
   animation à l'ouverture et à la fermeture seulement. Réponse de Benoit du 19 novembre 2026 sur le clic :
   **le double-clic ouvre l'éventail, le simple clic lance l'écoute** (US1.6 et l'ADR 0005 ne changent pas).

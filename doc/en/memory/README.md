@@ -9,8 +9,8 @@ Resume point for any agent. Update it in the same change as what it describes.
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
 - **Next free ADR number:** 0011. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
   November 19, 2026 (work item `spikes/11-stage-1-adrs`). They are no longer edited: a new ADR supersedes them.
-- **ADR 0010 (task fan and click on the orb): proposed** on November 19, 2026 (work item
-  `spikes/12-task-fan-adr`), waiting for Benoit's approval. Benoit chose the "fan" mockup, on the computer
+- **ADR 0010 (task fan and click on the orb): accepted** by Benoit on November 19, 2026 (work item
+  `spikes/12-task-fan-adr`). It is only built at stage 2. Benoit chose the "fan" mockup, on the computer
   only, with the orb in any corner of the screen: amber decision, dimmed desktop, animation at opening and
   closing only. Benoit's answer of November 19, 2026 about the click: **the double click opens the fan,
   the single click starts listening** (US1.6 and ADR 0005 do not change).

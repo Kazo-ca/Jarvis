@@ -15,7 +15,7 @@ free number is given in the [project memory](../../memory/README.md).
 | [0007](0007-llm-providers-and-tool-format.md) | LLM providers and tool format | Accepted |
 | [0008](0008-languages-and-localization.md) | Languages and localization | Accepted |
 | [0009](0009-permission-and-confirmation-model.md) | Permission and confirmation model | Accepted |
-| [0010](0010-task-fan-and-orb-click.md) | Task fan and click on the orb | Proposed |
+| [0010](0010-task-fan-and-orb-click.md) | Task fan and click on the orb | Accepted |
 
 The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).

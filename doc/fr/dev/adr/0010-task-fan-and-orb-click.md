@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-19 (chantier `spikes/12-task-fan-adr`). En attente de l'accord de Benoit.
+Accepté par Benoit le 2026-11-19 (proposé le même jour, chantier `spikes/12-task-fan-adr`).
 
 - **Sources :** demande de Benoit du 2026-11-19 (un clic sur l'orbe fait sortir les fenêtres des tâches en
   cours comme un hologramme, un second clic les y fait rentrer) ; son choix du même jour entre trois
