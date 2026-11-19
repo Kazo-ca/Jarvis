@@ -7,7 +7,8 @@ application will port them to Razor components, with their CSS and JavaScript ne
 (AGENTS.md, section II).
 
 Architecture decisions stay in the ADRs. The task fan is decided by [ADR 0010](../adr/0010-task-fan-and-orb-click.md). The
-upcoming orb ADR (colours and drawing, deferred by ADR 0005) will build on this catalog.
+orb's colours and drawing are decided by [ADR 0011](../adr/0011-orb-look-and-colors.md), built on this catalog. It
+also says how to read the "long task" below: an overlay on any look, not an eighth state.
 
 Everything below is for **the PC only**. The mobile app is not covered.
 

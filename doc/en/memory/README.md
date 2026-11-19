@@ -7,7 +7,8 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Current series:** `spikes` (technical spikes E1 to E10), branch `spikes/base`.
   Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
-- **Next free ADR number:** 0011. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
+- **Next free ADR number:** 0012. ADR 0011 (look and colors of the orb) was **proposed** on November 19, 2026
+  (work item `spikes/14-orb-adr`), waiting for Benoit's approval. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
   November 19, 2026 (work item `spikes/11-stage-1-adrs`). They are no longer edited: a new ADR supersedes them.
 - **ADR 0010 (task fan and click on the orb): accepted** by Benoit on November 19, 2026 (work item
   `spikes/12-task-fan-adr`). It is only built at stage 2. Benoit chose the "fan" mockup, on the computer
@@ -16,8 +17,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   the single click starts listening** (US1.6 and ADR 0005 do not change).
 - **Spike to run at the start of stage 2:** E11, cost and smoothness of the transparent fan window
   (ADR 0010).
-- **ADR to come during stage 1:** the orb, from a mockup (referred by ADR 0005): colors and drawing of the
-  six looks, values of the cyan and the amber, signal of a pending decision when the fan is closed.
+- **Orb ADR (0011, proposed):** colors and drawing of the six looks, values of the cyan and the amber, amber
+  badge for a pending decision when the fan is closed, green overlay for delegated tasks, two versions (high
+  quality by default, light as a setting). Built by the orb slice of stage 1.
 - **Decisions taken but not built:** the whole design document.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
@@ -34,7 +36,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   orb on the real host, window reload on a language change.
 - **UI designs validated on November 19, 2026:** high-quality orb (plasma, binary clouds, gyroscope rings),
   light orb (still sphere, three open rings), full-screen "command post". Described in
-  [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes in `design/prototypes/`. The upcoming orb ADR builds on
+  [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes in `design/prototypes/`. ADR 0011 (orb) builds on
   this catalog.
 - **Licenses to settle before a public distribution:** espeak-ng (GPLv3, in sherpa-onnx 1.13.8),
   openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).
