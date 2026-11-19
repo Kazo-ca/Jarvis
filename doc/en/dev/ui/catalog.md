@@ -6,7 +6,7 @@ describes them so they can be reproduced in the application. The HTML prototypes
 application will port them to Razor components, with their CSS and JavaScript next to each component
 (AGENTS.md, section II).
 
-Architecture decisions stay in the ADRs. The task fan is decided by [ADR 0010](../adr/README.md). The
+Architecture decisions stay in the ADRs. The task fan is decided by [ADR 0010](../adr/0010-task-fan-and-orb-click.md). The
 upcoming orb ADR (colours and drawing, deferred by ADR 0005) will build on this catalog.
 
 Everything below is for **the PC only**. The mobile app is not covered.

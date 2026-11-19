@@ -7,7 +7,7 @@ produit : le code de l'application les portera en composants Razor, avec leur CS
 côté de chaque composant (AGENTS.md, section II).
 
 Les décisions d'architecture restent dans les ADR. L'éventail des tâches est décidé par
-l'[ADR 0010](../adr/README.md). L'ADR de l'orbe à venir (couleurs et dessin, renvoyé par l'ADR 0005)
+l'[ADR 0010](../adr/0010-task-fan-and-orb-click.md). L'ADR de l'orbe à venir (couleurs et dessin, renvoyé par l'ADR 0005)
 s'appuiera sur ce catalogue.
 
 Tout ce qui suit concerne **l'ordinateur seulement**. L'application mobile n'est pas couverte.
