@@ -17,12 +17,11 @@ ce qu'il décrit.
   **le double-clic ouvre l'éventail, le simple clic lance l'écoute** (US1.6 et l'ADR 0005 ne changent pas).
 - **Essai à faire au début de l'étape 2 :** E11, coût et fluidité de la fenêtre transparente de l'éventail
   (ADR 0010).
-- **ADR 0011 (couleurs et dessin de l'orbe) : proposé** le 19 novembre 2026 (chantier
-  `spikes/14-orb-look-adr`), en attente de l'accord de Benoit. Il reprend le catalogue validé : deux versions
-  (haute qualité par défaut, légère en réglage), sept aspects, anneau de progression à la place des
-  satellites, badge ambre des décisions. Question posée à Benoit : la rotation de l'orbe pendant une tâche
-  longue ; l'ADR retient « image fixe sur Windows tant qu'une mesure ne l'a pas permise ». À son
-  acceptation : mettre à jour la section « L'orbe et ses sept états » de la conception.
+- **ADR 0011 (couleurs et dessin de l'orbe) : accepté** par Benoit le 19 novembre 2026 (chantier
+  `spikes/14-orb-look-adr`). Il reprend le catalogue validé : deux
+  versions (haute qualité par défaut, légère en réglage), sept aspects, anneau de progression à la place des
+  satellites, badge ambre des décisions. Pendant une tâche longue, l'orbe reste une image fixe sur Windows
+  tant qu'une mesure n'a pas permis la rotation (recommandation retenue par Benoit).
 - **À mesurer à l'étape 1 (ADR 0011) :** le coût des deux versions de l'orbe sur l'hôte réel, en veille et en
   animation. Si la haute qualité dépasse nettement 14 à 18 % d'un cœur, la légère devient celle par défaut.
 - **Décisions prises mais pas construites :** tout le document de conception.

@@ -2,7 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-19 (work item `spikes/14-orb-look-adr`). Waiting for Benoit's approval.
+Accepted by Benoit on 2026-11-19 (proposed the same day, work item `spikes/14-orb-look-adr`). On the question
+of the long task, he kept the recommendation: still frame on Windows (section 5).
 
 - **Sources:** the [design catalog](../ui/catalog.md), validated by Benoit on 2026-11-19 on animated
   prototypes ([`design/prototypes/`](../../../../design/README.md)); his request of the same day to write
@@ -169,5 +170,5 @@ light, never the size.
   seven looks.
 - **Risk:** the high-quality version redraws a grid of 42 × 96 digits on every frame. Its cost in the
   transparent window may exceed what spike E6 measured. Section 8 covers that case.
-- The section "The orb and its seven states" of the design describes the former drawing (pulsing rings,
-  satellites). It is updated when this ADR is accepted.
+- The section "The orb and its seven states" of the design described the former drawing (pulsing rings,
+  satellites). It is updated with the acceptance of this ADR.

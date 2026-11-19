@@ -2,7 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-19 (chantier `spikes/14-orb-look-adr`). En attente de l'accord de Benoit.
+Accepté par Benoit le 2026-11-19 (proposé le même jour, chantier `spikes/14-orb-look-adr`). Sur la question
+de la tâche longue, il a retenu la recommandation : image fixe sur Windows (section 5).
 
 - **Sources :** le [catalogue des designs](../ui/catalog.md), validé par Benoit le 2026-11-19 sur prototypes
   animés ([`design/prototypes/`](../../../../design/README.md)) ; sa demande du même jour d'écrire cet ADR à
@@ -172,5 +173,5 @@ la lumière, jamais la taille.
   et les sept aspects.
 - **Risque :** la version haute qualité redessine à chaque image une grille de 42 × 96 chiffres. Son coût
   dans la fenêtre transparente peut dépasser ce que l'essai E6 a mesuré. La section 8 prévoit ce cas.
-- La section « L'orbe et ses sept états » de la conception décrit l'ancien dessin (anneaux qui pulsent,
-  satellites). Elle se met à jour quand cet ADR est accepté.
+- La section « L'orbe et ses sept états » de la conception décrivait l'ancien dessin (anneaux qui pulsent,
+  satellites). Elle est mise à jour avec l'acceptation de cet ADR.

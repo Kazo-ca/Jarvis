@@ -1,7 +1,7 @@
 # Stage 1 series plan: orb, voice, local model and settings
 
 2026-11-19 · **Validated by Benoit on 2026-11-19** (work item `spikes/15-stage-1-plan`, answers written by
-`spikes/17-stage-1-answers`). Builds on ADR 0011 (colors and drawing of the orb).
+`spikes/17-stage-1-answers`). Builds on ADR 0011 (colors and drawing of the orb), accepted the same day.
 
 ## Goal
 

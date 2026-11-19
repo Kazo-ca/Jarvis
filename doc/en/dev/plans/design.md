@@ -108,23 +108,23 @@ Dependency rules, to be fixed in ADR 0002:
 
 ## The orb and its seven states
 
-The orb has seven states, and each must be recognizable out of the corner of the eye without reading any text. The animation reacts to the real volume: that of the microphone while listening, that of the synthesized voice while speaking.
+The orb has seven states, and each must be recognizable out of the corner of the eye without reading any text. The light reacts to the real volume: that of the microphone while listening, that of the synthesized voice while speaking.
 
-| State | When | Visual intent |
+| State | When | Look |
 | --- | --- | --- |
-| Idle | Waiting for the wake word | Slow rings, low brightness, calm breathing |
-| Listening | Wake word picked up, shortcut or click | Open rings that pulse with the microphone volume |
-| Thinking | Transcription, then waiting for the model | Arcs that turn at different speeds, unrelated to sound |
-| Speaking | Synthesis in progress | Central wave that follows the volume of the voice |
-| Delegated task | Claude or a long task is working in the background | Idle orb with one satellite in orbit per active task |
-| Mic muted | Deliberate mute | Orb off, gray, crossed-out ring |
-| Error | Microphone, model or network unreachable | Alert tint, brief pulse, cause shown on hover |
+| Idle | Waiting for the wake word | Cyan, still, low brightness |
+| Listening | Wake word picked up, shortcut or click | Cyan, gentle rotation; the voice raises the light |
+| Thinking | Transcription, then waiting for the model | Violet, fast rotation |
+| Speaking | Synthesis in progress | Cyan; the light follows the voice, or the rings pulse at random |
+| Long task | Claude or a long task is working in the background | Green, progress ring |
+| Mic muted | Deliberate mute | Gray, still, label "microphone muted" |
+| Error | Microphone, model or network unreachable | Red, a flash then still, cause shown on hover |
 
 Common rules:
 
-- The "delegated task" state overlays the others. Jarvis can listen or speak while Claude works.
-- The exact colors and the design are to be decided on a mockup, in a dedicated ADR.
-- A "reduced motion" option replaces the animations with color changes.
+- The progress ring of a long task stays visible over the other states. Jarvis can listen or speak while Claude works.
+- The colors and the drawing are set by [ADR 0011](../adr/0011-orb-colors-and-drawing.md), from the [design catalog](../ui/catalog.md). The orb exists in two versions: high quality and light.
+- A "reduced motion" option removes the rotations and the pulses.
 - The same component is used on Windows, in the Web test host and on mobile.
 
 ## Stage 1: orb, voice, local model and settings
