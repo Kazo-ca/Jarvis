@@ -200,13 +200,17 @@ Pour mémoire ; un nouvel ADR le fera au début de la série v2 :
   à la règle.
 - **ADR 0004 :** ajout de PostgreSQL comme base du module Relais.
 
-### 10. Ce que cet ADR ne décide pas
+### 10. Réponses de Benoit du 2026-11-19
+
+- **Une réponse dite à voix haute** à une question `user` est publiée comme `user` : c'est l'humain qui parle.
+  Elle ne vaut jamais accord pour une approbation, qui suit toujours l'ADR 0009 (canaux et classes).
+- **L'orchestrateur d'un sujet est réglable**, et le réglage par défaut est **le modèle local de Jarvis**. Il
+  s'exprime sous son compte d'agent, jamais comme `user`.
+
+### 11. Ce que cet ADR ne décide pas
 
 - Le mode d'hébergement retenu (preuves de concept 1 et 2 de la spec).
-- **Une réponse dite à voix haute** à une question `user` : est-elle publiée comme `user` (c'est l'humain qui
-  parle) ou faut-il une confirmation, puisqu'une voix peut être captée par erreur (ADR 0009) ?
-- Si le modèle local de Jarvis prend un rôle d'orchestrateur par défaut, et la mise en veille d'un
-  orchestrateur sans tâche active (question ouverte de la spec).
+- La mise en veille d'un orchestrateur sans tâche active (question ouverte de la spec).
 - L'affichage des sujets et des tâches sur le téléphone (ADR du mobile, étape 4).
 - Les autres questions ouvertes de la spec.
 

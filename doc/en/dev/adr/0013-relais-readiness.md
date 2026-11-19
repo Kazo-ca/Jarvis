@@ -196,13 +196,17 @@ For the record; a new ADR will do it at the start of the v2 series:
   exception when its tunnel is open (section 8). The embedded server of Jarvis stays under the rule.
 - **ADR 0004:** PostgreSQL added as the database of the Relais module.
 
-### 10. What this ADR does not decide
+### 10. Benoit's answers of 2026-11-19
+
+- **An answer said aloud** to a `user` question is posted as `user`: the human is speaking. It never counts
+  as agreement to an approval, which still follows ADR 0009 (channels and classes).
+- **The orchestrator of a subject is a setting**, and the default is **Jarvis's local model**. It speaks under
+  its agent account, never as `user`.
+
+### 11. What this ADR does not decide
 
 - The hosting mode chosen (proofs of concept 1 and 2 of the spec).
-- **An answer said aloud** to a `user` question: is it posted as `user` (the human is speaking), or does it
-  need a confirmation, since a voice can be picked up by mistake (ADR 0009)?
-- Whether Jarvis's local model takes an orchestrator role by default, and putting an orchestrator to sleep
-  when it has no active task (open question of the spec).
+- Putting an orchestrator to sleep when it has no active task (open question of the spec).
 - How subjects and tasks are shown on the phone (mobile ADR, stage 4).
 - The other open questions of the spec.
 
