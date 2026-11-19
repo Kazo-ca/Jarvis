@@ -59,6 +59,9 @@ ce qu'il décrit.
   s'appuie sur ce catalogue.
 - **Licences à régler avant une diffusion publique :** espeak-ng (GPLv3, dans sherpa-onnx 1.13.8), modèles
   d'openWakeWord (CC BY-NC-SA 4.0), licence de chaque voix (ADR 0006).
+- **Dépôt public :** Benoit a confirmé le 19 novembre 2026 que `Kazo-ca/Jarvis` est public ([ADR 0014](../dev/adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). La
+  vérification des versions (US1.18) n'a donc pas besoin de jeton ; la conséquence de l'ADR 0001 qui en
+  parlait ne s'applique plus.
 - **Échecs de tests connus :** aucun.
 - **Vérification sur Windows du chantier 1 à faire** (par un agent sur le PC de Benoit) : les deux hôtes
   démarrent et `dotnet test` passe sous Windows. Tant qu'elle n'est pas faite, la PR du chantier 1 le dit.
