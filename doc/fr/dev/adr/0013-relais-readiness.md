@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-19 (chantier `stage1/relais-architecture-adr`). En attente de l'accord de Benoit.
+Accepté par Benoit le 2026-11-19 (proposé le même jour, chantier `stage1/relais-architecture-adr`).
 
 - **Sources :** demande de Benoit du 2026-11-19 : brancher un MCP et des hooks dans Claude ou ChatGPT, faire
   parler les modèles entre eux sous les yeux de l'humain, sans coder tout de suite (probablement en v2), mais

@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-19 (work item `stage1/relais-architecture-adr`). Waiting for Benoit's agreement.
+Accepted by Benoit on 2026-11-19 (proposed the same day, work item `stage1/relais-architecture-adr`).
 
 - **Sources:** Benoit's request of 2026-11-19: plug an MCP server and hooks into Claude or ChatGPT, let the
   models talk to each other while the human sees the exchanges, not coded yet (probably v2), but making sure

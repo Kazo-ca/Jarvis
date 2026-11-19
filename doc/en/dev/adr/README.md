@@ -18,7 +18,7 @@ free number is given in the [project memory](../../memory/README.md).
 | [0010](0010-task-fan-and-orb-click.md) | Task fan and click on the orb | Accepted |
 | [0011](0011-orb-colors-and-drawing.md) | Colors and drawing of the orb | Accepted |
 | [0012](0012-scripts-allowed-in-markup.md) | Script is allowed in markup (partly supersedes 0002) | Accepted |
-| [0013](0013-relais-readiness.md) | Preparing the Relais module (v2): projects, subjects, tasks and orchestrator | Proposed |
+| [0013](0013-relais-readiness.md) | Preparing the Relais module (v2): projects, subjects, tasks and orchestrator | Accepted |
 
 The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).
