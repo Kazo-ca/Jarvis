@@ -6,8 +6,9 @@ describes them so they can be reproduced in the application. The HTML prototypes
 application will port them to Razor components, with their CSS and JavaScript next to each component
 (AGENTS.md, section II).
 
-Architecture decisions stay in the ADRs. The task fan is decided by [ADR 0010](../adr/0010-task-fan-and-orb-click.md). The
-upcoming orb ADR (colours and drawing, deferred by ADR 0005) will build on this catalog.
+Architecture decisions stay in the ADRs. The task fan is decided by
+[ADR 0010](../adr/0010-task-fan-and-orb-click.md). The colours and the drawing of the orb are decided by
+[ADR 0011](../adr/0011-orb-colors-and-drawing.md), which builds on this catalog.
 
 Everything below is for **the PC only**. The mobile app is not covered.
 
@@ -102,9 +103,9 @@ open rings, like the dials of a combination lock.
 ## 5. The task fan
 
 Prototype: [`task-fan.html`](../../../../design/prototypes/task-fan.html) (parameters `?v=A&s=open&c=br`,
-`c` = corner `tl`, `tr`, `bl` or `br`). Decided by ADR 0010: a click on the orb fans the windows of running
-tasks out in an arc, towards the centre of the screen whichever corner the orb sits in; a second click pulls
-them back. Desktop dimmed, thin lines from the orb to each window, a task waiting for a decision in amber with
+`c` = corner `tl`, `tr`, `bl` or `br`). Decided by ADR 0010: a double click on the orb fans the windows of
+running tasks out in an arc, towards the centre of the screen whichever corner the orb sits in; a second
+double click pulls them back. Desktop dimmed, thin lines from the orb to each window, a task waiting for a decision in amber with
 its buttons, animation only while opening and closing.
 
 ## 6. Full screen ("command post")

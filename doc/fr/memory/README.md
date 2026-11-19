@@ -8,7 +8,7 @@ ce qu'il décrit.
 - **Série en cours :** `spikes` (essais techniques E1 à E10), branche `spikes/base`.
   Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX, étape 5 retirée). En attente : E10
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
-- **Prochain numéro d'ADR libre :** 0011. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
+- **Prochain numéro d'ADR libre :** 0012. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
   19 novembre 2026 (chantier `spikes/11-stage-1-adrs`). Ils ne se modifient plus : un nouvel ADR les remplace.
 - **ADR 0010 (éventail des tâches et clic sur l'orbe) : accepté** par Benoit le 19 novembre 2026 (chantier
   `spikes/12-task-fan-adr`). Il ne se construit qu'à l'étape 2. Benoit a choisi la maquette « éventail », sur
@@ -17,8 +17,14 @@ ce qu'il décrit.
   **le double-clic ouvre l'éventail, le simple clic lance l'écoute** (US1.6 et l'ADR 0005 ne changent pas).
 - **Essai à faire au début de l'étape 2 :** E11, coût et fluidité de la fenêtre transparente de l'éventail
   (ADR 0010).
-- **ADR à venir pendant l'étape 1 :** l'orbe, sur maquette (renvoyé par l'ADR 0005) : couleurs et dessin des
-  six aspects, valeurs du cyan et de l'ambre, signal d'une décision en attente quand l'éventail est fermé.
+- **ADR 0011 (couleurs et dessin de l'orbe) : proposé** le 19 novembre 2026 (chantier
+  `spikes/14-orb-look-adr`), en attente de l'accord de Benoit. Il reprend le catalogue validé : deux versions
+  (haute qualité par défaut, légère en réglage), sept aspects, anneau de progression à la place des
+  satellites, badge ambre des décisions. Question posée à Benoit : la rotation de l'orbe pendant une tâche
+  longue ; l'ADR retient « image fixe sur Windows tant qu'une mesure ne l'a pas permise ». À son
+  acceptation : mettre à jour la section « L'orbe et ses sept états » de la conception.
+- **À mesurer à l'étape 1 (ADR 0011) :** le coût des deux versions de l'orbe sur l'hôte réel, en veille et en
+  animation. Si la haute qualité dépasse nettement 14 à 18 % d'un cœur, la légère devient celle par défaut.
 - **Décisions prises mais pas construites :** tout le document de conception.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
@@ -35,8 +41,8 @@ ce qu'il décrit.
   l'orbe en veille sur l'hôte réel, rechargement des fenêtres au changement de langue.
 - **Designs de l'interface validés le 19 novembre 2026 :** orbe haute qualité (plasma, nuages binaires,
   anneaux gyroscopiques), orbe légère (sphère fixe, trois anneaux ouverts), plein écran « poste de commande ».
-  Décrits dans [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes dans `design/prototypes/`. L'ADR de
-  l'orbe à venir s'appuie sur ce catalogue.
+  Décrits dans [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes dans `design/prototypes/`. L'ADR 0011
+  s'appuie sur ce catalogue.
 - **Licences à régler avant une diffusion publique :** espeak-ng (GPLv3, dans sherpa-onnx 1.13.8), modèles
   d'openWakeWord (CC BY-NC-SA 4.0), licence de chaque voix (ADR 0006).
 - **Échecs de tests connus :** aucun (pas encore de tests).

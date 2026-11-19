@@ -7,7 +7,7 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Current series:** `spikes` (technical spikes E1 to E10), branch `spikes/base`.
   Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
-- **Next free ADR number:** 0011. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
+- **Next free ADR number:** 0012. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
   November 19, 2026 (work item `spikes/11-stage-1-adrs`). They are no longer edited: a new ADR supersedes them.
 - **ADR 0010 (task fan and click on the orb): accepted** by Benoit on November 19, 2026 (work item
   `spikes/12-task-fan-adr`). It is only built at stage 2. Benoit chose the "fan" mockup, on the computer
@@ -16,8 +16,14 @@ Resume point for any agent. Update it in the same change as what it describes.
   the single click starts listening** (US1.6 and ADR 0005 do not change).
 - **Spike to run at the start of stage 2:** E11, cost and smoothness of the transparent fan window
   (ADR 0010).
-- **ADR to come during stage 1:** the orb, from a mockup (referred by ADR 0005): colors and drawing of the
-  six looks, values of the cyan and the amber, signal of a pending decision when the fan is closed.
+- **ADR 0011 (colors and drawing of the orb): proposed** on November 19, 2026 (work item
+  `spikes/14-orb-look-adr`), waiting for Benoit's approval. It carries the validated catalog: two versions
+  (high quality by default, light as a setting), seven looks, a progress ring in place of the satellites,
+  an amber badge for decisions. Question asked to Benoit: the rotation of the orb during a long task; the
+  ADR keeps "still frame on Windows until a measurement allows it". When it is accepted: update the section
+  "The orb and its seven states" of the design.
+- **To measure at stage 1 (ADR 0011):** the cost of both orb versions on the real host, idle and animated.
+  If the high-quality one clearly exceeds 14 to 18 % of one core, the light one becomes the default.
 - **Decisions taken but not built:** the whole design document.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
@@ -34,7 +40,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   orb on the real host, window reload on a language change.
 - **UI designs validated on November 19, 2026:** high-quality orb (plasma, binary clouds, gyroscope rings),
   light orb (still sphere, three open rings), full-screen "command post". Described in
-  [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes in `design/prototypes/`. The upcoming orb ADR builds on
+  [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes in `design/prototypes/`. ADR 0011 builds on
   this catalog.
 - **Licenses to settle before a public distribution:** espeak-ng (GPLv3, in sherpa-onnx 1.13.8),
   openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).

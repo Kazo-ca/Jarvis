@@ -7,8 +7,8 @@ produit : le code de l'application les portera en composants Razor, avec leur CS
 côté de chaque composant (AGENTS.md, section II).
 
 Les décisions d'architecture restent dans les ADR. L'éventail des tâches est décidé par
-l'[ADR 0010](../adr/0010-task-fan-and-orb-click.md). L'ADR de l'orbe à venir (couleurs et dessin, renvoyé par l'ADR 0005)
-s'appuiera sur ce catalogue.
+l'[ADR 0010](../adr/0010-task-fan-and-orb-click.md). Les couleurs et le dessin de l'orbe sont décidés par
+l'[ADR 0011](../adr/0011-orb-colors-and-drawing.md), qui s'appuie sur ce catalogue.
 
 Tout ce qui suit concerne **l'ordinateur seulement**. L'application mobile n'est pas couverte.
 
@@ -106,9 +106,9 @@ et trois anneaux ouverts, comme les disques d'un cadenas à combinaison.
 ## 5. L'éventail des tâches
 
 Prototype : [`task-fan.html`](../../../../design/prototypes/task-fan.html) (paramètres `?v=A&s=open&c=br`,
-`c` = coin `tl`, `tr`, `bl` ou `br`). Décidé par l'ADR 0010 : un clic sur l'orbe fait sortir en arc les
-fenêtres des tâches en cours, vers le centre de l'écran quel que soit le coin où se trouve l'orbe ; un
-second clic les fait rentrer. Bureau assombri, traits fins entre l'orbe et chaque fenêtre, tâche à décider
+`c` = coin `tl`, `tr`, `bl` ou `br`). Décidé par l'ADR 0010 : un double-clic sur l'orbe fait sortir en arc
+les fenêtres des tâches en cours, vers le centre de l'écran quel que soit le coin où se trouve l'orbe ; un
+second double-clic les fait rentrer. Bureau assombri, traits fins entre l'orbe et chaque fenêtre, tâche à décider
 en ambre avec ses boutons, animation seulement à l'ouverture et à la fermeture.
 
 ## 6. Le plein écran (« poste de commande »)
