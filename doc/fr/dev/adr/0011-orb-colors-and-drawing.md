@@ -3,7 +3,8 @@
 ## Statut
 
 Accepté par Benoit le 2026-11-19 (proposé le même jour, chantier `spikes/14-orb-look-adr`). Sur la question
-de la tâche longue, il a retenu la recommandation : image fixe sur Windows (section 5).
+de la tâche longue, il a choisi la rotation lente du prototype (section 5). Une première version de cette
+page disait l'inverse : elle a été corrigée le jour même, dès sa réponse reçue.
 
 - **Sources :** le [catalogue des designs](../ui/catalog.md), validé par Benoit le 2026-11-19 sur prototypes
   animés ([`design/prototypes/`](../../../../design/README.md)) ; sa demande du même jour d'écrire cet ADR à
@@ -12,7 +13,7 @@ de la tâche longue, il a retenu la recommandation : image fixe sur Windows (sec
 - **Remplace en partie :** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md), sur trois points :
   la technique de dessin (sa section 5), les satellites des tâches déléguées (ses sections 2 et 6), et la
   liste des aspects (sa section 2). Sa machine à états, ses transitions et son budget en veille restent
-  valables.
+  valables ; ce budget ne vaut plus pendant une tâche longue (section 5).
 - **Complète :** [ADR 0010](0010-task-fan-and-orb-click.md), dont la section 9 renvoyait ici les valeurs du
   cyan et de l'ambre et le signal d'une décision en attente.
 
@@ -69,7 +70,7 @@ de la tâche longue, il a retenu la recommandation : image fixe sur Windows (sec
 | Écoute | Cyan | Rotation douce. La voix fait monter la lumière doucement, sans changer la taille de l'orbe |
 | Réflexion | Violet | Rotation rapide |
 | Parole | Cyan | Haute qualité : la lumière suit la voix. Légère : chaque anneau pulse de son côté, au hasard |
-| Tâche longue | Vert | Anneau de progression (voir la section 5) |
+| Tâche longue | Vert | Rotation lente et anneau de progression |
 | Erreur | Rouge | Un éclair à l'entrée, puis immobile. La cause s'affiche au survol |
 | Micro coupé | Gris | Immobile, avec la mention « micro coupé » |
 
@@ -99,21 +100,24 @@ Deux éléments se dessinent par-dessus l'aspect, quel qu'il soit :
 ### 5. Animation
 
 Cette table complète celle de l'ADR 0005 (sa section 6). Le budget en veille ne change pas : moins de 2 %
-d'un cœur sur Windows.
+d'un cœur sur Windows, quand aucune tâche déléguée ne tourne.
 
 | Aspect | Règle sur Windows |
 | --- | --- |
 | Veille, micro coupé | Image fixe, dans les deux versions |
 | Erreur | L'éclair d'entrée, puis image fixe |
-| Tâche longue | **Image fixe.** L'anneau de progression est redessiné par pas, au plus une fois toutes les 5 secondes au départ ; l'intervalle est réglé par la mesure |
+| Tâche longue | **Rotation lente, comme le prototype**, pendant toute la tâche. L'anneau de progression avance avec elle |
 | Écoute, réflexion, parole | Animation complète |
 | Mouvement réduit | Aucune rotation et aucune pulsation ; la couleur et la luminosité changent quand même |
 
-- **Tâche longue :** le prototype fait tourner l'orbe lentement pendant toute la tâche. Une tâche peut durer
-  des dizaines de minutes : sur Windows, cette rotation n'est permise que si la mesure sur l'hôte réel tient
-  le budget en veille. L'hôte Web la montre, pour la démonstration.
-- **Animer la veille** reste interdit sur Windows, pour la même raison. Les prototypes ont une case pour
-  l'essayer ; l'autoriser demanderait une mesure et un nouvel ADR.
+- **Tâche longue :** choix de Benoit, à qui la question a été posée. L'orbe tourne lentement tant qu'une
+  tâche déléguée travaille, même pendant des dizaines de minutes. D'après l'essai E6, cela peut coûter 6 à
+  18 % d'un cœur pendant ce temps : ce coût est accepté. La cadence de dessin de cet aspect se règle par la
+  mesure, pour garder une rotation fluide au moindre coût.
+- La rotation s'arrête dès que l'aspect change : en erreur et micro coupé, l'orbe est fixe même si une tâche
+  travaille.
+- **Animer la veille** reste interdit sur Windows : le budget en veille l'empêche. Les prototypes ont une
+  case pour l'essayer ; l'autoriser demanderait une mesure et un nouvel ADR.
 - **Dessin par script** (sphère et nuages de la version haute qualité) : au plus 30 images par seconde,
   comme le dit l'ADR 0005. Les prototypes dessinent à la cadence de l'écran ; le composant la limite.
 - **Rotation des anneaux de la version légère :** elle est faite par le moteur du navigateur, sur des
@@ -144,7 +148,7 @@ la lumière, jamais la taille.
 ### 8. Mesure à l'étape 1
 
 - Avant de déclarer la tranche de l'orbe terminée, les deux versions sont mesurées sur l'hôte réel, avec la
-  méthode de l'essai E6 : en veille, puis en écoute, en réflexion et en parole.
+  méthode de l'essai E6 : en veille, puis en écoute, en réflexion, en parole et en tâche longue.
 - En veille, les deux versions doivent tenir le budget de l'ADR 0005.
 - Si la version haute qualité dépasse nettement, en animation, les 14 à 18 % d'un cœur acceptés par
   l'ADR 0005, la version légère devient la version par défaut, et la mémoire du projet le note.
@@ -167,8 +171,9 @@ la lumière, jamais la taille.
   disparaissent.
 - La veille, l'écoute et la parole ont la même couleur. Elles se distinguent par le mouvement et la lumière,
   pas par la teinte. La réflexion, la tâche longue, l'erreur et le micro coupé ont chacun la leur.
-- Sur Windows, l'orbe ne tourne pas pendant une tâche longue, contrairement au prototype, tant qu'une mesure
-  ne l'a pas permis.
+- Pendant une tâche longue, l'affichage coûte comme une phase animée, aussi longtemps que la tâche dure. Le
+  budget de moins de 2 % d'un cœur ne vaut que sans tâche déléguée. L'ADR 0005 prévoyait des satellites
+  immobiles : cette règle est remplacée.
 - Il y a deux dessins à tenir à jour et à tester. La page de démonstration (US1.3) montre les deux versions
   et les sept aspects.
 - **Risque :** la version haute qualité redessine à chaque image une grille de 42 × 96 chiffres. Son coût

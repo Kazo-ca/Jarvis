@@ -19,8 +19,8 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **ADR 0011 (colors and drawing of the orb): accepted** by Benoit on November 19, 2026 (work item
   `spikes/14-orb-look-adr`). It carries the validated catalog: two versions
   (high quality by default, light as a setting), seven looks, a progress ring in place of the satellites,
-  an amber badge for decisions. During a long task, the orb stays a still frame on Windows until a
-  measurement allows the rotation (recommendation kept by Benoit).
+  an amber badge for decisions. During a long task, the orb turns slowly as in the prototype:
+  Benoit's choice on the card of November 19, 2026, cost of 6 to 18 % of one core accepted.
 - **To measure at stage 1 (ADR 0011):** the cost of both orb versions on the real host, idle and animated.
   If the high-quality one clearly exceeds 14 to 18 % of one core, the light one becomes the default.
 - **Decisions taken but not built:** the whole design document.

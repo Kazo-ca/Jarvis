@@ -3,7 +3,8 @@
 ## Status
 
 Accepted by Benoit on 2026-11-19 (proposed the same day, work item `spikes/14-orb-look-adr`). On the question
-of the long task, he kept the recommendation: still frame on Windows (section 5).
+of the long task, he chose the slow rotation of the prototype (section 5). A first version of this page
+said the opposite: it was corrected the same day, as soon as his answer was received.
 
 - **Sources:** the [design catalog](../ui/catalog.md), validated by Benoit on 2026-11-19 on animated
   prototypes ([`design/prototypes/`](../../../../design/README.md)); his request of the same day to write
@@ -11,7 +12,8 @@ of the long task, he kept the recommendation: still frame on Windows (section 5)
   [design](../plans/design.md); spike E6 ([results](../../../../spikes/e6-orb-window/RESULTS.md)).
 - **Partly supersedes:** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md), on three points: the
   drawing technique (its section 5), the satellites of delegated tasks (its sections 2 and 6), and the list
-  of looks (its section 2). Its state machine, its transitions and its idle budget still hold.
+  of looks (its section 2). Its state machine, its transitions and its idle budget still hold; that budget
+  no longer applies during a long task (section 5).
 - **Completes:** [ADR 0010](0010-task-fan-and-orb-click.md), whose section 9 referred here the values of the
   cyan and the amber and the signal of a pending decision.
 
@@ -68,7 +70,7 @@ of the long task, he kept the recommendation: still frame on Windows (section 5)
 | Listening | Cyan | Gentle rotation. The voice raises the light gently, without changing the size of the orb |
 | Thinking | Violet | Fast rotation |
 | Speaking | Cyan | High quality: the light follows the voice. Light: each ring pulses on its own, at random |
-| Long task | Green | Progress ring (see section 5) |
+| Long task | Green | Slow rotation and progress ring |
 | Error | Red | A flash on entry, then still. The cause is shown on hover |
 | Microphone muted | Gray | Still, with the label "microphone muted" |
 
@@ -98,21 +100,24 @@ Two elements are drawn over the look, whatever it is:
 ### 5. Animation
 
 This table completes the one of ADR 0005 (its section 6). The idle budget does not change: under 2 % of
-one core on Windows.
+one core on Windows, when no delegated task is running.
 
 | Look | Rule on Windows |
 | --- | --- |
 | Idle, microphone muted | Still frame, in both versions |
 | Error | The entry flash, then a still frame |
-| Long task | **Still frame.** The progress ring is redrawn in steps, at most once every 5 seconds to start with; the interval is tuned by measurement |
+| Long task | **Slow rotation, like the prototype**, during the whole task. The progress ring moves on with it |
 | Listening, thinking, speaking | Full animation |
 | Reduced motion | No rotation and no pulse; the color and the brightness still change |
 
-- **Long task:** the prototype makes the orb turn slowly during the whole task. A task can last tens of
-  minutes: on Windows, this rotation is only allowed if the measurement on the real host stays within the
-  idle budget. The Web host shows it, for the demo.
-- **Animating the idle look** stays forbidden on Windows, for the same reason. The prototypes have a
-  checkbox to try it; allowing it would need a measurement and a new ADR.
+- **Long task:** Benoit's choice, the question having been asked to him. The orb turns slowly as long as a
+  delegated task is working, even for tens of minutes. According to spike E6, this can cost 6 to 18 % of
+  one core during that time: this cost is accepted. The drawing rate of this look is tuned by measurement,
+  to keep a smooth rotation at the lowest cost.
+- The rotation stops as soon as the look changes: with an error or the microphone muted, the orb is still
+  even if a task is working.
+- **Animating the idle look** stays forbidden on Windows: the idle budget prevents it. The prototypes have
+  a checkbox to try it; allowing it would need a measurement and a new ADR.
 - **Drawing by script** (sphere and clouds of the high-quality version): at most 30 frames per second, as
   ADR 0005 says. The prototypes draw at the screen rate; the component caps it.
 - **Ring rotation of the light version:** it is done by the browser engine, on layers already drawn, with
@@ -143,7 +148,7 @@ light, never the size.
 ### 8. Measurement at stage 1
 
 - Before the orb slice is declared done, both versions are measured on the real host, with the method of
-  spike E6: idle, then listening, thinking and speaking.
+  spike E6: idle, then listening, thinking, speaking and long task.
 - When idle, both versions must stay within the budget of ADR 0005.
 - If the high-quality version clearly exceeds, when animated, the 14 to 18 % of one core accepted by
   ADR 0005, the light version becomes the default version, and the project memory records it.
@@ -164,8 +169,9 @@ light, never the size.
 - The orb has seven exclusive looks, instead of six looks and one overlay. The satellites are gone.
 - Idle, listening and speaking have the same color. They differ by motion and light, not by hue. Thinking,
   long task, error and microphone muted each have their own.
-- On Windows, the orb does not turn during a long task, unlike the prototype, until a measurement allows
-  it.
+- During a long task, the display costs like an animated phase, for as long as the task lasts. The budget
+  of under 2 % of one core only applies with no delegated task. ADR 0005 planned still satellites: that
+  rule is superseded.
 - There are two drawings to keep current and to test. The demo page (US1.3) shows both versions and the
   seven looks.
 - **Risk:** the high-quality version redraws a grid of 42 × 96 digits on every frame. Its cost in the
