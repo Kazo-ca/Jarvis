@@ -160,7 +160,8 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
 - **Tests Playwright :** chaque aspect (le composant expose son aspect courant dans un attribut), le
   mouvement réduit, le clic.
 - **Vérification sur Windows :** veille, micro coupé et erreur sous 2 % d'un cœur avec la version légère
-  (ADR 0005, obligatoire) ; coût des phases animées relevé.
+  (ADR 0005, obligatoire) ; coût des phases animées relevé, et celui de la tâche longue, qui tourne
+  lentement pendant toute la tâche (choix de Benoit, ADR 0011, section 5).
 
 ### 7. Orbe, version haute qualité (`stage1/7-orb-high-quality`)
 
@@ -293,7 +294,7 @@ vérifier au début de l'étape 1 » de la mémoire du projet.
 | Clics autour de l'orbe vers l'application dessous | 4 |
 | Raccourci global quand une autre application a le focus | 4 |
 | Rechargement des fenêtres au changement de langue | 5 |
-| Orbe en veille sous 2 % d'un cœur, les deux versions | 6, 7 |
+| Orbe en veille sous 2 % d'un cœur, les deux versions ; coût de la tâche longue relevé | 6, 7 |
 | Micro réel, coupure réelle | 8 |
 | Mot d'éveil avec la voix de Benoit, seuil retenu | 9 |
 | Fin de phrase par Silero avec un micro réel | 10 |
