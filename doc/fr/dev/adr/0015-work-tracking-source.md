@@ -92,14 +92,14 @@ Quand une source est réglée, Jarvis donne à **chaque agent** qu'il lance ou q
 (réglages Claude Code propres à Jarvis, `AGENTS.md` pour Codex, consigne système du modèle local) la consigne
 suivante, adaptée à la source :
 
-- **Azure Boards :**
+- **Azure Boards (projets Azure DevOps seulement) :**
   - chaque message de commit contient `AB#<id>` du work item de la tâche ;
   - la **description** de chaque PR contient `AB#<id>` (le titre ne compte pas, un commentaire non plus) ;
   - pour fermer le travail à la fusion : `Fixes AB#<id>` dans la description, **le mot répété devant chaque
     work item** ; seule la fusion dans la branche par défaut fait changer l'état ;
   - de préférence, la branche est créée depuis le work item ou nommée d'après lui.
-- **GitHub Issues :** `#<n>` dans chaque message de commit ; `Fixes #<n>` (ou `Refs #<n>` si la PR ne termine
-  pas l'issue) dans la description de chaque PR.
+- **GitHub Issues :** simplement `#<id>` de l'issue (pas de `AB#`) dans chaque message de commit et dans la
+  description de chaque PR. Pour fermer l'issue à la fusion, la PR qui la termine écrit `Fixes #<id>`.
 - **Sans work item ni issue :** l'agent ne commite pas sans lien. Il en crée un si l'option de la section 4
   le permet, sinon il demande à l'humain lequel utiliser.
 - **Mémoire :** la consigne dit aussi à l'agent d'**inscrire cette règle dans sa propre mémoire et dans la

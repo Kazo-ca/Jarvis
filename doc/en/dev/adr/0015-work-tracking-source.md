@@ -89,14 +89,14 @@ When a source is set, Jarvis gives **every agent** it launches or that connects 
 Claude Code settings, `AGENTS.md` for Codex, system instruction of the local model) the following instruction,
 adapted to the source:
 
-- **Azure Boards:**
+- **Azure Boards (Azure DevOps projects only):**
   - every commit message contains `AB#<id>` of the task's work item;
   - the **description** of every PR contains `AB#<id>` (the title does not count, nor does a comment);
   - to close the work on merge: `Fixes AB#<id>` in the description, **the word repeated before each work
     item**; only the merge into the default branch changes the state;
   - preferably, the branch is created from the work item or named after it.
-- **GitHub Issues:** `#<n>` in every commit message; `Fixes #<n>` (or `Refs #<n>` when the PR does not finish
-  the issue) in every PR description.
+- **GitHub Issues:** simply the issue's `#<id>` (no `AB#`) in every commit message and in every PR
+  description. To close the issue on merge, the PR that finishes it writes `Fixes #<id>`.
 - **Without a work item or issue:** the agent does not commit without a link. It creates one if the option of
   section 4 allows it, otherwise it asks the human which one to use.
 - **Memory:** the instruction also tells the agent to **write this rule into its own memory and into the

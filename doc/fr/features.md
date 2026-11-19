@@ -14,4 +14,4 @@
 | Mode autonome, déclencheurs et courriel | 3 | [Conception](dev/plans/design.md) |
 | Application mobile Android | 4 | [Conception](dev/plans/design.md) |
 | Relais : Claude, ChatGPT et les autres agents se parlent par MCP et hooks, sous les yeux de l'humain, et leur travail est suivi en projets, sujets, tâches et sous-tâches avec un orchestrateur | v2 | [ADR 0013](dev/adr/0013-relais-readiness.md) |
-| Suivi du travail dans GitHub Issues ou Azure Boards : une source réglée par projet, chaque commit et chaque PR d'agent liés à une issue ou à un work item (`AB#<id>`), et, en option, une issue ou un work item obligatoire par sujet et par tâche, que Jarvis crée, modifie et synchronise | v2 | [ADR 0015](dev/adr/0015-work-tracking-source.md) |
+| Suivi du travail dans GitHub Issues ou Azure Boards : une source réglée par projet, chaque commit et chaque PR d'agent liés à une issue (`#<id>`) ou à un work item Azure DevOps (`AB#<id>`), et, en option, une issue ou un work item obligatoire par sujet et par tâche, que Jarvis crée, modifie et synchronise | v2 | [ADR 0015](dev/adr/0015-work-tracking-source.md) |
