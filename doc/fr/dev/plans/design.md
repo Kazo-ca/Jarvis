@@ -318,7 +318,7 @@ Les ADR des étapes 2 à 5 s'écrivent au début de chaque série, une fois les 
 J'ai pris neuf décisions de détail sans te les demander. Coche celles qui te conviennent, et commente celles que tu veux changer.
 
 - [ ] Un seul utilisateur par installation. Pas de comptes ni de reconnaissance de la voix de chaque personne.
-- [ ] L'historique des conversations et la mémoire sont stockés en local dans `%APPDATA%\Kazo\Jarvis`, sans limite de durée, avec un bouton pour tout effacer.
+- [ ] L'historique des conversations et la mémoire sont stockés en local dans `%USERPROFILE%\.kazo\jarvis`, sans limite de durée, avec un bouton pour tout effacer. (Emplacement corrigé par Benoit le 19 novembre 2026 : le dossier de l'utilisateur, pas `%APPDATA%`. Voir l'[ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md).)
 - [ ] Jarvis démarre avec Windows par défaut, et l'option se désactive dans les paramètres.
 - [ ] Il n'y a pas de module Jarvis dans Kazo Bar pour l'instant (tu as choisi 4A, pas 4C).
 - [ ] Gmail et Agenda sont en lecture seule dans la première version. Envoyer un courriel ou créer un événement viendra plus tard.

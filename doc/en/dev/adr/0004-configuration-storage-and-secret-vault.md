@@ -5,7 +5,8 @@
 Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** stories US1.8, US1.14 and US1.16 of the [design](../plans/design.md); security rules 2, 3
-  and 9; assumptions 1 and 2; Kazo Bar's configuration, storage and vault.
+  and 9; assumptions 1 and 2; Kazo Bar's configuration, storage and vault; Benoit's answer of 2026-11-19
+  (data goes to `%USERPROFILE%`, not `%APPDATA%`).
 - **Completes:** [ADR 0002](0002-vertical-slices-kernel-and-dependency-rules.md) (contracts are in the
   kernel, implementations in `Adapters`).
 
@@ -17,24 +18,26 @@ Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stag
 - Jarvis must keep the conversation (US1.14), then a memory (US2.4) and a log of runs (US3.14). Everything
   must be viewable and erasable (rule 9).
 - With vertical slices, each slice owns its settings and its data.
-- Voice models weigh from a few MB to several hundred MB. They do not belong in a roaming profile.
+- Voice models weigh from a few MB to several hundred MB.
+- Kazo Bar keeps its files in `%APPDATA%\Kazo\Bar`. Benoit asked that Jarvis's files be in his user
+  folder, `%USERPROFILE%`, as Claude Code (`.claude`) and OpenJarvis (`.openjarvis`) do.
 
 ## Decision
 
 ### 1. Locations
 
 ```
-%APPDATA%\Kazo\Jarvis\
+%USERPROFILE%\.kazo\jarvis\
   config.json          settings
   backups\             copies taken before a migration, or of an unreadable file
   data\jarvis.db       conversation, then memory and log
   secrets.json         only when the "encrypted file" vault is chosen
-
-%LOCALAPPDATA%\Kazo\Jarvis\
   models\              downloaded models (wake word, recognition, voices)
   logs\                technical logs
 ```
 
+- **A single root, in the user's folder**: `%USERPROFILE%\.kazo\jarvis`. Nothing is written to `%APPDATA%`
+  or `%LOCALAPPDATA%`.
 - One user per installation: everything is kept in the Windows user's profile (assumption 1).
 - Tests receive a temporary folder in place of these roots.
 
@@ -83,12 +86,12 @@ Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stag
 
 ### 5. Downloaded models
 
-- Models go to `%LOCALAPPDATA%\Kazo\Jarvis\models`. They are neither in the repository nor in the install
+- Models go to `%USERPROFILE%\.kazo\jarvis\models`. They are neither in the repository nor in the install
   package. The list and the download are described in [ADR 0006](0006-voice-chain.md).
 
 ### 6. Logs and privacy
 
-- Technical logs go to `%LOCALAPPDATA%\Kazo\Jarvis\logs`. They hold no audio and no secret. At the normal
+- Technical logs go to `%USERPROFILE%\.kazo\jarvis\logs`. They hold no audio and no secret. At the normal
   level, they do not hold the text of conversations.
 - **The listening buffer stays in memory. No captured sound is written to disk** (rule 2).
 
@@ -99,6 +102,7 @@ Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stag
 - SQLite adds a native dependency, isolated in `Adapters`. The kernel and the slices do not see it.
 - The document store is deliberately simple. If the stage 2 memory needs full-text search, a new ADR will
   add it.
-- Models and logs do not follow a roaming profile; settings and data do.
+- All of Jarvis fits in a single folder, easy to find, back up and delete. That folder does not follow a
+  roaming profile, and departs from Kazo Bar's location.
 - The choice of SQLite rather than JSON files like Kazo Bar is put to Benoit in the conversation. This ADR
   keeps the recommended option.

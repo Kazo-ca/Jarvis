@@ -20,7 +20,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   1. Storage: SQLite database for the conversation, memory and log, or JSON files like Kazo Bar (ADR 0004).
   2. LLM provider contract: `Microsoft.Extensions.AI` abstractions or an in-house contract (ADR 0007).
   3. Actions that require a click, voice not being enough: security home automation only (ADR 0009).
-  4. Assumptions 1, 2, 3, 7 and 9 of the design, on which the ADRs rely.
+  4. Assumptions 1, 2, 3, 7 and 9 of the design, on which the ADRs rely. Partial answer of November 19,
+     2026: data goes to `%USERPROFILE%` (ADR 0004: `%USERPROFILE%\.kazo\jarvis`, folder name to be
+     confirmed). The rest is waiting.
 - **To check at the start of stage 1** (the spikes did not): wake word with Benoit's voice and while Jarvis
   speaks, real microphone, end of utterance through Silero, click-through around the orb, idle cost of the
   orb on the real host, window reload on a language change.

@@ -22,7 +22,9 @@ ce qu'il décrit.
      (ADR 0004).
   2. Contrat des fournisseurs LLM : abstractions `Microsoft.Extensions.AI` ou contrat maison (ADR 0007).
   3. Actions qui exigent un clic, la voix ne suffisant pas : la domotique de sécurité seulement (ADR 0009).
-  4. Hypothèses n° 1, 2, 3, 7 et 9 de la conception, sur lesquelles les ADR s'appuient.
+  4. Hypothèses n° 1, 2, 3, 7 et 9 de la conception, sur lesquelles les ADR s'appuient. Réponse partielle du
+     19 novembre 2026 : les données vont dans `%USERPROFILE%` (ADR 0004 : `%USERPROFILE%\.kazo\jarvis`, nom
+     du dossier à confirmer). Le reste attend.
 - **À vérifier au début de l'étape 1** (les essais ne l'ont pas fait) : mot d'éveil avec la voix de Benoit et
   pendant que Jarvis parle, micro réel, fin de phrase par Silero, passage des clics autour de l'orbe, coût de
   l'orbe en veille sur l'hôte réel, rechargement des fenêtres au changement de langue.

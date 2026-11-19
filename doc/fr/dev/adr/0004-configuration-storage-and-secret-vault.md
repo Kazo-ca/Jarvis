@@ -5,7 +5,8 @@
 Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** récits US1.8, US1.14 et US1.16 de la [conception](../plans/design.md) ; règles de sécurité
-  n° 2, 3 et 9 ; hypothèses n° 1 et 2 ; configuration, stockage et coffre de Kazo Bar.
+  n° 2, 3 et 9 ; hypothèses n° 1 et 2 ; configuration, stockage et coffre de Kazo Bar ; réponse de Benoit du
+  2026-11-19 (les données vont dans `%USERPROFILE%`, pas dans `%APPDATA%`).
 - **Complète :** [ADR 0002](0002-vertical-slices-kernel-and-dependency-rules.md) (les contrats sont dans le
   noyau, les mises en œuvre dans `Adapters`).
 
@@ -17,25 +18,27 @@ Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-st
 - Jarvis doit garder la conversation (US1.14), puis une mémoire (US2.4) et un journal des exécutions
   (US3.14). Tout doit pouvoir se consulter et s'effacer (règle n° 9).
 - Avec des tranches verticales, chaque tranche possède ses réglages et ses données.
-- Les modèles vocaux pèsent de quelques Mo à plusieurs centaines de Mo. Ils n'ont pas leur place dans un
-  profil itinérant.
+- Les modèles vocaux pèsent de quelques Mo à plusieurs centaines de Mo.
+- Kazo Bar range ses fichiers dans `%APPDATA%\Kazo\Bar`. Benoit a demandé que ceux de Jarvis soient dans
+  son dossier d'utilisateur, `%USERPROFILE%`, comme le font Claude Code (`.claude`) et OpenJarvis
+  (`.openjarvis`).
 
 ## Décision
 
 ### 1. Emplacements
 
 ```
-%APPDATA%\Kazo\Jarvis\
+%USERPROFILE%\.kazo\jarvis\
   config.json          réglages
   backups\             copies faites avant une migration, ou d'un fichier illisible
   data\jarvis.db       conversation, puis mémoire et journal
   secrets.json         seulement si le coffre « fichier chiffré » est choisi
-
-%LOCALAPPDATA%\Kazo\Jarvis\
   models\              modèles téléchargés (mot d'éveil, reconnaissance, voix)
   logs\                journaux techniques
 ```
 
+- **Une seule racine, dans le dossier de l'utilisateur** : `%USERPROFILE%\.kazo\jarvis`. Rien n'est écrit
+  dans `%APPDATA%` ni dans `%LOCALAPPDATA%`.
 - Un utilisateur par installation : tout est rangé dans le profil de l'utilisateur Windows (hypothèse n° 1).
 - Les tests reçoivent un dossier temporaire à la place de ces racines.
 
@@ -86,12 +89,12 @@ Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-st
 
 ### 5. Modèles téléchargés
 
-- Les modèles vont dans `%LOCALAPPDATA%\Kazo\Jarvis\models`. Ils ne sont ni dans le dépôt, ni dans le paquet
+- Les modèles vont dans `%USERPROFILE%\.kazo\jarvis\models`. Ils ne sont ni dans le dépôt, ni dans le paquet
   d'installation. La liste et le téléchargement sont décrits dans l'[ADR 0006](0006-voice-chain.md).
 
 ### 6. Journaux et vie privée
 
-- Les journaux techniques vont dans `%LOCALAPPDATA%\Kazo\Jarvis\logs`. Ils ne contiennent ni audio, ni
+- Les journaux techniques vont dans `%USERPROFILE%\.kazo\jarvis\logs`. Ils ne contiennent ni audio, ni
   secret. Au niveau normal, ils ne contiennent pas le texte des conversations.
 - **Le tampon d'écoute reste en mémoire. Aucun son capté n'est écrit sur disque** (règle n° 2).
 
@@ -102,6 +105,7 @@ Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-st
 - SQLite ajoute une dépendance native, isolée dans `Adapters`. Le noyau et les tranches ne la voient pas.
 - Le magasin de documents est volontairement simple. Si la mémoire de l'étape 2 demande une recherche plein
   texte, un nouvel ADR l'ajoutera.
-- Les modèles et les journaux ne suivent pas un profil itinérant ; les réglages et les données, oui.
+- Tout Jarvis tient dans un seul dossier, facile à trouver, à sauvegarder et à supprimer. Ce dossier ne suit
+  pas un profil itinérant, et s'écarte de l'emplacement de Kazo Bar.
 - Le choix de SQLite plutôt que des fichiers JSON comme Kazo Bar est posé à Benoit dans la conversation.
   Cet ADR retient l'option recommandée.
