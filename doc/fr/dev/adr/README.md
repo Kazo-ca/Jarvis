@@ -18,6 +18,7 @@ libre est indiqué dans la [mémoire du projet](../../memory/README.md).
 | [0010](0010-task-fan-and-orb-click.md) | Éventail des tâches et clic sur l'orbe | Accepté |
 | [0011](0011-orb-colors-and-drawing.md) | Couleurs et dessin de l'orbe | Accepté |
 | [0012](0012-scripts-allowed-in-markup.md) | Le script est permis dans le balisage (remplace en partie 0002) | Accepté |
+| [0013](0013-relais-readiness.md) | Préparer le module Relais (v2) : projets, sujets, tâches et orchestrateur | Proposé |
 
 Les neuf premiers ADR sont ceux de l'étape 1, listés dans le
 [document de conception](../plans/design.md#méthode-de-travail-et-premiers-adr).
