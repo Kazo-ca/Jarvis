@@ -61,3 +61,16 @@ available: `COMException 0x8876086A` (D3DERR_NOTAVAILABLE) in `Direct3DHelper.Cr
 and the process ends with code `0xC000041D`, without a window. Unlocked, the host starts normally. Starting
 with Windows and waking from sleep can hit this case: work item `stage1/4-hosts` must wait for the unlock (or
 retry) instead of dying. `LogonUI.exe` also runs in a Remote Desktop session: it is not a good lock signal.
+
+## An `OperatingSystem.IsWindows()` guard does not cover a lambda (work item stage1/3-settings-storage-vault)
+
+Analyzer CA1416 flags a `[SupportedOSPlatform("windows")]` type created in a registration lambda
+(`services.TryAddSingleton(provider => new CredentialManagerVault())`), even inside an
+`if (OperatingSystem.IsWindows())`: the lambda runs later, outside the guard. Put those registrations in a
+method marked `[SupportedOSPlatform("windows")]`, called under the guard.
+
+## NUnit 4 skips `[SupportedOSPlatform("windows")]` tests elsewhere (work item stage1/3-settings-storage-vault)
+
+On Linux, a test or a class marked `[SupportedOSPlatform("windows")]` is skipped, not failed. Windows tests
+also carry `[Category("Windows")]`, so that continuous integration leaves them out explicitly and the agent on
+Benoit's PC can run them alone (`--filter "TestCategory=Windows"`).

@@ -1,12 +1,14 @@
 using Kazo.Jarvis.Features;
 using Kazo.Jarvis.Web.Components;
+using Kazo.Jarvis.Web.Simulated;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Simulated contracts first (none yet), then the slices (ADR 0002, section 6).
+// Simulated contracts first, then the slices (ADR 0002, section 6).
+builder.Services.AddJarvisSimulatedServices();
 builder.Services.AddJarvisFeatures();
 
 var app = builder.Build();

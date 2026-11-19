@@ -63,3 +63,16 @@ Direct3D 9 n'est pas disponible : `COMException 0x8876086A` (D3DERR_NOTAVAILABLE
 fenêtre. Déverrouillé, l'hôte démarre normalement. Le démarrage avec Windows et la sortie de veille peuvent
 tomber sur ce cas : le chantier `stage1/4-hosts` doit attendre le déverrouillage (ou réessayer) au lieu de
 mourir. `LogonUI.exe` tourne aussi en session Bureau à distance : ce n'est pas un bon signe de verrouillage.
+
+## Une garde `OperatingSystem.IsWindows()` ne couvre pas un lambda (chantier stage1/3-settings-storage-vault)
+
+L'analyseur CA1416 signale un type `[SupportedOSPlatform("windows")]` créé dans un lambda d'enregistrement
+(`services.TryAddSingleton(provider => new CredentialManagerVault())`), même à l'intérieur d'un
+`if (OperatingSystem.IsWindows())` : le lambda s'exécute plus tard, hors de la garde. Mettre ces
+enregistrements dans une méthode marquée `[SupportedOSPlatform("windows")]`, appelée sous la garde.
+
+## NUnit 4 ignore les tests `[SupportedOSPlatform("windows")]` ailleurs (chantier stage1/3-settings-storage-vault)
+
+Sous Linux, un test ou une classe marqué `[SupportedOSPlatform("windows")]` est ignoré (« Skipped »), sans
+échec. Les tests Windows portent aussi `[Category("Windows")]`, pour que l'intégration continue les écarte
+explicitement et que l'agent sur le PC de Benoit puisse les lancer seuls (`--filter "TestCategory=Windows"`).

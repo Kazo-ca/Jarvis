@@ -49,6 +49,8 @@ Les tests Playwright démarrent eux-mêmes l'hôte Web sur un port libre : rien 
 Un test qui a besoin de Windows (coffre Windows, fenêtres, audio réel) porte `[Category("Windows")]`.
 L'intégration continue les exclut (`--filter "TestCategory!=Windows"`) ; ils tournent sur le PC de Benoit, où
 un agent fait les vérifications sur Windows de chaque chantier par le contrôle à distance.
+Pour ne lancer qu'eux : `dotnet test tests/Kazo.Jarvis.Tests.Unit --filter "TestCategory=Windows"`. Ils portent aussi
+`[SupportedOSPlatform("windows")]`, ce qui les fait ignorer ailleurs ([pièges](pitfalls.md)).
 
 ## Intégration continue
 

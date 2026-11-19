@@ -7,8 +7,9 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Current series:** `stage1` (stage 1), branch `stage1/base`, taken from `main` on November 19, 2026.
   Work item 1 (`stage1/1-solution`, solution skeleton, architecture tests, continuous integration)
   merged and checked on Windows. Work item 2 (`stage1/2-kernel`, message bus, state machine, sound level,
-  see [dev/kernel.md](../dev/kernel.md)) delivered in its PR; next work item:
-  `stage1/3-settings-storage-vault`. Benoit merges `main`; an agent merges its own PRs
+  see [dev/kernel.md](../dev/kernel.md)) merged (PR 17). Work item 3
+  (`stage1/3-settings-storage-vault`, `config.json` settings, SQLite database, secret vault, see
+  [dev/storage.md](../dev/storage.md)) delivered in its PR; next work item: `stage1/4-hosts`. Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
@@ -38,7 +39,7 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** work item `stage1/3-settings-storage-vault` of the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** work item `stage1/4-hosts` of the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
@@ -66,6 +67,14 @@ Resume point for any agent. Update it in the same change as what it describes.
   build without warnings, unit tests 29/29, Playwright 1/1, Web host HTTP 200, Windows host opened,
   responsive and closed without error. **To handle in work item 4:** started on a locked session, the
   Windows host dies (see [pitfalls](../dev/pitfalls.md)).
+- **Choices of work item 3 that ADR 0004 does not settle** (details in [dev/storage.md](../dev/storage.md)):
+  `config.json` sections at the top level next to `schemaVersion`; the choice of vault in the
+  `Secrets.Vault` section; Credential Manager secrets named `Kazo.Jarvis/<reference>`, 2,560 bytes at most;
+  `secrets.json` encrypted value by value; a newer database makes storage unavailable without touching it;
+  `JarvisPaths` stays in `Adapters` (to move to the kernel if a slice needs the models folder, work items 9
+  and 14).
+- **Windows check of work items 2 and 3: to do** by an agent on Benoit's PC: full `dotnet test`, including
+  the `Windows` tests (Credential Manager, DPAPI).
 - **Choice of work item 2 that ADR 0005 does not settle:** an interruption while the microphone is muted or
   missing stops Jarvis without starting to listen ([dev/kernel.md](../dev/kernel.md#case-adr-0005-does-not-cover)).
 
