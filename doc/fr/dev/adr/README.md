@@ -19,6 +19,7 @@ libre est indiqué dans la [mémoire du projet](../../memory/README.md).
 | [0011](0011-orb-colors-and-drawing.md) | Couleurs et dessin de l'orbe | Accepté |
 | [0012](0012-scripts-allowed-in-markup.md) | Le script est permis dans le balisage (remplace en partie 0002) | Accepté |
 | [0013](0013-relais-readiness.md) | Préparer le module Relais (v2) : projets, sujets, tâches et orchestrateur | Accepté |
+| [0014](0014-license-kazo-bar-rule-and-jarvis-py.md) | Licence Apache 2.0, règle sur Kazo Bar (copie permise, aucune référence) et retrait de `jarvis.py` | Accepté |
 
 Les neuf premiers ADR sont ceux de l'étape 1, listés dans le
 [document de conception](../plans/design.md#méthode-de-travail-et-premiers-adr).
