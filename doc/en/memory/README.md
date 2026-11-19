@@ -8,9 +8,11 @@ Resume point for any agent. Update it in the same change as what it describes.
   Work item 1 (`stage1/1-solution`, solution skeleton, architecture tests, continuous integration)
   delivered in its PR; next work item: `stage1/2-kernel`. Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
-- **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
+- **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
-- **Next free ADR number:** 0014. **ADR 0013 (preparing the Relais module, v2): accepted** by Benoit on
+- **Next free ADR number:** 0015. **ADR 0014 (Apache 2.0 license, rule on Kazo Bar, removal of `jarvis.py`): accepted** by Benoit on
+  November 19, 2026 (work item `stage1/license-kazo-bar-android-calls`). Kazo Bar is never referenced (no project, no package); its code may
+  be copied here and then evolves separately. `jarvis.py` is no longer used. Making the repository public is Benoit's to do. **ADR 0013 (preparing the Relais module, v2): accepted** by Benoit on
   November 19, 2026 (work item `stage1/relais-architecture-adr`); nothing is built before v2, except the
   generic host in work item `stage1/4-hosts`. The same day Benoit chose
   a tunnel for the whole Relais bus (closed by default, no route without a token). ADR 0012 (script is allowed in markup, style stays forbidden):

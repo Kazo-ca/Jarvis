@@ -15,3 +15,4 @@ to it away from the PC.
 - Technical spikes: [spikes/](spikes/README.md)
 - UI designs and prototypes: [doc/en/dev/ui/catalog.md](doc/en/dev/ui/catalog.md), [design/](design/README.md)
 - Rules for contributors and coding agents: [AGENTS.md](AGENTS.md)
+- License: [Apache 2.0](LICENSE)

@@ -15,3 +15,4 @@ tester : [doc/fr/dev/build.md](doc/fr/dev/build.md).
 - Essais techniques : [spikes/](spikes/README.md)
 - Designs de l'interface et prototypes : [doc/fr/dev/ui/catalog.md](doc/fr/dev/ui/catalog.md), [design/](design/README.md)
 - Règles pour les contributeurs et les agents : [AGENTS.md](AGENTS.md)
+- Licence : [Apache 2.0](LICENSE)
