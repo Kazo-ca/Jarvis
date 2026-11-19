@@ -10,7 +10,8 @@ Resume point for any agent. Update it in the same change as what it describes.
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
-- **Next free ADR number:** 0012. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
+- **Next free ADR number:** 0013. ADR 0012 (script is allowed in markup, style stays forbidden):
+  accepted by Benoit on November 19, 2026, partly supersedes ADR 0002, section 7. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
   November 19, 2026 (work item `spikes/11-stage-1-adrs`). They are no longer edited: a new ADR supersedes them.
 - **ADR 0010 (task fan and click on the orb): accepted** by Benoit on November 19, 2026 (work item
   `spikes/12-task-fan-adr`). It is only built at stage 2. Benoit chose the "fan" mockup, on the computer

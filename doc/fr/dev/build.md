@@ -76,13 +76,11 @@ jamais (ADR 0002, section 7).
 | Aucun paquet autre que `Microsoft.Extensions.*.Abstractions` dans le noyau ; aucun projet ne référence un essai | `ProjectReferenceTests` |
 | Aucun composant Razor ni fichier de style ou de script dans le noyau | `KernelContentTests` |
 | Une tranche n'utilise aucun type d'une autre tranche (`Features/Shared/` excepté), corps des méthodes compris ; aucun type directement dans un dossier de domaine | `SliceIsolationTests` (NetArchTest) |
-| Aucun `<style>`, `<script>` ou `style="…"` dans un fichier `.razor` | `RazorMarkupTests` |
+| Aucun `<style>` ni `style="…"` dans un fichier `.razor` (le script y est permis, ADR 0012) | `RazorMarkupTests` |
 
 Chaque règle qui porte sur du code est aussi essayée sur des exemples qui la violent
 (`SliceIsolationSamples.cs`, cas de `RazorMarkupTests`) : elle est prouvée capable d'échouer alors que les
 projets sont encore presque vides.
 
-**Précision sur `<script>` :** le document d'un hôte (`src/Kazo.Jarvis.Web/Components/App.razor`) doit
-charger le script de Blazor. Il est le seul fichier autorisé à contenir une balise `<script src="…"></script>`
-vide, qui charge un fichier. Un script écrit dans la balise reste interdit partout, comme le style. La liste
-est dans `RazorMarkupRule.HostDocuments`.
+Le script est permis dans le balisage, pour manipuler le DOM sans restriction
+([ADR 0012](adr/0012-scripts-allowed-in-markup.md)) ; seul le style y reste interdit.
