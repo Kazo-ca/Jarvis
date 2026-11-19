@@ -6,5 +6,6 @@
 | [adr/](adr/README.md) | Architecture decisions |
 | [ui/](ui/README.md) | Catalog of the UI designs (orb, task fan, full screen) |
 | [build.md](build.md) | Build, test, continuous integration, architecture tests |
+| [kernel.md](kernel.md) | The kernel: message bus, state machine, sound level |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |
 | [spikes.md](spikes.md) | Summary of the technical spikes |

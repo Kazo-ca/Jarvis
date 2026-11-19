@@ -6,7 +6,9 @@ Resume point for any agent. Update it in the same change as what it describes.
 
 - **Current series:** `stage1` (stage 1), branch `stage1/base`, taken from `main` on November 19, 2026.
   Work item 1 (`stage1/1-solution`, solution skeleton, architecture tests, continuous integration)
-  delivered in its PR; next work item: `stage1/2-kernel`. Benoit merges `main`; an agent merges its own PRs
+  merged and checked on Windows. Work item 2 (`stage1/2-kernel`, message bus, state machine, sound level,
+  see [dev/kernel.md](../dev/kernel.md)) delivered in its PR; next work item:
+  `stage1/3-settings-storage-vault`. Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
@@ -36,7 +38,7 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** work item `stage1/2-kernel` of the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** work item `stage1/3-settings-storage-vault` of the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
@@ -58,8 +60,11 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Licenses to settle before a public distribution:** espeak-ng (GPLv3, in sherpa-onnx 1.13.8),
   openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).
 - **Known test failures:** none.
-- **Windows check of work item 1 still to do** (by an agent on Benoit's PC): both hosts start and
-  `dotnet test` passes on Windows. Until it is done, the PR of work item 1 says so.
+- **Windows check of work item 1 done** on November 19, 2026: build, tests and Web host fine; the Windows
+  host starts when the session is unlocked and dies on a locked session (`D3DERR_NOTAVAILABLE`), to be fixed
+  in work item 4.
+- **Choice of work item 2 that ADR 0005 does not settle:** an interruption while the microphone is muted or
+  missing stops Jarvis without starting to listen ([dev/kernel.md](../dev/kernel.md#case-adr-0005-does-not-cover)).
 
 ## Benoit's development environment
 

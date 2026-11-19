@@ -1,3 +1,4 @@
+using Kazo.Jarvis.Kernel;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kazo.Jarvis.Features;
@@ -14,6 +15,9 @@ public static class FeaturesServiceCollectionExtensions
     public static IServiceCollection AddJarvisFeatures(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
+
+        // The slices talk through the kernel's bus and read its state machine (ADR 0002, section 5).
+        services.AddJarvisKernel();
 
         // Slices arrive with their work items (stage1/5-shared-ui-language onwards).
         return services;

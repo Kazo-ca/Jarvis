@@ -25,6 +25,8 @@
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="10.0.110" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.15" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.15" />
+    <!-- Kernel: logging of the bus and of the state machine (abstractions only, ADR 0002, section 4). -->
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
   </ItemGroup>
 
   <!-- Tests (NUnit, as in Kazo Bar; Playwright against the Web host). -->
@@ -34,6 +36,9 @@
     <PackageVersion Include="NUnit3TestAdapter" Version="6.3.1" />
     <PackageVersion Include="NUnit.Analyzers" Version="4.15.0" />
     <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
+    <!-- Real container and fake clock for the kernel tests. -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.65.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.15" />
   </ItemGroup>
