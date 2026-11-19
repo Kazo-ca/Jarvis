@@ -16,12 +16,11 @@ Resume point for any agent. Update it in the same change as what it describes.
   the single click starts listening** (US1.6 and ADR 0005 do not change).
 - **Spike to run at the start of stage 2:** E11, cost and smoothness of the transparent fan window
   (ADR 0010).
-- **ADR 0011 (colors and drawing of the orb): proposed** on November 19, 2026 (work item
-  `spikes/14-orb-look-adr`), waiting for Benoit's approval. It carries the validated catalog: two versions
+- **ADR 0011 (colors and drawing of the orb): accepted** by Benoit on November 19, 2026 (work item
+  `spikes/14-orb-look-adr`). It carries the validated catalog: two versions
   (high quality by default, light as a setting), seven looks, a progress ring in place of the satellites,
-  an amber badge for decisions. Question asked to Benoit: the rotation of the orb during a long task; the
-  ADR keeps "still frame on Windows until a measurement allows it". When it is accepted: update the section
-  "The orb and its seven states" of the design.
+  an amber badge for decisions. During a long task, the orb stays a still frame on Windows until a
+  measurement allows the rotation (recommendation kept by Benoit).
 - **To measure at stage 1 (ADR 0011):** the cost of both orb versions on the real host, idle and animated.
   If the high-quality one clearly exceeds 14 to 18 % of one core, the light one becomes the default.
 - **Decisions taken but not built:** the whole design document.

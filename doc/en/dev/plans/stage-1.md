@@ -1,7 +1,7 @@
 # Stage 1 series plan: orb, voice, local model and settings
 
 2026-11-19 · Proposed, waiting for Benoit's validation (work item `spikes/15-stage-1-plan`). Builds on ADR 0011
-(colors and drawing of the orb), proposed in parallel.
+(colors and drawing of the orb), accepted the same day.
 
 ## Goal
 

@@ -107,23 +107,23 @@ Règles de dépendance, à fixer dans l'ADR 0002 :
 
 ## L'orbe et ses sept états
 
-L'orbe a sept états, et chacun doit se reconnaître du coin de l'œil sans lire de texte. L'animation réagit au volume réel : celui du micro en écoute, celui de la voix synthétisée en parole.
+L'orbe a sept états, et chacun doit se reconnaître du coin de l'œil sans lire de texte. La lumière réagit au volume réel : celui du micro en écoute, celui de la voix synthétisée en parole.
 
-| État | Quand | Intention visuelle |
+| État | Quand | Aspect |
 | --- | --- | --- |
-| Veille | Attend le mot d'éveil | Anneaux lents, faible luminosité, respiration calme |
-| Écoute | Mot d'éveil capté, raccourci ou clic | Anneaux ouverts qui pulsent avec le volume du micro |
-| Réflexion | Transcription puis attente du modèle | Arcs qui tournent à vitesses différentes, sans lien avec le son |
-| Parole | Synthèse en cours | Onde centrale qui suit le volume de la voix |
-| Tâche déléguée | Claude ou une tâche longue travaille en arrière-plan | Orbe en veille avec un satellite en orbite par tâche active |
-| Micro coupé | Coupure volontaire | Orbe éteint, gris, anneau barré |
-| Erreur | Micro, modèle ou réseau injoignable | Teinte d'alerte, pulsation brève, cause affichée au survol |
+| Veille | Attend le mot d'éveil | Cyan, immobile, faible luminosité |
+| Écoute | Mot d'éveil capté, raccourci ou clic | Cyan, rotation douce ; la voix fait monter la lumière |
+| Réflexion | Transcription puis attente du modèle | Violet, rotation rapide |
+| Parole | Synthèse en cours | Cyan ; la lumière suit la voix, ou les anneaux pulsent au hasard |
+| Tâche longue | Claude ou une tâche longue travaille en arrière-plan | Vert, anneau de progression |
+| Micro coupé | Coupure volontaire | Gris, immobile, mention « micro coupé » |
+| Erreur | Micro, modèle ou réseau injoignable | Rouge, un éclair puis immobile, cause affichée au survol |
 
 Règles communes :
 
-- L'état « tâche déléguée » se superpose aux autres. Jarvis peut écouter ou parler pendant que Claude travaille.
-- Les couleurs exactes et le dessin sont à décider sur maquette, dans un ADR dédié.
-- Une option « mouvement réduit » remplace les animations par des changements de teinte.
+- L'anneau de progression d'une tâche longue reste visible par-dessus les autres états. Jarvis peut écouter ou parler pendant que Claude travaille.
+- Les couleurs et le dessin sont fixés par l'[ADR 0011](../adr/0011-orb-colors-and-drawing.md), à partir du [catalogue des designs](../ui/catalog.md). L'orbe existe en deux versions : haute qualité et légère.
+- Une option « mouvement réduit » retire les rotations et les pulsations.
 - Le même composant sert sur Windows, dans l'hôte Web de test et sur mobile.
 
 ## Étape 1 : orbe, voix, modèle local et paramètres

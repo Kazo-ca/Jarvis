@@ -1,7 +1,7 @@
 # Plan de la série de l'étape 1 : orbe, voix, modèle local et paramètres
 
 2026-11-19 · Proposé, en attente de la validation de Benoit (chantier `spikes/15-stage-1-plan`). S'appuie sur
-l'ADR 0011 (couleurs et dessin de l'orbe), proposé en parallèle.
+l'ADR 0011 (couleurs et dessin de l'orbe), accepté le même jour.
 
 ## But
 
