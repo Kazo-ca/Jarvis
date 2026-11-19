@@ -53,3 +53,11 @@ After `StartServer()`, `ClientOptions.BaseAddress` stays `http://localhost/`. Re
 
 Central package management breaks the spikes' `.csproj` files, which give their own versions.
 `spikes/Directory.Packages.props` turns it off for them (`ManagePackageVersionsCentrally` set to `false`).
+
+## The Windows host dies when it starts on a locked session (work item stage1/1-solution)
+
+`WebView2CompositionControl` creates a Direct3D 9 device when it loads. On a locked desktop Direct3D 9 is not
+available: `COMException 0x8876086A` (D3DERR_NOTAVAILABLE) in `Direct3DHelper.CreateD3D9Device`, uncaught,
+and the process ends with code `0xC000041D`, without a window. Unlocked, the host starts normally. Starting
+with Windows and waking from sleep can hit this case: work item `stage1/4-hosts` must wait for the unlock (or
+retry) instead of dying. `LogonUI.exe` also runs in a Remote Desktop session: it is not a good lock signal.
