@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decisions 5, 6, 15, 18 and 31 of the [design](../plans/design.md) and its section "The orb
   and its seven states"; stories US1.1, US1.3, US1.6, US1.12, US1.13 and US1.17; spike E6
@@ -123,6 +123,10 @@ Each conversation turn has an identifier. Every message of the turn carries it.
   a mockup before the visual work of the orb slice.
 - **Whether the answer to a typed request is also said aloud.** The table allows both; the plan of the
   conversation series settles it.
+- **What a click on the orb does beyond activation.** On 2026-11-19, Benoit asked that a click make the
+  windows of the running tasks come out of the orb, and that a second click pull them back in. That
+  behavior, and how it combines with activation by click (US1.6), are set by the upcoming orb ADR, which
+  will supersede the "click" rows of the transition table if needed.
 - **Several devices** (decision 31). The state is computed on the PC. How it is sent to the phones and how
   the device that speaks is chosen are set by the mobile ADR, at stage 4.
 

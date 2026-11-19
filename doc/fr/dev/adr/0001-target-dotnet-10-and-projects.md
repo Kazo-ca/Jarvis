@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décisions n° 1, 3, 34 et 36 de la [conception](../plans/design.md) ; essais E4, E5 et E6
   ([synthèse](../spikes.md)).
@@ -98,4 +98,4 @@ doc/
 - Monter une version de paquet de la chaîne vocale est une décision, pas une mise à jour de routine : il faut
   refaire les mesures de l'essai E4.
 - Tant que le dépôt est privé, la vérification des versions sur GitHub (US1.18) demande un jeton rangé dans
-  le coffre. L'hypothèse n° 7 de la conception (dépôt public) reste à confirmer par Benoit.
+  le coffre. Benoit a accepté l'hypothèse n° 7 de la conception (dépôt public) ; le dépôt est encore privé.

@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décisions n° 5, 6, 15, 18 et 31 de la [conception](../plans/design.md) et sa section
   « L'orbe et ses sept états » ; récits US1.1, US1.3, US1.6, US1.12, US1.13 et US1.17 ; essai E6
@@ -125,6 +125,10 @@ Chaque tour de conversation a un identifiant. Tous les messages du tour le porte
   avant le travail visuel de la tranche de l'orbe.
 - **Si une réponse à une demande écrite est aussi dite à voix haute.** La table permet les deux ; le plan de
   la série de la conversation le précise.
+- **Ce que fait un clic sur l'orbe au-delà de l'activation.** Le 2026-11-19, Benoit a demandé qu'un clic
+  fasse sortir de l'orbe les fenêtres des tâches en cours, et qu'un second clic les y fasse rentrer. Ce
+  comportement, et la façon dont il se combine avec l'activation par clic (US1.6), sont fixés par l'ADR de
+  l'orbe à venir, qui remplacera au besoin les lignes « clic » de la table des transitions.
 - **Plusieurs appareils** (décision n° 31). L'état est calculé sur le PC. La façon de le diffuser aux
   téléphones et de choisir l'appareil qui parle est fixée par l'ADR du mobile, à l'étape 4.
 

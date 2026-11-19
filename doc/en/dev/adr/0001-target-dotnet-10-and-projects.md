@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decisions 1, 3, 34 and 36 of the [design](../plans/design.md); spikes E4, E5 and E6
   ([summary](../spikes.md)).
@@ -97,4 +97,4 @@ doc/
 - Raising a package version of the voice chain is a decision, not a routine update: the measurements of
   spike E4 must be redone.
 - While the repository is private, the version check on GitHub (US1.18) needs a token kept in the vault.
-  Assumption 7 of the design (public repository) is still to be confirmed by Benoit.
+  Benoit accepted assumption 7 of the design (public repository); the repository is still private.

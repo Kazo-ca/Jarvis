@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decisions 13, 20 and 21 of the [design](../plans/design.md); stories US1.8, US1.9, US1.14 and
   US1.15; spikes E4, E5 and E7 ([results](../../../../spikes/e7-local-tool-calls/RESULTS.md)); decision 2 of
@@ -124,5 +124,5 @@ Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stag
 - **Not verified by spike E7:** the full turn (call, result, final answer), the correctness of the
   arguments, and a long tool list like that of a Home Assistant MCP server. These points are checked at the
   start of stage 2.
-- The choice of `Microsoft.Extensions.AI` rather than an in-house contract is put to Benoit in the
-  conversation. This ADR keeps the recommended option.
+- Benoit chose `Microsoft.Extensions.AI` rather than an in-house contract (question asked in the
+  conversation, answered on 2026-11-19).

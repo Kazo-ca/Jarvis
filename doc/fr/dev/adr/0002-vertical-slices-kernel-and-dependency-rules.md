@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décision n° 36 de la [conception](../plans/design.md) et sa section « Architecture » ;
   section I d'`AGENTS.md`.

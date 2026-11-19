@@ -8,23 +8,23 @@ ce qu'il décrit.
 - **Série en cours :** `spikes` (essais techniques E1 à E10), branche `spikes/base`.
   Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX, étape 5 retirée). En attente : E10
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
-- **Prochain numéro d'ADR libre :** 0010. Les ADR 0001 à 0009 (étape 1) sont écrits et **proposés** le
-  18 novembre 2026 (chantier `spikes/11-stage-1-adrs`) ; ils attendent l'accord de Benoit.
-- **ADR à venir pendant l'étape 1 :** couleurs et dessin de l'orbe, sur maquette (renvoyé par l'ADR 0005).
+- **Prochain numéro d'ADR libre :** 0010. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
+  19 novembre 2026 (chantier `spikes/11-stage-1-adrs`). Ils ne se modifient plus : un nouvel ADR les remplace.
+- **ADR à venir pendant l'étape 1 :** l'orbe, sur maquette (renvoyé par l'ADR 0005) : couleurs, dessin, et la
+  demande de Benoit du 19 novembre 2026 : un clic sur l'orbe fait sortir les fenêtres des tâches en cours
+  comme un hologramme, un second clic les y fait rentrer. À concilier avec l'activation par clic (US1.6).
+  Des propositions visuelles en image sont préparées dans un autre fil.
 - **Décisions prises mais pas construites :** tout le document de conception.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
   sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
-- **Prochaine étape :** obtenir l'accord de Benoit sur les ADR 0001 à 0009, passer leur statut à « Accepté »,
-  puis écrire le plan de la série de l'étape 1. Toujours aucun code.
-- **Questions posées à Benoit le 18 novembre 2026 (les ADR retiennent l'option recommandée) :**
-  1. Stockage : base SQLite pour la conversation, la mémoire et le journal, ou fichiers JSON comme Kazo Bar
-     (ADR 0004).
-  2. Contrat des fournisseurs LLM : abstractions `Microsoft.Extensions.AI` ou contrat maison (ADR 0007).
-  3. Actions qui exigent un clic, la voix ne suffisant pas : la domotique de sécurité seulement (ADR 0009).
-  4. Hypothèses n° 1, 2, 3, 7 et 9 de la conception, sur lesquelles les ADR s'appuient. Réponse partielle du
-     19 novembre 2026 : les données vont dans `%USERPROFILE%` (ADR 0004 : `%USERPROFILE%\.kazo\jarvis`, nom
-     du dossier à confirmer). Le reste attend.
+- **Prochaine étape :** écrire le plan de la série de l'étape 1, puis coder. Benoit décide quand
+  `spikes/base` va dans `main`.
+- **Réponses de Benoit du 19 novembre 2026 (inscrites dans les ADR) :** base SQLite pour la conversation, la
+  mémoire et le journal (ADR 0004) ; abstractions `Microsoft.Extensions.AI` (ADR 0007) ; un clic exigé pour la
+  domotique de sécurité seulement (ADR 0009) ; hypothèses n° 1, 2, 3, 7 et 9 de la conception acceptées ; les
+  données vont dans `%USERPROFILE%\.kazo\jarvis`, pas dans `%APPDATA%` (le nom du dossier a été choisi par
+  l'agent ; le changer demande un nouvel ADR).
 - **À vérifier au début de l'étape 1** (les essais ne l'ont pas fait) : mot d'éveil avec la voix de Benoit et
   pendant que Jarvis parle, micro réel, fin de phrase par Silero, passage des clics autour de l'orbe, coût de
   l'orbe en veille sur l'hôte réel, rechargement des fenêtres au changement de langue.

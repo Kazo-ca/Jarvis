@@ -318,14 +318,14 @@ The ADRs for stages 2 to 5 are written at the start of each series, once the cor
 
 I made nine detail decisions without asking you. Check the ones you agree with, and comment on those you want to change.
 
-- [ ] One user per installation. No accounts and no recognition of each person's voice.
-- [ ] Conversation history and memory are stored locally in `%USERPROFILE%\.kazo\jarvis`, with no time limit, with a button to erase everything. (Location corrected by Benoit on November 19, 2026: the user's folder, not `%APPDATA%`. See [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md).)
-- [ ] Jarvis starts with Windows by default, and the option can be turned off in the settings.
+- [x] One user per installation. No accounts and no recognition of each person's voice.
+- [x] Conversation history and memory are stored locally in `%USERPROFILE%\.kazo\jarvis`, with no time limit, with a button to erase everything. (Location corrected by Benoit on November 19, 2026: the user's folder, not `%APPDATA%`. See [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md).)
+- [x] Jarvis starts with Windows by default, and the option can be turned off in the settings.
 - [ ] There is no Jarvis module in Kazo Bar for now (you chose 4A, not 4C).
 - [ ] Gmail and Calendar are read-only in the first version. Sending an email or creating an event will come later.
 - [ ] The phone does not change the PC's settings. It only changes its own.
-- [ ] The repository is public and under the same license as Kazo Bar.
+- [x] The repository is public and under the same license as Kazo Bar.
 - [ ] `jarvis.py` keeps running as is until the end of stage 2, then Kazo.Jarvis replaces it.
-- [ ] The wake word stays "hey jarvis" in both languages. A custom wake word would require training a model and waits for v2.
+- [x] The wake word stays "hey jarvis" in both languages. A custom wake word would require training a model and waits for v2.
 
 Next action: create the `Kazo-ca/jarvis` repository, put this plan in it along with `AGENTS.md`, then launch spikes E4, E5 and E6.

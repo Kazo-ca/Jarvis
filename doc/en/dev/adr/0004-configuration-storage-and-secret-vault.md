@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** stories US1.8, US1.14 and US1.16 of the [design](../plans/design.md); security rules 2, 3
   and 9; assumptions 1 and 2; Kazo Bar's configuration, storage and vault; Benoit's answer of 2026-11-19
@@ -104,5 +104,5 @@ Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stag
   add it.
 - All of Jarvis fits in a single folder, easy to find, back up and delete. That folder does not follow a
   roaming profile, and departs from Kazo Bar's location.
-- The choice of SQLite rather than JSON files like Kazo Bar is put to Benoit in the conversation. This ADR
-  keeps the recommended option.
+- Benoit chose SQLite rather than JSON files like Kazo Bar (question asked in the conversation, answered on
+  2026-11-19).

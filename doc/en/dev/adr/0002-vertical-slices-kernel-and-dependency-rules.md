@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decision 36 of the [design](../plans/design.md) and its "Architecture" section; section I of
   `AGENTS.md`.

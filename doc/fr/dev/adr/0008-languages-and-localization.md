@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décisions n° 19, 26 et 32 de la [conception](../plans/design.md) ; récits US1.4, US1.11 et
   US1.15 ; hypothèse n° 9 ; ADR 0104 de Kazo Os (localisation).

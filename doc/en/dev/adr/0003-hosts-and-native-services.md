@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decisions 4, 7, 8, 15 and 36 of the [design](../plans/design.md); stories US1.1, US1.2, US1.3
   and US1.6; spike E6 ([results](../../../../spikes/e6-orb-window/RESULTS.md)); Kazo Bar's Windows host.
@@ -105,5 +105,6 @@ A host only holds start-up, service composition and platform code. No feature is
 - Each native contract has two implementations to keep current from stage 1, and a third at stage 4.
 - Click-through around the orb relies on what Kazo Bar established. Spike E6 did not measure it again: it is
   the first check of the orb slice.
-- Starting with Windows follows assumption 3 of the design, which Benoit still has to confirm.
+- Starting with Windows follows assumption 3 of the design, accepted by Benoit: on by default, and it can be
+  turned off in the settings.
 - Kazo Bar's MAUI host for Windows is not carried over: MAUI is only used for Android here.

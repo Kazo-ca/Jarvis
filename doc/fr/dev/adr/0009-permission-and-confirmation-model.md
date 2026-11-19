@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décisions n° 23, 39 et 40 de la [conception](../plans/design.md) et sa section « Sécurité et
   vie privée » ; récits US1.13, US2.10, US2.15, US3.10 et US3.15 ; essais E2, E8 et E9
@@ -137,5 +137,5 @@ Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-st
   approuvée à distance.
 - Les sessions Claude Code lancées par Jarvis ne profitent pas des hooks personnels de Benoit. S'il veut
   certains d'entre eux, ils se recopient dans les réglages de Jarvis.
-- La liste des actions qui exigent un clic est posée à Benoit dans la conversation. Cet ADR retient l'option
-  recommandée : la domotique de sécurité seulement.
+- Benoit a choisi de n'exiger un clic que pour la domotique de sécurité (question posée dans la conversation,
+  réponse du 2026-11-19).

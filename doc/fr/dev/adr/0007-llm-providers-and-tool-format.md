@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décisions n° 13, 20 et 21 de la [conception](../plans/design.md) ; récits US1.8, US1.9,
   US1.14 et US1.15 ; essais E4, E5 et E7 ([résultats](../../../../spikes/e7-local-tool-calls/RESULTS.md)) ;
@@ -127,5 +127,5 @@ Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-st
 - **Non vérifié par l'essai E7 :** le tour complet (appel, résultat, réponse finale), la justesse des
   arguments, et une longue liste d'outils comme celle d'un serveur MCP Home Assistant. Ces points se
   vérifient au début de l'étape 2.
-- Le choix de `Microsoft.Extensions.AI` plutôt que d'un contrat maison est posé à Benoit dans la
-  conversation. Cet ADR retient l'option recommandée.
+- Benoit a choisi `Microsoft.Extensions.AI` plutôt qu'un contrat maison (question posée dans la
+  conversation, réponse du 2026-11-19).

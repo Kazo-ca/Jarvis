@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decisions 15, 16, 17 and 18 of the [design](../plans/design.md); stories US1.5, US1.7, US1.9
   to US1.13; spikes E4 and E5 ([results](../../../../spikes/e4-voice-chain/RESULTS.md)); decisions 3 and 4

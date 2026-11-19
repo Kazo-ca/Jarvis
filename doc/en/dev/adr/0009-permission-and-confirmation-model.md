@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decisions 23, 39 and 40 of the [design](../plans/design.md) and its "Security and privacy"
   section; stories US1.13, US2.10, US2.15, US3.10 and US3.15; spikes E2, E8 and E9
@@ -132,5 +132,5 @@ Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stag
   approved remotely.
 - The Claude Code sessions started by Jarvis do not benefit from Benoit's personal hooks. If he wants some
   of them, they are copied into Jarvis's settings.
-- The list of actions that require a click is put to Benoit in the conversation. This ADR keeps the
-  recommended option: security home automation only.
+- Benoit chose to require a click only for security home automation (question asked in the conversation,
+  answered on 2026-11-19).

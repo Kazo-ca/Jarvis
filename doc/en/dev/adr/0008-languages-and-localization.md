@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-18, waiting for Benoit's approval (work item `spikes/11-stage-1-adrs`).
+Accepted by Benoit on 2026-11-19 (proposed on 2026-11-18, work item `spikes/11-stage-1-adrs`).
 
 - **Sources:** decisions 19, 26 and 32 of the [design](../plans/design.md); stories US1.4, US1.11 and
   US1.15; assumption 9; Kazo Os ADR 0104 (localization).

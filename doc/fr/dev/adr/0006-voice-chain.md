@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décisions n° 15, 16, 17 et 18 de la [conception](../plans/design.md) ; récits US1.5, US1.7,
   US1.9 à US1.13 ; essais E4 et E5 ([résultats](../../../../spikes/e4-voice-chain/RESULTS.md)) ; décisions

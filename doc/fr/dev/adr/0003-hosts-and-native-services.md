@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-18, en attente de l'accord de Benoit (chantier `spikes/11-stage-1-adrs`).
+Accepté par Benoit le 2026-11-19 (proposé le 2026-11-18, chantier `spikes/11-stage-1-adrs`).
 
 - **Sources :** décisions n° 4, 7, 8, 15 et 36 de la [conception](../plans/design.md) ; récits US1.1, US1.2,
   US1.3 et US1.6 ; essai E6 ([résultats](../../../../spikes/e6-orb-window/RESULTS.md)) ; hôte Windows de
@@ -109,5 +109,6 @@ fonctionnalité n'y est écrite.
 - Chaque contrat natif a deux mises en œuvre à tenir à jour dès l'étape 1, et une troisième à l'étape 4.
 - Le passage des clics autour de l'orbe repose sur ce que Kazo Bar a établi. L'essai E6 ne l'a pas remesuré :
   c'est la première vérification de la tranche de l'orbe.
-- Le démarrage avec Windows suit l'hypothèse n° 3 de la conception, que Benoit doit encore confirmer.
+- Le démarrage avec Windows suit l'hypothèse n° 3 de la conception, acceptée par Benoit : activé par défaut,
+  désactivable dans les paramètres.
 - L'hôte MAUI de Kazo Bar pour Windows n'est pas repris : MAUI ne sert ici que pour Android.
