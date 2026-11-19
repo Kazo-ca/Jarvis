@@ -1,0 +1,132 @@
+<title>Orbe Jarvis léger</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one square stage, state bar below. Single deliberate dark HUD look.
+   Cost: the sphere and glow are static gradients; only three ring layers rotate, as compositor transforms (no per-frame drawing). */
+@property --c{syntax:'<color>';inherits:true;initial-value:#5fe6ff}
+:root{color-scheme:dark;--bg:#040a12;--fg:#d3f3fb;--muted:#7fa6b5;--line:#5fe6ff2e;--c:#5fe6ff;--amber:#ffb347;
+  --f-display:'Rajdhani','Inter',system-ui,sans-serif;--f-body:'Inter',system-ui,sans-serif;--f-mono:'JetBrains Mono','DejaVu Sans Mono',ui-monospace,monospace}
+html,body{height:100%}
+body{background:radial-gradient(ellipse at 50% -10%,#0f3550 0,transparent 55%),var(--bg);color:var(--fg);font-family:var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 28px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+h1{font:700 30px/1 var(--f-display);letter-spacing:.18em;text-transform:uppercase;color:#5fe6ff}
+header p{color:var(--muted);font-size:14px;max-width:64ch}
+.stage{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,#0a2236aa,#04101caa);border-radius:4px;overflow:hidden;min-width:0;width:min(100%,640px);margin:0 auto}
+.stage .lab{position:absolute;top:12px;left:16px;z-index:4;display:flex;flex-direction:column;gap:2px}
+.stage .lab b{font:600 11px var(--f-mono);letter-spacing:.2em;color:#5fe6ff}
+.stage .lab span{font:600 20px var(--f-display);letter-spacing:.06em}
+.stage .lab small{color:var(--muted);font-size:12.5px;max-width:34ch}
+.box{aspect-ratio:1/1;max-width:100%;position:relative;transition:--c .6s ease}
+/* orb */
+.orb{position:absolute;left:50%;top:54%;width:62%;aspect-ratio:1;transform:translate(-50%,-50%);color:var(--c)}
+.glow{position:absolute;inset:-12%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 45%,transparent) 0,color-mix(in srgb,var(--c) 16%,transparent) 32%,transparent 60%)}
+.sphere{position:absolute;inset:31%;border-radius:50%;
+  background:
+   radial-gradient(circle at 36% 30%,#ffffffee 0,#ffffff55 9%,transparent 22%),
+   radial-gradient(circle at 50% 50%,transparent 58%,color-mix(in srgb,var(--c) 70%,#fff) 70%,transparent 74%),
+   radial-gradient(circle at 62% 70%,color-mix(in srgb,var(--c) 25%,#000) 0,transparent 55%),
+   radial-gradient(circle at 42% 40%,color-mix(in srgb,var(--c) 85%,#fff) 0,var(--c) 22%,color-mix(in srgb,var(--c) 45%,#03121e) 58%,#03121e 100%);
+  box-shadow:0 0 30px color-mix(in srgb,var(--c) 55%,transparent),inset 0 0 18px #0008}
+.sphere::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent,color-mix(in srgb,var(--c) 30%,transparent) 20%,transparent 40%);mix-blend-mode:screen;opacity:.7}
+.ring{position:absolute;inset:0;will-change:transform}
+.ring svg{width:100%;height:100%;overflow:visible;display:block;transform-origin:50% 50%;will-change:transform,opacity}
+.label{position:absolute;left:50%;bottom:-2%;transform:translateX(-50%);font:600 11px var(--f-mono);letter-spacing:.3em;color:var(--c);opacity:.8;white-space:nowrap}
+.badge{position:absolute;right:31%;top:30%;background:var(--amber);color:#1a1000;font:700 13px var(--f-body);border-radius:12px;padding:2px 9px;box-shadow:0 0 12px var(--amber)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.bar button{font:600 12px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:#06182699;border:1px solid var(--line);padding:9px 14px;border-radius:2px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.bar button i{width:8px;height:8px;border-radius:50%;background:var(--dot)}
+.bar button[aria-pressed="true"]{color:#03121e;background:var(--dot);border-color:var(--dot)}
+.bar button[aria-pressed="true"] i{background:#03121e}
+.bar button:focus-visible,.opts input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.desc{text-align:center;font-size:14px;min-height:1.4em}
+.desc b{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;color:#5fe6ff}
+.opts{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:center;color:var(--muted);font-size:13px}
+.opts label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.cost{margin:0 auto;max-width:70ch;color:var(--muted);font-size:13px;line-height:1.5;text-align:center}
+</style>
+
+<div class="wrap">
+  <header><h1>Orbe de Jarvis</h1><p>Version légère, en 2D. La sphère est une image fixe en dégradés. Seuls les trois anneaux ouverts tournent.</p></header>
+  <section class="stage">
+    <div class="lab"><b>VERSION LÉGÈRE</b><span>Cadenas à combinaison</span><small>Trois anneaux ouverts qui tournent en sens opposés autour d'une sphère fixe.</small></div>
+    <div class="box" id="box">
+      <div class="orb">
+        <div class="glow"></div>
+        <div class="ring" id="r3"></div>
+        <div class="ring" id="r2"></div>
+        <div class="ring" id="r1"></div>
+        <div class="sphere"></div>
+        <div class="badge" id="badge" hidden>4</div>
+        <div class="label">JARVIS</div>
+      </div>
+    </div>
+  </section>
+  <div class="bar" id="bar" role="group" aria-label="État de Jarvis"></div>
+  <div class="desc" id="desc"></div>
+  <div class="opts">
+    <label><input type="checkbox" id="idleAnim"> Animer aussi en veille</label>
+    <label><input type="checkbox" id="badgeBox"> Afficher le badge des décisions</label>
+  </div>
+  <p class="cost">Coût processeur : aucun dessin image par image. Le navigateur fait seulement tourner trois calques déjà dessinés, sur la carte graphique. En veille, tout est arrêté.</p>
+</div>
+
+<script>
+const STATES={
+  veille:{n:'Veille',c:'#5fe6ff',r:0,d:'Attend « Hey Jarvis ». Tout est arrêté.'},
+  ecoute:{n:'Écoute',c:'#5fe6ff',r:1,d:'Les anneaux tournent doucement.'},
+  reflexion:{n:'Réflexion',c:'#a08cff',r:3.5,d:'Les anneaux tournent plus vite, en violet.'},
+  parole:{n:'Parole',c:'#5fe6ff',r:1.2,d:'Les anneaux pulsent au hasard, chacun de son côté, pendant que Jarvis parle.'},
+  tache:{n:'Tâche longue',c:'#5fffb0',r:.5,d:'Rotation lente, en vert.'},
+  erreur:{n:'Erreur',c:'#ff5f6d',r:.25,d:'Rouge, rotation presque arrêtée.'},
+  muet:{n:'Micro coupé',c:'#7d8b99',r:0,d:'Gris et arrêté.'},
+};
+const P=(r,a)=>[100+r*Math.cos((a-90)*Math.PI/180),100+r*Math.sin((a-90)*Math.PI/180)];
+function arc(r,a1,a2){const[x1,y1]=P(r,a1),[x2,y2]=P(r,a2);return`M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${a2-a1>180?1:0} 1 ${x2.toFixed(2)},${y2.toFixed(2)}`}
+function ticks(r,from,to,step,len,w,op){let s='';for(let a=from;a<=to;a+=step){const[x1,y1]=P(r,a),[x2,y2]=P(r-len,a);s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor" stroke-width="${w}" stroke-opacity="${op}"/>`}return s}
+function tooth(r,a,len,w){const[x1,y1]=P(r+len/2,a),[x2,y2]=P(r-len/2,a);return`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor" stroke-width="${w}" stroke-linecap="round"/>`}
+const grad=(id,a,b)=>`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity="${a}"/><stop offset="1" stop-color="currentColor" stop-opacity="${b}"/></linearGradient></defs>`;
+// inner ring: thick dial, one gap of 60°, with lock teeth at the gap
+document.getElementById('r1').innerHTML=`<svg viewBox="0 0 200 200">${grad('g1',1,.25)}
+  <path d="${arc(44,30,330)}" fill="none" stroke="url(#g1)" stroke-width="6" stroke-linecap="butt"/>
+  <path d="${arc(38.5,40,320)}" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1"/>
+  ${ticks(49.5,40,320,10,2.5,.8,.6)}${tooth(44,30,11,2.2)}${tooth(44,330,11,2.2)}</svg>`;
+// middle ring: two arcs (gaps at two places), dashed inner track
+document.getElementById('r2').innerHTML=`<svg viewBox="0 0 200 200">${grad('g2',.25,1)}
+  <path d="${arc(60,200,330)}" fill="none" stroke="url(#g2)" stroke-width="3.5"/>
+  <path d="${arc(60,10,165)}" fill="none" stroke="currentColor" stroke-opacity=".75" stroke-width="3.5"/>
+  <path d="${arc(55,0,359)}" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width=".8" stroke-dasharray="1.5 3"/>
+  ${tooth(60,10,8,1.6)}${tooth(60,165,8,1.6)}${tooth(60,200,8,1.6)}${tooth(60,330,8,1.6)}</svg>`;
+// outer ring: long thin arc with a wide gap, fine scale and a cursor
+document.getElementById('r3').innerHTML=`<svg viewBox="0 0 200 200">${grad('g3',.9,.15)}
+  <path d="${arc(78,120,400)}" fill="none" stroke="url(#g3)" stroke-width="1.6"/>
+  ${ticks(78,125,395,5,3,.6,.45)}${ticks(78,130,390,30,6,1.2,.8)}
+  <path d="${arc(84,140,175)}" fill="none" stroke="currentColor" stroke-opacity=".6" stroke-width="2.5"/>
+  ${tooth(78,120,12,2)}${tooth(78,400,12,2)}</svg>`;
+// rotations: Web Animations on transform only (compositor), speed via playbackRate (no jump)
+const base=[[document.getElementById('r1'),24000,1],[document.getElementById('r2'),36000,-1],[document.getElementById('r3'),60000,1]];
+const anims=base.map(([el,dur,dir])=>el.animate([{transform:'rotate(0deg)'},{transform:`rotate(${360*dir}deg)`}],{duration:dur,iterations:Infinity}));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const box=document.getElementById('box'),bar=document.getElementById('bar'),idle=document.getElementById('idleAnim');
+let cur='ecoute',rate=0,raf=0;
+function target(){let r=STATES[cur].r;if(cur==='veille'&&idle.checked)r=.3;return reduced?0:r}
+// ease the speed change over ~0.6s so nothing jumps; then stop updating
+function ramp(){const t=target();rate+=(t-rate)*.12;if(Math.abs(t-rate)<.01)rate=t;
+  anims.forEach(a=>{if(rate===0)a.pause();else{a.updatePlaybackRate(rate);if(a.playState!=='running')a.play()}});
+  raf=rate===t?0:requestAnimationFrame(ramp)}
+function setState(k){cur=k;box.style.setProperty('--c',STATES[k].c);
+  bar.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));
+  document.getElementById('desc').innerHTML='<b>'+STATES[k].n.toUpperCase()+'</b> · '+STATES[k].d;speaking(k==='parole');if(!raf)raf=requestAnimationFrame(ramp)}
+for(const k in STATES){const b=document.createElement('button');b.type='button';b.dataset.k=k;b.id='st-'+k;b.style.setProperty('--dot',STATES[k].c);b.innerHTML='<i></i>'+STATES[k].n;b.onclick=()=>setState(k);bar.appendChild(b)}
+// speaking: random, independent pulses on each ring (scale + opacity, compositor only)
+const timers=[];
+function pulse(i){const svg=base[i][0].querySelector('svg');const k=.025+Math.random()*.045;
+  svg.animate([{transform:'scale(1)',opacity:.8},{transform:`scale(${1+k})`,opacity:1,offset:.3},{transform:'scale(1)',opacity:.8}],{duration:220+Math.random()*260,easing:'ease-out'});
+  timers[i]=setTimeout(()=>pulse(i),140+Math.random()*520)}
+function speaking(on){timers.forEach(clearTimeout);timers.length=0;if(on&&!reduced)base.forEach((_,i)=>timers[i]=setTimeout(()=>pulse(i),Math.random()*300))}
+idle.onchange=()=>{if(!raf)raf=requestAnimationFrame(ramp)};
+document.getElementById('badgeBox').onchange=e=>document.getElementById('badge').hidden=!e.target.checked;
+anims.forEach(a=>a.pause());setState('ecoute');
+</script>

@@ -33,6 +33,10 @@ ce qu'il décrit.
 - **À vérifier au début de l'étape 1** (les essais ne l'ont pas fait) : mot d'éveil avec la voix de Benoit et
   pendant que Jarvis parle, micro réel, fin de phrase par Silero, passage des clics autour de l'orbe, coût de
   l'orbe en veille sur l'hôte réel, rechargement des fenêtres au changement de langue.
+- **Designs de l'interface validés le 19 novembre 2026 :** orbe haute qualité (plasma, nuages binaires,
+  anneaux gyroscopiques), orbe légère (sphère fixe, trois anneaux ouverts), plein écran « poste de commande ».
+  Décrits dans [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes dans `design/prototypes/`. L'ADR de
+  l'orbe à venir s'appuie sur ce catalogue.
 - **Licences à régler avant une diffusion publique :** espeak-ng (GPLv3, dans sherpa-onnx 1.13.8), modèles
   d'openWakeWord (CC BY-NC-SA 4.0), licence de chaque voix (ADR 0006).
 - **Échecs de tests connus :** aucun (pas encore de tests).

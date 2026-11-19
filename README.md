@@ -12,4 +12,5 @@ to it away from the PC.
 - Design document: [doc/en/dev/plans/design.md](doc/en/dev/plans/design.md)
 - Product overview: [doc/en/features.md](doc/en/features.md)
 - Technical spikes: [spikes/](spikes/README.md)
+- UI designs and prototypes: [doc/en/dev/ui/catalog.md](doc/en/dev/ui/catalog.md), [design/](design/README.md)
 - Rules for contributors and coding agents: [AGENTS.md](AGENTS.md)
