@@ -259,8 +259,8 @@ the other, and 16 (updates) at any time after 4.
 
 ### 16. Updates (`stage1/16-updates`)
 
-- `Updates` slice (US1.18): compares the version with the releases published on GitHub (token in the vault
-  while the repository is private), download, start of the updater.
+- `Updates` slice (US1.18): compares the version with the releases published on GitHub (the repository is
+  public since November 19, 2026: no token is needed), download, start of the updater.
 - `Kazo.Jarvis.Updater` project: replaces the files and restarts the application, like Kazo Bar.
 - Publishing script in `build/`: self-contained, `win-x64`, the application and the updater in the same
   folder (ADR 0001).

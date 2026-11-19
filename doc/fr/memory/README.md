@@ -61,10 +61,14 @@ ce qu'il décrit.
   s'appuie sur ce catalogue.
 - **Licences à régler avant une diffusion publique :** espeak-ng (GPLv3, dans sherpa-onnx 1.13.8), modèles
   d'openWakeWord (CC BY-NC-SA 4.0), licence de chaque voix (ADR 0006).
+- **Dépôt public :** Benoit a confirmé le 19 novembre 2026 que `Kazo-ca/Jarvis` est public ([ADR 0014](../dev/adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). La
+  vérification des versions (US1.18) n'a donc pas besoin de jeton ; la conséquence de l'ADR 0001 qui en
+  parlait ne s'applique plus.
 - **Échecs de tests connus :** aucun.
-- **Vérification sur Windows du chantier 1 faite** le 19 novembre 2026 : compilation, tests et hôte Web
-  corrects ; l'hôte Windows démarre quand la session est déverrouillée et meurt sur une session verrouillée
-  (`D3DERR_NOTAVAILABLE`), à corriger au chantier 4.
+- **Vérification sur Windows du chantier 1 : faite** le 19 novembre 2026 par un agent sur le PC de Benoit
+  (SDK 10.0.402) : construction sans avertissement, tests unitaires 29/29, Playwright 1/1, hôte Web en
+  HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. **À traiter au chantier 4 :** lancé sur une
+  session verrouillée, l'hôte Windows meurt (voir [pièges](../dev/pitfalls.md)).
 - **Choix du chantier 2 que l'ADR 0005 ne tranche pas :** une interruption alors que le micro est coupé ou
   absent arrête Jarvis sans démarrer l'écoute ([dev/kernel.md](../dev/kernel.md#cas-que-ladr-0005-ne-couvre-pas)).
 

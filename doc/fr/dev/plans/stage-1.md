@@ -270,8 +270,8 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
 
 ### 16. Mises à jour (`stage1/16-updates`)
 
-- Tranche `Updates` (US1.18) : comparaison de la version avec les versions publiées sur GitHub (jeton dans le
-  coffre tant que le dépôt est privé), téléchargement, lancement du programme de mise à jour.
+- Tranche `Updates` (US1.18) : comparaison de la version avec les versions publiées sur GitHub (le dépôt est
+  public depuis le 19 novembre 2026 : aucun jeton n'est nécessaire), téléchargement, lancement du programme de mise à jour.
 - Projet `Kazo.Jarvis.Updater` : remplace les fichiers et relance l'application, comme Kazo Bar.
 - Script de publication dans `build/` : autonome, `win-x64`, l'application et le programme de mise à jour
   dans le même dossier (ADR 0001).

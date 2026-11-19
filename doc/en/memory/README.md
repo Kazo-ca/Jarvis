@@ -59,10 +59,13 @@ Resume point for any agent. Update it in the same change as what it describes.
   this catalog.
 - **Licenses to settle before a public distribution:** espeak-ng (GPLv3, in sherpa-onnx 1.13.8),
   openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).
+- **Public repository:** Benoit confirmed on November 19, 2026 that `Kazo-ca/Jarvis` is public ([ADR 0014](../dev/adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). The
+  version check (US1.18) therefore needs no token; the ADR 0001 consequence about it no longer applies.
 - **Known test failures:** none.
-- **Windows check of work item 1 done** on November 19, 2026: build, tests and Web host fine; the Windows
-  host starts when the session is unlocked and dies on a locked session (`D3DERR_NOTAVAILABLE`), to be fixed
-  in work item 4.
+- **Windows check of work item 1: done** on November 19, 2026 by an agent on Benoit's PC (SDK 10.0.402):
+  build without warnings, unit tests 29/29, Playwright 1/1, Web host HTTP 200, Windows host opened,
+  responsive and closed without error. **To handle in work item 4:** started on a locked session, the
+  Windows host dies (see [pitfalls](../dev/pitfalls.md)).
 - **Choice of work item 2 that ADR 0005 does not settle:** an interruption while the microphone is muted or
   missing stops Jarvis without starting to listen ([dev/kernel.md](../dev/kernel.md#case-adr-0005-does-not-cover)).
 
