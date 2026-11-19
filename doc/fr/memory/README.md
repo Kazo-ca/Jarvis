@@ -23,8 +23,9 @@ ce qu'il décrit.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
   sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
-- **Prochaine étape :** écrire le plan de la série de l'étape 1, puis coder. Benoit décide quand
-  `spikes/base` va dans `main`.
+- **Prochaine étape :** le [plan de la série de l'étape 1](../dev/plans/stage-1.md) est proposé (chantier
+  `spikes/15-stage-1-plan`) : 17 chantiers `stage1/<n>-<sujet>`, quatre questions posées à Benoit. Une fois
+  validé, on commence par `stage1/1-solution`. Benoit décide quand `spikes/base` va dans `main`.
 - **Réponses de Benoit du 19 novembre 2026 (inscrites dans les ADR) :** base SQLite pour la conversation, la
   mémoire et le journal (ADR 0004) ; abstractions `Microsoft.Extensions.AI` (ADR 0007) ; un clic exigé pour la
   domotique de sécurité seulement (ADR 0009) ; hypothèses n° 1, 2, 3, 7 et 9 de la conception acceptées ; les

@@ -22,8 +22,9 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** write the plan of the stage 1 series, then code. Benoit decides when `spikes/base` goes to
-  `main`.
+- **Next step:** the [stage 1 series plan](../dev/plans/stage-1.md) is proposed (work item
+  `spikes/15-stage-1-plan`): 17 work items `stage1/<n>-<topic>`, four questions asked to Benoit. Once
+  validated, work starts with `stage1/1-solution`. Benoit decides when `spikes/base` goes to `main`.
 - **Benoit's answers of November 19, 2026 (written in the ADRs):** SQLite database for the conversation,
   memory and log (ADR 0004); `Microsoft.Extensions.AI` abstractions (ADR 0007); a click required for security
   home automation only (ADR 0009); assumptions 1, 2, 3, 7 and 9 of the design accepted; data goes to
