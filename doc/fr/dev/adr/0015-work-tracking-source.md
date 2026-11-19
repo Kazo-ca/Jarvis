@@ -2,7 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-19 (chantier `stage1/work-tracking-adr`). Fonctionnalité **pour plus tard** : rien ne se
+Accepté par Benoit le 2026-11-19 (proposé le même jour, chantier `stage1/work-tracking-adr`), avec une
+confirmation avant toute création ou modification (section 4, choix de Benoit sur la carte du 2026-11-19). Fonctionnalité **pour plus tard** : rien ne se
 construit avant la v2, avec Relais.
 
 - **Source :** demande de Benoit du 2026-11-19 : pouvoir configurer une source pour l'organisation et le suivi
@@ -121,9 +122,11 @@ suivante, adaptée à la source :
     d'Azure DevOps demandent une adresse joignable depuis Internet et passeront par le tunnel de l'ADR 0013,
     section 8.
   - En cas de conflit, l'état de la source de suivi gagne, et le fil du sujet le note.
-- Classement selon l'ADR 0009 : créer ou modifier une issue ou un work item dans la source réglée pour le
-  projet est une action **réversible et attendue** de l'option, sans confirmation. Toute autre destination
-  (autre dépôt, autre projet Azure DevOps) demande une confirmation.
+- **Confirmation (choix de Benoit, 2026-11-19) :** Jarvis, ou l'orchestrateur, **demande une confirmation à
+  l'humain avant de créer ou de modifier** une issue ou un work item, y compris un changement d'état venu de
+  la synchronisation. La demande suit l'ADR 0009 (panneau ambre de l'éventail, boutons près de l'orbe) et
+  montre la destination et le changement. Les transitions faites par GitHub ou Azure Boards eux-mêmes à la
+  fusion d'une PR (`Fixes #<id>`, `Fixes AB#<id>`) ne passent pas par Jarvis et ne demandent rien.
 
 ### 5. Accès technique
 

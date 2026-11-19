@@ -2,7 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-19 (work item `stage1/work-tracking-adr`). Feature **for later**: nothing is built before
+Accepted by Benoit on 2026-11-19 (proposed the same day, work item `stage1/work-tracking-adr`), with a
+confirmation before any creation or change (section 4, Benoit's choice on the card of 2026-11-19). Feature **for later**: nothing is built before
 v2, together with Relais.
 
 - **Source:** Benoit's request of 2026-11-19: be able to set a source for organizing and tracking tasks
@@ -117,9 +118,11 @@ adapted to the source:
     Jarvis polls the source at a regular interval; GitHub webhooks and Azure DevOps service hooks need an
     address reachable from the Internet and will go through the tunnel of ADR 0013, section 8.
   - On conflict, the tracking source's state wins, and the subject's thread notes it.
-- Classification under ADR 0009: creating or changing an issue or a work item in the source set for the
-  project is a **reversible and expected** action of the option, with no confirmation. Any other destination
-  (another repository, another Azure DevOps project) needs a confirmation.
+- **Confirmation (Benoit's choice, 2026-11-19):** Jarvis, or the orchestrator, **asks the human for a
+  confirmation before creating or changing** an issue or a work item, including a state change coming from
+  the synchronization. The request follows ADR 0009 (amber panel of the task fan, buttons near the orb) and
+  shows the destination and the change. Transitions made by GitHub or Azure Boards themselves when a PR is
+  merged (`Fixes #<id>`, `Fixes AB#<id>`) do not go through Jarvis and ask nothing.
 
 ### 5. Technical access
 
