@@ -63,8 +63,10 @@ ce qu'il décrit.
   vérification des versions (US1.18) n'a donc pas besoin de jeton ; la conséquence de l'ADR 0001 qui en
   parlait ne s'applique plus.
 - **Échecs de tests connus :** aucun.
-- **Vérification sur Windows du chantier 1 à faire** (par un agent sur le PC de Benoit) : les deux hôtes
-  démarrent et `dotnet test` passe sous Windows. Tant qu'elle n'est pas faite, la PR du chantier 1 le dit.
+- **Vérification sur Windows du chantier 1 : faite** le 19 novembre 2026 par un agent sur le PC de Benoit
+  (SDK 10.0.402) : construction sans avertissement, tests unitaires 29/29, Playwright 1/1, hôte Web en
+  HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. **À traiter au chantier 4 :** lancé sur une
+  session verrouillée, l'hôte Windows meurt (voir [pièges](../dev/pitfalls.md)).
 
 ## Environnement de développement de Benoit
 

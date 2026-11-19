@@ -54,3 +54,12 @@ Après `StartServer()`, `ClientOptions.BaseAddress` reste `http://localhost/`. L
 
 La gestion centrale des versions casse les `.csproj` des essais, qui donnent leurs propres versions.
 `spikes/Directory.Packages.props` la coupe pour eux (`ManagePackageVersionsCentrally` à `false`).
+
+## L'hôte Windows meurt s'il démarre sur une session verrouillée (chantier stage1/1-solution)
+
+`WebView2CompositionControl` crée un périphérique Direct3D 9 au chargement. Sur un bureau verrouillé,
+Direct3D 9 n'est pas disponible : `COMException 0x8876086A` (D3DERR_NOTAVAILABLE) dans
+`Direct3DHelper.CreateD3D9Device`, non attrapée, et le processus se termine avec le code `0xC000041D`, sans
+fenêtre. Déverrouillé, l'hôte démarre normalement. Le démarrage avec Windows et la sortie de veille peuvent
+tomber sur ce cas : le chantier `stage1/4-hosts` doit attendre le déverrouillage (ou réessayer) au lieu de
+mourir. `LogonUI.exe` tourne aussi en session Bureau à distance : ce n'est pas un bon signe de verrouillage.
