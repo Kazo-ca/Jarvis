@@ -76,11 +76,10 @@ In `tests/Kazo.Jarvis.Tests.Unit/Architecture/`. They are part of the merge bar 
 | No package other than `Microsoft.Extensions.*.Abstractions` in the kernel; no project references a spike | `ProjectReferenceTests` |
 | No Razor component nor style or script file in the kernel | `KernelContentTests` |
 | A slice uses no type of another slice (`Features/Shared/` excepted), method bodies included; no type directly in a domain folder | `SliceIsolationTests` (NetArchTest) |
-| No `<style>`, `<script>` or `style="…"` in a `.razor` file | `RazorMarkupTests` |
+| No `<style>` nor `style="…"` in a `.razor` file (script is allowed there, ADR 0012) | `RazorMarkupTests` |
 
 Each rule about code is also run on samples that break it (`SliceIsolationSamples.cs`, the cases of
 `RazorMarkupTests`): it is proven able to fail while the projects are still nearly empty.
 
-**About `<script>`:** a host's document (`src/Kazo.Jarvis.Web/Components/App.razor`) must load Blazor's
-script. It is the only file allowed to hold an empty `<script src="…"></script>` tag that loads a file. Script
-written inside the tag stays forbidden everywhere, like style. The list is in `RazorMarkupRule.HostDocuments`.
+Script is allowed in markup, to manipulate the DOM without restriction
+([ADR 0012](adr/0012-scripts-allowed-in-markup.md)); only style stays forbidden there.

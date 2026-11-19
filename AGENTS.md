@@ -41,11 +41,12 @@ Never copy Python code: port the behavior.
 
 ## II. STYLE
 
-1. **Collocated component assets.** CSS and JavaScript of a component live in
-   `MyComponent.razor.css` / `MyComponent.razor.js` next to it. No inline
-   `style="..."`, `<style>` or `<script>` in markup.
-2. **C# first.** JavaScript only for browser APIs C# cannot reach (canvas, WebGL,
-   audio worklets), shipped as a component-scoped asset.
+1. **Collocated component styles.** The CSS of a component lives in
+   `MyComponent.razor.css` next to it. No inline `style="..."` or `<style>` in
+   markup. Script is allowed in markup (ADR 0012); move a component's JavaScript
+   to `MyComponent.razor.js` once it grows past a few lines.
+2. **C# first.** A feature's logic is written in C#. JavaScript for browser APIs
+   C# cannot reach (DOM manipulation, canvas, WebGL, audio worklets).
 3. **English file and folder names**, whatever the conversation language.
 4. **Comments.** XML doc comments on public APIs; explain the *why* of
    non-obvious code.

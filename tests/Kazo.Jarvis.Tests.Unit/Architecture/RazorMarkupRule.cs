@@ -3,22 +3,14 @@ using System.Text.RegularExpressions;
 namespace Kazo.Jarvis.Tests.Unit.Architecture;
 
 /// <summary>
-/// No style or script in Razor markup (ADR 0002, section 7; AGENTS.md, II.1): CSS and JavaScript of a
-/// component live in <c>.razor.css</c> and <c>.razor.js</c> next to it.
+/// No style in Razor markup (ADR 0002, section 7, as changed by ADR 0012): the CSS of a component lives
+/// in <c>.razor.css</c> next to it. Script is allowed in markup (ADR 0012).
 /// </summary>
 internal static partial class RazorMarkupRule
 {
-    /// <summary>
-    /// Host documents (the <c>&lt;html&gt;</c> page of a host) that may load a script file with an
-    /// empty <c>&lt;script src="…"&gt;&lt;/script&gt;</c> element: Blazor's own script must be loaded there.
-    /// Inline script content and styles stay forbidden everywhere.
-    /// </summary>
-    public static readonly string[] HostDocuments = ["src/Kazo.Jarvis.Web/Components/App.razor"];
-
     /// <summary>The problems found in one Razor file, empty when it follows the rule.</summary>
     /// <param name="markup">The file content.</param>
-    /// <param name="isHostDocument">True for a file listed in <see cref="HostDocuments"/>.</param>
-    public static string[] Problems(string markup, bool isHostDocument)
+    public static string[] Problems(string markup)
     {
         var code = Comments().Replace(markup, string.Empty);
         var problems = new List<string>();
@@ -33,17 +25,7 @@ internal static partial class RazorMarkupRule
             problems.Add("style=\"…\" attribute");
         }
 
-        foreach (Match script in ScriptElement().Matches(code))
-        {
-            var isFileReference = script.Groups["attributes"].Value.Contains("src=", StringComparison.OrdinalIgnoreCase)
-                && string.IsNullOrWhiteSpace(script.Groups["body"].Value);
-            if (!isHostDocument || !isFileReference)
-            {
-                problems.Add("<script> element");
-            }
-        }
-
-        return [.. problems.Distinct()];
+        return [.. problems];
     }
 
     /// <summary>Razor comments <c>@* … *@</c> and HTML comments, which may mention the forbidden tags.</summary>
@@ -55,7 +37,4 @@ internal static partial class RazorMarkupRule
 
     [GeneratedRegex(@"(?<![\w-])style\s*=", RegexOptions.IgnoreCase)]
     private static partial Regex StyleAttribute();
-
-    [GeneratedRegex(@"<script\b(?<attributes>[^>]*)>(?<body>.*?)(</script\s*>|$)", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
-    private static partial Regex ScriptElement();
 }
