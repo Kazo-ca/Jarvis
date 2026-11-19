@@ -38,3 +38,19 @@ Kazo.Jarvis doit détecter ce message et demander de relancer `/login`, au lieu 
 ## NAudio 3 utilise `Span<float>`
 
 `ISampleProvider.Read` prend un `Span<float>`. Les exemples écrits pour NAudio 2 ne compilent plus.
+
+## Un `[SetUpFixture]` NUnit ne vaut que pour son espace de noms (chantier stage1/1-solution)
+
+Placé dans `Kazo.Jarvis.Tests.E2E.Drivers`, le démarrage de l'hôte Web ne tournait pas pour les tests de
+`Kazo.Jarvis.Tests.E2E.Scenarios` : l'adresse restait celle par défaut et Chromium répondait
+`ERR_CONNECTION_REFUSED`. Le mettre dans l'espace de noms racine de l'assembly de tests.
+
+## `WebApplicationFactory.UseKestrel(0)` ne donne pas l'adresse choisie (chantier stage1/1-solution)
+
+Après `StartServer()`, `ClientOptions.BaseAddress` reste `http://localhost/`. Lire l'adresse réelle dans
+`IServer.Features.Get<IServerAddressesFeature>()`.
+
+## `Directory.Packages.props` à la racine s'applique aussi aux essais (chantier stage1/1-solution)
+
+La gestion centrale des versions casse les `.csproj` des essais, qui donnent leurs propres versions.
+`spikes/Directory.Packages.props` la coupe pour eux (`ManagePackageVersionsCentrally` à `false`).

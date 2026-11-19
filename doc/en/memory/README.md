@@ -4,8 +4,11 @@ Resume point for any agent. Update it in the same change as what it describes.
 
 ## State
 
-- **Current series:** `spikes` (technical spikes E1 to E10), branch `spikes/base`.
-  Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
+- **Current series:** `stage1` (stage 1), branch `stage1/base`, taken from `main` on November 19, 2026.
+  Work item 1 (`stage1/1-solution`, solution skeleton, architecture tests, continuous integration)
+  delivered in its PR; next work item: `stage1/2-kernel`. Benoit merges `main`; an agent merges its own PRs
+  into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
+- **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX, stage 5 removed). Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
 - **Next free ADR number:** 0012. ADRs 0001 to 0009 (stage 1) were **accepted** by Benoit on
   November 19, 2026 (work item `spikes/11-stage-1-adrs`). They are no longer edited: a new ADR supersedes them.
@@ -27,9 +30,9 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** the [stage 1 series plan](../dev/plans/stage-1.md) was **validated** by Benoit on
-  November 19, 2026 (17 work items `stage1/<n>-<topic>`). A PR takes `spikes/base` into `main`; once Benoit
-  has merged it, `stage1/base` is created from `main` and work starts with `stage1/1-solution`.
+- **Next step:** work item `stage1/2-kernel` of the [stage 1 series plan](../dev/plans/stage-1.md),
+  **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
+  [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
   (Windows tests on his PC); a written request gets a written answer only; the Windows checks are done by an
   agent on his PC through Remote Control, by him only for his voice and ears (work items 9, 10, 12, 13
@@ -48,7 +51,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   this catalog.
 - **Licenses to settle before a public distribution:** espeak-ng (GPLv3, in sherpa-onnx 1.13.8),
   openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).
-- **Known test failures:** none (no tests yet).
+- **Known test failures:** none.
+- **Windows check of work item 1 still to do** (by an agent on Benoit's PC): both hosts start and
+  `dotnet test` passes on Windows. Until it is done, the PR of work item 1 says so.
 
 ## Benoit's development environment
 

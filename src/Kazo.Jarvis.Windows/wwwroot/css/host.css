@@ -1,0 +1,6 @@
+/* Host page of the Windows host. The shared style of the slices arrives with stage1/5-shared-ui-language. */
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #05080d;
+}

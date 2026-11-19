@@ -1,0 +1,61 @@
+# Continuous integration on Linux (stage 1 plan, answer no. 2): builds every project, including the
+# Windows host (EnableWindowsTargeting), runs the unit tests except those marked Windows, then the
+# Playwright tests against the Web host. Windows-only checks run on Benoit's PC.
+name: CI
+
+on:
+  push:
+    branches: [main, '*/base']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET (version from global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Kazo.Jarvis.slnx
+
+      - name: Build
+        run: dotnet build Kazo.Jarvis.slnx --configuration Release --no-restore
+
+      - name: Unit and architecture tests
+        run: >
+          dotnet test tests/Kazo.Jarvis.Tests.Unit --configuration Release --no-build
+          --filter "TestCategory!=Windows"
+          --logger trx --results-directory TestResults/unit
+
+      - name: Install the Playwright browser
+        run: pwsh tests/Kazo.Jarvis.Tests.E2E/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: End-to-end tests (Playwright, Web host)
+        run: >
+          dotnet test tests/Kazo.Jarvis.Tests.E2E --configuration Release --no-build
+          --logger trx --results-directory TestResults/e2e
+
+      - name: Keep the test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/
+          retention-days: 7

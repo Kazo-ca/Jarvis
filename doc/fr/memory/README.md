@@ -5,8 +5,12 @@ ce qu'il décrit.
 
 ## État
 
-- **Série en cours :** `spikes` (essais techniques E1 à E10), branche `spikes/base`.
-  Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX, étape 5 retirée). En attente : E10
+- **Série en cours :** `stage1` (étape 1), branche `stage1/base`, partie de `main` le 19 novembre 2026.
+  Chantier 1 (`stage1/1-solution`, squelette de la solution, tests d'architecture, intégration continue)
+  livré dans sa PR ; prochain chantier : `stage1/2-kernel`. Benoit fusionne `main` ; un agent fusionne
+  lui-même ses PR dans une branche `<série>/base` une fois les vérifications vertes (règle redite par Benoit
+  le 19 novembre 2026).
+- **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX, étape 5 retirée). En attente : E10
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
 - **Prochain numéro d'ADR libre :** 0012. Les ADR 0001 à 0009 (étape 1) sont **acceptés** par Benoit le
   19 novembre 2026 (chantier `spikes/11-stage-1-adrs`). Ils ne se modifient plus : un nouvel ADR les remplace.
@@ -28,9 +32,9 @@ ce qu'il décrit.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
   sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
-- **Prochaine étape :** le [plan de la série de l'étape 1](../dev/plans/stage-1.md) est **validé** par Benoit
-  le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Une PR fait passer `spikes/base` dans `main` ;
-  quand Benoit l'a fusionnée, on crée `stage1/base` depuis `main` et on commence par `stage1/1-solution`.
+- **Prochaine étape :** chantier `stage1/2-kernel` du [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+  **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
+  [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
   (tests Windows sur son PC) ; une demande écrite reçoit une réponse écrite seulement ; les vérifications sur
   Windows sont faites par un agent sur son PC par le contrôle à distance, lui seulement pour sa voix et ses
@@ -49,7 +53,9 @@ ce qu'il décrit.
   s'appuie sur ce catalogue.
 - **Licences à régler avant une diffusion publique :** espeak-ng (GPLv3, dans sherpa-onnx 1.13.8), modèles
   d'openWakeWord (CC BY-NC-SA 4.0), licence de chaque voix (ADR 0006).
-- **Échecs de tests connus :** aucun (pas encore de tests).
+- **Échecs de tests connus :** aucun.
+- **Vérification sur Windows du chantier 1 à faire** (par un agent sur le PC de Benoit) : les deux hôtes
+  démarrent et `dotnet test` passe sous Windows. Tant qu'elle n'est pas faite, la PR du chantier 1 le dit.
 
 ## Environnement de développement de Benoit
 

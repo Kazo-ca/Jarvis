@@ -37,3 +37,19 @@ detect that message and ask to run `/login` again, instead of failing silently.
 ## NAudio 3 uses `Span<float>`
 
 `ISampleProvider.Read` takes a `Span<float>`. Samples written for NAudio 2 no longer compile.
+
+## An NUnit `[SetUpFixture]` only covers its own namespace (work item stage1/1-solution)
+
+Placed in `Kazo.Jarvis.Tests.E2E.Drivers`, the Web host start-up did not run for the tests of
+`Kazo.Jarvis.Tests.E2E.Scenarios`: the address stayed the default one and Chromium answered
+`ERR_CONNECTION_REFUSED`. Put it in the root namespace of the test assembly.
+
+## `WebApplicationFactory.UseKestrel(0)` does not give the chosen address (work item stage1/1-solution)
+
+After `StartServer()`, `ClientOptions.BaseAddress` stays `http://localhost/`. Read the real address from
+`IServer.Features.Get<IServerAddressesFeature>()`.
+
+## A root `Directory.Packages.props` also applies to the spikes (work item stage1/1-solution)
+
+Central package management breaks the spikes' `.csproj` files, which give their own versions.
+`spikes/Directory.Packages.props` turns it off for them (`ManagePackageVersionsCentrally` set to `false`).

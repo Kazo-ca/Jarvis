@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Shared kernel (ADR 0002, section 4): messages between slices, the assistant state machine,
+    and the contracts of native, configuration, storage and vault services.
+    No project reference, no business logic, no UI component, no native dependency.
+    Only Microsoft.Extensions.*.Abstractions packages are allowed (checked by the architecture tests).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Kazo.Jarvis.Kernel</RootNamespace>
+  </PropertyGroup>
+
+</Project>
