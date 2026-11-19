@@ -20,6 +20,7 @@ free number is given in the [project memory](../../memory/README.md).
 | [0012](0012-scripts-allowed-in-markup.md) | Script is allowed in markup (partly supersedes 0002) | Accepted |
 | [0013](0013-relais-readiness.md) | Preparing the Relais module (v2): projects, subjects, tasks and orchestrator | Accepted |
 | [0014](0014-license-kazo-bar-rule-and-jarvis-py.md) | Apache 2.0 license, rule on Kazo Bar (copying allowed, no reference) and removal of `jarvis.py` | Accepted |
+| [0015](0015-work-tracking-source.md) | Work tracking source (GitHub Issues or Azure Boards) and mandatory link for commits and PRs | Proposed |
 
 The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).
