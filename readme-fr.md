@@ -7,8 +7,8 @@ l'exécution. Il prend la forme d'un orbe animé, répond d'abord avec un modèl
 local, et passe la main à Claude quand la tâche le dépasse. Une application
 Android permet de lui parler ailleurs que devant le PC.
 
-**État :** conception terminée, essais techniques en cours. Pas encore de code
-produit.
+**État :** conception et essais terminés ; étape 1 en cours (squelette de la solution). Construire et
+tester : [doc/fr/dev/build.md](doc/fr/dev/build.md).
 
 - Document de conception : [doc/fr/dev/plans/design.md](doc/fr/dev/plans/design.md)
 - Vue d'ensemble du produit : [doc/fr/features.md](doc/fr/features.md)

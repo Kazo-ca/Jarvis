@@ -7,7 +7,8 @@ time. It shows as an animated orb, answers first with a local model, and hands
 off to Claude when a task is beyond it. An Android app lets you talk
 to it away from the PC.
 
-**Status:** design done, technical spikes in progress. No product code yet.
+**Status:** design and spikes done; stage 1 in progress (solution skeleton). Build and test:
+[doc/en/dev/build.md](doc/en/dev/build.md).
 
 - Design document: [doc/en/dev/plans/design.md](doc/en/dev/plans/design.md)
 - Product overview: [doc/en/features.md](doc/en/features.md)

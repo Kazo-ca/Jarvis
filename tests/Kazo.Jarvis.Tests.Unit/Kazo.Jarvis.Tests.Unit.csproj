@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Unit tests (ADR 0001): one folder per slice, same path as in Kazo.Jarvis.Features, with
+    simulated contracts. Architecture/ holds the dependency rule tests of ADR 0002, section 7.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
+    <ProjectReference Include="..\..\src\Kazo.Jarvis.Features\Kazo.Jarvis.Features.csproj" />
+    <ProjectReference Include="..\..\src\Kazo.Jarvis.Adapters\Kazo.Jarvis.Adapters.csproj" />
+  </ItemGroup>
+
+</Project>
