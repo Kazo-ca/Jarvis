@@ -55,7 +55,9 @@ Faits sur le PC de Benoit par un agent en contrôle à distance (chantier `stage
 
 ## Décisions proposées après E11 à E14
 
-**À faire accepter par Benoit**, puis à écrire dans les ADR du chantier 2 (indiqués à la fin de chaque ligne).
+**Acceptées par Benoit le 2026-11-20** (« je suis d'accord avec tes recommandations », en réponse aux cinq
+questions posées dans la conversation). Ses choix sont à la suite de la liste ; là où ils changent une ligne,
+ils l'emportent. Elles s'écrivent dans les ADR du chantier 2 (indiqués à la fin de chaque ligne).
 
 1. **Éventail** (E11) : rendu WPF dans une seconde fenêtre transparente, **créée au démarrage et gardée
    cachée** (jamais détruite) ; animation de 400 ms à l'ouverture et 300 ms à la fermeture à 30 images par
@@ -85,6 +87,19 @@ Faits sur le PC de Benoit par un agent en contrôle à distance (chantier `stage
    nom de l'outil : domaine `lock`, `alarm_control_panel`, `valve`, `siren`, ou `cover` de classe `garage`,
    `door` ou `gate` = critique ; scripts (`script__…`, `intent_script__…`) sensibles par défaut ; liste réglable
    d'entités et de scripts « sécurité » (MCP ne donne ni étiquettes ni zones). (ADR 0018)
+
+### Réponses de Benoit du 2026-11-20
+
+1. **Panneaux de l'éventail : Razor**, dans une fenêtre `BlazorWebView` créée au démarrage et gardée cachée,
+   comme le reste de l'interface (point 1 : le rendu WPF pur n'est pas retenu). (Chantier 14.)
+2. **Écritures de Claude Code : un seul point de décision**, l'outil de permission de Jarvis, qui pose la
+   question à la voix ou près de l'orbe (point 2). (ADR 0021)
+3. **Réglages du dépôt : le `CLAUDE.md` seul**, sans réglages ni hooks ; les réglages complets seulement pour
+   les dossiers que l'utilisateur marque « de confiance » (point 4). (ADR 0021)
+4. **Domotique de sécurité : d'après l'appareil visé**, plus une liste que l'utilisateur complète (point 7).
+   (ADR 0018)
+5. **Scripts Home Assistant : pas de confirmation par défaut.** L'utilisateur marque « sécurité » ceux qui
+   exigent le clic. Le point 7 disait « sensibles par défaut » : ce n'est pas retenu. (ADR 0018)
 
 Ce qui reste après ces essais : le jugement de Benoit sur la fluidité de l'éventail et le confort du simple
 clic, la confirmation à la voix avec un vrai délai (l'expiration de l'appel MCP par Claude Code n'est pas
