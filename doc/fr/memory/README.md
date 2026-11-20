@@ -170,7 +170,7 @@ ce qu'il décrit.
   par l'entrée du menu et toute seule seulement sur un refus faute de micro ; serveur injoignable posé après deux
   chargements ratés de suite ; la page « Voix » lève la panne de la voix ; aucun bouton pour les réglages illisibles ;
   origine dans le noyau.
-- **Plan de l'étape 2 : proposé** le 20 novembre 2026 (chantier `stage1/stage-2-plan`, [plan](../dev/plans/stage-2.md)), en attente de Benoit : 15 chantiers `stage2/<n>-<sujet>`, d'abord les essais E11 à E14 sur son PC puis les ADR 0017 à 0021 (numéros réservés par le plan). Trois questions ouvertes : point de départ de `stage2/base`, fournisseur de la recherche web, ordre des premiers chantiers.
+- **Plan de l'étape 2 : validé** par Benoit le 20 novembre 2026 (chantier `stage1/stage-2-plan`, [plan](../dev/plans/stage-2.md)) : 15 chantiers `stage2/<n>-<sujet>`, d'abord les essais E11 à E14 sur son PC puis les ADR 0017 à 0021 (numéros réservés par le plan). Ses réponses : `stage1/base` fusionné dans `main` sans attendre la recette (il a autorisé l'agent à fusionner cette PR), `stage2/base` part de `main` ; recherche web par une API avec clé (Brave Search) derrière un contrat ; essais, puis ADR, puis outils, l'éventail vers la fin.
 - **Prochaine étape :** chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui). Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).

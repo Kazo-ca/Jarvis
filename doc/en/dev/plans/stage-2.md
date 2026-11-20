@@ -1,7 +1,6 @@
 # Plan of the stage 2 series: tools, MCP, hand-off and Claude sessions
 
-2026-11-20 · **Proposed**, waiting for Benoit's validation (work item `stage1/stage-2-plan`). The open
-questions are at the end; they are also asked in the conversation.
+2026-11-20 · **Validated by Benoit on 2026-11-20** (work item `stage1/stage-2-plan`). His answers are at the end.
 
 ## Goal
 
@@ -28,7 +27,8 @@ settle them before any line of code.
 
 ## Branches and merging
 
-- Series `stage2`, base branch `stage2/base`. Its starting point depends on question 1.
+- Series `stage2`, base branch `stage2/base`, started from `main` once `stage1/base` is merged into `main`
+  (answer 1 below).
 - One work item per branch `stage2/<n>-<topic>`, one PR per work item to `stage2/base`.
 - An agent merges its own PR into `stage2/base` once build and tests are green. Only Benoit merges into
   `main`.
@@ -145,7 +145,8 @@ Work item 11 only depends on the ADRs and can move from work item 2 on.
 
 - File reading inside the allowed folders: "Allowed folders" page, normalized paths (links and junctions
   resolved), logged denial outside the list.
-- Web search and HTTP request, behind contracts; the search provider depends on question 2. Both stay off
+- Web search and HTTP request, behind contracts; the first search provider is an API with a key
+  (answer 2). Both stay off
   until the user turns them on.
 - The content of a page or a file goes back to the model as data, cut to an adjustable size.
 
@@ -243,29 +244,20 @@ Work item 11 only depends on the ADRs and can move from work item 2 on.
 | Announcement of a hand-started session; quiet hours | 13 |
 | Cost of the fan, click-through, comfort of the single click | 14 |
 
-## Open questions
+## Benoit's answers
 
-Asked in the conversation on 2026-11-20. "ok" or a blank answer takes the recommendation.
+Questions asked in the conversation on 2026-11-20. Benoit answered the same day: "I agree with your
+recommendations. You can also merge all the branches into main (through a PR) then merge the PRs into
+main."
 
-1. **Starting point of `stage2/base`.** Stage 1 is merged into `stage1/base`, not into `main`: its
-   acceptance (work item 17) and the Windows checks wait for a session with Benoit.
-   - A. Benoit merges `stage1/base` into `main` right now; `stage2/base` starts from `main`; the fixes
-     from the stage 1 acceptance go through a small separate series. **(Recommended:** the branch rule is
-     kept and stage 2 does not wait for the session.**)**
-   - B. `stage2/base` starts from `stage1/base`; both series stay open at the same time. Deviates from the
-     rule "a base starts from `main`".
-   - C. Nothing of stage 2 is coded before the stage 1 acceptance. Only spikes and ADRs move.
-2. **Web search provider** (US2.1). A search sends the question out of the machine.
-   - A. An API with a key (Brave Search), the key in the vault, behind a contract so others can be added.
-     **(Recommended:** stable and simple; terms of the free plan to check when ADR 0017 is written.**)**
-   - B. SearXNG in Docker on the PC, like Ollama: no key, but one more service to run.
-   - C. DuckDuckGo without a key, by reading its results page: nothing to configure, but breaks without
-     warning.
-   - D. No web search at stage 2; it goes through an MCP server Benoit plugs in himself.
-3. **Order of the first work items.**
-   - A. Spikes then ADRs, as written above. **(Recommended.)**
-   - B. The fan first (spike E11 then work item 14 with simulated tasks), to see the visible result
-     sooner; the tools follow.
+1. **Starting point of `stage2/base`.** `stage1/base` is merged into `main` right now, through a PR the
+   agent merges with Benoit's consent; `stage2/base` starts from `main`. The stage 1 acceptance (work item
+   17) and the pending Windows checks remain to be done with him; their fixes go through a small separate
+   series.
+2. **Web search provider.** An API with a key (Brave Search), the key in the vault, behind a contract so
+   others can be added. The terms of the free plan are checked when ADR 0017 is written.
+3. **Order of the first work items.** Spikes, then ADRs, then tools; the fan towards the end, as in the
+   table.
 
 ## Out of this series
 

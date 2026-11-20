@@ -1,7 +1,6 @@
 # Plan de la série de l'étape 2 : outils, MCP, passage de main et sessions Claude
 
-2026-11-20 · **Proposé**, en attente de la validation de Benoit (chantier `stage1/stage-2-plan`). Les questions
-ouvertes sont à la fin ; elles sont aussi posées dans la conversation.
+2026-11-20 · **Validé par Benoit le 2026-11-20** (chantier `stage1/stage-2-plan`). Ses réponses sont à la fin.
 
 ## But
 
@@ -28,7 +27,8 @@ de dépense). Les chantiers 1 et 2 les règlent avant toute ligne de code.
 
 ## Branches et fusion
 
-- Série `stage2`, branche de base `stage2/base`. Son point de départ dépend de la question n° 1.
+- Série `stage2`, branche de base `stage2/base`, partie de `main` une fois `stage1/base` fusionné dans `main`
+  (réponse n° 1 plus bas).
 - Un chantier par branche `stage2/<n>-<sujet>`, une PR par chantier vers `stage2/base`.
 - Un agent fusionne lui-même sa PR dans `stage2/base` quand la construction et les tests sont verts. Seul
   Benoit fusionne dans `main`.
@@ -145,8 +145,8 @@ de main). Le chantier 11 ne dépend que des ADR et peut avancer dès le chantier
 
 - Lecture de fichiers dans les dossiers autorisés : page « Dossiers autorisés », chemins normalisés (liens et
   jonctions résolus), refus journalisé hors de la liste.
-- Recherche web et requête HTTP, derrière des contrats ; le fournisseur de recherche dépend de la question
-  n° 2. Les deux sont désactivés tant que l'utilisateur ne les a pas activés.
+- Recherche web et requête HTTP, derrière des contrats ; le premier fournisseur de recherche est une API avec
+  clé (réponse n° 2). Les deux sont désactivés tant que l'utilisateur ne les a pas activés.
 - Le contenu d'une page ou d'un fichier revient au modèle comme donnée, tronqué à une taille réglable.
 
 ### 6. Client MCP (`stage2/6-mcp-client`)
@@ -243,29 +243,21 @@ de main). Le chantier 11 ne dépend que des ADR et peut avancer dès le chantier
 | Annonce d'une session lancée à la main ; heures de silence | 13 |
 | Coût de l'éventail, passage des clics, confort du simple clic | 14 |
 
-## Questions ouvertes
+## Réponses de Benoit
 
-Posées dans la conversation le 2026-11-20. « ok » ou une réponse vide prend la recommandation.
+Questions posées dans la conversation le 2026-11-20. Benoit a répondu le même jour : « je suis d'accord avec
+tes recommandations. Tu peux aussi tout fusionner les branches dans main (en passant par une PR) puis
+fusionner les PR dans main. »
 
-1. **Point de départ de `stage2/base`.** L'étape 1 est fusionnée dans `stage1/base`, pas dans `main` : sa
-   recette (chantier 17) et les vérifications Windows attendent une séance avec Benoit.
-   - A. Benoit fusionne `stage1/base` dans `main` dès maintenant ; `stage2/base` part de `main` ; les
-     corrections de la recette de l'étape 1 passent par une petite série à part. **(Recommandé :** la règle
-     des branches est respectée et l'étape 2 n'attend pas la séance.**)**
-   - B. `stage2/base` part de `stage1/base` ; les deux séries restent ouvertes en même temps. Écart à la
-     règle « une base part de `main` ».
-   - C. Rien de l'étape 2 ne se code avant la recette de l'étape 1. Seuls les essais et les ADR avancent.
-2. **Fournisseur de la recherche web** (US2.1). Une recherche fait sortir la question de la machine.
-   - A. Une API avec clé (Brave Search), la clé dans le coffre, derrière un contrat pour en ajouter d'autres.
-     **(Recommandé :** stable et simple ; conditions de l'offre gratuite à vérifier à l'écriture de l'ADR
-     0017.**)**
-   - B. SearXNG dans Docker sur le PC, comme Ollama : aucune clé, mais un service de plus à faire tourner.
-   - C. DuckDuckGo sans clé, en lisant sa page de résultats : rien à configurer, mais casse sans prévenir.
-   - D. Pas de recherche web à l'étape 2 ; elle passe par un serveur MCP que Benoit branche lui-même.
-3. **Ordre des premiers chantiers.**
-   - A. Essais puis ADR, comme écrit plus haut. **(Recommandé.)**
-   - B. L'éventail d'abord (essai E11 puis chantier 14 avec des tâches simulées), pour voir le résultat
-     visible plus tôt ; les outils suivent.
+1. **Point de départ de `stage2/base`.** `stage1/base` est fusionné dans `main` dès maintenant, par une PR
+   que l'agent fusionne avec l'accord de Benoit ; `stage2/base` part de `main`. La recette de l'étape 1
+   (chantier 17) et les vérifications Windows en attente restent à faire avec lui ; leurs corrections
+   passent par une petite série à part.
+2. **Fournisseur de la recherche web.** Une API avec clé (Brave Search), la clé dans le coffre, derrière un
+   contrat pour en ajouter d'autres. Les conditions de l'offre gratuite se vérifient à l'écriture de l'ADR
+   0017.
+3. **Ordre des premiers chantiers.** Essais, puis ADR, puis outils ; l'éventail vers la fin, comme dans le
+   tableau.
 
 ## Hors de cette série
 
