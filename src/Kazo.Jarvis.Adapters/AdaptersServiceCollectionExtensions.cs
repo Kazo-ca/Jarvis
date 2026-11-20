@@ -5,11 +5,13 @@ using Kazo.Jarvis.Adapters.Secrets;
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Adapters.Updates;
+using Kazo.Jarvis.Adapters.Voice;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Storage;
 using Kazo.Jarvis.Kernel.Updates;
+using Kazo.Jarvis.Kernel.Voice;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -58,6 +60,9 @@ public static class AdaptersServiceCollectionExtensions
             new HttpClient { Timeout = TimeSpan.FromMinutes(5) },
             provider.GetService<ISecretVault>(),
             provider.GetService<ILogger<HttpLlmConnector>>()));
+
+        // Wake word (ADR 0006, section 2): openWakeWord models in models\wake-word, loaded by the wake word slice.
+        services.TryAddSingleton<IWakeWordEngine>(provider => new OnnxWakeWordEngine(provider.GetRequiredService<JarvisPaths>()));
 
         // Both vaults need Windows (Credential Manager, DPAPI). The Windows host is the only one to load Adapters.
         if (OperatingSystem.IsWindows())

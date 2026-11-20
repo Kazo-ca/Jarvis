@@ -4,9 +4,11 @@ using Kazo.Jarvis.Adapters.Files;
 using Kazo.Jarvis.Adapters.Secrets;
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
+using Kazo.Jarvis.Adapters.Voice;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Storage;
+using Kazo.Jarvis.Kernel.Voice;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kazo.Jarvis.Tests.Unit.Adapters;
@@ -34,6 +36,16 @@ public sealed class AdaptersRegistrationTests
             Assert.That(provider.GetRequiredService<IDocumentStore>(), Is.TypeOf<SqliteDocumentStore>());
             Assert.That(provider.GetRequiredService<JarvisPaths>(), Is.EqualTo(folder.Paths));
         });
+    }
+
+    [Test]
+    public void The_wake_word_engine_reads_the_models_folder()
+    {
+        using var provider = new ServiceCollection().AddJarvisAdapters(folder.Paths).BuildServiceProvider();
+
+        var engine = provider.GetRequiredService<IWakeWordEngine>();
+
+        Assert.That(engine, Is.TypeOf<OnnxWakeWordEngine>().With.Property(nameof(OnnxWakeWordEngine.Folder)).EqualTo(Path.Combine(folder.Paths.Models, "wake-word")));
     }
 
     [Test]

@@ -32,7 +32,9 @@ ce qu'il décrit.
   qualité sans redémarrer, rendu à 160 pixels ([liste](../dev/orb.md#vérifications-sur-windows)), et pour le chantier 8 : micro réel et niveau,
   micro coupé (Windows n'indique plus d'application qui écoute, coupure gardée après relance), micro débranché
   pendant que Jarvis tourne, son de test sur haut-parleurs et casque, coût du micro ouvert en veille
-  ([liste](../dev/audio.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
+  ([liste](../dev/audio.md#vérifications-sur-windows)), et pour le chantier 9 : **seuil du mot d'éveil réglé avec la voix
+  de Benoit** (valeur à écrire ici), « Hey Jarvis » pendant que Jarvis parle, coût du mot d'éveil
+  ([liste](../dev/wake-word.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
   tranche `Maintenance/Updates`, lecture des versions GitHub, programme `Kazo.Jarvis.Updater`, script
   `build/Publish-Release.ps1`, voir [dev/updates.md](../dev/updates.md)) livré dans sa PR ; sa vérification
   sur Windows attend la prochaine séance. Chantier 5 (`stage1/5-shared-ui-language`, style commun, polices
@@ -98,8 +100,17 @@ ce qu'il décrit.
   micro survit au redémarrage ; micro choisi absent = celui de Windows par défaut, sans panne ; couper le micro
   lève la panne « micro absent » ; tampon de 30 s ; niveau en décibels de −60 à 0 ; conversion vers 16 kHz
   faite par Jarvis.
-- **Prochaine étape :** chantiers `stage1/9-wake-word`, `stage1/10-transcription` et `stage1/12-speech`, qui
-  dépendent du chantier 8. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8 et 11, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier 9** (`stage1/9-wake-word`, mot d'éveil : contrats `IWakeWordEngine` et `IWakeWordDetector` du
+  noyau, adaptateur ONNX Runtime des trois modèles d'openWakeWord 0.5.1 dans `models\wake-word`, tranche
+  `Voice/WakeWord` (écoute du flux du micro, seuil 0,5 réglable, une détection par activation, silencieux
+  pendant l'écoute, page « Mot d'éveil » avec le score en direct), voir [dev/wake-word.md](../dev/wake-word.md))
+  livré dans sa PR le 20 novembre 2026, sans vérification Windows. « Hey Jarvis. » de Piper : 0,999 ;
+  « Hey Travis… » : 0,488. **Choix provisoires** ([détail](../dev/wake-word.md#choix-provisoires-de-ce-chantier),
+  à confirmer par Benoit) : modèles absents = pas de panne (la page le dit, nouvel essai toutes les 30 s) ;
+  actif pendant la réflexion et la parole, en pause pendant l'écoute ; curseur de 0,05 à 0,95 ; meilleur score
+  des 3 dernières secondes affiché.
+- **Prochaine étape :** chantiers `stage1/10-transcription` et `stage1/12-speech`, qui
+  dépendent du chantier 8. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9 et 11, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

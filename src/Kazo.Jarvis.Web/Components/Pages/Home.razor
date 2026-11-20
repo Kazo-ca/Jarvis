@@ -10,10 +10,11 @@
 @inject SimulatedUpdateLauncher Launcher
 @inject SimulatedAudioCapture Microphones
 @inject SimulatedAudioPlayback Speakers
+@inject SimulatedWakeWordEngine WakeWord
 
 @* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
    (stage1/4-hosts), simulated releases and updater (stage1/16-updates), simulated microphones and outputs
-   (stage1/8-audio-devices). The orb demonstration page, which
+   (stage1/8-audio-devices), simulated wake word (stage1/9-wake-word). The orb demonstration page, which
    drives the component directly, is /orb (US1.3). *@
 <main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
     <div class="orb-frame" hidden="@(!Orb.IsVisible)">
@@ -30,6 +31,7 @@
         <button type="button" id="toggle-mute" @onclick="ToggleMute">@(State.Current.MicrophoneMuted ? "Unmute the microphone (tray menu)" : "Mute the microphone (tray menu)")</button>
         <button type="button" id="unplug-microphones" @onclick="Microphones.UnplugAll">Unplug the microphones</button>
         <button type="button" id="plug-microphones" @onclick="Microphones.PlugAll">Plug the microphones back</button>
+        <button type="button" id="simulate-wake-word" @onclick="WakeWord.Say">Say “Hey Jarvis”</button>
         <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="microphone-open" data-device="@(Microphones.OpenDevice?.Id ?? "")">@(Microphones.OpenDevice?.Name ?? "No microphone open")</output>
         <output id="output-played" data-count="@Speakers.PlayedCount" data-device="@(Speakers.LastOutput?.Id ?? "")">@Speakers.PlayedCount sound(s) played</output>

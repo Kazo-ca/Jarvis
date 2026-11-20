@@ -6,6 +6,7 @@ using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
+using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
 using Kazo.Jarvis.Kernel;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +52,9 @@ public static class FeaturesServiceCollectionExtensions
 
         // Audio devices (stage1/8-audio-devices): capture and playback come from the host.
         services.AddAudioDevicesSlice();
+
+        // Wake word (stage1/9-wake-word): the engine comes from the host, the microphone stream from the kernel.
+        services.AddWakeWordSlice();
 
         // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
         return services;

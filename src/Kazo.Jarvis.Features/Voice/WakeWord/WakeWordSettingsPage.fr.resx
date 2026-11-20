@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Mot d'éveil</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Dites « Hey Jarvis » pour appeler Jarvis. Le score montre ce que Jarvis entend : dites-le quelques fois et réglez le seuil sur votre voix.</value>
+  </data>
+  <data name="ScoreLabel" xml:space="preserve">
+    <value>Score en direct</value>
+  </data>
+  <data name="ThresholdMark" xml:space="preserve">
+    <value>seuil {0}</value>
+  </data>
+  <data name="Peak" xml:space="preserve">
+    <value>Meilleur score des 3 dernières secondes : {0}</value>
+  </data>
+  <data name="ThresholdLabel" xml:space="preserve">
+    <value>Seuil</value>
+  </data>
+  <data name="ThresholdHint" xml:space="preserve">
+    <value>0,50 par défaut. Baissez-le si Jarvis ne vous entend pas ; montez-le s'il se réveille tout seul. S'applique tout de suite.</value>
+  </data>
+  <data name="DetectionLabel" xml:space="preserve">
+    <value>Dernière détection</value>
+  </data>
+  <data name="LastDetection" xml:space="preserve">
+    <value>À {0}, score {1}.</value>
+  </data>
+  <data name="NoDetection" xml:space="preserve">
+    <value>Aucune détection depuis le démarrage de Jarvis.</value>
+  </data>
+  <data name="StateStarting" xml:space="preserve">
+    <value>Chargement des modèles du mot d'éveil…</value>
+  </data>
+  <data name="StateActive" xml:space="preserve">
+    <value>Jarvis attend « Hey Jarvis ».</value>
+  </data>
+  <data name="StatePaused" xml:space="preserve">
+    <value>En pause pendant que Jarvis vous écoute ; reprend juste après.</value>
+  </data>
+  <data name="StateMuted" xml:space="preserve">
+    <value>Le micro est coupé : le mot d'éveil n'entend rien.</value>
+  </data>
+  <data name="StateModelsMissing" xml:space="preserve">
+    <value>Les modèles du mot d'éveil sont absents : « Hey Jarvis » n'est pas entendu. Le raccourci clavier et le clic sur l'orbe fonctionnent toujours. Fichiers attendus :</value>
+  </data>
+  <data name="StateFailed" xml:space="preserve">
+    <value>Les modèles du mot d'éveil n'ont pas pu être chargés. Le raccourci clavier et le clic sur l'orbe fonctionnent toujours ; la cause est dans le journal.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le seuil n'a pas pu être enregistré : le fichier des réglages ne peut pas être écrit. La cause est dans le journal.</value>
+  </data>
+</root>

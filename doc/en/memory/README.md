@@ -28,7 +28,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   quality change without a restart, look at 160 pixels ([list](../dev/orb.md#windows-checks)), and for work item 8: real microphone
   and level, muted microphone (Windows no longer shows an application listening, mute kept after a restart),
   microphone unplugged while Jarvis runs, test sound on speakers and headset, cost of the open microphone
-  while idle ([list](../dev/audio.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
+  while idle ([list](../dev/audio.md#windows-checks)), and for work item 9: **wake word threshold tuned with
+  Benoit's voice** (value to write here), "Hey Jarvis" while Jarvis speaks, cost of the wake word
+  ([list](../dev/wake-word.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -91,8 +93,17 @@ Resume point for any agent. Update it in the same change as what it describes.
   survives a restart; chosen microphone missing = the Windows default, with no fault; muting clears the
   "microphone missing" fault; 30 s buffer; level in decibels from −60 to 0; conversion to 16 kHz done by
   Jarvis.
-- **Next step:** work items `stage1/9-wake-word`, `stage1/10-transcription` and `stage1/12-speech`, which
-  depend on work item 8. The pending Windows tests (work items 4, 5, 6, 7, 8 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 9** (`stage1/9-wake-word`, wake word: kernel contracts `IWakeWordEngine` and
+  `IWakeWordDetector`, ONNX Runtime adapter of the three openWakeWord 0.5.1 models in `models\wake-word`, slice
+  `Voice/WakeWord` (listens to the microphone stream, threshold 0.5 to set, one detection per activation,
+  silent while listening, "Wake word" page with the live score), see [dev/wake-word.md](../dev/wake-word.md))
+  delivered in its PR on November 20, 2026, without a Windows check. Piper "Hey Jarvis.": 0.999; "Hey
+  Travis…": 0.488. **Provisional choices** ([details](../dev/wake-word.md#provisional-choices-of-this-work-item),
+  to be confirmed by Benoit): models missing = no fault (the page says so, another try every 30 s); active
+  while thinking and speaking, paused while listening; slider from 0.05 to 0.95; best score of the last 3
+  seconds shown.
+- **Next step:** work items `stage1/10-transcription` and `stage1/12-speech`, which
+  depend on work item 8. The pending Windows tests (work items 4, 5, 6, 7, 8, 9 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
