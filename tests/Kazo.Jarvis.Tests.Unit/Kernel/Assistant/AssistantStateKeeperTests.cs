@@ -61,6 +61,15 @@ public sealed class AssistantStateKeeperTests
     }
 
     [Test]
+    public async Task A_state_change_is_logged_as_information()
+    {
+        await bus.PublishAsync(new ActivationRequested(ActivationSource.Hotkey));
+
+        Assert.That(log.Entries.Any(entry => entry.Level == LogLevel.Information
+            && entry.Message.Contains("ActivationRequested: Idle -> Listening")), Is.True);
+    }
+
+    [Test]
     public async Task An_ignored_input_publishes_nothing_and_is_logged()
     {
         await bus.PublishAsync(new SpeechEnded(new TurnId(7)));

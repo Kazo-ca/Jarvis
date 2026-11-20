@@ -63,8 +63,8 @@ Direct3D 9 n'est pas disponible : `COMException 0x8876086A` (D3DERR_NOTAVAILABLE
 fenêtre. Déverrouillé, l'hôte démarre normalement. Le démarrage avec Windows et la sortie de veille peuvent
 tomber sur ce cas : le chantier `stage1/4-hosts` doit attendre le déverrouillage (ou réessayer) au lieu de
 mourir. `LogonUI.exe` tourne aussi en session Bureau à distance : ce n'est pas un bon signe de verrouillage.
-**Réglé au chantier `stage1/4-hosts`** : l'hôte attend que le bureau d'entrée soit `Default` avant de créer
-l'orbe, et rattrape `D3DERR_NOTAVAILABLE` ou `D3DERR_DEVICELOST` en rouvrant l'orbe plus tard
+**Réglé au chantier `stage1/4-hosts`** : l'hôte attend que la session soit déverrouillée (`WTSSessionInfoEx` ;
+le bureau d'entrée reste `Default` sur l'écran de verrouillage de Windows 10 et 11) avant de créer l'orbe, et rattrape `D3DERR_NOTAVAILABLE` ou `D3DERR_DEVICELOST` en rouvrant l'orbe plus tard
 ([hôtes](hosts.md#session-verrouillée)).
 
 ## Une garde `OperatingSystem.IsWindows()` ne couvre pas un lambda (chantier stage1/3-settings-storage-vault)
@@ -93,3 +93,11 @@ Attendre un signe d'interactivité : la page d'accueil de l'hôte Web expose
 et `System.Drawing`, dont `Application`, `MessageBox` et `Color` entrent en conflit avec ceux de WPF. Les
 retirer dans le `.csproj` (`<Using Remove="System.Windows.Forms" />`, idem pour `System.Drawing`) et écrire
 les `using` à la main dans les seuls fichiers qui en ont besoin.
+
+## Position WPF et écrans d'échelles différentes (chantier stage1/4-hosts)
+
+Sur le PC de Benoit (écrans à 150 % et à 100 %), la position de l'orbe enregistrée par `Window.Left`/`Top`
+(-639, 387) revenait à (-959, 581) au redémarrage : × 1,5 à chaque relance. Avant l'affichage, WPF convertit
+`Left`/`Top` avec l'échelle de l'écran principal, pas de celui de destination. Enregistrer la position en
+pixels physiques (`GetWindowRect`) et la rendre par `SetWindowPos` dans `SourceInitialized`, avant l'affichage :
+Windows envoie alors le changement d'échelle et WPF redimensionne la fenêtre.

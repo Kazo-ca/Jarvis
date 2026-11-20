@@ -61,8 +61,8 @@ available: `COMException 0x8876086A` (D3DERR_NOTAVAILABLE) in `Direct3DHelper.Cr
 and the process ends with code `0xC000041D`, without a window. Unlocked, the host starts normally. Starting
 with Windows and waking from sleep can hit this case: work item `stage1/4-hosts` must wait for the unlock (or
 retry) instead of dying. `LogonUI.exe` also runs in a Remote Desktop session: it is not a good lock signal.
-**Fixed in work item `stage1/4-hosts`**: the host waits until the input desktop is `Default` before creating
-the orb, and catches `D3DERR_NOTAVAILABLE` or `D3DERR_DEVICELOST` by opening the orb again later
+**Fixed in work item `stage1/4-hosts`**: the host waits until the session is unlocked (`WTSSessionInfoEx`; the
+input desktop stays `Default` on the Windows 10 and 11 lock screen) before creating the orb, and catches `D3DERR_NOTAVAILABLE` or `D3DERR_DEVICELOST` by opening the orb again later
 ([hosts](hosts.md#locked-session)).
 
 ## An `OperatingSystem.IsWindows()` guard does not cover a lambda (work item stage1/3-settings-storage-vault)
@@ -91,3 +91,11 @@ Wait for a sign of interactivity: the Web host home page exposes
 whose `Application`, `MessageBox` and `Color` clash with WPF's. Remove them in the `.csproj`
 (`<Using Remove="System.Windows.Forms" />`, same for `System.Drawing`) and write the usings by hand in the few
 files that need them.
+
+## WPF position and screens of different scales (work item stage1/4-hosts)
+
+On Benoit's PC (screens at 150 % and 100 %), the orb position saved from `Window.Left`/`Top` (-639, 387) came
+back as (-959, 581) after a restart: × 1.5 at each launch. Before the window shows, WPF converts `Left`/`Top`
+with the scale of the primary screen, not the target one. Save the position in physical pixels
+(`GetWindowRect`) and restore it with `SetWindowPos` in `SourceInitialized`, before the window shows: Windows
+then sends the scale change and WPF resizes the window.

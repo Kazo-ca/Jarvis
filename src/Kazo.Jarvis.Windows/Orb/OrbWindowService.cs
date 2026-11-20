@@ -17,7 +17,7 @@ namespace Kazo.Jarvis.Windows.Orb;
 internal sealed partial class OrbWindowService : IOrbWindow
 {
     private const double ScreenMargin = 24;
-    private const double MinimumVisible = 40;
+    private const int MinimumVisible = 40;
 
     private readonly IServiceProvider services;
     private readonly Dispatcher dispatcher;
@@ -67,7 +67,19 @@ internal sealed partial class OrbWindowService : IOrbWindow
         }
 
         window = new OrbWindow(services, paths.WebView);
-        (window.Left, window.Top) = InitialPosition(settings.Read(OrbPlacement.Section));
+        var placement = settings.Read(OrbPlacement.Section);
+        if (placement is { ScreenX: { } x, ScreenY: { } y } && IsOnAScreen(x, y))
+        {
+            window.PlaceAtScreenPosition(x, y);
+        }
+        else
+        {
+            // Bottom right corner of the primary work area; the window is created on the primary screen,
+            // so device-independent pixels are right here.
+            var area = SystemParameters.WorkArea;
+            window.Left = area.Right - OrbWindow.Size - ScreenMargin;
+            window.Top = area.Bottom - OrbWindow.Size - ScreenMargin;
+        }
         window.Clicked += OnClicked;
         window.Moved += OnMoved;
         window.ContentRendered += OnContentRendered;
@@ -76,7 +88,8 @@ internal sealed partial class OrbWindowService : IOrbWindow
             window.Show();
         }
 
-        LogOpened(window.Left, window.Top);
+        var (openedX, openedY) = window.ScreenPosition;
+        LogOpened(openedX, openedY);
     }
 
     /// <summary>Closes and forgets the window (it failed, or the application quits). UI thread.</summary>
@@ -153,13 +166,14 @@ internal sealed partial class OrbWindowService : IOrbWindow
             return;
         }
 
-        var placement = new OrbPlacement { Left = window.Left, Top = window.Top };
+        var (x, y) = window.ScreenPosition;
+        var placement = new OrbPlacement { ScreenX = x, ScreenY = y };
         _ = Task.Run(async () =>
         {
             try
             {
                 var result = await settings.WriteAsync(OrbPlacement.Section, placement).ConfigureAwait(false);
-                LogMoved(placement.Left ?? 0, placement.Top ?? 0, result.Outcome);
+                LogMoved(x, y, result.Outcome);
             }
             catch (Exception exception)
             {
@@ -168,27 +182,16 @@ internal sealed partial class OrbWindowService : IOrbWindow
         });
     }
 
-    /// <summary>The remembered position when it is still on a screen; the bottom right corner of the work area otherwise.</summary>
-    private static (double Left, double Top) InitialPosition(OrbPlacement placement)
-    {
-        if (placement is { Left: { } left, Top: { } top }
-            && left + OrbWindow.Size >= SystemParameters.VirtualScreenLeft + MinimumVisible
-            && left <= SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth - MinimumVisible
-            && top + OrbWindow.Size >= SystemParameters.VirtualScreenTop + MinimumVisible
-            && top <= SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight - MinimumVisible)
-        {
-            return (left, top);
-        }
+    /// <summary>Whether enough of a window at (<paramref name="x"/>, <paramref name="y"/>) lies on a screen to be grabbed.</summary>
+    private static bool IsOnAScreen(int x, int y) =>
+        System.Windows.Forms.Screen.AllScreens.Any(screen =>
+            screen.WorkingArea.Contains(x + MinimumVisible, y + MinimumVisible));
 
-        var area = SystemParameters.WorkArea;
-        return (area.Right - OrbWindow.Size - ScreenMargin, area.Bottom - OrbWindow.Size - ScreenMargin);
-    }
+    [LoggerMessage(Level = LogLevel.Information, Message = "Orb window opened at ({X}, {Y}) screen pixels.")]
+    private partial void LogOpened(int x, int y);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Orb window opened at ({Left}, {Top}).")]
-    private partial void LogOpened(double left, double top);
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Orb window moved to ({Left}, {Top}); position {Outcome}.")]
-    private partial void LogMoved(double left, double top, SettingsWriteOutcome outcome);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Orb window moved to ({X}, {Y}) screen pixels; position {Outcome}.")]
+    private partial void LogMoved(int x, int y, SettingsWriteOutcome outcome);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "The orb position could not be saved.")]
     private partial void LogSaveFailed(Exception exception);

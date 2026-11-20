@@ -11,7 +11,15 @@ Resume point for any agent. Update it in the same change as what it describes.
   (`stage1/3-settings-storage-vault`, `config.json` settings, SQLite database, secret vault, see
   [dev/storage.md](../dev/storage.md)) merged (PR 18). Work item 4 (`stage1/4-hosts`, Windows host on the .NET
   generic host, provisional orb, tray icon, global hotkey, start with Windows, dialogs, wait for the unlock,
-  see [dev/hosts.md](../dev/hosts.md)) delivered in its PR; Windows check to do. Benoit merges `main`; an agent merges its own PRs
+  see [dev/hosts.md](../dev/hosts.md)) merged (PR 20). Windows check done on November 20, 2026 (build without
+  warnings, tests 286/286 and E2E 11/11, clicks through the orb, second launch, hotkey without focus loss,
+  still cost 0.8 % of a core). Three defects found, fixed by `stage1/4b-hosts-fixes`: lock not detected on
+  Windows 11 (the lock screen is on the `Default` desktop), × 1.5 drift of the position with screens of
+  different scales, no state change in the log. Benoit stopped the tests on November 20, 2026: **pending
+  Windows tests** (to group for a next session with him): start on a locked session (hide the camera:
+  Windows Hello unlocks by itself), position after a restart with screens of different scales, line
+  "ActivationRequested: Idle -> Listening" in the log after `Ctrl+Alt+J`, Quit within 10 s, orb size after
+  the screens reconnect (240 × 240 seen once on the 100 % screen, right after a restart). Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).

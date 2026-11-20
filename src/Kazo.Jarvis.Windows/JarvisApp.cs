@@ -95,13 +95,13 @@ internal sealed partial class JarvisApp : Application
             return;
         }
 
-        if (SessionDesktop.IsReady(out var desktop))
+        if (SessionDesktop.IsReady(out var reason))
         {
             orb.Open();
             return;
         }
 
-        LogWaitingForDesktop(desktop ?? "unknown");
+        LogWaitingForDesktop(reason ?? "unknown");
         tray.SetStatus(HostTexts.WaitingForUnlock);
         var readySince = (DateTime?)null;
         desktopWait = new DispatcherTimer(DesktopPollInterval, DispatcherPriority.Background, (_, _) =>
@@ -266,8 +266,8 @@ internal sealed partial class JarvisApp : Application
     [LoggerMessage(Level = LogLevel.Critical, Message = "The WebView2 runtime is missing; the user was told how to install it.")]
     private partial void LogWebView2Missing(Exception exception);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "The session desktop cannot show the orb yet (input desktop: {Desktop}, session locked?). Waiting for the unlock; the tray icon says so.")]
-    private partial void LogWaitingForDesktop(string desktop);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "The session desktop cannot show the orb yet ({Reason}). Waiting for the unlock; the tray icon says so.")]
+    private partial void LogWaitingForDesktop(string reason);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "The session desktop is ready: opening the orb.")]
     private partial void LogDesktopReady();

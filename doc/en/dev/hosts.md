@@ -55,8 +55,10 @@ seconds, then ends the application.
 ### Locked session
 
 On a locked session, Direct3D 9 is not available and `WebView2CompositionControl` cannot create its device
-([pitfalls](pitfalls.md)). So the host does not create the orb while the desktop receiving the input is not
-`Default` (on the lock screen it is `Winlogon`). It checks every second, waits until the desktop has been
+([pitfalls](pitfalls.md)). So the host does not create the orb while the session is locked
+(`WTSQuerySessionInformation`, `WTSSessionInfoEx`) or the desktop receiving the input is not `Default` (secure
+desktop of a credential prompt, disconnected remote session). The desktop name alone is not enough: on
+Windows 10 and 11 the lock screen runs on the `Default` desktop (seen on Benoit's PC). It checks every second, waits until the desktop has been
 ready for 2 seconds, then opens the orb. While waiting:
 
 - a warning line in the log says why the orb is not there;
@@ -74,8 +76,11 @@ the application stops: never a silent crash.
 - 160 × 160 device-independent pixels; the provisional orb is a 96 pixel disc in the centre. The transparent
   pixels around it let clicks through.
 - Pressing and dragging moves the window (`DragMove`); the position is saved in the `Desktop.OrbWindow`
-  section of `config.json`, owned by the host. At start-up, a position outside every screen is replaced by
-  the bottom right corner of the work area.
+  section of `config.json` (`screenX`, `screenY`), owned by the host, **in physical screen pixels**: in
+  device-independent pixels, WPF converts it with the scale of the screen the window is created on, and the
+  orb drifted at each restart with screens of different scales ([pitfalls](pitfalls.md)). At start-up the
+  window is placed with `SetWindowPos` before it shows; a position outside every work area is replaced by the
+  bottom right corner of the primary screen.
 - Pressing without moving (under 4 pixels) is a click: it publishes `ActivationRequested(Click)`. This is
   provisional: the orb slice (work item 6) takes the click over in its component.
 - The web view has a transparent background (`DefaultBackgroundColor` and

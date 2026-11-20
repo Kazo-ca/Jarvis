@@ -25,7 +25,7 @@ public sealed partial class AssistantStateKeeper : IAssistantStateReader, IEvent
 
     /// <summary>Creates the keeper.</summary>
     /// <param name="bus">Where the state changes and effects are published.</param>
-    /// <param name="logger">Logs the ignored inputs.</param>
+    /// <param name="logger">Logs the state changes and the ignored inputs.</param>
     public AssistantStateKeeper(IMessageBus bus, ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -82,6 +82,7 @@ public sealed partial class AssistantStateKeeper : IAssistantStateReader, IEvent
         // caller's token, or a slice would miss a TurnCancelled.
         if (transition.State != previous)
         {
+            LogChanged(input.GetType().Name, previous.Phase, transition.State.Phase, transition.State.Look);
             await bus.PublishAsync(new AssistantStateChanged(previous, transition.State), CancellationToken.None);
         }
 
@@ -90,6 +91,11 @@ public sealed partial class AssistantStateKeeper : IAssistantStateReader, IEvent
             await bus.PublishAsync(effect, CancellationToken.None);
         }
     }
+
+    // Information, not Debug: the technical log is the only proof on Windows that an activation arrived
+    // while the orb does not show the states yet (Windows check of work item stage1/4-hosts).
+    [LoggerMessage(Level = LogLevel.Information, Message = "{Input}: {Previous} -> {Phase} (look {Look}).")]
+    private partial void LogChanged(string input, AssistantPhase previous, AssistantPhase phase, AssistantLook look);
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "{Input} ignored while {Phase}: {Reason}.")]
     private partial void LogIgnored(string input, AssistantPhase phase, string reason);
