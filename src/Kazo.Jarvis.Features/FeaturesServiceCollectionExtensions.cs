@@ -7,6 +7,7 @@ using Kazo.Jarvis.Features.Maintenance.Updates;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
 using Kazo.Jarvis.Features.Shared;
+using Kazo.Jarvis.Features.Voice.Transcription;
 using Kazo.Jarvis.Kernel;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -51,6 +52,10 @@ public static class FeaturesServiceCollectionExtensions
 
         // Audio devices (stage1/8-audio-devices): capture and playback come from the host.
         services.AddAudioDevicesSlice();
+
+        // Transcription (stage1/10-transcription): end of speech and Whisper; the recognition and Silero come
+        // from the host.
+        services.AddTranscriptionSlice();
 
         // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
         return services;

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Transcription</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>How Jarvis finds the end of what you say and turns it into text. Whisper runs on this computer: what you say never leaves it.</value>
+  </data>
+  <data name="ModelLabel" xml:space="preserve">
+    <value>Whisper model</value>
+  </data>
+  <data name="ModelHint" xml:space="preserve">
+    <value>Large-v3-turbo on the graphics card is the default. Small needs less graphics memory. Base is the choice for a computer without an NVIDIA card.</value>
+  </data>
+  <data name="Model_LargeV3Turbo" xml:space="preserve">
+    <value>large-v3-turbo (best, graphics card)</value>
+  </data>
+  <data name="Model_Small" xml:space="preserve">
+    <value>small (less graphics memory)</value>
+  </data>
+  <data name="Model_Base" xml:space="preserve">
+    <value>base (processor)</value>
+  </data>
+  <data name="Device_Gpu" xml:space="preserve">
+    <value>Graphics card (CUDA)</value>
+  </data>
+  <data name="Device_Cpu" xml:space="preserve">
+    <value>Processor</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>Model loaded, running on: {0}.</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading the model…</value>
+  </data>
+  <data name="Missing" xml:space="preserve">
+    <value>Model file missing: {0}</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>The model could not be loaded: {0}</value>
+  </data>
+  <data name="NotLoaded" xml:space="preserve">
+    <value>Model not loaded yet.</value>
+  </data>
+  <data name="DetectorLabel" xml:space="preserve">
+    <value>End of speech</value>
+  </data>
+  <data name="DetectorHint" xml:space="preserve">
+    <value>After this silence, Jarvis stops listening and transcribes. Without speech after the activation, it goes back to sleep.</value>
+  </data>
+  <data name="Detector_Silero" xml:space="preserve">
+    <value>Silero (voice detector)</value>
+  </data>
+  <data name="Detector_Energy" xml:space="preserve">
+    <value>Energy threshold</value>
+  </data>
+  <data name="SilenceLabel" xml:space="preserve">
+    <value>Silence that ends the request</value>
+  </data>
+  <data name="TimeoutLabel" xml:space="preserve">
+    <value>Wait for speech</value>
+  </data>
+  <data name="LastHeardLabel" xml:space="preserve">
+    <value>Last request heard</value>
+  </data>
+  <data name="LastHeardHint" xml:space="preserve">
+    <value>To check the microphone and the model: say "Hey Jarvis" or press the hotkey, then speak.</value>
+  </data>
+  <data name="NoWords" xml:space="preserve">
+    <value>(no words recognized)</value>
+  </data>
+  <data name="Measure" xml:space="preserve">
+    <value>{0} s of audio transcribed in {1} s, end found by: {2}.</value>
+  </data>
+  <data name="NothingYet" xml:space="preserve">
+    <value>Nothing heard since Jarvis started.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The setting could not be saved.</value>
+  </data>
+</root>
