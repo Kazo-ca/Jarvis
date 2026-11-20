@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Real implementations of the kernel contracts (ADR 0003): configuration file, SQLite, vault,
+    speech engines, model clients... Loaded by the Windows host only. Never references Features.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Kazo.Jarvis.Adapters</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+    <!-- Wake word (ADR 0006, section 2): the three openWakeWord models on the processor. -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" />
+    <!-- Transcription (ADR 0006, sections 3 and 4): Whisper.net with its CPU runtime, Silero by sherpa-onnx.
+         The CUDA runtime is added by the Windows host only. -->
+    <PackageReference Include="Whisper.net" />
+    <PackageReference Include="Whisper.net.Runtime" />
+    <!-- Local voices (ADR 0006, section 5): Piper and Kokoro through sherpa-onnx, pinned to 1.13.8. -->
+    <PackageReference Include="org.k2fsa.sherpa.onnx" />
+    <!-- Models download (stage1/14-first-run): bzip2 of the sherpa-onnx voice archives. -->
+    <PackageReference Include="SharpZipLib" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Kazo.Jarvis.Tests.Unit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
+  </ItemGroup>
+
+</Project>

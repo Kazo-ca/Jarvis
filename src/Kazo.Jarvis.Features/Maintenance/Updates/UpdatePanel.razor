@@ -1,0 +1,79 @@
+@implements IDisposable
+@inject UpdateService Updates
+@inject UpdateTexts Texts
+@inject ISettingsStore Settings
+
+@* The updates window (US1.18): installed version, check, install with download progress, automatic check. *@
+<section class="updates" id="updates-panel" data-phase="@status.Phase">
+    <p class="updates-current" id="updates-current">@Texts.CurrentVersion(Updates.CurrentVersion?.ToString() ?? Texts.UnknownVersion)</p>
+
+    <p class="updates-message @(status.Phase == UpdatePhase.Failed ? "updates-message-failed" : null)" id="updates-message" role="status">@Message</p>
+
+    @if (status.Phase == UpdatePhase.Downloading)
+    {
+        <progress class="updates-progress" id="updates-progress" max="1" value="@(status.Progress ?? 0)"></progress>
+    }
+
+    <div class="updates-actions">
+        <button type="button" id="updates-check" disabled="@status.IsBusy" @onclick="CheckAsync">@Texts.CheckButton</button>
+        @if (status.Update is { } update && status.Phase is UpdatePhase.Available or UpdatePhase.Failed && Updates.CanInstall)
+        {
+            <button type="button" id="updates-install" class="updates-install" @onclick="InstallAsync">@Texts.InstallButton(update.Version.ToString())</button>
+        }
+        @if (status.Update is { } found)
+        {
+            <a id="updates-notes" href="@found.Release.PageUrl" target="_blank" rel="noopener">@Texts.ReleaseNotes</a>
+        }
+    </div>
+
+    <label class="updates-automatic">
+        <input type="checkbox" id="updates-automatic" checked="@automatic" @onchange="SetAutomaticAsync" />
+        @Texts.AutomaticLabel
+    </label>
+</section>
+
+@code {
+    private UpdateStatus status = UpdateStatus.Initial;
+    private bool automatic;
+
+    private string Message => status switch
+    {
+        { Phase: UpdatePhase.Checking } => Texts.Checking,
+        { Phase: UpdatePhase.UpToDate } => Texts.UpToDate,
+        { Phase: UpdatePhase.Available, Update: { } u } => Texts.Available(u.Version.ToString()),
+        { Phase: UpdatePhase.Downloading, Update: { } u } => Texts.Downloading(u.Version.ToString()),
+        { Phase: UpdatePhase.Installing, Update: { } u } => Texts.Installing(u.Version.ToString()),
+        { Phase: UpdatePhase.Failed, Failure: UpdateFailure.Corrupted } => Texts.FailedCorrupted,
+        { Phase: UpdatePhase.Failed, Failure: UpdateFailure.LaunchFailed } => Texts.FailedLaunch,
+        { Phase: UpdatePhase.Failed, Failure: UpdateFailure.NotInstallable } => Texts.NotInstallable,
+        { Phase: UpdatePhase.Failed } => Texts.FailedUnreachable,
+        _ when !Updates.CanInstall => Texts.NotInstallable,
+        _ => Texts.Idle,
+    };
+
+    protected override void OnInitialized()
+    {
+        status = Updates.Status;
+        automatic = Settings.Read(UpdateOptions.Section).Automatic;
+        Updates.StatusChanged += OnStatusChanged;
+    }
+
+    public void Dispose() => Updates.StatusChanged -= OnStatusChanged;
+
+    private void OnStatusChanged(UpdateStatus next) => _ = InvokeAsync(() =>
+    {
+        status = next;
+        StateHasChanged();
+    });
+
+    private Task CheckAsync() => Updates.CheckAsync();
+
+    private Task InstallAsync() => Updates.InstallAsync();
+
+    private async Task SetAutomaticAsync(ChangeEventArgs e)
+    {
+        automatic = e.Value is true;
+        var options = Settings.Read(UpdateOptions.Section);
+        await Settings.WriteAsync(UpdateOptions.Section, options with { Automatic = automatic });
+    }
+}

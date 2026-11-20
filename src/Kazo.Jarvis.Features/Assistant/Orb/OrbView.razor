@@ -1,0 +1,79 @@
+@implements IDisposable
+@inject IAssistantStateReader State
+@inject IMessageBus Bus
+@inject ISoundLevelSource Levels
+@inject OrbActivation Activation
+@inject OrbQualityKeeper QualityKeeper
+
+@* The orb as the hosts show it: fed by the assistant state (ADR 0005, section 4), the sound level
+   (section 5) and the "orb quality" setting (ADR 0011, section 1, applied without a restart), and its click
+   publishes the activation (US1.6). The demonstration page drives Orb directly. *@
+<Orb @ref="orb"
+     Look="@current.Look"
+     Quality="@quality"
+     DelegatedTasks="@current.DelegatedTasks"
+     Fault="@current.Fault?.Cause"
+     AnimateIdle="@AnimateIdle"
+     ReducedMotion="@ReducedMotion"
+     OnActivate="ActivateAsync" />
+
+@code {
+    private Orb? orb;
+    private AssistantState current = AssistantState.Initial;
+    private OrbQuality quality;
+    private IDisposable? stateSubscription;
+    private IDisposable? levelSubscription;
+
+    /// <summary>The host's animation rule; the Windows host keeps the idle look still (ADR 0005, section 6).</summary>
+    [Parameter]
+    public bool AnimateIdle { get; set; }
+
+    /// <summary>The "reduced motion" option.</summary>
+    [Parameter]
+    public bool ReducedMotion { get; set; }
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        current = State.Current;
+        quality = QualityKeeper.Current;
+        QualityKeeper.Changed += OnQualityChanged;
+        stateSubscription = Bus.Subscribe<AssistantStateChanged>((changed, _) =>
+            new ValueTask(InvokeAsync(() =>
+            {
+                current = changed.Current;
+                StateHasChanged();
+            })));
+        levelSubscription = Levels.Subscribe(OnLevel);
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        QualityKeeper.Changed -= OnQualityChanged;
+        stateSubscription?.Dispose();
+        levelSubscription?.Dispose();
+    }
+
+    // The microphone while listening, the voice while speaking (ADR 0005, section 5); nothing otherwise, so a
+    // still orb receives no call at all.
+    private void OnLevel(SoundLevel level)
+    {
+        var look = Volatile.Read(ref current).Look;
+        var shown = (look, level.Origin) is (AssistantLook.Listening, SoundOrigin.Microphone) or (AssistantLook.Speaking, SoundOrigin.Voice);
+        if (shown && orb is { } target)
+        {
+            _ = InvokeAsync(() => target.SetLevelAsync(level.Value).AsTask());
+        }
+    }
+
+    // Raised inside the settings save, on any thread: render on the component's dispatcher.
+    private void OnQualityChanged(OrbQuality next) =>
+        _ = InvokeAsync(() =>
+        {
+            quality = next;
+            StateHasChanged();
+        });
+
+    private Task ActivateAsync() => Activation.ClickAsync().AsTask();
+}

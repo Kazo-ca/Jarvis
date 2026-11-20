@@ -1,0 +1,15 @@
+@* Root of every dialog window: the slice component inside LanguageScope, so that its texts are built
+   again when the language changes (ADR 0008, section 1). *@
+<LanguageScope>
+    <DynamicComponent Type="Component" Parameters="Parameters" />
+</LanguageScope>
+
+@code {
+    /// <summary>The slice component shown in the window.</summary>
+    [Parameter, EditorRequired]
+    public Type Component { get; set; } = default!;
+
+    /// <summary>Its parameters, or <see langword="null"/>.</summary>
+    [Parameter]
+    public IDictionary<string, object>? Parameters { get; set; }
+}

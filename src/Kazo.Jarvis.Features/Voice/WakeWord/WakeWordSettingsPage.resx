@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Wake word</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Say “Hey Jarvis” to call Jarvis. The score shows what Jarvis hears: say it a few times and set the threshold to your voice.</value>
+  </data>
+  <data name="ScoreLabel" xml:space="preserve">
+    <value>Live score</value>
+  </data>
+  <data name="ThresholdMark" xml:space="preserve">
+    <value>threshold {0}</value>
+  </data>
+  <data name="Peak" xml:space="preserve">
+    <value>Best score of the last 3 seconds: {0}</value>
+  </data>
+  <data name="ThresholdLabel" xml:space="preserve">
+    <value>Threshold</value>
+  </data>
+  <data name="ThresholdHint" xml:space="preserve">
+    <value>0.50 by default. Lower it if Jarvis does not hear you; raise it if Jarvis wakes up by itself. Applies at once.</value>
+  </data>
+  <data name="DetectionLabel" xml:space="preserve">
+    <value>Last detection</value>
+  </data>
+  <data name="LastDetection" xml:space="preserve">
+    <value>At {0}, score {1}.</value>
+  </data>
+  <data name="NoDetection" xml:space="preserve">
+    <value>No detection since Jarvis started.</value>
+  </data>
+  <data name="StateStarting" xml:space="preserve">
+    <value>Loading the wake word models…</value>
+  </data>
+  <data name="StateActive" xml:space="preserve">
+    <value>Jarvis is listening for “Hey Jarvis”.</value>
+  </data>
+  <data name="StatePaused" xml:space="preserve">
+    <value>Paused while Jarvis listens to you; it starts again right after.</value>
+  </data>
+  <data name="StateMuted" xml:space="preserve">
+    <value>The microphone is muted: the wake word hears nothing.</value>
+  </data>
+  <data name="StateModelsMissing" xml:space="preserve">
+    <value>The wake word models are missing, so “Hey Jarvis” is not heard. The hotkey and a click on the orb still work. Expected files:</value>
+  </data>
+  <data name="StateFailed" xml:space="preserve">
+    <value>The wake word models could not be loaded. The hotkey and a click on the orb still work; the cause is in the log.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The threshold could not be saved: the settings file cannot be written. The cause is in the log.</value>
+  </data>
+</root>

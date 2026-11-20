@@ -1,0 +1,124 @@
+@inject IStringLocalizer<Orb> T
+
+@* The orb (ADR 0005, section 5; ADR 0011), in its two versions: high quality (UI catalog, section 2) and
+   light (section 3). It only shows its inputs: the look comes from the kernel's look function, the motion
+   rule from OrbMotion. The drawings' scripts only draw. The look and the version are exposed in data-look
+   and data-quality for the tests; the script sets data-motion ("full" or "reduced"). *@
+<button type="button"
+        class="orb"
+        data-look="@Look"
+        data-quality="@Quality"
+        data-tasks="@DelegatedTasks"
+        data-decisions="@PendingDecisions"
+        title="@Hover"
+        aria-label="@Label"
+        @onclick="ClickAsync">
+    @* One component, two drawings (ADR 0011, section 1). Changing the quality swaps the drawing at once. *@
+    @if (Quality == OrbQuality.Light)
+    {
+        <OrbLight @ref="light" Look="@Look" Motion="@Motion" ReducedMotion="@ReducedMotion" />
+    }
+    else
+    {
+        <OrbHighQuality @ref="high" Look="@Look" Motion="@Motion" ReducedMotion="@ReducedMotion" />
+    }
+    <span class="orb-overlay">
+        @if (DelegatedTasks > 0)
+        {
+            @* Drawn over any look as soon as a task is delegated (ADR 0011, section 4). Without a percentage,
+               a faint dashed circle (provisional: the stage 2 ADR decides, ADR 0011, section 9). *@
+            <svg class="orb-progress" viewBox="0 0 200 200" aria-hidden="true" focusable="false"
+                 data-progress="@(Progress is { } known ? known.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : "unknown")">
+                <circle class="orb-progress-track" cx="100" cy="100" r="@Radius" fill="none" stroke-width="2" />
+                @if (Progress is { } value)
+                {
+                    <circle class="orb-progress-value" cx="100" cy="100" r="@Radius" fill="none" stroke-width="2.5"
+                            stroke-linecap="round" stroke-dasharray="@OrbGeometry.ProgressDash(value)"
+                            transform="rotate(-90 100 100)" />
+                }
+                else
+                {
+                    <circle class="orb-progress-unknown" cx="100" cy="100" r="@Radius" fill="none" stroke-width="2"
+                            stroke-dasharray="2 6" />
+                }
+            </svg>
+        }
+        @if (PendingDecisions > 0)
+        {
+            <span class="orb-badge">@(PendingDecisions > 99 ? "99+" : PendingDecisions.ToString(System.Globalization.CultureInfo.CurrentCulture))</span>
+        }
+        @if (Look == AssistantLook.MicrophoneMuted)
+        {
+            <span class="orb-label">@T["MicrophoneMutedLabel"]</span>
+        }
+    </span>
+</button>
+
+@code {
+    private static readonly string Radius = OrbGeometry.ProgressRadius.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    private OrbLight? light;
+    private OrbHighQuality? high;
+
+    /// <summary>The look to show (kernel look function, ADR 0011, section 4).</summary>
+    [Parameter]
+    public AssistantLook Look { get; set; }
+
+    /// <summary>The version of the orb (ADR 0011, section 1): high quality by default.</summary>
+    [Parameter]
+    public OrbQuality Quality { get; set; } = OrbQuality.High;
+
+    /// <summary>Number of delegated tasks; the progress ring shows when above zero.</summary>
+    [Parameter]
+    public int DelegatedTasks { get; set; }
+
+    /// <summary>Progress of the long task, from 0 to 1, or <see langword="null"/> when unknown.</summary>
+    [Parameter]
+    public double? Progress { get; set; }
+
+    /// <summary>Number of decisions waiting for the user: the amber badge (ADR 0011, section 4).</summary>
+    [Parameter]
+    public int PendingDecisions { get; set; }
+
+    /// <summary>The cause of the fault, shown on hover in the error look.</summary>
+    [Parameter]
+    public FaultCause? Fault { get; set; }
+
+    /// <summary>The "reduced motion" option. The system setting of the same name applies as well.</summary>
+    [Parameter]
+    public bool ReducedMotion { get; set; }
+
+    /// <summary>The host's animation rule: <see langword="false"/> keeps the idle look still (ADR 0005, section 6).</summary>
+    [Parameter]
+    public bool AnimateIdle { get; set; }
+
+    /// <summary>Raised on a click (US1.6).</summary>
+    [Parameter]
+    public EventCallback OnActivate { get; set; }
+
+    private OrbMotion Motion => OrbMotion.For(Look, Quality, AnimateIdle, reducedMotion: false);
+
+    private string Label => Hover ?? T["Look_" + Look].Value;
+
+    private string? Hover => Look switch
+    {
+        AssistantLook.Error when Fault is { } cause => T["ErrorHover", T["Fault_" + cause].Value].Value,
+        AssistantLook.Error => T["Look_Error"].Value,
+        _ => null,
+    };
+
+    /// <summary>
+    /// Passes the sound level on to the drawing (0 to 1): it raises the light while listening, never the size
+    /// (ADR 0011, section 3). Called at most 30 times per second by the owner, outside rendering.
+    /// </summary>
+    /// <param name="level">The level, from 0 to 1.</param>
+    /// <returns>A task that completes once the script received it.</returns>
+    public ValueTask SetLevelAsync(float level)
+    {
+        // A reference to the drawing that was swapped out stays set: pick by the current quality.
+        OrbDrawing? drawing = Quality == OrbQuality.Light ? light : high;
+        return drawing?.SetLevelAsync(level) ?? ValueTask.CompletedTask;
+    }
+
+    private Task ClickAsync() => OnActivate.InvokeAsync();
+}

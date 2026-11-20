@@ -8,8 +8,10 @@
 
 | Fonctionnalité | Étape | Référence |
 | --- | --- | --- |
-| Orbe, voix, modèle local et paramètres | 1 | [Conception](dev/plans/design.md), [plan de la série](dev/plans/stage-1.md) |
-| Outils, MCP, passage de main et sessions Claude | 2 | [Conception](dev/plans/design.md) |
+| Orbe, voix, modèle local et paramètres : construit et fusionné dans `main` le 20 novembre 2026, recette sur Windows à faire | 1 | [Conception](dev/plans/design.md), [plan de la série](dev/plans/stage-1.md) |
+| Outils, MCP, passage de main et sessions Claude | 2 | [Conception](dev/plans/design.md), [plan de la série](dev/plans/stage-2.md) |
 | Éventail des tâches : un double-clic sur l'orbe en fait sortir les tâches en cours | 2 | [ADR 0010](dev/adr/0010-task-fan-and-orb-click.md) |
 | Mode autonome, déclencheurs et courriel | 3 | [Conception](dev/plans/design.md) |
 | Application mobile Android | 4 | [Conception](dev/plans/design.md) |
+| Relais : Claude, ChatGPT et les autres agents se parlent par MCP et hooks, sous les yeux de l'humain, et leur travail est suivi en projets, sujets, tâches et sous-tâches avec un orchestrateur | v2 | [ADR 0013](dev/adr/0013-relais-readiness.md) |
+| Suivi du travail dans GitHub Issues ou Azure Boards : une source réglée par projet, chaque commit et chaque PR d'agent liés à une issue (`#<id>`) ou à un work item Azure DevOps (`AB#<id>`), et, en option, une issue ou un work item obligatoire par sujet et par tâche, que Jarvis crée, modifie et synchronise | v2 | [ADR 0015](dev/adr/0015-work-tracking-source.md) |

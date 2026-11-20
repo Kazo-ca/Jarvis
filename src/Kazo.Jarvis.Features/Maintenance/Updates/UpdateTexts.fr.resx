@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="WindowTitle" xml:space="preserve"><value>Mises à jour</value></data>
+  <data name="CurrentVersion" xml:space="preserve"><value>Version installée : {0}</value></data>
+  <data name="UnknownVersion" xml:space="preserve"><value>inconnue</value></data>
+  <data name="Idle" xml:space="preserve"><value>Jarvis n'a pas encore cherché de nouvelle version.</value></data>
+  <data name="Checking" xml:space="preserve"><value>Recherche d'une nouvelle version…</value></data>
+  <data name="UpToDate" xml:space="preserve"><value>Cette version est la plus récente.</value></data>
+  <data name="Available" xml:space="preserve"><value>La version {0} est disponible.</value></data>
+  <data name="Downloading" xml:space="preserve"><value>Téléchargement de la version {0}…</value></data>
+  <data name="Installing" xml:space="preserve"><value>Jarvis se ferme pour installer la version {0}, puis redémarre.</value></data>
+  <data name="FailedUnreachable" xml:space="preserve"><value>GitHub est injoignable. Vérifier la connexion, puis réessayer.</value></data>
+  <data name="FailedCorrupted" xml:space="preserve"><value>Le fichier téléchargé est abîmé. Réessayer.</value></data>
+  <data name="FailedLaunch" xml:space="preserve"><value>Le programme de mise à jour n'a pas pu démarrer. Le détail est dans le journal.</value></data>
+  <data name="NotInstallable" xml:space="preserve"><value>Cette version de développement n'installe pas les mises à jour.</value></data>
+  <data name="CheckButton" xml:space="preserve"><value>Rechercher les mises à jour</value></data>
+  <data name="InstallButton" xml:space="preserve"><value>Installer la version {0}</value></data>
+  <data name="ReleaseNotes" xml:space="preserve"><value>Notes de version</value></data>
+  <data name="AutomaticLabel" xml:space="preserve"><value>Vérifier automatiquement (interroge GitHub toutes les 6 heures)</value></data>
+</root>

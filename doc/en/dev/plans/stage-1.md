@@ -124,6 +124,9 @@ the other, and 16 (updates) at any time after 4.
   (inactive until work item 8), Quit.
 - Global hotkey (US1.6): contract, hotkey setting, activation event to the state machine.
 - Start with Windows: on by default, a setting to turn it off (assumption 3).
+- .NET generic host (ADR 0013, section 4): the Windows host is built on `Host.CreateApplicationBuilder`;
+  its background services start after the orb is shown, with `StartAsync` without blocking the UI thread,
+  and stop on "Quit" with `StopAsync` within 10 seconds at most.
 - Web host: simulated services, dialogs over the page, a button that simulates the hotkey.
 - **Windows checks:** clicks around the orb reach the application below; the hotkey works while another
   application has the focus; a second launch shows the already open orb; the position comes back after a
@@ -256,8 +259,8 @@ the other, and 16 (updates) at any time after 4.
 
 ### 16. Updates (`stage1/16-updates`)
 
-- `Updates` slice (US1.18): compares the version with the releases published on GitHub (token in the vault
-  while the repository is private), download, start of the updater.
+- `Updates` slice (US1.18): compares the version with the releases published on GitHub (the repository is
+  public since November 19, 2026: no token is needed), download, start of the updater.
 - `Kazo.Jarvis.Updater` project: replaces the files and restarts the application, like Kazo Bar.
 - Publishing script in `build/`: self-contained, `win-x64`, the application and the updater in the same
   folder (ADR 0001).
@@ -266,7 +269,9 @@ the other, and 16 (updates) at any time after 4.
 ### 17. Stage acceptance (`stage1/17-acceptance`)
 
 - On Benoit's PC, the stage goal in French then in English: "hey jarvis", a question, the answer out loud.
-- Check that no connection leaves the machine with the default configuration.
+- Check that no connection leaves the machine with the default configuration, except the automatic update
+  check (reading the releases on GitHub, Benoit's choice on November 20, 2026, see
+  [updates.md](../updates.md)).
 - Table of the final measurements in the project memory: delay, processor while idle and in an animated
   phase for both orbs, graphics memory, wake word threshold.
 - `features.md` moves stage 1 to "Available", the project memory says the series is over.

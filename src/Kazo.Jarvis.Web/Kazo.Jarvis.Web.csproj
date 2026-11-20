@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    Web test host (ADR 0003, section 3): the same slices with simulated, deterministic services.
+    Target of the Playwright tests. References Kernel and Features, never Adapters.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Kazo.Jarvis.Web</RootNamespace>
+    <!-- Only the two languages of the first version are published (ADR 0008, section 2). -->
+    <SatelliteResourceLanguages>en;fr</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
+    <ProjectReference Include="..\Kazo.Jarvis.Features\Kazo.Jarvis.Features.csproj" />
+  </ItemGroup>
+
+</Project>

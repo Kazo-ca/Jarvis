@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <!--
+    Windows host (ADR 0003, section 2): WPF with BlazorWebView, the product on the PC, built on the .NET
+    generic host (ADR 0013, section 4). Start-up, service composition and platform code only; no feature
+    is written here.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Versioned TFM required (ADR 0001): WebView2CompositionControl uses Windows.Graphics.Capture.
+         With plain net10.0-windows the process dies at start-up (seen in Kazo Bar). -->
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <WindowsSdkPackageVersion>10.0.19041.57</WindowsSdkPackageVersion>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWPF>true</UseWPF>
+    <!-- Only for the tray icon (NotifyIcon); WPF has none. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Kazo.Jarvis.Windows</RootNamespace>
+    <!-- English is the neutral language; only the two languages of the first version are published (ADR 0008). -->
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en;fr</SatelliteResourceLanguages>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <StartupObject>Kazo.Jarvis.Windows.Program</StartupObject>
+    <!-- Lets the Linux CI compile this host; running it still needs Windows. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Windows Forms brings these global usings; their Application, MessageBox... clash with WPF's. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <!-- Audio devices (ADR 0003, section 5): WASAPI capture and playback. -->
+    <PackageReference Include="NAudio" />
+    <!-- Whisper on the graphics card (ADR 0006, section 4); Adapters brings the processor runtime. -->
+    <PackageReference Include="Whisper.net.Runtime.Cuda" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
+    <ProjectReference Include="..\Kazo.Jarvis.Features\Kazo.Jarvis.Features.csproj" />
+    <ProjectReference Include="..\Kazo.Jarvis.Adapters\Kazo.Jarvis.Adapters.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

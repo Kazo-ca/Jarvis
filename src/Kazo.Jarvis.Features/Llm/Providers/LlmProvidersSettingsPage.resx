@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Language models</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>The servers and models Jarvis talks to. The default model answers; it must be local at this stage. Claude and ChatGPT can be set up and tested now; they answer later, through the hand-off.</value>
+  </data>
+  <data name="IsDefault" xml:space="preserve">
+    <value>Default model</value>
+  </data>
+  <data name="MakeDefault" xml:space="preserve">
+    <value>Make default</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="CloudNote" xml:space="preserve">
+    <value>Cloud provider: it can be set up and tested, but it does not answer yet.</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="KindLabel" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="Kind_Ollama" xml:space="preserve">
+    <value>Ollama</value>
+  </data>
+  <data name="Kind_OpenAiCompatible" xml:space="preserve">
+    <value>OpenAI-compatible server (llama.cpp, LM Studio)</value>
+  </data>
+  <data name="Kind_OpenAi" xml:space="preserve">
+    <value>OpenAI (ChatGPT)</value>
+  </data>
+  <data name="Kind_Anthropic" xml:space="preserve">
+    <value>Anthropic (Claude)</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Advanced settings</value>
+  </data>
+  <data name="Think" xml:space="preserve">
+    <value>Let the model reason before answering (slower)</value>
+  </data>
+  <data name="KeepLoaded" xml:space="preserve">
+    <value>Load the model at start and keep it in memory</value>
+  </data>
+  <data name="ContextLength" xml:space="preserve">
+    <value>Context (tokens)</value>
+  </data>
+  <data name="Temperature" xml:space="preserve">
+    <value>Temperature</value>
+  </data>
+  <data name="AdvancedHint" xml:space="preserve">
+    <value>Defaults: reasoning off, context 4096, temperature 0.3. On a 12 GB card, keep the context at 8192 or less.</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>API key</value>
+  </data>
+  <data name="KeyOptional" xml:space="preserve">
+    <value>API key (only if the server asks for one)</value>
+  </data>
+  <data name="Test" xml:space="preserve">
+    <value>Test the connection</value>
+  </data>
+  <data name="Testing" xml:space="preserve">
+    <value>Testing…</value>
+  </data>
+  <data name="Passed" xml:space="preserve">
+    <value>Connection passed in {0} ms. Model “{1}” is available.</value>
+  </data>
+  <data name="ServerModels" xml:space="preserve">
+    <value>Models on the server: {0}.</value>
+  </data>
+  <data name="Failure_NotConfigured" xml:space="preserve">
+    <value>No default provider: add one, then make it the default.</value>
+  </data>
+  <data name="Failure_InvalidAddress" xml:space="preserve">
+    <value>The address is not valid: it starts with http:// or https://, for instance http://127.0.0.1:11434.</value>
+  </data>
+  <data name="Failure_Unreachable" xml:space="preserve">
+    <value>Server unreachable: check the address and the port, and that the server is started.</value>
+  </data>
+  <data name="Failure_ModelMissing" xml:space="preserve">
+    <value>The server does not have the model “{0}”: download it (ollama pull {0}) or pick one the server lists.</value>
+  </data>
+  <data name="Failure_KeyMissing" xml:space="preserve">
+    <value>No API key: save it in the field above.</value>
+  </data>
+  <data name="Failure_KeyRejected" xml:space="preserve">
+    <value>Key refused by the server: check it, or create a new one.</value>
+  </data>
+  <data name="Failure_TimedOut" xml:space="preserve">
+    <value>Timed out: the server did not answer within {0} s.</value>
+  </data>
+  <data name="Failure_ServerError" xml:space="preserve">
+    <value>The server answered with an error. The detail is in the log.</value>
+  </data>
+  <data name="AddKind" xml:space="preserve">
+    <value>New provider</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="NoDefault" xml:space="preserve">
+    <value>No default model: Jarvis cannot answer until a local provider is the default.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel changes</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Saved. The default model applies at once.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings could not be saved: the settings file cannot be written. See the log for the cause.</value>
+  </data>
+  <data name="FindOllama" xml:space="preserve">
+    <value>Look for Ollama on this PC</value>
+  </data>
+  <data name="OllamaNotFound" xml:space="preserve">
+    <value>Ollama does not answer on this PC (ports {0}). Start it, or type its address.</value>
+  </data>
+  <data name="OllamaFound" xml:space="preserve">
+    <value>Ollama answers on port {0}; its address is in the field.</value>
+  </data>
+  <data name="OllamaFoundSaved" xml:space="preserve">
+    <value>Ollama answers on port {0}; its address is saved.</value>
+  </data>
+</root>

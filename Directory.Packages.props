@@ -1,0 +1,70 @@
+<Project>
+  <!--
+    Central package versions for src/ and tests/ (ADR 0001, section 4).
+    Spikes keep their own versions: see spikes/Directory.Packages.props.
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- Voice chain: versions proven by spike E4. Raising one is a decision, not routine (ADR 0001). -->
+  <ItemGroup>
+    <PackageVersion Include="Whisper.net" Version="1.9.1" />
+    <PackageVersion Include="Whisper.net.Runtime" Version="1.9.1" />
+    <PackageVersion Include="Whisper.net.Runtime.Cuda" Version="1.9.1" />
+    <!-- Do not move to 2.x without a new ADR: 2.0 removed espeak-ng (see doc/en/dev/pitfalls.md). -->
+    <PackageVersion Include="org.k2fsa.sherpa.onnx" Version="1.13.8" />
+    <!-- Managed part only, on the native onnxruntime 1.28.2 that sherpa-onnx ships: Microsoft.ML.OnnxRuntime 1.32.0
+         (ADR 0001) brought a second native library of the same name that broke sherpa-onnx (doc/en/dev/pitfalls.md).
+         Keep it at or below the native version: a newer managed part cannot use an older engine. -->
+    <PackageVersion Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.28.0" />
+    <!-- NAudio 3: ISampleProvider.Read takes a Span<float>. -->
+    <PackageVersion Include="NAudio" Version="3.3.0" />
+  </ItemGroup>
+
+  <!-- Hosts and UI. -->
+  <ItemGroup>
+    <!-- Version checked in Kazo Bar; uses WebView2CompositionControl. -->
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="10.0.110" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.15" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.15" />
+    <!-- Kernel: logging of the bus and of the state machine (abstractions only, ADR 0002, section 4). -->
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
+    <!-- Texts of the slices: IStringLocalizer only, the lookup follows the assistant language (ADR 0008). -->
+    <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.15" />
+    <!-- Generic host (ADR 0013, section 4): the Windows host is built on it, slices expose background services. -->
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.15" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.15" />
+  </ItemGroup>
+
+  <!-- Language models (ADR 0007, section 2): the kernel takes the abstractions only, adapters are hand-written. -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.11.1" />
+  </ItemGroup>
+
+  <!-- Settings, storage and vault (ADR 0004), in Adapters only. -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.15" />
+    <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="10.0.15" />
+  </ItemGroup>
+
+  <!-- Models download (stage1/14-first-run): sherpa-onnx publishes its voices as .tar.bz2; .NET reads tar but
+       not bzip2. SharpZipLib (MIT) for bzip2 only, in Adapters. -->
+  <ItemGroup>
+    <PackageVersion Include="SharpZipLib" Version="1.4.2" />
+  </ItemGroup>
+
+  <!-- Tests (NUnit, as in Kazo Bar; Playwright against the Web host). -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+    <PackageVersion Include="NUnit" Version="4.6.1" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="6.3.1" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.15.0" />
+    <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
+    <!-- Real container and fake clock for the kernel tests. -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.65.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.15" />
+  </ItemGroup>
+</Project>

@@ -30,26 +30,30 @@ Never copy Python code: port the behavior.
    * Prefer a little duplication between two slices over an early shared
      abstraction. What serves three slices or more moves to the kernel.
    * The kernel holds no business logic, no UI component and no native dependency.
-3. **Hosts** (from Kazo Bar): `Kazo.Jarvis.Windows` (WPF + BlazorWebView),
+3. **Hosts** (modeled on Kazo Bar): `Kazo.Jarvis.Windows` (WPF + BlazorWebView),
    `Kazo.Jarvis.Web` (test host with simulated services, Playwright target),
    `Kazo.Jarvis.Mobile` (MAUI Blazor Hybrid, Android). Hosts only hold start-up
    and platform code. Native services sit behind interfaces; real
    implementations live in `Kazo.Jarvis.Adapters`, loaded by the Windows host only.
+   **Never reference Kazo Bar** (no project reference, package or submodule). Its code
+   may be copied into this repository; the copy then belongs here and evolves
+   separately (ADR 0014).
 4. **Spikes.** Throwaway experiments live in `spikes/<name>/`, each with a
    `README.md` (how to run) and a `RESULTS.md` (what was proven, with evidence).
    Spike code is never referenced by product code.
 
 ## II. STYLE
 
-1. **Collocated component assets.** CSS and JavaScript of a component live in
-   `MyComponent.razor.css` / `MyComponent.razor.js` next to it. No inline
-   `style="..."`, `<style>` or `<script>` in markup.
-2. **C# first.** JavaScript only for browser APIs C# cannot reach (canvas, WebGL,
-   audio worklets), shipped as a component-scoped asset.
+1. **Collocated component styles.** The CSS of a component lives in
+   `MyComponent.razor.css` next to it. No inline `style="..."` or `<style>` in
+   markup. Script is allowed in markup (ADR 0012); move a component's JavaScript
+   to `MyComponent.razor.js` once it grows past a few lines.
+2. **C# first.** A feature's logic is written in C#. JavaScript for browser APIs
+   C# cannot reach (DOM manipulation, canvas, WebGL, audio worklets).
 3. **English file and folder names**, whatever the conversation language.
 4. **Comments.** XML doc comments on public APIs; explain the *why* of
    non-obvious code.
-5. **Secrets never in the repository.** API keys, OAuth tokens, SIP passwords,
+5. **Secrets never in the repository.** API keys, OAuth tokens,
    device tokens go to the vault (Windows Credential Manager or an encrypted
    file). Local secrets and throwaway artifacts used while developing stay
    outside the repository.

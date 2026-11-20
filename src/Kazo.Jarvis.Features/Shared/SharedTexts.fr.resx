@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SecretPlaceholder" xml:space="preserve">
+    <value>Collez la clé ici</value>
+  </data>
+  <data name="SecretReplacePlaceholder" xml:space="preserve">
+    <value>Collez une nouvelle clé pour remplacer celle enregistrée</value>
+  </data>
+  <data name="SecretShow" xml:space="preserve">
+    <value>Afficher</value>
+  </data>
+  <data name="SecretHide" xml:space="preserve">
+    <value>Masquer</value>
+  </data>
+  <data name="SecretSave" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="SecretDelete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="SecretNotSet" xml:space="preserve">
+    <value>Aucune clé enregistrée.</value>
+  </data>
+  <data name="SecretStored" xml:space="preserve">
+    <value>Une clé est enregistrée dans le coffre. Elle n'est jamais affichée.</value>
+  </data>
+  <data name="SecretSaved" xml:space="preserve">
+    <value>Clé enregistrée dans le coffre.</value>
+  </data>
+  <data name="SecretDeleted" xml:space="preserve">
+    <value>Clé supprimée.</value>
+  </data>
+  <data name="SecretVaultUnavailable" xml:space="preserve">
+    <value>Le coffre de secrets est inaccessible. La cause est dans le journal.</value>
+  </data>
+</root>

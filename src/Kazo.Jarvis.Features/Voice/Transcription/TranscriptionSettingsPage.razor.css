@@ -1,0 +1,49 @@
+.transcription-select {
+    min-width: 14rem;
+    max-width: 100%;
+    margin: 0 0.6rem 0.4rem 0;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.transcription-number {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0.6rem 1.2rem 0 0;
+}
+
+.transcription-number input {
+    width: 5.5rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.transcription-status,
+.transcription-measure {
+    margin: 0.4rem 0 0;
+    color: var(--jarvis-text-muted);
+    font-size: 0.9em;
+}
+
+.transcription-status[data-transcription-status="Missing"],
+.transcription-status[data-transcription-status="Failed"] {
+    color: var(--jarvis-red);
+}
+
+.transcription-heard {
+    margin: 0;
+    color: var(--jarvis-cyan);
+    font-family: var(--jarvis-font-mono);
+}
+
+.transcription-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

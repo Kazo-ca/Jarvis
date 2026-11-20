@@ -1,0 +1,70 @@
+@implements IDisposable
+@inject IAssistantStateReader State
+@inject IMessageBus Bus
+@inject IEnumerable<SettingsPage> Pages
+@inject IStringLocalizerFactory Localizers
+@inject IStringLocalizer<FaultWindow> T
+
+@* The faults window (US1.17): the current fault named in words, what it does, what to do, and a button to the
+   setting that fixes it. It follows the state: when the cause goes away, it says so. *@
+<div class="fault-window @(fault is null ? "fault-window-ok" : null)" data-fault-window data-fault-cause="@(fault?.Cause.ToString() ?? "")" data-fault-origin="@(advice?.Origin.ToString() ?? "")">
+    @if (fault is { } current && advice is { } help)
+    {
+        <h2 class="fault-title" data-fault-title>@T[help.TitleKey]</h2>
+        <p class="fault-text" data-fault-explanation>@T[help.ExplanationKey]</p>
+        <p class="fault-text fault-action" data-fault-action>
+            <span class="fault-label">@T["WhatToDo"]</span>
+            @T[help.ActionKey]
+        </p>
+        @if (PageOf(help) is { } setting)
+        {
+            <button type="button" class="fault-button" data-fault-open-setting="@setting.Key" @onclick="() => OpenSettingAsync(setting.Key)">
+                @T["OpenSetting", TitleOf(setting)]
+            </button>
+        }
+        @if (!string.IsNullOrWhiteSpace(current.Detail))
+        {
+            <p class="fault-detail" data-fault-detail>@T["Detail", current.Detail]</p>
+        }
+    }
+    else
+    {
+        <p class="fault-text fault-none" role="status" data-fault-none>@(hadFault ? T["Resolved"] : T["NoFault"])</p>
+    }
+</div>
+
+@code {
+    private AssistantFault? fault;
+    private FaultAdvice? advice;
+    private bool hadFault;
+    private IDisposable? subscription;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        subscription = Bus.Subscribe<AssistantStateChanged>((message, _) => new ValueTask(InvokeAsync(() =>
+        {
+            Show(message.Current.Fault);
+            StateHasChanged();
+        })));
+        Show(State.Current.Fault);
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => subscription?.Dispose();
+
+    private void Show(AssistantFault? current)
+    {
+        hadFault |= current is not null;
+        fault = current;
+        advice = current is null ? null : FaultAdvice.For(current);
+    }
+
+    // A page whose slice is not registered (a host without it) gets no button.
+    private SettingsPage? PageOf(FaultAdvice help) =>
+        help.PageKey is { } key ? Pages.FirstOrDefault(page => page.Key == key) : null;
+
+    private string TitleOf(SettingsPage page) => Localizers.Create(page.TitleResource)[page.TitleKey];
+
+    private Task OpenSettingAsync(string pageKey) => Bus.PublishAsync(new SettingsWindowRequested(pageKey)).AsTask();
+}

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+      <data name="Title" xml:space="preserve">
+    <value>Voices</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>The voice Jarvis speaks with in each language. Listen to a sentence, adjust the speed, then keep the voice as the default of the language. Local voices run on this computer.</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Language_fr" xml:space="preserve">
+    <value>French</value>
+  </data>
+  <data name="Language_en" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="VoiceLabel" xml:space="preserve">
+    <value>Voice</value>
+  </data>
+  <data name="LocalGroup" xml:space="preserve">
+    <value>On this computer</value>
+  </data>
+  <data name="CloudGroup" xml:space="preserve">
+    <value>In the cloud</value>
+  </data>
+  <data name="VoiceName" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Engine_piper" xml:space="preserve">
+    <value>Piper</value>
+  </data>
+  <data name="Engine_kokoro" xml:space="preserve">
+    <value>Kokoro</value>
+  </data>
+  <data name="Engine_elevenlabs" xml:space="preserve">
+    <value>ElevenLabs</value>
+  </data>
+  <data name="Engine_openai" xml:space="preserve">
+    <value>OpenAI</value>
+  </data>
+  <data name="Engine_simulated" xml:space="preserve">
+    <value>Simulated</value>
+  </data>
+  <data name="Engine_simulated-cloud" xml:space="preserve">
+    <value>Simulated cloud</value>
+  </data>
+  <data name="LocalHint" xml:space="preserve">
+    <value>This voice runs on this computer: the text never leaves it.</value>
+  </data>
+  <data name="CloudWarning" xml:space="preserve">
+    <value>With this voice, the text of every answer is sent to {0} to be spoken. It leaves this computer.</value>
+  </data>
+  <data name="NoVoice" xml:space="preserve">
+    <value>No voice is installed for this language. The voice models are downloaded at the first start; until then, put them in the models folder.</value>
+  </data>
+  <data name="SentenceLabel" xml:space="preserve">
+    <value>Sentence to listen to</value>
+  </data>
+  <data name="Sample_fr" xml:space="preserve">
+    <value>Bonsoir, Monsieur. Tous les systèmes sont opérationnels.</value>
+  </data>
+  <data name="Sample_en" xml:space="preserve">
+    <value>Good evening, sir. All systems are operational.</value>
+  </data>
+  <data name="SpeedLabel" xml:space="preserve">
+    <value>Speed</value>
+  </data>
+  <data name="SpeedValue" xml:space="preserve">
+    <value>× {0}</value>
+  </data>
+  <data name="Listen" xml:space="preserve">
+    <value>Listen</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="MakeDefault" xml:space="preserve">
+    <value>Use for {0}</value>
+  </data>
+  <data name="IsDefault" xml:space="preserve">
+    <value>Default voice for {0}</value>
+  </data>
+  <data name="Problem_ModelMissing" xml:space="preserve">
+    <value>The model files of this voice are missing or unreadable.</value>
+  </data>
+  <data name="Problem_KeyMissing" xml:space="preserve">
+    <value>This voice needs its key, below.</value>
+  </data>
+  <data name="Problem_KeyRefused" xml:space="preserve">
+    <value>The service refused the key. Check it below.</value>
+  </data>
+  <data name="Problem_Unreachable" xml:space="preserve">
+    <value>The service does not answer. Check the internet connection.</value>
+  </data>
+  <data name="Problem_NoOutput" xml:space="preserve">
+    <value>No audio output can play the sound. Check the Audio page.</value>
+  </data>
+  <data name="Problem_SaveFailed" xml:space="preserve">
+    <value>The choice could not be saved.</value>
+  </data>
+  <data name="Problem_Failed" xml:space="preserve">
+    <value>The voice could not speak this sentence.</value>
+  </data>
+  <data name="CloudKeysLabel" xml:space="preserve">
+    <value>Cloud voices</value>
+  </data>
+  <data name="CloudKeysHint" xml:space="preserve">
+    <value>Their voices are listed once the key is saved. The text they speak leaves this computer.</value>
+  </data>
+  <data name="ElevenLabsKey" xml:space="preserve">
+    <value>ElevenLabs key</value>
+  </data>
+  <data name="OpenAiKey" xml:space="preserve">
+    <value>OpenAI key (voices)</value>
+  </data>
+  <data name="LanguageName_fr" xml:space="preserve">
+    <value>French</value>
+  </data>
+  <data name="LanguageName_en" xml:space="preserve">
+    <value>English</value>
+  </data>
+</root>

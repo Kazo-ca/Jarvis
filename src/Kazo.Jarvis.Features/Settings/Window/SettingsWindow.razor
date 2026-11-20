@@ -1,0 +1,54 @@
+@inject IEnumerable<SettingsPage> Pages
+@inject IStringLocalizerFactory Localizers
+@inject SettingsWindowState State
+@inject IStringLocalizer<SettingsWindow> T
+@implements IDisposable
+
+@* The settings window (US1.2): the pages declared by the slices, in a list, and the selected one beside it.
+   The window knows the pages only through their SettingsPage registration (ADR 0002, section 3). *@
+<div class="settings-window" data-settings-window>
+    <nav class="settings-window-nav" aria-label="@T["NavigationLabel"]">
+        @foreach (var item in ordered)
+        {
+            <button type="button"
+                    class="settings-window-tab"
+                    data-settings-page="@item.Key"
+                    aria-current="@(item.Key == Selected?.Key ? "page" : null)"
+                    @onclick="() => State.SelectedKey = item.Key">
+                @TitleOf(item)
+            </button>
+        }
+    </nav>
+    <div class="settings-window-page">
+        @if (Selected is { } selected)
+        {
+            <DynamicComponent Type="selected.Component" />
+        }
+        else
+        {
+            <p class="settings-window-empty">@T["NoPage"]</p>
+        }
+    </div>
+</div>
+
+@code {
+    private SettingsPage[] ordered = [];
+
+    private SettingsPage? Selected =>
+        ordered.FirstOrDefault(page => page.Key == State.SelectedKey) ?? ordered.FirstOrDefault();
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        ordered = [.. Pages.OrderBy(page => page.Order).ThenBy(page => page.Key, StringComparer.Ordinal)];
+        State.Changed += OnSelectionChanged;
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => State.Changed -= OnSelectionChanged;
+
+    // A fault asked for another page while the window is open (US1.17).
+    private void OnSelectionChanged() => _ = InvokeAsync(StateHasChanged);
+
+    private string TitleOf(SettingsPage page) => Localizers.Create(page.TitleResource)[page.TitleKey];
+}

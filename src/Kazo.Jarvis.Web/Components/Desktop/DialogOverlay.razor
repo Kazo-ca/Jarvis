@@ -1,0 +1,25 @@
+@* Dialogs of the Web host, drawn as layers over the page (ADR 0003, section 3). *@
+@implements IDisposable
+@inject OverlayDialogService Dialogs
+
+@foreach (var dialog in Dialogs.OpenDialogs)
+{
+    <section class="dialog-layer" role="dialog" aria-label="@dialog.Title" data-dialog-key="@dialog.Key">
+        <header>
+            <h2>@dialog.Title</h2>
+            <button type="button" class="dialog-close" aria-label="Close" @onclick="() => Dialogs.Close(dialog.Key)">×</button>
+        </header>
+        <DynamicComponent Type="dialog.Component" Parameters="ParametersOf(dialog)" />
+    </section>
+}
+
+@code {
+    protected override void OnInitialized() => Dialogs.Changed += OnChanged;
+
+    public void Dispose() => Dialogs.Changed -= OnChanged;
+
+    private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    private static IDictionary<string, object>? ParametersOf(DialogRequest dialog) =>
+        dialog.Parameters?.ToDictionary(item => item.Key, item => item.Value!);
+}

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <!--
+    Vertical slices (ADR 0002): one folder per feature, Features/<Domain>/<Slice>/, holding its
+    Razor components, request/handler, options and texts. Features/Shared/ holds presentation
+    components used by three slices or more. Depends on the kernel only.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Kazo.Jarvis.Features</RootNamespace>
+    <!-- English is the neutral language of the resources, French a satellite (ADR 0008, section 2). -->
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Kazo.Jarvis.Tests.Unit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
+  </ItemGroup>
+
+</Project>

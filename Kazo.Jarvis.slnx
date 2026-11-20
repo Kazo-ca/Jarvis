@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Kazo.Jarvis.Kernel/Kazo.Jarvis.Kernel.csproj" />
+    <Project Path="src/Kazo.Jarvis.Features/Kazo.Jarvis.Features.csproj" />
+    <Project Path="src/Kazo.Jarvis.Adapters/Kazo.Jarvis.Adapters.csproj" />
+    <Project Path="src/Kazo.Jarvis.Windows/Kazo.Jarvis.Windows.csproj" />
+    <Project Path="src/Kazo.Jarvis.Updater/Kazo.Jarvis.Updater.csproj" />
+    <Project Path="src/Kazo.Jarvis.Web/Kazo.Jarvis.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Kazo.Jarvis.Tests.Unit/Kazo.Jarvis.Tests.Unit.csproj" />
+    <Project Path="tests/Kazo.Jarvis.Tests.E2E/Kazo.Jarvis.Tests.E2E.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,75 @@
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 32px 16px;
+}
+
+header {
+    text-align: center;
+}
+
+h1 {
+    margin: 0;
+    color: var(--jarvis-cyan);
+    font: 600 28px/1 var(--jarvis-font-display);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+header p {
+    color: var(--jarvis-text-muted);
+}
+
+header a {
+    color: var(--jarvis-cyan);
+}
+
+.demo-stage {
+    width: min(320px, 80vw);
+    height: min(320px, 80vw);
+}
+
+.demo-looks,
+.demo-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 18px;
+    max-width: 900px;
+}
+
+.demo-looks button {
+    padding: 8px 12px;
+    border: 1px solid var(--jarvis-line);
+    border-radius: 2px;
+    background: var(--jarvis-panel);
+    color: var(--jarvis-text-muted);
+    font: 500 12px var(--jarvis-font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.demo-looks button[aria-pressed="true"] {
+    border-color: var(--jarvis-cyan);
+    color: var(--jarvis-cyan);
+}
+
+.demo-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--jarvis-text-muted);
+    font-size: 13px;
+}
+
+.demo-options input[type="number"] {
+    width: 4em;
+}
+
+output {
+    color: var(--jarvis-text-muted);
+    font: 400 12px var(--jarvis-font-mono);
+}

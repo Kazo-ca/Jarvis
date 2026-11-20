@@ -1,0 +1,6 @@
+/* The orb fills the transparent window. Around it, the pixels stay fully transparent so that clicks reach
+   the application below (ADR 0003, section 2). */
+main {
+    width: 100vw;
+    height: 100vh;
+}

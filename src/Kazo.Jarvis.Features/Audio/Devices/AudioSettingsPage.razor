@@ -1,0 +1,179 @@
+@using Kazo.Jarvis.Kernel.Audio
+@using Kazo.Jarvis.Kernel.Messages.Audio
+@implements IDisposable
+@inject MicrophoneService Microphone
+@inject IAudioCapture Capture
+@inject IAudioPlayback Playback
+@inject ISettingsStore Settings
+@inject ISoundLevelSource Levels
+@inject IMessageBus Bus
+@inject IStringLocalizer<AudioSettingsPage> T
+
+@* Settings page of the audio devices (US1.13): microphone with its live level, mute, output with a test
+   sound. Each choice applies at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["MicrophoneLabel"]" Hint="@MicrophoneHint">
+        <select class="audio-select" data-audio-microphone @onchange="ChooseMicrophoneAsync" disabled="@status.Muted">
+            <option value="" selected="@(options.MicrophoneId is null)">@DefaultLabel(microphones)</option>
+            @foreach (var device in microphones)
+            {
+                <option value="@device.Id" selected="@(device.Id == options.MicrophoneId)">@device.Name</option>
+            }
+            @if (options.MicrophoneId is { } chosen && microphones.All(device => device.Id != chosen))
+            {
+                <option value="@chosen" selected>@T["Absent"]</option>
+            }
+        </select>
+        <meter class="audio-level" data-audio-level min="0" max="1" low="0.25" high="0.85" optimum="0.5" value="@LevelText"
+               aria-label="@T["LevelLabel"]"></meter>
+        <label class="audio-mute">
+            <input type="checkbox" data-audio-mute checked="@status.Muted" @onchange="ToggleMuteAsync" />
+            <span>@T["MuteLabel"]</span>
+        </label>
+    </SettingsField>
+    <SettingsField Label="@T["OutputLabel"]" Hint="@T["OutputHint"]">
+        <select class="audio-select" data-audio-output @onchange="ChooseOutputAsync">
+            <option value="" selected="@(options.OutputId is null)">@DefaultLabel(outputs)</option>
+            @foreach (var device in outputs)
+            {
+                <option value="@device.Id" selected="@(device.Id == options.OutputId)">@device.Name</option>
+            }
+            @if (options.OutputId is { } chosen && outputs.All(device => device.Id != chosen))
+            {
+                <option value="@chosen" selected>@T["Absent"]</option>
+            }
+        </select>
+        <button type="button" class="audio-test" data-audio-test @onclick="TestOutputAsync" disabled="@testing">@T["TestOutput"]</button>
+    </SettingsField>
+    @if (problem is { } text)
+    {
+        <p class="audio-problem" role="alert">@text</p>
+    }
+</SettingsFrame>
+
+@code {
+    // The meter is a setting aid, not the orb: ten refreshes per second are enough.
+    private static readonly TimeSpan LevelInterval = TimeSpan.FromMilliseconds(100);
+
+    private AudioDevicesOptions options = new();
+    private MicrophoneStatus status = MicrophoneStatus.Stopped;
+    private IReadOnlyList<AudioDevice> microphones = [];
+    private IReadOnlyList<AudioDevice> outputs = [];
+    private float level;
+    private long lastLevelTicks;
+    private bool testing;
+    private string? problem;
+    private IDisposable? levelSubscription;
+    private IDisposable? devicesWatch;
+    private IDisposable? settingsWatch;
+
+    private string LevelText => level.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+
+    private string MicrophoneHint => status switch
+    {
+        { Muted: true } => T["MutedHint"],
+        { Missing: true } => T["MissingHint"],
+        { Device: { } device } => T["ListeningHint", device.Name],
+        _ => T["DefaultHint"],
+    };
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Refresh();
+        Microphone.StatusChanged += OnChanged;
+        devicesWatch = Capture.WatchDevices(OnChanged);
+        settingsWatch = Settings.Watch(AudioDevicesOptions.Section, _ => OnChanged());
+        levelSubscription = Levels.Subscribe(OnLevel);
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Microphone.StatusChanged -= OnChanged;
+        devicesWatch?.Dispose();
+        settingsWatch?.Dispose();
+        levelSubscription?.Dispose();
+    }
+
+    private void Refresh()
+    {
+        options = Settings.Read(AudioDevicesOptions.Section);
+        status = Microphone.Status;
+        microphones = Capture.ListMicrophones();
+        outputs = Playback.ListOutputs();
+        if (status.Device is null)
+        {
+            level = 0;
+        }
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Refresh();
+        StateHasChanged();
+    });
+
+    private void OnLevel(SoundLevel sample)
+    {
+        if (sample.Origin != SoundOrigin.Microphone)
+        {
+            return;
+        }
+
+        var now = Environment.TickCount64;
+        if (sample.Value > 0 && now - Interlocked.Read(ref lastLevelTicks) < LevelInterval.TotalMilliseconds)
+        {
+            return;
+        }
+
+        Interlocked.Exchange(ref lastLevelTicks, now);
+        _ = InvokeAsync(() =>
+        {
+            level = sample.Value;
+            StateHasChanged();
+        });
+    }
+
+    private string DefaultLabel(IReadOnlyList<AudioDevice> devices) =>
+        devices.FirstOrDefault(device => device.IsDefault) is { } current
+            ? T["WindowsDefaultNamed", current.Name]
+            : T["WindowsDefault"];
+
+    private Task ChooseMicrophoneAsync(ChangeEventArgs change) =>
+        SaveAsync(options with { MicrophoneId = EmptyToNull(change.Value) });
+
+    private Task ChooseOutputAsync(ChangeEventArgs change) =>
+        SaveAsync(options with { OutputId = EmptyToNull(change.Value) });
+
+    // Same event as the tray menu entry (US1.13): the microphone service closes the stream and saves the choice.
+    private Task ToggleMuteAsync(ChangeEventArgs change) =>
+        Bus.PublishAsync(new MicrophoneMuteRequested(change.Value is true)).AsTask();
+
+    private async Task SaveAsync(AudioDevicesOptions wanted)
+    {
+        var result = await Settings.WriteAsync(AudioDevicesOptions.Section, wanted);
+        problem = result.IsSaved ? null : T["SaveFailed"].Value;
+        Refresh();
+    }
+
+    private async Task TestOutputAsync()
+    {
+        testing = true;
+        problem = null;
+        try
+        {
+            await Playback.PlayAsync(OutputChime.Create());
+        }
+        catch (AudioDeviceUnavailableException)
+        {
+            problem = T["NoOutput"];
+        }
+        finally
+        {
+            testing = false;
+        }
+    }
+
+    private static string? EmptyToNull(object? value) => value as string is { Length: > 0 } text ? text : null;
+}

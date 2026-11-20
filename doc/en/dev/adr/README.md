@@ -17,6 +17,11 @@ free number is given in the [project memory](../../memory/README.md).
 | [0009](0009-permission-and-confirmation-model.md) | Permission and confirmation model | Accepted |
 | [0010](0010-task-fan-and-orb-click.md) | Task fan and click on the orb | Accepted |
 | [0011](0011-orb-colors-and-drawing.md) | Colors and drawing of the orb | Accepted |
+| [0012](0012-scripts-allowed-in-markup.md) | Script is allowed in markup (partly supersedes 0002) | Accepted |
+| [0013](0013-relais-readiness.md) | Preparing the Relais module (v2): projects, subjects, tasks and orchestrator | Accepted |
+| [0014](0014-license-kazo-bar-rule-and-jarvis-py.md) | Apache 2.0 license, rule on Kazo Bar (copying allowed, no reference) and removal of `jarvis.py` | Accepted |
+| [0015](0015-work-tracking-source.md) | Work tracking source (GitHub Issues or Azure Boards) and mandatory link for commits and PRs | Accepted |
+| [0016](0016-onnx-runtime-managed-on-sherpa-native.md) | A single native ONNX Runtime, the one from sherpa-onnx (partly supersedes 0001) | Accepted |
 
 The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).

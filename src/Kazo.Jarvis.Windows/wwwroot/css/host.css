@@ -1,0 +1,13 @@
+/* Host pages of the Windows host: index.html for the dialogs, orb.html for the orb window.
+   Colors and fonts come from the shared style (jarvis.css, stage1/5-shared-ui-language). */
+html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--jarvis-background);
+    overflow: hidden;
+}
+
+/* The orb window is transparent: only the orb's own pixels are drawn and catch clicks. */
+html:has(body.orb), body.orb {
+    background: transparent;
+}

@@ -1,0 +1,187 @@
+@using System.Globalization
+@implements IDisposable
+@inject ConversationJournal Journal
+@inject IMessageBus Bus
+@inject IAssistantStateReader State
+@inject IStringLocalizer<ConversationWindow> T
+
+@* The conversation window (US1.14): the history kept in the store, the turn in progress as the model writes it, the
+   model that answered each turn, a field to type a request (a written answer only), and « Tout effacer » (ADR 0004).
+   The list is drawn newest first in a reversed column, so it stays scrolled to the newest turn without script. *@
+<div class="conversation-window" data-conversation-window>
+    <div class="conversation-scroll">
+        <ol class="conversation-turns" data-conversation-turns data-count="@turns.Count" aria-live="polite">
+            @foreach (var turn in turns)
+            {
+                <li class="conversation-turn" @key="turn.Key" data-conversation-turn data-turn-outcome="@turn.Outcome" data-turn-input="@turn.Input">
+                    <p class="conversation-request">
+                        <span class="conversation-who">@(turn.Input == TurnInput.Voice ? T["YouSaid"] : T["YouWrote"])</span>
+                        <span class="conversation-body" data-conversation-request>@turn.Request</span>
+                    </p>
+                    <p class="conversation-answer">
+                        <span class="conversation-who conversation-jarvis">Jarvis</span>
+                        <span class="conversation-body" data-conversation-answer>@turn.Answer</span>
+                    </p>
+                    <p class="conversation-meta" data-conversation-meta data-conversation-model="@(turn.Model ?? "")">@Meta(turn)</p>
+                </li>
+            }
+        </ol>
+        @if (turns.Count == 0)
+        {
+            <p class="conversation-empty" data-conversation-empty>@T["Empty"]</p>
+        }
+    </div>
+    @if (modelLoading is { } loading)
+    {
+        <p class="conversation-notice" role="status" data-conversation-loading>@T["ModelLoading", loading]</p>
+    }
+    <form class="conversation-input" @onsubmit="SendAsync">
+        <input type="text" class="conversation-text" data-conversation-text maxlength="4000" autocomplete="off"
+               placeholder="@T["Placeholder"]" aria-label="@T["InputLabel"]" @bind="draft" @bind:event="oninput" />
+        <button type="submit" class="conversation-button" data-conversation-send disabled="@(!CanSend)">@T["Send"]</button>
+    </form>
+    <div class="conversation-footer">
+        <p class="conversation-hint" data-conversation-hint>@(IsIdle ? T["WrittenAnswerHint"] : T["Busy"])</p>
+        @if (confirmingErase)
+        {
+            <span class="conversation-confirm" role="alert">@T["EraseConfirm"]</span>
+            <button type="button" class="conversation-button conversation-danger" data-conversation-erase-confirm @onclick="EraseAsync">@T["EraseYes"]</button>
+            <button type="button" class="conversation-button" data-conversation-erase-cancel @onclick="() => confirmingErase = false">@T["EraseNo"]</button>
+        }
+        else
+        {
+            <button type="button" class="conversation-button" data-conversation-erase @onclick="() => confirmingErase = true">@T["EraseAll"]</button>
+        }
+    </div>
+    @if (problem is { } text)
+    {
+        <p class="conversation-problem" role="alert">@text</p>
+    }
+</div>
+
+@code {
+    private IReadOnlyList<ConversationTurn> turns = [];
+    private string draft = string.Empty;
+    private bool confirmingErase;
+    private string? modelLoading;
+    private string? problem;
+    private IDisposable? stateSubscription;
+    private IDisposable? loadSubscription;
+
+    private bool IsIdle => State.Current.Phase == AssistantPhase.Idle;
+
+    // A typed request starts a turn only when Jarvis is idle (ADR 0005, section 3).
+    private bool CanSend => IsIdle && !string.IsNullOrWhiteSpace(draft);
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Journal.Changed += OnChanged;
+        stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
+        loadSubscription = Bus.Subscribe<AssistantModelLoadChanged>((message, _) => new ValueTask(InvokeAsync(() =>
+        {
+            modelLoading = message.State == ModelLoadState.Loading ? $"{message.ProviderName} ({message.Model})" : null;
+            StateHasChanged();
+        })));
+        Refresh();
+        _ = LoadAsync();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Journal.Changed -= OnChanged;
+        stateSubscription?.Dispose();
+        loadSubscription?.Dispose();
+    }
+
+    private async Task LoadAsync()
+    {
+        await Journal.EnsureLoadedAsync();
+        await InvokeAsync(() =>
+        {
+            Refresh();
+            StateHasChanged();
+        });
+    }
+
+    private void Refresh() => turns = [.. Journal.Turns.Reverse()];
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Refresh();
+        StateHasChanged();
+    });
+
+    private async Task SendAsync()
+    {
+        if (!CanSend)
+        {
+            return;
+        }
+
+        var text = draft.Trim();
+        draft = string.Empty;
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted(text));
+    }
+
+    private async Task EraseAsync()
+    {
+        confirmingErase = false;
+        try
+        {
+            await Journal.EraseAllAsync();
+            problem = null;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            problem = T["EraseFailed"];
+        }
+
+        Refresh();
+    }
+
+    private string Meta(ConversationTurn turn)
+    {
+        var parts = new List<string> { turn.At.ToLocalTime().ToString("t", CultureInfo.CurrentCulture) };
+        if (turn.Model is { Length: > 0 } model)
+        {
+            parts.Add(turn.Provider is { Length: > 0 } provider && provider != model ? $"{provider} · {model}" : model);
+        }
+
+        if (turn.Duration is { } duration)
+        {
+            parts.Add(T["Seconds", duration.TotalSeconds.ToString("0.0", CultureInfo.CurrentCulture)]);
+        }
+
+        if (turn.InputTokens is not null || turn.OutputTokens is not null)
+        {
+            parts.Add(T["Tokens", turn.InputTokens?.ToString(CultureInfo.CurrentCulture) ?? "?", turn.OutputTokens?.ToString(CultureInfo.CurrentCulture) ?? "?"]);
+        }
+
+        if (turn.FirstSound is { } firstSound)
+        {
+            parts.Add(T["FirstSound", firstSound.TotalSeconds.ToString("0.0", CultureInfo.CurrentCulture)]);
+        }
+
+        parts.Add(turn.Outcome switch
+        {
+            TurnOutcome.Pending => T["Pending"],
+            TurnOutcome.Interrupted => T["Interrupted"],
+            TurnOutcome.Failed => FailureText(turn.Failure),
+            _ => string.Empty,
+        });
+
+        return string.Join(" · ", parts.Where(part => part.Length > 0));
+    }
+
+    // The causes named by the model (LlmFailure) and by the faults (FaultCause) that have their own sentence.
+    private static readonly HashSet<string> NamedFailures = new(StringComparer.Ordinal)
+    {
+        "NotConfigured", "InvalidAddress", "Unreachable", "ModelMissing", "KeyMissing", "KeyRejected", "TimedOut",
+        "ServerError", "ModelUnreachable", "VoiceMissing",
+    };
+
+    private string FailureText(string? failure) =>
+        failure is not null && NamedFailures.Contains(failure) ? T["Failure_" + failure] : T["Failure_Other"];
+}

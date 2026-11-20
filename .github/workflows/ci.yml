@@ -1,0 +1,78 @@
+# Continuous integration on Linux (stage 1 plan, answer no. 2): builds every project, including the
+# Windows host (EnableWindowsTargeting), runs the unit tests except those marked Windows, then the
+# Playwright tests against the Web host. Windows-only checks run on Benoit's PC.
+name: CI
+
+on:
+  push:
+    branches: [main, '*/base']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET (version from global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Kazo.Jarvis.slnx
+
+      - name: Build
+        run: dotnet build Kazo.Jarvis.slnx --configuration Release --no-restore
+
+      # The openWakeWord models are never in the repository (ADR 0004, section 5): the wake word adapter tests
+      # (category Models) read them from this folder. Pinned version, checked by hash.
+      - name: Download the wake word models
+        run: |
+          folder="$RUNNER_TEMP/wake-word"
+          mkdir -p "$folder"
+          base=https://github.com/dscripka/openWakeWord/releases/download/v0.5.1
+          for file in melspectrogram.onnx embedding_model.onnx hey_jarvis_v0.1.onnx; do
+            curl --fail --silent --show-error --location --retry 3 --output "$folder/$file" "$base/$file"
+          done
+          (cd "$folder" && sha256sum --check --strict) <<'SUMS'
+          ba2b0e0f8b7b875369a2c89cb13360ff53bac436f2895cced9f479fa65eb176f  melspectrogram.onnx
+          70d164290c1d095d1d4ee149bc5e00543250a7316b59f31d056cff7bd3075c1f  embedding_model.onnx
+          94a13cfe60075b132f6a472e7e462e8123ee70861bc3fb58434a73712ee0d2cb  hey_jarvis_v0.1.onnx
+          SUMS
+          echo "KAZO_JARVIS_WAKE_WORD_MODELS=$folder" >> "$GITHUB_ENV"
+
+      - name: Unit and architecture tests
+        run: >
+          dotnet test tests/Kazo.Jarvis.Tests.Unit --configuration Release --no-build
+          --filter "TestCategory!=Windows"
+          --logger trx --results-directory TestResults/unit
+
+      - name: Install the Playwright browser
+        run: pwsh tests/Kazo.Jarvis.Tests.E2E/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: End-to-end tests (Playwright, Web host)
+        run: >
+          dotnet test tests/Kazo.Jarvis.Tests.E2E --configuration Release --no-build
+          --logger trx --results-directory TestResults/e2e
+
+      - name: Keep the test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/
+          retention-days: 7

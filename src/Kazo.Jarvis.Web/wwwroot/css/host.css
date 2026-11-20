@@ -1,0 +1,8 @@
+/* Host page of the Web test host. Colors and fonts come from the shared style (jarvis.css, stage1/5-shared-ui-language). */
+html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
+}

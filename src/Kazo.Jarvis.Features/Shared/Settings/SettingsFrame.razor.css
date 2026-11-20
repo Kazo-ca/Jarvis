@@ -1,0 +1,35 @@
+.settings-frame {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
+}
+
+.settings-frame-header {
+    border-bottom: 1px solid var(--jarvis-line);
+    padding-bottom: 0.75rem;
+}
+
+.settings-frame-title {
+    margin: 0;
+    font-family: var(--jarvis-font-display);
+    font-weight: 600;
+    font-size: 1.4rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--jarvis-cyan);
+}
+
+.settings-frame-description {
+    margin: 0.5rem 0 0;
+    color: var(--jarvis-text-muted);
+    line-height: 1.5;
+}
+
+.settings-frame-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}

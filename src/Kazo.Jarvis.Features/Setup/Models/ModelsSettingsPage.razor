@@ -1,0 +1,149 @@
+@using System.Globalization
+@using Kazo.Jarvis.Kernel.Models
+@using Kazo.Jarvis.Kernel.Voice
+@implements IDisposable
+@inject ModelsKeeper Keeper
+@inject IAssistantLanguageReader Language
+@inject IStringLocalizer<ModelsSettingsPage> T
+
+@* Settings page of the models (stage 1 plan, work item 14, ADR 0006, section 7): the graphics card found and what fits
+   it, every model with its size and state, and one button that downloads the selection, checksum checked. Also a step
+   of the first-run wizard. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    @if (advice is null)
+    {
+        <p class="models-card" role="status">@T["LookingForCard"]</p>
+    }
+    else
+    {
+        <p class="models-card" data-graphics-card="@(advice.Card?.Name ?? "none")">@CardText</p>
+        @if (advice.LanguageModel == LanguageModelAdvice.Smaller)
+        {
+            <p class="models-llm-advice" data-llm-advice>@T["SmallerLanguageModel"]</p>
+        }
+
+        @foreach (var group in Enum.GetValues<ModelGroup>())
+        {
+            <SettingsField Label="@T["Group_" + group]" Hint="@T["GroupHint_" + group]">
+                <ul class="models-list">
+                    @foreach (var item in ModelCatalog.All.Where(model => model.Group == group))
+                    {
+                        var status = Keeper.StatusOf(item);
+                        <li class="model-row" data-model-id="@item.Id" data-model-state="@status.State" @key="item.Id">
+                            <label class="model-choice">
+                                @if (group == ModelGroup.Recognition)
+                                {
+                                    <input type="radio" name="whisper-model" data-model-select
+                                           checked="@(whisper == item.Whisper)"
+                                           disabled="@Keeper.IsBusy"
+                                           @onchange="() => whisper = item.Whisper!.Value" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" data-model-select
+                                           checked="@(status.State == ModelState.Installed || selected.Contains(item.Id))"
+                                           disabled="@(Keeper.IsBusy || status.State == ModelState.Installed)"
+                                           @onchange="e => Toggle(item.Id, e.Value is true)" />
+                                }
+                                <span class="model-name">@T["Model_" + item.Id]</span>
+                                @if (item.Whisper is { } model && model == advice.Whisper)
+                                {
+                                    <span class="model-advised">@T["Advised"]</span>
+                                }
+                            </label>
+                            <span class="model-size">@Megabytes(item.Size)</span>
+                            <span class="model-state" data-model-status>@Describe(item, status)</span>
+                            @if (status.State == ModelState.Downloading)
+                            {
+                                <progress class="model-progress" max="@item.Size" value="@status.Received"></progress>
+                            }
+                        </li>
+                    }
+                </ul>
+            </SettingsField>
+        }
+
+        <div class="models-actions">
+            @if (Keeper.IsBusy)
+            {
+                <button type="button" class="models-cancel" data-models-cancel @onclick="Keeper.Cancel">@T["Cancel"]</button>
+            }
+            else
+            {
+                <button type="button" class="models-install" data-models-install @onclick="InstallAsync">
+                    @(ToDownload == 0 ? T["Apply"] : T["Download", Megabytes(ToDownload)])
+                </button>
+            }
+            @if (outcome is { } done)
+            {
+                <p class="models-outcome" role="status" data-models-outcome="@(done ? "Installed" : "Incomplete")">
+                    @(done ? T["AllInstalled", T["Model_" + ModelCatalog.For(whisper).Id]] : T["SomeMissing"])
+                </p>
+            }
+        </div>
+    }
+</SettingsFrame>
+
+@code {
+    private readonly HashSet<string> selected = new(StringComparer.Ordinal);
+    private ModelAdvice? advice;
+    private WhisperModel whisper = WhisperModel.LargeV3Turbo;
+    private bool? outcome;
+
+    /// <summary>Bytes still to download for the selection.</summary>
+    private long ToDownload => Chosen().Where(item => !Keeper.IsInstalled(item)).Sum(item => item.Size);
+
+    private string CardText => advice!.Card is { } card
+        ? T["CardFound", card.Name, (card.MemoryMiB / 1024.0).ToString("0.#", Language.Current.Culture), T["Model_" + ModelCatalog.For(advice.Whisper).Id]]
+        : T["NoCard", T["Model_" + ModelCatalog.For(advice.Whisper).Id]];
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        Keeper.Changed += OnChanged;
+        advice = await Keeper.GetAdviceAsync();
+        whisper = advice.Whisper;
+        selected.UnionWith(ModelsKeeper.Proposed(advice));
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Keeper.Changed -= OnChanged;
+
+    private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    private void Toggle(string id, bool on)
+    {
+        if (on)
+        {
+            selected.Add(id);
+        }
+        else
+        {
+            selected.Remove(id);
+        }
+    }
+
+    private IReadOnlyList<ModelItem> Chosen() =>
+    [
+        .. ModelCatalog.All.Where(item => item.Group != ModelGroup.Recognition && selected.Contains(item.Id)),
+        ModelCatalog.For(whisper),
+    ];
+
+    private async Task InstallAsync()
+    {
+        outcome = null;
+        outcome = await Keeper.InstallAsync(Chosen(), whisper);
+    }
+
+    private string Megabytes(long bytes) =>
+        T["Megabytes", Math.Max(1, (long)Math.Round(bytes / 1_000_000.0)).ToString("N0", Language.Current.Culture)];
+
+    private string Describe(ModelItem item, ModelStatus status) => status.State switch
+    {
+        ModelState.Installed => T["State_Installed"],
+        ModelState.Queued => T["State_Queued"],
+        ModelState.Downloading => T["State_Downloading", (status.Received * 100 / Math.Max(1, item.Size)).ToString(CultureInfo.InvariantCulture)],
+        ModelState.Failed => T["Failure_" + (status.Failure ?? ModelDownloadFailure.Failed)],
+        _ => T["State_Missing"],
+    };
+}

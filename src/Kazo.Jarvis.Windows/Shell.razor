@@ -1,0 +1,8 @@
+@* Root component of the orb window: the orb of the orb slice (stage1/6-orb, stage1/7-orb-high-quality), in
+   the version chosen in the settings (high quality by default). The idle look stays a still image on Windows (ADR 0005, section 6). The window catches the press itself to tell a click
+   from a move, and hands the click to the slice (OrbWindowService). *@
+<LanguageScope>
+    <main id="jarvis-root" data-host="windows">
+        <OrbView AnimateIdle="false" />
+    </main>
+</LanguageScope>

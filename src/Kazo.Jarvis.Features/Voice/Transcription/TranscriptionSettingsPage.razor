@@ -1,0 +1,136 @@
+@using System.Globalization
+@implements IDisposable
+@inject RecognizerKeeper Recognizer
+@inject UtteranceListener Listener
+@inject ISettingsStore Settings
+@inject IStringLocalizer<TranscriptionSettingsPage> T
+
+@* Settings page of the transcription (US1.7): Whisper model and device, end of speech, and the last utterance
+   heard, to check the microphone and the model without the conversation. Each choice applies at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["ModelLabel"]" Hint="@T["ModelHint"]">
+        <select class="transcription-select" data-transcription-model @onchange="ChooseModelAsync">
+            @foreach (var model in Enum.GetValues<WhisperModel>())
+            {
+                <option value="@model" selected="@(model == options.Model)">@T["Model_" + model]</option>
+            }
+        </select>
+        <select class="transcription-select" data-transcription-device @onchange="ChooseDeviceAsync">
+            @foreach (var device in Enum.GetValues<ComputeDevice>())
+            {
+                <option value="@device" selected="@(device == options.Device)">@T["Device_" + device]</option>
+            }
+        </select>
+        <p class="transcription-status" data-transcription-status="@status.State">@StatusText</p>
+    </SettingsField>
+    <SettingsField Label="@T["DetectorLabel"]" Hint="@T["DetectorHint"]">
+        <select class="transcription-select" data-transcription-detector @onchange="ChooseDetectorAsync">
+            @foreach (var detector in Enum.GetValues<EndOfSpeechDetector>())
+            {
+                <option value="@detector" selected="@(detector == options.Detector)">@T["Detector_" + detector]</option>
+            }
+        </select>
+        <label class="transcription-number">
+            <span>@T["SilenceLabel"]</span>
+            <input type="number" data-transcription-silence min="@TranscriptionOptions.MinimumSilence" max="@TranscriptionOptions.MaximumSilence" step="50"
+                   value="@options.SilenceMilliseconds" @onchange="ChooseSilenceAsync" />
+            <span>ms</span>
+        </label>
+        <label class="transcription-number">
+            <span>@T["TimeoutLabel"]</span>
+            <input type="number" data-transcription-timeout min="@TranscriptionOptions.MinimumTimeout" max="@TranscriptionOptions.MaximumTimeout" step="1"
+                   value="@options.NoSpeechTimeoutSeconds" @onchange="ChooseTimeoutAsync" />
+            <span>s</span>
+        </label>
+    </SettingsField>
+    <SettingsField Label="@T["LastHeardLabel"]" Hint="@T["LastHeardHint"]">
+        @if (heard is { } last)
+        {
+            <p class="transcription-heard" data-transcription-heard>@(last.Text.Length > 0 ? last.Text : T["NoWords"])</p>
+            <p class="transcription-measure" data-transcription-measure>@T["Measure", Seconds(last.Speech), Seconds(last.Elapsed), T["Detector_" + last.Detector]]</p>
+        }
+        else
+        {
+            <p class="transcription-measure" data-transcription-heard-none>@T["NothingYet"]</p>
+        }
+    </SettingsField>
+    @if (problem is { } text)
+    {
+        <p class="transcription-problem" role="alert">@text</p>
+    }
+</SettingsFrame>
+
+@code {
+    private TranscriptionOptions options = new();
+    private RecognizerStatus status = null!;
+    private HeardUtterance? heard;
+    private string? problem;
+    private IDisposable? settingsWatch;
+
+    private string StatusText => status.State switch
+    {
+        RecognizerState.Ready => T["Ready", T["Device_" + status.Device]],
+        RecognizerState.Loading => T["Loading"],
+        RecognizerState.Missing => T["Missing", status.ModelPath ?? string.Empty],
+        RecognizerState.Failed => T["Failed", status.Detail ?? string.Empty],
+        _ => T["NotLoaded"],
+    };
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Refresh();
+        Recognizer.StatusChanged += OnChanged;
+        Listener.Heard += OnChanged;
+        settingsWatch = Settings.Watch(TranscriptionOptions.Section, _ => OnChanged());
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Recognizer.StatusChanged -= OnChanged;
+        Listener.Heard -= OnChanged;
+        settingsWatch?.Dispose();
+    }
+
+    private void Refresh()
+    {
+        options = Settings.Read(TranscriptionOptions.Section);
+        status = Recognizer.Status;
+        heard = Listener.LastHeard;
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Refresh();
+        StateHasChanged();
+    });
+
+    private static string Seconds(TimeSpan duration) => duration.TotalSeconds.ToString("0.00", CultureInfo.CurrentCulture);
+
+    private Task ChooseModelAsync(ChangeEventArgs change) =>
+        Enum.TryParse<WhisperModel>(change.Value as string, out var model) ? SaveAsync(options with { Model = model }) : Task.CompletedTask;
+
+    private Task ChooseDeviceAsync(ChangeEventArgs change) =>
+        Enum.TryParse<ComputeDevice>(change.Value as string, out var device) ? SaveAsync(options with { Device = device }) : Task.CompletedTask;
+
+    private Task ChooseDetectorAsync(ChangeEventArgs change) =>
+        Enum.TryParse<EndOfSpeechDetector>(change.Value as string, out var detector) ? SaveAsync(options with { Detector = detector }) : Task.CompletedTask;
+
+    private Task ChooseSilenceAsync(ChangeEventArgs change) =>
+        int.TryParse(change.Value as string, CultureInfo.InvariantCulture, out var value)
+            ? SaveAsync(options with { SilenceMilliseconds = Math.Clamp(value, TranscriptionOptions.MinimumSilence, TranscriptionOptions.MaximumSilence) })
+            : Task.CompletedTask;
+
+    private Task ChooseTimeoutAsync(ChangeEventArgs change) =>
+        int.TryParse(change.Value as string, CultureInfo.InvariantCulture, out var value)
+            ? SaveAsync(options with { NoSpeechTimeoutSeconds = Math.Clamp(value, TranscriptionOptions.MinimumTimeout, TranscriptionOptions.MaximumTimeout) })
+            : Task.CompletedTask;
+
+    private async Task SaveAsync(TranscriptionOptions wanted)
+    {
+        var result = await Settings.WriteAsync(TranscriptionOptions.Section, wanted);
+        problem = result.IsSaved ? null : T["SaveFailed"].Value;
+        Refresh();
+    }
+}

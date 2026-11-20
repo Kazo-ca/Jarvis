@@ -1,0 +1,85 @@
+.models-card,
+.models-llm-advice {
+    margin: 0 0 1rem;
+}
+
+.models-llm-advice {
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--jarvis-cyan);
+}
+
+.models-list {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.model-row {
+    display: grid;
+    grid-template-columns: minmax(14rem, 1fr) 6rem 12rem;
+    gap: 0.4rem 0.8rem;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+}
+
+.model-row[data-model-state="Installed"] {
+    border-color: var(--jarvis-line-strong);
+}
+
+.model-row[data-model-state="Failed"] .model-state {
+    color: var(--jarvis-red);
+}
+
+.model-choice {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.model-choice input {
+    accent-color: var(--jarvis-cyan);
+}
+
+.model-advised {
+    padding: 0 0.4rem;
+    border: 1px solid var(--jarvis-cyan);
+    color: var(--jarvis-cyan);
+    font-size: 0.8em;
+}
+
+.model-size {
+    text-align: right;
+    opacity: 0.8;
+}
+
+.model-progress {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 0.4rem;
+}
+
+.models-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.models-install,
+.models-cancel {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: transparent;
+    color: var(--jarvis-cyan);
+    font: inherit;
+    cursor: pointer;
+}
+
+.models-outcome {
+    margin: 0;
+}

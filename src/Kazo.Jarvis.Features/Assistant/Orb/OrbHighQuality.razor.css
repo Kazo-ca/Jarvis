@@ -1,0 +1,136 @@
+/*
+  The high-quality orb (UI catalog, section 2; ADR 0011). Layers, back to front: a still halo (CSS gradient),
+  the sphere canvas (plasma and binary clouds, drawn by OrbHighQuality.razor.js at 30 images per second at
+  most), the four tilted gyroscope rings in CSS 3D, the inner crown facing the screen, and the sighting
+  brackets. Rings turn as compositor animations; the canvas is the only thing drawn by script. Color and
+  light come from the enclosing .orb (Orb.razor.css).
+*/
+
+.hq {
+    position: absolute;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+    color: var(--orb-color);
+    container-type: size;
+}
+
+.hq-halo {
+    position: absolute;
+    inset: 11%;
+    display: block;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--orb-color) 22%, transparent) 0, transparent 65%);
+    opacity: calc(0.5 + 0.5 * var(--orb-light));
+}
+
+/* The error flash on entry (ADR 0011, section 3): once, then still. It is light, not motion. */
+.orb[data-look="Error"] .hq-halo {
+    animation: hq-flash 0.6s ease-out 1;
+}
+
+@keyframes hq-flash {
+    0% {
+        opacity: 0.3;
+    }
+
+    25% {
+        opacity: 1;
+        filter: brightness(2);
+    }
+
+    100% {
+        opacity: calc(0.5 + 0.5 * var(--orb-light));
+    }
+}
+
+/* The canvas covers the sphere only (radius 15 % of the orb, plus its rim): few pixels to draw. */
+.hq-sphere {
+    position: absolute;
+    inset: 33.5%;
+    display: block;
+    width: 33%;
+    height: 33%;
+}
+
+/* Perspective of the prototype: 1100 px for a 760 px stage. */
+.hq-scene {
+    position: absolute;
+    inset: 0;
+    display: block;
+    perspective: 145cqmin;
+    pointer-events: none;
+}
+
+.hq-world,
+.hq-wobble {
+    position: absolute;
+    inset: 0;
+    display: block;
+    transform-style: preserve-3d;
+}
+
+/* Starting pose of the gyroscope; the script turns it as a compositor animation. */
+.hq-wobble {
+    transform: rotateX(-0.3rad);
+}
+
+.hq-ring {
+    position: absolute;
+    display: block;
+    transform-style: preserve-3d;
+    opacity: calc(0.55 + 0.45 * var(--orb-light));
+    pointer-events: none;
+}
+
+.hq-spin {
+    position: absolute;
+    inset: 0;
+    display: block;
+    will-change: transform;
+}
+
+.hq-spin svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* Size (side of the orb) and tilt of each ring (UI catalog, section 2). */
+.hq-ring-scale {
+    inset: 2%;
+    transform: rotateX(68deg);
+}
+
+.hq-ring-arcs {
+    inset: 9%;
+    transform: rotateX(62deg) rotateY(24deg);
+}
+
+.hq-ring-dash {
+    inset: 15%;
+    transform: rotateY(68deg) rotateX(10deg);
+}
+
+.hq-ring-band {
+    inset: 21%;
+    transform: rotateX(-48deg) rotateY(-32deg);
+}
+
+.hq-ring-inner {
+    inset: 32%;
+}
+
+.hq-scale-label {
+    font: 500 26px var(--jarvis-font-mono);
+}
+
+.hq-brackets {
+    position: absolute;
+    inset: 38%;
+    display: block;
+    width: 24%;
+    height: 24%;
+    pointer-events: none;
+}

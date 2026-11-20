@@ -5,7 +5,7 @@
 
 ## Purpose and scope
 
-Kazo.Jarvis is a voice assistant for Windows, written in C# on .NET 10, that runs without Python. It takes the form of an animated orb inspired by the film, answers first with a local model, and hands over to Claude when the task is beyond it. An Android app and a 3CX phone extension let you talk to it away from the PC.
+Kazo.Jarvis is a voice assistant for Windows, written in C# on .NET 10, that runs without Python. It takes the form of an animated orb inspired by the film, answers first with a local model, and hands over to Claude when the task is beyond it. An Android app lets you talk to it, write to it and call it away from the PC.
 
 The functional reference is OpenJarvis. We take over its useful core and add the wake word, which it lacks.
 
@@ -15,7 +15,7 @@ The functional reference is OpenJarvis. We take over its useful core and add the
 | LLM engines: Ollama, llama.cpp, cloud APIs | Animated orb with seven states | Benchmarks and evaluations |
 | Tools: files, web, calculation, MCP client | Claude session tracking | Learning and optimization |
 | Conversation memory | Satellite mobile app | Mining |
-| Task scheduler | 3CX telephony | Languages other than French and English (v2) |
+| Task scheduler | Voice calls in the Android app | Languages other than French and English (v2) |
 | Gmail and Calendar connectors, morning summary | Event, webhook and script triggers | Microsoft connector (interface ready, not delivered) |
 | Claude Code agent | Cloud spending cap | iOS |
 
@@ -34,9 +34,9 @@ Benoit answered 40 questions on November 18, 2026. The numbers refer to the ques
 | 5 | Orb states | Seven states (see the section on the orb) |
 | 6 | Animation | Canvas or WebGL in the shared Razor library, reactive to volume |
 | 7, 8 | Mobile | Voice satellite with text mode and notifications, MAUI Blazor Hybrid, Android first, local network and VPN |
-| 9, 10 | Telephony | Free 3CX to install, Jarvis registers with it as a SIP extension |
+| 9, 10 | Telephony | 3CX dropped: calls go through the Android app, both ways |
 | 11 | Outgoing calls | Only for a task blocked on a decision or an urgent alert, with quiet hours |
-| 12 | Callers | Internal extensions and allowed numbers, voice PIN for sensitive actions |
+| 12 | Callers | Paired phones only, PIN or fingerprint for sensitive actions |
 | 13 | Blocks taken over | Voice, engines, tools, memory, scheduler, Gmail, Calendar, morning summary |
 | 14 | Home Assistant | Through the generic MCP client |
 | 15 | Triggering | Wake word, global keyboard shortcut, click on the orb |
@@ -56,7 +56,7 @@ Benoit answered 40 questions on November 18, 2026. The numbers refer to the ques
 | 32 | Personality | The film's butler: polite, concise, dry humor, formal address and "Sir" (in French, "vouvoiement" and "Monsieur"), editable text |
 | 33 | Delivery order | Five stages (see below) |
 | 35 | Plan format | This document, in the style of Kazo Bar's `doc/Features.md` |
-| 36 | Architecture | Kazo Bar's hosts, code in vertical slices, small shared kernel |
+| 36 | Architecture | Same kinds of hosts as Kazo Bar, code copied when needed but never referenced ([ADR 0014](../adr/0014-license-kazo-bar-rule-and-jarvis-py.md)), code in vertical slices, small shared kernel |
 | 37 | Method | Kazo Os's, in full, docs in French then in English |
 | 38 | Webhook | Incoming, protected by a token, local network and VPN |
 | 39 | Scripts | Trigger or action, in PowerShell, Python or cmd |
@@ -64,13 +64,13 @@ Benoit answered 40 questions on November 18, 2026. The numbers refer to the ques
 
 ## Architecture
 
-From Kazo Bar we keep the hosts and the native services behind interfaces. Everything else is organized by feature, following the vertical slice architecture (VSA).
+Kazo.Jarvis does not reference Kazo Bar: no link to its projects or its packages. We do as it does, with the same kinds of hosts and the native services behind interfaces, and we may copy its code into this repository where it fits. Copied code becomes Kazo.Jarvis code and evolves separately ([ADR 0014](../adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). Everything else is organized by feature, following the vertical slice architecture (VSA).
 
 *(architecture diagram: see the original document)*
 
 The hosts contain only startup and platform-specific code. The phone displays the same slices as the PC, but its requests travel to the server built into the Windows host, where all the processing happens.
 
-| Project | Contents | Taken from Kazo Bar |
+| Project | Contents | Model in Kazo Bar (copying allowed, no reference) |
 | --- | --- | --- |
 | `Kazo.Jarvis.Kernel` | Assistant state machine, messages between slices, native service contracts, configuration, storage, vault | `Core`, reduced to the strict common part |
 | `Kazo.Jarvis.Features` | Razor library that holds all the slices | Replaces `UI`, `Plugins` and the logic of `Infrastructure` |
@@ -150,7 +150,7 @@ At the end of this stage, you say "hey jarvis" in front of the PC, ask a questio
 | US1.15 | to adjust the personality | The default system message is the butler, in French and English. It is editable and can be reset. |
 | US1.16 | my keys to be protected | API keys go in the Windows Credential Manager or an encrypted file, never in the configuration file. |
 | US1.17 | to understand a failure | The "error" state names the cause (microphone missing, model unreachable, voice missing) and suggests the corrective action. |
-| US1.18 | to receive updates | Same mechanism as Kazo Bar: GitHub version check and separate update program. |
+| US1.18 | to receive updates | Kazo.Jarvis's own mechanism, modeled on Kazo Bar's: GitHub version check and separate update program. |
 
 Out of scope for this stage: tools, MCP, Claude, mobile, telephony.
 
@@ -225,42 +225,41 @@ At the end of this stage, the phone is a satellite of the PC installation: you s
 
 The full settings stay on the PC. The phone only adjusts what concerns it: server, microphone, always-on listening, notifications.
 
-## Stage 5: 3CX telephony
+## Stage 5: calls between Jarvis and the Android app
 
-> **Dropped on November 18, 2026** by Benoit: no 3CX, Jarvis is reached only through the MAUI Blazor Hybrid app. The text below is kept for the record; spike E1 is no longer needed.
+> **Rewritten on November 19, 2026** at Benoit's request. 3CX telephony has been dropped since November 18, 2026 and spike E1 is no longer needed. The Android app plays the role of the phone, with the same controls as those planned for 3CX.
 
-At the end of this stage, you dial an extension number to converse with Jarvis, and Jarvis calls when an autonomous task needs a decision.
+At the end of this stage, you call Jarvis from the Android app to talk, and Jarvis calls the app when an autonomous task needs a decision.
 
-This stage depends on technical spike E1. The free edition of 3CX announced on January 8, 2026 is self-hosted and limited to 4 simultaneous calls, which is enough. It is presented for 3CX's own apps, and nothing official confirms that a generic SIP client can register with it ([](https://www.3cx.com/blog/news/free-edition/)).
+A call goes through the same connection as the rest of the app, on the local network or the VPN. So there is no phone number, no phone system and no external service. In return, Jarvis cannot call a phone that cannot reach the PC.
 
 | Story | As a user, I want | Acceptance criterion |
 | --- | --- | --- |
-| US5.1 | to register Jarvis as an extension | Server, extension number and password in the settings. The registration status is visible. |
-| US5.2 | to call Jarvis | It picks up, greets, and the conversation goes as in front of the PC, without a wake word. |
-| US5.3 | a smooth conversation on the phone | End-of-sentence detection adapted to telephone audio. A keypad key cuts Jarvis's speech. |
-| US5.4 | to limit who can call | Only internal extensions and allowed numbers are accepted. Other calls are refused and logged. |
-| US5.5 | to protect sensitive actions | A PIN, spoken or typed on the keypad, is requested before security home automation, writes and code execution. Three failures end the call. |
-| US5.6 | Jarvis to call me | Only for a task blocked on a decision or an urgent-level alert. It calls the configured extension or number, explains the situation and waits for the answer. |
-| US5.7 | quiet hours | No calls during the set time range, except urgent level. The request becomes a notification. |
-| US5.8 | a fallback if I do not answer | Adjustable number of attempts, then notification. The task stays on hold. |
-| US5.9 | to see the call on the orb | The orb on the PC and on the phone shows that a call is in progress. The transcription is added to the conversation. |
-| US5.10 | to consult the call log | Date, direction, caller, duration, actions requested. |
+| US5.1 | to call Jarvis | A call button in the app opens a continuous conversation, with no wake word and no press for each sentence. It picks up and greets. |
+| US5.2 | a smooth conversation on the phone | End of sentence detected by silence, short response delay, a button to cut Jarvis's speech. Earpiece, speaker and Bluetooth, screen off possible. |
+| US5.3 | Jarvis to call me | The phone rings as for an incoming call, full screen even when locked, with Accept and Decline. Only for a task blocked on a decision or an urgent-level alert. Jarvis explains the situation and waits for the answer. |
+| US5.4 | quiet hours | No call during the set range, except urgent level. The request becomes a notification. |
+| US5.5 | a fallback if I do not answer | Adjustable number of attempts and delay, then a notification. Same fallback if the phone is unreachable. The task stays pending. |
+| US5.6 | to protect sensitive actions | During a call, a PIN or the phone's fingerprint is required before security home automation, writes and code execution. Three failures end the call. |
+| US5.7 | to see the call on the orb | The orb on the PC and the one on the phone show that a call is in progress. The transcript is added to the conversation. |
+| US5.8 | to consult the call log | Date, direction, device, duration, outcome (answered, missed, declined) and actions requested, on the PC and in the app. |
+| US5.9 | only my devices to be able to call | Only paired phones (US4.2) can call Jarvis or be called. |
 
-If spike E1 fails, the fallback is a SIP bridge or another phone system. The choice will be made at that point.
+This stage depends on technical spike E10: ringing a locked phone without an external notification service is the most uncertain point. Its ADRs are written at the start of its series, and will have to say how protecting sensitive actions during a call fits with [ADR 0009](../adr/0009-permission-and-confirmation-model.md).
 
 ## Security and privacy
 
 Jarvis listens all the time, controls the home and can run code. These nine rules apply to all stages.
 
-1. **** The wake word, recognition and synthesis run on the PC. Audio leaves the machine only if a cloud voice or model is explicitly chosen.
-2. **** The listening buffer stays in memory and is never written to disk.
-3. **** API keys, OAuth tokens, the SIP password and device tokens go in the vault, as in Kazo Bar.
-4. **** An email, a webhook body, a web page or a script's output cannot give instructions to Jarvis. This is the main defense against prompt injection.
-5. **** Writing files, commands, generated scripts and security home automation require approval, and an autonomous task cannot grant it to itself.
-6. **** Claude Code and the file tools see only the folders on the list.
-7. **** The server for mobile and webhooks listens only if enabled, on the local network and the VPN, with one token per device or per webhook.
-8. **** The monthly cap blocks the cloud once reached.
-9. **** Tool calls, handoffs, autonomous runs and phone calls can be viewed and erased.
+1. **Local by default.** The wake word, recognition and synthesis run on the PC. Audio leaves the machine only if a cloud voice or model is explicitly chosen.
+2. **Nothing is recorded before the wake word.** The listening buffer stays in memory and is never written to disk.
+3. **Secrets kept out of the configuration.** API keys, OAuth tokens and device tokens go in the vault, as in Kazo Bar.
+4. **External content is data, not an order.** An email, a webhook body, a web page or a script's output cannot give instructions to Jarvis. This is the main defense against prompt injection.
+5. **Confirmation before what cannot be undone.** Writing files, commands, generated scripts and security home automation require approval, and an autonomous task cannot grant it to itself.
+6. **Allowed folders.** Claude Code and the file tools see only the folders on the list.
+7. **Network closed by default.** The server for mobile and webhooks listens only if enabled, on the local network and the VPN, with one token per device or per webhook.
+8. **Capped spending.** The monthly cap blocks the cloud once reached.
+9. **Everything is logged.** Tool calls, handoffs, autonomous runs and calls can be viewed and erased.
 
 A voice confirmation can be picked up by mistake or spoken by someone else. The riskiest actions therefore require a click on the orb, the paired phone or the PIN.
 
@@ -270,7 +269,7 @@ Ten points rest on assumptions I could not verify. Each is settled by a small th
 
 | Spike | Blocks | What it must prove |
 | --- | --- | --- |
-| E1 | Stage 5 | A C# SIP client (SIPSorcery) registers as an extension on the free 3CX, receives a call, places one and exchanges audio in both directions. |
+| E1 | Stage 5 | Dropped with 3CX telephony. |
 | E2 | Stage 2 | The PC's Claude Code sessions can be listed and their state (running, waiting for permission, finished) known from their files and from hooks, without disturbing them. |
 | E3 | US2.14 | Claude Desktop's code sessions are readable the same way. Otherwise, we limit ourselves to "busy or waiting". |
 | E4 | Stage 1 | The voice chain holds up in C#: "hey jarvis" ONNX model, Whisper.net, Kokoro and Piper. Measure the delay between the end of the sentence and the first sound, with a target under 2 seconds. |
@@ -279,9 +278,9 @@ Ten points rest on assumptions I could not verify. Each is settled by a small th
 | E7 | Stage 2 | The local model (qwen2.5-coder 14B) calls tools reliably in French, including "hand over". Otherwise, choose another default local model. |
 | E8 | Stage 2 | The best way to drive Claude Code from C#: command line in non-interactive mode, or a bridge to the Claude Agent SDK as OpenJarvis does. |
 | E9 | US3.3 | Home Assistant events arrive through MCP. Otherwise, go through its events API for triggers only. |
-| E10 | Stage 4 | Audio transport between phone and PC (WebRTC or WebSocket) and battery cost of always-on listening on Android. |
+| E10 | Stage 4 | Audio transport between phone and PC (WebRTC or WebSocket), battery cost of always-on listening, and an incoming call from Jarvis that rings the locked phone through the kept-alive connection alone. Also blocks stage 5. |
 
-E4, E5 and E6 go first, because stage 1 depends on them. E1 can be done early in parallel: if it fails, better to know before installing 3CX for good.
+E4, E5 and E6 go first, because stage 1 depends on them. E10 is done before stage 4.
 
 ## Working method and first ADRs
 
@@ -321,11 +320,11 @@ I made nine detail decisions without asking you. Check the ones you agree with, 
 - [x] One user per installation. No accounts and no recognition of each person's voice.
 - [x] Conversation history and memory are stored locally in `%USERPROFILE%\.kazo\jarvis`, with no time limit, with a button to erase everything. (Location corrected by Benoit on November 19, 2026: the user's folder, not `%APPDATA%`. See [ADR 0004](../adr/0004-configuration-storage-and-secret-vault.md).)
 - [x] Jarvis starts with Windows by default, and the option can be turned off in the settings.
-- [ ] There is no Jarvis module in Kazo Bar for now (you chose 4A, not 4C).
-- [ ] Gmail and Calendar are read-only in the first version. Sending an email or creating an event will come later.
-- [ ] The phone does not change the PC's settings. It only changes its own.
-- [x] The repository is public and under the same license as Kazo Bar.
-- [ ] `jarvis.py` keeps running as is until the end of stage 2, then Kazo.Jarvis replaces it.
+- [x] Kazo.Jarvis does not reference Kazo Bar and adds no module to it. Its code may be copied into the Jarvis repository ([ADR 0014](../adr/0014-license-kazo-bar-rule-and-jarvis-py.md)).
+- [x] Gmail and Calendar are read-only in the first version. Sending an email or creating an event will come later.
+- [x] The phone does not change the PC's settings. It only changes its own.
+- [x] The repository is public and under the same license as OpenJarvis, Apache 2.0 ([ADR 0014](../adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). Corrected by Benoit on November 19, 2026.
+- [x] `jarvis.py` is replaced by Kazo.Jarvis and is no longer used ([ADR 0014](../adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). Corrected by Benoit on November 19, 2026.
 - [x] The wake word stays "hey jarvis" in both languages. A custom wake word would require training a model and waits for v2.
 
 Next action: create the `Kazo-ca/jarvis` repository, put this plan in it along with `AGENTS.md`, then launch spikes E4, E5 and E6.

@@ -1,0 +1,31 @@
+.dialog-layer {
+    /* Below the host controls, which stay usable: the Web host is a test bench, not a modal UI. */
+    position: fixed;
+    inset: 260px 15% 5% 15%;
+    padding: 16px 20px;
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    border: 1px solid var(--jarvis-line-strong);
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+    overflow: auto;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+h2 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.dialog-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.4rem;
+    cursor: pointer;
+}

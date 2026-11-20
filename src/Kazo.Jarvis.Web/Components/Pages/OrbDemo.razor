@@ -1,0 +1,90 @@
+@page "/orb"
+@rendermode InteractiveServer
+
+@* Orb demonstration page (US1.3; ADR 0005, section 5; ADR 0011): drives the orb component directly by its
+   inputs, with no microphone and no model. Both versions (high quality and light), the seven looks, simulated tasks and decisions, the fault on hover,
+   reduced motion, and the animated idle look offered for trying only (forbidden on Windows). *@
+<PageTitle>Orb demonstration</PageTitle>
+
+<main id="orb-demo" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
+    <header>
+        <h1>Orb</h1>
+        <p>Both versions (UI catalog, sections 2 and 3). Each look button sets the look as the state machine would.</p>
+        <a href="">Back to the host page</a>
+    </header>
+
+    <div class="demo-stage">
+        <Orb @ref="orb"
+             Look="@look"
+             Quality="@quality"
+             DelegatedTasks="@tasks"
+             Progress="@(progressKnown ? progress : null)"
+             PendingDecisions="@decisions"
+             Fault="@SelectedFault"
+             ReducedMotion="@reduced"
+             AnimateIdle="@animateIdle"
+             OnActivate="OnActivate" />
+    </div>
+
+    <div class="demo-looks" role="group" aria-label="Version">
+        @foreach (var each in Enum.GetValues<OrbQuality>())
+        {
+            <button type="button" id="quality-@each" aria-pressed="@(each == quality ? "true" : "false")" @onclick="() => quality = each">@each</button>
+        }
+    </div>
+
+    <div class="demo-looks" role="group" aria-label="Look">
+        @foreach (var each in Enum.GetValues<AssistantLook>())
+        {
+            <button type="button" id="look-@each" aria-pressed="@(each == look ? "true" : "false")" @onclick="() => look = each">@each</button>
+        }
+    </div>
+
+    <div class="demo-options">
+        <label>Delegated tasks <input id="demo-tasks" type="number" min="0" max="9" @bind="tasks" @bind:event="oninput" /></label>
+        <label><input id="demo-progress-known" type="checkbox" @bind="progressKnown" /> Known progress</label>
+        <label>Progress <input id="demo-progress" type="range" min="0" max="1" step="0.05" @bind="progress" @bind:event="oninput" disabled="@(!progressKnown)" /></label>
+        <label>Pending decisions <input id="demo-decisions" type="number" min="0" max="120" @bind="decisions" @bind:event="oninput" /></label>
+        <label>
+            Fault
+            <select id="demo-fault" @bind="faultName">
+                <option value="">none</option>
+                @foreach (var cause in Enum.GetValues<FaultCause>())
+                {
+                    <option value="@cause">@cause</option>
+                }
+            </select>
+        </label>
+        <label>Sound level <input id="demo-level" type="range" min="0" max="1" step="0.05" value="0" @oninput="SetLevelAsync" /></label>
+        <label><input id="demo-reduced" type="checkbox" @bind="reduced" /> Reduced motion</label>
+        <label><input id="demo-animate-idle" type="checkbox" @bind="animateIdle" /> Animate the idle look (try only, not allowed on Windows)</label>
+    </div>
+
+    <output id="demo-clicks" data-count="@clicks">Clicks on the orb: @clicks</output>
+</main>
+
+@code {
+    private Orb? orb;
+    private AssistantLook look = AssistantLook.Listening;
+    private OrbQuality quality = OrbQuality.High;
+    private int tasks;
+    private bool progressKnown = true;
+    private double progress = 0.4;
+    private int decisions;
+    private string faultName = "";
+    private bool reduced;
+    private bool animateIdle;
+    private int clicks;
+
+    private FaultCause? SelectedFault => Enum.TryParse<FaultCause>(faultName, out var cause) ? cause : null;
+
+    private void OnActivate() => clicks++;
+
+    private async Task SetLevelAsync(ChangeEventArgs e)
+    {
+        if (orb is not null && float.TryParse(e.Value?.ToString(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var level))
+        {
+            await orb.SetLevelAsync(level);
+        }
+    }
+}

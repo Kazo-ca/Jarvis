@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Unit tests (ADR 0001): one folder per slice, same path as in Kazo.Jarvis.Features, with
+    simulated contracts. Architecture/ holds the dependency rule tests of ADR 0002, section 7.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- Test resources follow the rule of the product: English neutral, French satellite (ADR 0008). -->
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <!--
+    Kazo.Jarvis.Updater targets net10.0-windows and references no project (ADR 0001): its plain .NET code
+    (Installing/) is compiled here as well, so that it is tested on Linux.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Kazo.Jarvis.Updater\Installing\*.cs" LinkBase="Updater\Installing" />
+  </ItemGroup>
+
+  <!--
+    Same for the plain .NET audio conversions of the Windows host (no NAudio type): the WASAPI code around
+    them needs Windows, the arithmetic does not.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Kazo.Jarvis.Windows\Audio\CaptureConverter.cs" LinkBase="Windows\Audio" />
+    <Compile Include="..\..\src\Kazo.Jarvis.Windows\Audio\PlaybackConverter.cs" LinkBase="Windows\Audio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
+    <ProjectReference Include="..\..\src\Kazo.Jarvis.Features\Kazo.Jarvis.Features.csproj" />
+    <ProjectReference Include="..\..\src\Kazo.Jarvis.Adapters\Kazo.Jarvis.Adapters.csproj" />
+  </ItemGroup>
+
+</Project>

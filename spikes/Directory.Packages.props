@@ -1,0 +1,6 @@
+<Project>
+  <!-- Spikes are throwaway and keep their own package versions (ADR 0001, section 4). -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,49 @@
+.personality {
+    display: flex;
+    width: min(44rem, 100%);
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.personality-text {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 44rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.personality-actions {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.personality-button {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: transparent;
+    color: var(--jarvis-cyan);
+    font: inherit;
+    cursor: pointer;
+}
+
+.personality-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.personality-rules {
+    margin: 0;
+    max-width: 44rem;
+    color: var(--jarvis-text-muted);
+}
+
+.personality-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

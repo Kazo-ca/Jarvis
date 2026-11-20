@@ -1,0 +1,31 @@
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding-top: 48px;
+    color: #d8f6ff;
+    font-family: system-ui, sans-serif;
+}
+
+/* Same size as the orb window of the Windows host (160 device-independent pixels). */
+.orb-frame {
+    width: 160px;
+    height: 160px;
+}
+
+.orb-frame[hidden] {
+    display: none;
+}
+
+.host-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.host-controls a {
+    align-self: center;
+    color: var(--jarvis-cyan);
+}

@@ -130,6 +130,9 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
   le micro (inactif jusqu'au chantier 8), Quitter.
 - Raccourci global (US1.6) : contrat, réglage du raccourci, événement d'activation vers la machine à états.
 - Démarrage avec Windows : activé par défaut, réglage pour le couper (hypothèse n° 3).
+- Hôte générique .NET (ADR 0013, section 4) : l'hôte Windows est bâti sur `Host.CreateApplicationBuilder` ;
+  ses services de fond démarrent après l'affichage de l'orbe, par `StartAsync` sans bloquer le fil
+  d'interface, et s'arrêtent à « Quitter » par `StopAsync` en 10 secondes au plus.
 - Hôte Web : services simulés, dialogues par-dessus la page, bouton qui simule le raccourci.
 - **Vérifications sur Windows :** les clics autour de l'orbe atteignent l'application dessous ; le raccourci
   marche quand une autre application a le focus ; un second lancement montre l'orbe déjà ouvert ; la position
@@ -267,8 +270,8 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
 
 ### 16. Mises à jour (`stage1/16-updates`)
 
-- Tranche `Updates` (US1.18) : comparaison de la version avec les versions publiées sur GitHub (jeton dans le
-  coffre tant que le dépôt est privé), téléchargement, lancement du programme de mise à jour.
+- Tranche `Updates` (US1.18) : comparaison de la version avec les versions publiées sur GitHub (le dépôt est
+  public depuis le 19 novembre 2026 : aucun jeton n'est nécessaire), téléchargement, lancement du programme de mise à jour.
 - Projet `Kazo.Jarvis.Updater` : remplace les fichiers et relance l'application, comme Kazo Bar.
 - Script de publication dans `build/` : autonome, `win-x64`, l'application et le programme de mise à jour
   dans le même dossier (ADR 0001).
@@ -278,7 +281,9 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
 
 - Sur le PC de Benoit, le but de l'étape en français puis en anglais : « hey jarvis », une question, la
   réponse à voix haute.
-- Vérifier qu'aucune connexion ne sort de la machine avec la configuration par défaut.
+- Vérifier qu'aucune connexion ne sort de la machine avec la configuration par défaut, sauf la vérification
+  automatique des mises à jour (lecture des versions sur GitHub, choix de Benoit le 20 novembre 2026, voir
+  [updates.md](../updates.md)).
 - Tableau des mesures finales dans la mémoire du projet : délai, processeur en veille et en phase animée
   pour les deux orbes, mémoire graphique, seuil du mot d'éveil.
 - `features.md` passe l'étape 1 dans « Disponibles », la mémoire du projet dit que la série est finie.

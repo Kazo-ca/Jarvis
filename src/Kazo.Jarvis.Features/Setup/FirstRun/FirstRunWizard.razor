@@ -1,0 +1,94 @@
+@using Kazo.Jarvis.Kernel.Desktop
+@inject IEnumerable<SettingsPage> Pages
+@inject IStringLocalizerFactory Localizers
+@inject FirstRunWizardState State
+@inject ISettingsStore Settings
+@inject IDialogService Dialogs
+@inject IStringLocalizer<FirstRunWizard> T
+
+@* The first-run wizard (US1.4, stage 1 plan, work item 14): the settings pages of the language, the audio devices,
+   the models and the language model, one per step, then a closing screen. Each page saves its own choices, so the
+   wizard only moves between them and remembers when it is finished. *@
+<div class="first-run" data-first-run data-step="@(Done ? "done" : Current!.Key)">
+    <header class="first-run-header">
+        <p class="first-run-progress" data-first-run-progress>@T["StepOf", Math.Min(State.Step + 1, steps.Length + 1), steps.Length + 1]</p>
+        <ol class="first-run-steps">
+            @for (var index = 0; index <= steps.Length; index++)
+            {
+                var position = index;
+                <li class="first-run-step" aria-current="@(position == State.Step ? "step" : null)" data-passed="@(position < State.Step ? "true" : null)">
+                    @(position < steps.Length ? TitleOf(steps[position]) : T["DoneTitle"])
+                </li>
+            }
+        </ol>
+    </header>
+
+    <div class="first-run-body">
+        @if (State.Step == 0)
+        {
+            <p class="first-run-welcome" data-first-run-welcome>@T["Welcome"]</p>
+        }
+
+        @if (Current is { } page)
+        {
+            <DynamicComponent Type="page.Component" @key="page.Key" />
+        }
+        else
+        {
+            <section class="first-run-done" data-first-run-done>
+                <h2 class="first-run-done-title">@T["DoneTitle"]</h2>
+                <p>@T["DoneText"]</p>
+                <p>@T["DoneLater"]</p>
+                @if (problem)
+                {
+                    <p class="first-run-problem" role="alert">@T["SaveFailed"]</p>
+                }
+            </section>
+        }
+    </div>
+
+    <footer class="first-run-footer">
+        <button type="button" class="first-run-back" data-first-run-back disabled="@(State.Step == 0)" @onclick="Back">@T["Back"]</button>
+        @if (Done)
+        {
+            <button type="button" class="first-run-next" data-first-run-finish @onclick="FinishAsync">@T["Finish"]</button>
+        }
+        else
+        {
+            <button type="button" class="first-run-next" data-first-run-next @onclick="Next">@T["Next"]</button>
+        }
+    </footer>
+</div>
+
+@code {
+    private SettingsPage[] steps = [];
+    private bool problem;
+
+    private bool Done => State.Step >= steps.Length;
+
+    private SettingsPage? Current => Done ? null : steps[State.Step];
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        var byKey = Pages.GroupBy(page => page.Key, StringComparer.Ordinal).ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        steps = [.. FirstRunSlice.StepKeys.Where(byKey.ContainsKey).Select(key => byKey[key])];
+        State.Step = Math.Clamp(State.Step, 0, steps.Length);
+    }
+
+    private string TitleOf(SettingsPage page) => Localizers.Create(page.TitleResource)[page.TitleKey];
+
+    private void Back() => State.Step = Math.Max(0, State.Step - 1);
+
+    private void Next() => State.Step = Math.Min(steps.Length, State.Step + 1);
+
+    private async Task FinishAsync()
+    {
+        var result = await Settings.WriteAsync(FirstRunOptions.Section, new FirstRunOptions { Pending = false });
+        problem = !result.IsSaved;
+        if (!problem)
+        {
+            Dialogs.Close(FirstRunLauncher.DialogKey);
+        }
+    }
+}
