@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using Kazo.Jarvis.Adapters.Logging;
+using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Windows.Desktop;
 using Kazo.Jarvis.Windows.Dialogs;
 using Kazo.Jarvis.Windows.Orb;
@@ -55,6 +56,9 @@ internal sealed partial class JarvisApp : Application
         dialogs = host.Services.GetRequiredService<WindowDialogService>();
         tray = host.Services.GetRequiredService<TrayIcon>();
         log = host.Services.GetRequiredService<FileLoggerProvider>();
+
+        // From here on the host texts follow the assistant language, then its changes (HostLanguage).
+        HostTexts.Culture = host.Services.GetRequiredService<IAssistantLanguageReader>().Current.Culture;
 
         // The orb may be hidden or closed (locked session): only Quit ends the application.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;

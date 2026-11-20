@@ -20,8 +20,10 @@ so that typing in another application never triggers it by accident.
 The tray icon has no contract: no slice needs one (ADR 0003, section 5, "a contract is added when a slice
 needs it"). Its menu publishes `SettingsWindowRequested` and `ConversationWindowRequested`
 (`Kernel.Messages.Desktop`), and "Updates…" publishes `UpdatesWindowRequested` ([updates.md](updates.md));
-an entry stays greyed out while no slice handles its event. "Mute the
-microphone" stays greyed out until work item 8.
+an entry stays greyed out while no slice handles its event. "Settings" is enabled since work item 5 (slice
+`Settings/Window`, see [shared UI](shared-ui.md)); "Conversation" waits for work item 13, "Mute the
+microphone" for work item 8. The menu texts follow the assistant language: they are read again each time the
+menu opens.
 
 ## Slices
 
@@ -116,3 +118,6 @@ What the Web host does not prove (stage 1 plan, work item 4):
 5. Cost of the still window (method of spike E6).
 6. Started on a locked session, the host waits and opens the orb at the unlock.
 7. Quit ends the process in under 10 seconds.
+8. Work item 5: with the settings window open, choosing the other language reloads its texts without a
+   restart (page title, tab, help), and the tray menu is translated the next time it opens. The fonts
+   (Rajdhani for titles) show without an Internet connection.

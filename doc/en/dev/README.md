@@ -9,6 +9,7 @@
 | [kernel.md](kernel.md) | The kernel: message bus, state machine, sound level |
 | [storage.md](storage.md) | Settings (`config.json`), SQLite database, secret vault |
 | [hosts.md](hosts.md) | Windows and Web hosts: start-up, orb, tray icon, hotkey, dialogs |
+| [shared-ui.md](shared-ui.md) | Shared style, fonts, translations, language setting, settings window, secret field |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |
 | [spikes.md](spikes.md) | Summary of the technical spikes |

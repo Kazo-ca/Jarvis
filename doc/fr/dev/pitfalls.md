@@ -108,3 +108,14 @@ Sur le PC de Benoit (écrans à 150 % et à 100 %), la position de l'orbe enregi
 `Left`/`Top` avec l'échelle de l'écran principal, pas de celui de destination. Enregistrer la position en
 pixels physiques (`GetWindowRect`) et la rendre par `SetWindowPos` dans `SourceInitialized`, avant l'affichage :
 Windows envoie alors le changement d'échelle et WPF redimensionne la fenêtre.
+
+## `@page.Key` dans un fichier Razor est pris pour la directive `@page` (chantier stage1/5-shared-ui-language)
+
+Une variable de boucle nommée `page` donne `@page.Key` dans le balisage, que Razor lit comme la directive
+`@page` mal placée (erreurs RZ2005 et RZ9979). Nommer la variable autrement (`item`).
+
+## Lancer l'hôte Web à la main sans profil : environnement `Development` obligatoire (chantier stage1/5-shared-ui-language)
+
+`dotnet run --no-launch-profile` démarre en `Production`, où `MapStaticAssets` cherche les fichiers publiés
+(`blazor.web.js`, `_content/...`) dans `wwwroot` et ne les trouve pas : la page reste sans interactivité.
+Ajouter `ASPNETCORE_ENVIRONMENT=Development` et lancer depuis le dossier du projet (racine du contenu).

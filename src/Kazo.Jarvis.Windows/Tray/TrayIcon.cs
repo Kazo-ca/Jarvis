@@ -121,6 +121,12 @@ internal sealed partial class TrayIcon : IDisposable
         menu.Items.AddRange([settingsItem, conversationItem, muteItem, updatesItem, new ToolStripSeparator(), quitItem]);
         menu.Opening += (_, _) =>
         {
+            // Read the texts again: the assistant language may have changed since the last opening (ADR 0008).
+            settingsItem.Text = HostTexts.Settings;
+            conversationItem.Text = HostTexts.Conversation;
+            muteItem.Text = HostTexts.MuteMicrophone;
+            updatesItem.Text = HostTexts.Updates;
+            quitItem.Text = HostTexts.Quit;
             settingsItem.Enabled = HasHandler<SettingsWindowRequested>();
             conversationItem.Enabled = HasHandler<ConversationWindowRequested>();
             updatesItem.Enabled = HasHandler<UpdatesWindowRequested>();

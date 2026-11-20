@@ -1,0 +1,30 @@
+@* Frame of a settings page (stage 1 plan, work item 5): a title, an optional description, then the
+   fields. Every slice that has settings draws its page in it, so the pages look alike. *@
+<section class="settings-frame" aria-labelledby="@titleId">
+    <header class="settings-frame-header">
+        <h2 id="@titleId" class="settings-frame-title">@Title</h2>
+        @if (!string.IsNullOrEmpty(Description))
+        {
+            <p class="settings-frame-description">@Description</p>
+        }
+    </header>
+    <div class="settings-frame-body">
+        @ChildContent
+    </div>
+</section>
+
+@code {
+    private readonly string titleId = "settings-title-" + Guid.NewGuid().ToString("N")[..8];
+
+    /// <summary>Title of the page, already translated.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>One or two sentences under the title, already translated.</summary>
+    [Parameter]
+    public string? Description { get; set; }
+
+    /// <summary>The fields of the page, usually <see cref="SettingsField"/>.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

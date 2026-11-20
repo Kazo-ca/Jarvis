@@ -1,7 +1,9 @@
-using System.Globalization;
 using System.Xml.Linq;
 using Kazo.Jarvis.Features.Maintenance.Updates;
+using Kazo.Jarvis.Features.Shared.Localization;
+using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Tests.Unit.Architecture;
+using Kazo.Jarvis.Tests.Unit.Features.Settings;
 
 namespace Kazo.Jarvis.Tests.Unit.Features.Maintenance.Updates;
 
@@ -18,26 +20,20 @@ public sealed class UpdateTextsTests
     }
 
     [Test]
-    public void The_texts_follow_the_ui_language()
+    public void The_texts_follow_the_assistant_language()
     {
-        var before = CultureInfo.CurrentUICulture;
-        try
-        {
-            CultureInfo.CurrentUICulture = new CultureInfo("fr-CA");
-            var french = UpdateTexts.InstallButton("0.2.0");
-            CultureInfo.CurrentUICulture = new CultureInfo("en-US");
-            var english = UpdateTexts.InstallButton("0.2.0");
+        var language = new ManualLanguage { Current = AssistantLanguage.French };
+        var texts = new UpdateTexts(new LanguageStringLocalizerFactory(language));
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(french, Is.EqualTo("Installer la version 0.2.0"));
-                Assert.That(english, Is.EqualTo("Install version 0.2.0"));
-            });
-        }
-        finally
+        var french = texts.InstallButton("0.2.0");
+        language.Current = AssistantLanguage.English;
+        var english = texts.InstallButton("0.2.0");
+
+        Assert.Multiple(() =>
         {
-            CultureInfo.CurrentUICulture = before;
-        }
+            Assert.That(french, Is.EqualTo("Installer la version 0.2.0"));
+            Assert.That(english, Is.EqualTo("Install version 0.2.0"));
+        });
     }
 
     private static IEnumerable<string> Keys(string file) =>

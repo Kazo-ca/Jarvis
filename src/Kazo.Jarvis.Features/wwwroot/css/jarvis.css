@@ -1,0 +1,87 @@
+/*
+  Shared style of Kazo.Jarvis (stage 1 plan, work item 5), served at _content/Kazo.Jarvis.Features/css/jarvis.css
+  and linked by every host page. Colors from ADR 0011, section 2, and the UI catalog: they are defined here
+  only, and every component uses the variables. Fonts are embedded (no download at run time), SIL Open Font
+  License 1.1, licenses next to the files in ../fonts/.
+*/
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Rajdhani";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/rajdhani-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Rajdhani";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/rajdhani-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+}
+
+:root {
+    /* Colors of the states (ADR 0011, section 2). */
+    --jarvis-cyan: #5fe6ff;
+    --jarvis-violet: #a08cff;
+    --jarvis-green: #5fffb0;
+    --jarvis-red: #ff5f6d;
+    --jarvis-grey: #7d8b99;
+    --jarvis-amber: #ffb347;
+
+    /* Text and surfaces (UI catalog, section 1). */
+    --jarvis-text: #d3f3fb;
+    --jarvis-text-muted: #7fa6b5;
+    --jarvis-background: #040a12;
+    --jarvis-panel: rgba(95, 230, 255, 0.04);
+    --jarvis-input: rgba(4, 10, 18, 0.8);
+    --jarvis-line: rgba(95, 230, 255, 0.18);
+    --jarvis-line-strong: rgba(95, 230, 255, 0.4);
+
+    /* Fonts (UI catalog): titles, text, labels and figures. */
+    --jarvis-font-display: "Rajdhani", "Inter", system-ui, sans-serif;
+    --jarvis-font-body: "Inter", system-ui, sans-serif;
+    --jarvis-font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Base of a window that shows Jarvis pages (settings, conversation). The orb window stays transparent. */
+.jarvis-window {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
+}

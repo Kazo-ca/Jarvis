@@ -27,6 +27,8 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.15" />
     <!-- Kernel: logging of the bus and of the state machine (abstractions only, ADR 0002, section 4). -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
+    <!-- Texts of the slices: IStringLocalizer only, the lookup follows the assistant language (ADR 0008). -->
+    <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.15" />
     <!-- Generic host (ADR 0013, section 4): the Windows host is built on it, slices expose background services. -->
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.15" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.15" />

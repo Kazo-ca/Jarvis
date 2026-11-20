@@ -21,7 +21,9 @@ La zone de notification n'a pas de contrat : aucune tranche n'en a besoin (ADR 0
 est ajouté quand une tranche en a besoin »). Son menu publie `SettingsWindowRequested` et
 `ConversationWindowRequested` (`Kernel.Messages.Desktop`), et « Mises à jour… » publie
 `UpdatesWindowRequested` ([updates.md](updates.md)) ; une entrée reste grisée tant qu'aucune tranche ne
-traite son événement. « Couper le micro » reste grisé jusqu'au chantier 8.
+traite son événement. « Paramètres » est actif depuis le chantier 5 (tranche `Settings/Window`, voir
+[interface partagée](shared-ui.md)) ; « Conversation » attend le chantier 13, « Couper le micro » le chantier 8.
+Les textes du menu suivent la langue de l'assistant : ils sont relus à chaque ouverture du menu.
 
 ## Tranches
 
@@ -118,3 +120,6 @@ Ce que l'hôte Web ne prouve pas (plan de l'étape 1, chantier 4) :
 5. Coût de la fenêtre immobile (méthode de l'essai E6).
 6. Lancé sur une session verrouillée, l'hôte attend et ouvre l'orbe au déverrouillage.
 7. Quitter arrête le processus en moins de 10 secondes.
+8. Chantier 5 : la fenêtre des paramètres ouverte, choisir l'autre langue recharge ses textes sans
+   redémarrer (titre de la page, onglet, aide), et le menu de la zone de notification est traduit à
+   l'ouverture suivante. Les polices (Rajdhani pour les titres) s'affichent sans connexion à Internet.

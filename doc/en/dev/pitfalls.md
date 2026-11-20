@@ -106,3 +106,14 @@ back as (-959, 581) after a restart: × 1.5 at each launch. Before the window sh
 with the scale of the primary screen, not the target one. Save the position in physical pixels
 (`GetWindowRect`) and restore it with `SetWindowPos` in `SourceInitialized`, before the window shows: Windows
 then sends the scale change and WPF resizes the window.
+
+## `@page.Key` in a Razor file is read as the `@page` directive (work item stage1/5-shared-ui-language)
+
+A loop variable named `page` gives `@page.Key` in the markup, which Razor reads as a misplaced `@page`
+directive (errors RZ2005 and RZ9979). Name the variable otherwise (`item`).
+
+## Starting the Web host by hand without a profile: `Development` environment required (work item stage1/5-shared-ui-language)
+
+`dotnet run --no-launch-profile` starts in `Production`, where `MapStaticAssets` looks for the published files
+(`blazor.web.js`, `_content/...`) in `wwwroot` and does not find them: the page never becomes interactive.
+Add `ASPNETCORE_ENVIRONMENT=Development` and start from the project folder (content root).

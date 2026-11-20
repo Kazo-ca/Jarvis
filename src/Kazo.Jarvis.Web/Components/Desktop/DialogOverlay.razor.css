@@ -3,9 +3,9 @@
     position: fixed;
     inset: 260px 15% 5% 15%;
     padding: 16px 20px;
-    background: #0b1420;
-    color: #d8f6ff;
-    border: 1px solid #4fd8ff;
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    border: 1px solid var(--jarvis-line-strong);
     border-radius: 8px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
     overflow: auto;

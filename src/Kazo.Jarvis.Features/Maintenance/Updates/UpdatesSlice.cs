@@ -17,6 +17,7 @@ public static class UpdatesSlice
     /// <returns>The same collection, for chaining.</returns>
     public static IServiceCollection AddUpdatesSlice(this IServiceCollection services)
     {
+        services.TryAddSingleton<UpdateTexts>();
         services.TryAddSingleton<UpdateService>();
         services.TryAddSingleton<AutomaticUpdateCheck>();
         services.AddHostedService(provider => provider.GetRequiredService<AutomaticUpdateCheck>());

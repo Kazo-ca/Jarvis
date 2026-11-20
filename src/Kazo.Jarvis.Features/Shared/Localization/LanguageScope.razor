@@ -1,0 +1,39 @@
+@using Kazo.Jarvis.Kernel.Messages.Localization
+@implements IDisposable
+@inject IAssistantLanguageReader Language
+@inject IMessageBus Bus
+
+@* Wraps the content of a window (ADR 0008, section 1): when the language changes, the content is built
+   again under a new key, so every text is read again in the new language without a restart. Component
+   state that is not saved (a half-typed field) is lost, like after reopening the window. *@
+<CascadingValue Value="current" @key="current.Code">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    private AssistantLanguage current = AssistantLanguage.English;
+    private IDisposable? subscription;
+
+    /// <summary>The content of the window.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        // Subscribe before reading, so a change between the two is not missed.
+        subscription = Bus.Subscribe<AssistantLanguageChanged>((_, _) => new ValueTask(InvokeAsync(() =>
+        {
+            var latest = Language.Current;
+            if (!current.Equals(latest))
+            {
+                current = latest;
+                StateHasChanged();
+            }
+        })));
+        current = Language.Current;
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => subscription?.Dispose();
+}

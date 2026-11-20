@@ -11,15 +11,21 @@ public sealed class UpdatesWindowOpener : IEventHandler<UpdatesWindowRequested>
     public const string WindowKey = "Updates.Panel";
 
     private readonly IDialogService dialogs;
+    private readonly UpdateTexts texts;
 
     /// <summary>Creates the handler.</summary>
     /// <param name="dialogs">The host's windows.</param>
-    public UpdatesWindowOpener(IDialogService dialogs) => this.dialogs = dialogs;
+    /// <param name="texts">The title of the window, in the assistant language.</param>
+    public UpdatesWindowOpener(IDialogService dialogs, UpdateTexts texts)
+    {
+        this.dialogs = dialogs;
+        this.texts = texts;
+    }
 
     /// <inheritdoc />
     public ValueTask HandleAsync(UpdatesWindowRequested message, CancellationToken cancellationToken)
     {
-        dialogs.Open(new DialogRequest(WindowKey, typeof(UpdatePanel), UpdateTexts.WindowTitle));
+        dialogs.Open(new DialogRequest(WindowKey, typeof(UpdatePanel), texts.WindowTitle));
         return ValueTask.CompletedTask;
     }
 }
