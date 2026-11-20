@@ -19,7 +19,12 @@ Resume point for any agent. Update it in the same change as what it describes.
   Windows tests** (to group for a next session with him): start on a locked session (hide the camera:
   Windows Hello unlocks by itself), position after a restart with screens of different scales, line
   "ActivationRequested: Idle -> Listening" in the log after `Ctrl+Alt+J`, Quit within 10 s, orb size after
-  the screens reconnect (240 × 240 seen once on the 100 % screen, right after a restart). Benoit merges `main`; an agent merges its own PRs
+  the screens reconnect (240 × 240 seen once on the 100 % screen, right after a restart), and for work
+  item 5: settings window texts reloaded on a language change in `BlazorWebView`, tray menu translated, fonts
+  shown offline ([list](../dev/hosts.md#windows-checks), item 8). Work item 5 (`stage1/5-shared-ui-language`,
+  shared style, embedded fonts, `.resx` translations, language setting, settings window, secret field, see
+  [dev/shared-ui.md](../dev/shared-ui.md)) merged (PR #PRNUM#), without a Windows check (Benoit stopped the
+  tests on November 20, 2026). Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
@@ -49,8 +54,9 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** Windows check of work item 4 ([list](../dev/hosts.md#windows-checks)), then work item
-  `stage1/5-shared-ui-language` of the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** work item `stage1/6-orb` (orb, light version), then `stage1/8-audio-devices` and
+  `stage1/11-llm-providers`, which depend on work item 5 only. The pending Windows tests (work items 4 and 5,
+  [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
@@ -64,7 +70,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   needs a new ADR).
 - **To check at the start of stage 1** (the spikes did not): wake word with Benoit's voice and while Jarvis
   speaks, real microphone, end of utterance through Silero, click-through around the orb, idle cost of the
-  orb on the real host, window reload on a language change.
+  orb on the real host, window reload on a language change (proven in the Web host in work item 5, still to see on Windows).
 - **UI designs validated on November 19, 2026:** high-quality orb (plasma, binary clouds, gyroscope rings),
   light orb (still sphere, three open rings), full-screen "command post". Described in
   [dev/ui/catalog.md](../dev/ui/catalog.md), prototypes in `design/prototypes/`. ADR 0011 builds on
@@ -78,6 +84,13 @@ Resume point for any agent. Update it in the same change as what it describes.
   build without warnings, unit tests 29/29, Playwright 1/1, Web host HTTP 200, Windows host opened,
   responsive and closed without error. Started on a locked session, the Windows host died: fixed in work
   item 4 (see [pitfalls](../dev/pitfalls.md)).
+- **Choices of work item 5 that ADRs 0008 and 0011 do not settle** (details in [dev/shared-ui.md](../dev/shared-ui.md)):
+  `IStringLocalizer` reads the assistant language at each lookup, never the thread culture (formats keep
+  those of Windows); a window is built again whole on a language change (`LanguageScope`), the title bar keeps
+  the language it was opened in; setting in the `Settings.Language` section, absent until the user chooses
+  (the Windows language applies); settings pages register through the kernel `SettingsPage`; fonts Rajdhani
+  500/600, Inter 400/600, JetBrains Mono 400/500 as Latin `woff2` (`@fontsource` 5.3.0, OFL 1.1 license
+  checked); the secret field never reads the value back.
 - **Choices of work item 4 that ADRs 0003 and 0013 do not settle** (details in [dev/hosts.md](../dev/hosts.md)):
   default hotkey `Ctrl+Alt+J` (section `Desktop.Hotkey`); no contract for the tray icon, its Settings and
   Conversation entries publish an event and stay greyed out without a slice handling it; the click on the orb

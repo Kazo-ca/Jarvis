@@ -22,7 +22,12 @@ ce qu'il décrit.
   (cacher la caméra : Windows Hello déverrouille tout seul), position après relance avec des écrans
   d'échelles différentes, ligne « ActivationRequested: Idle -> Listening » au journal après `Ctrl+Alt+J`,
   « Quitter » en moins de 10 s, taille de l'orbe après reconnexion des écrans (240 × 240 vu une fois sur
-  l'écran à 100 %, correct après relance). Benoit fusionne `main` ; un agent fusionne
+  l'écran à 100 %, correct après relance), et pour le chantier 5 : rechargement des textes de la fenêtre des
+  paramètres au changement de langue dans `BlazorWebView`, menu de la zone de notification traduit, polices
+  affichées hors ligne ([liste](../dev/hosts.md#vérifications-sur-windows), point 8). Chantier 5
+  (`stage1/5-shared-ui-language`, style commun, polices embarquées, traductions `.resx`, réglage de langue,
+  fenêtre des paramètres, champ de secret, voir [dev/shared-ui.md](../dev/shared-ui.md)) fusionné (PR #PRNUM#),
+  sans vérification Windows (Benoit a arrêté les tests le 20 novembre 2026). Benoit fusionne `main` ; un agent fusionne
   lui-même ses PR dans une branche `<série>/base` une fois les vérifications vertes (règle redite par Benoit
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX). L'étape 5 est réécrite le 19 novembre 2026 : appels entre Jarvis et l'application Android, dans les deux sens (US5.1 à US5.9 du document de conception), sans ADR pour l'instant ; elle dépend d'E10. En attente : E10
@@ -53,8 +58,9 @@ ce qu'il décrit.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
   sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
-- **Prochaine étape :** vérification sur Windows du chantier 4 ([liste](../dev/hosts.md#vérifications-sur-windows)),
-  puis chantier `stage1/5-shared-ui-language` du [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Prochaine étape :** chantier `stage1/6-orb` (orbe, version légère), puis `stage1/8-audio-devices` et
+  `stage1/11-llm-providers`, qui ne dépendent que du chantier 5. Les tests Windows en attente (chantiers 4
+  et 5, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
@@ -83,6 +89,13 @@ ce qu'il décrit.
   (SDK 10.0.402) : construction sans avertissement, tests unitaires 29/29, Playwright 1/1, hôte Web en
   HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. Lancé sur une session verrouillée, l'hôte
   Windows mourait : réglé au chantier 4 (voir [pièges](../dev/pitfalls.md)).
+- **Choix du chantier 5 que les ADR 0008 et 0011 ne tranchent pas** (détail dans [dev/shared-ui.md](../dev/shared-ui.md)) :
+  `IStringLocalizer` lit la langue de l'assistant à chaque recherche, jamais la culture du fil (les formats
+  gardent ceux de Windows) ; une fenêtre se reconstruit entière au changement de langue (`LanguageScope`),
+  la barre de titre garde la langue de l'ouverture ; réglage dans la section `Settings.Language`, absent tant
+  que l'utilisateur n'a pas choisi (la langue de Windows s'applique) ; les pages de réglages s'enregistrent
+  par `SettingsPage` du noyau ; polices Rajdhani 500/600, Inter 400/600, JetBrains Mono 400/500 en `woff2`
+  latin (`@fontsource` 5.3.0, licence OFL 1.1 vérifiée) ; le champ de secret ne relit jamais la valeur.
 - **Choix du chantier 4 que les ADR 0003 et 0013 ne tranchent pas** (détail dans [dev/hosts.md](../dev/hosts.md)) :
   raccourci par défaut `Ctrl+Alt+J` (section `Desktop.Hotkey`) ; pas de contrat pour la zone de notification,
   ses entrées Paramètres et Conversation publient un événement et restent grisées sans tranche qui le traite ;

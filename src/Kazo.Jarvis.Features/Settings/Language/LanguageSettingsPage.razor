@@ -1,0 +1,38 @@
+@inject LanguageKeeper Keeper
+@inject IStringLocalizer<LanguageSettingsPage> T
+
+@* Settings page of the language (US1.4, ADR 0008): French or English, applied without a restart. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["LanguageLabel"]" Hint="@Hint">
+        @foreach (var language in AssistantLanguage.Supported)
+        {
+            <label class="language-choice">
+                <input type="radio"
+                       name="assistant-language"
+                       value="@language.Code"
+                       data-language="@language.Code"
+                       checked="@language.Equals(Keeper.Current)"
+                       @onchange="() => ChooseAsync(language)" />
+                <span lang="@language.Code">@T["NativeName_" + language.Code]</span>
+            </label>
+        }
+    </SettingsField>
+    @if (problem)
+    {
+        <p class="language-problem" role="alert">@T["SaveFailed"]</p>
+    }
+</SettingsFrame>
+
+@code {
+    private bool problem;
+
+    private string Hint => T["ProposedFromWindows", T["NativeName_" + Keeper.Proposed.Code]];
+
+    private async Task ChooseAsync(AssistantLanguage language)
+    {
+        var result = await Keeper.ChooseAsync(language);
+
+        // On success the window is rebuilt in the new language (LanguageScope); this flag only matters on failure.
+        problem = !result.IsSaved;
+    }
+}

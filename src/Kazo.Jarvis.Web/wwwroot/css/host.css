@@ -1,6 +1,8 @@
-/* Host page of the Web test host. The shared style of the slices arrives with stage1/5-shared-ui-language. */
+/* Host page of the Web test host. Colors and fonts come from the shared style (jarvis.css, stage1/5-shared-ui-language). */
 html, body {
     margin: 0;
     height: 100%;
-    background: #05080d;
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
 }

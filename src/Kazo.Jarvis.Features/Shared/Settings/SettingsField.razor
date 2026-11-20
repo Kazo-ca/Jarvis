@@ -1,0 +1,26 @@
+@* One field of a settings page: a label, the control, and an optional hint under it. A group of choices
+   (radio buttons) is a fieldset, so a screen reader reads the label with each choice. *@
+<fieldset class="settings-field">
+    <legend class="settings-field-label">@Label</legend>
+    <div class="settings-field-control">
+        @ChildContent
+    </div>
+    @if (!string.IsNullOrEmpty(Hint))
+    {
+        <p class="settings-field-hint">@Hint</p>
+    }
+</fieldset>
+
+@code {
+    /// <summary>Label of the field, already translated.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>A sentence under the control, already translated.</summary>
+    [Parameter]
+    public string? Hint { get; set; }
+
+    /// <summary>The control.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

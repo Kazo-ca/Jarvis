@@ -32,8 +32,12 @@ internal sealed class DialogWindow : Window
         webView.RootComponents.Add(new RootComponent
         {
             Selector = "#app",
-            ComponentType = request.Component,
-            Parameters = request.Parameters?.ToDictionary(item => item.Key, item => item.Value),
+            ComponentType = typeof(DialogRoot),
+            Parameters = new Dictionary<string, object?>
+            {
+                [nameof(DialogRoot.Component)] = request.Component,
+                [nameof(DialogRoot.Parameters)] = request.Parameters?.ToDictionary(item => item.Key, item => item.Value!),
+            },
         });
         Content = webView;
     }

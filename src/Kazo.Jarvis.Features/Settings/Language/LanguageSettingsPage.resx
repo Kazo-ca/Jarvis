@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>The language of Jarvis: its windows, what it understands and how it speaks. Dates and numbers keep the Windows regional settings.</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Assistant language</value>
+  </data>
+  <data name="NativeName_en" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="NativeName_fr" xml:space="preserve">
+    <value>Français</value>
+  </data>
+  <data name="ProposedFromWindows" xml:space="preserve">
+    <value>Proposed from the Windows display language: {0}. The change applies at once, without a restart; recognition and voice follow from the next exchange.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The choice could not be saved: the settings file cannot be written. See the log for the cause.</value>
+  </data>
+</root>

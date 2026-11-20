@@ -15,7 +15,9 @@ src/Kazo.Jarvis.Kernel/
   Assistant/                             état, phase, conditions, tour, fonction d'aspect, machine, rédacteur unique
   Messages/Assistant/                    messages d'entrée de la machine et messages qu'elle publie
   Audio/                                 contrat du niveau sonore (hors du bus)
-  Settings/                              contrats des réglages (voir storage.md)
+  Settings/                              contrats des réglages (voir storage.md), pages de la fenêtre des paramètres
+  Localization/                          langue de l'assistant, lecteur de la langue, langue de Windows (voir shared-ui.md)
+  Messages/Localization/                 AssistantLanguageChanged
   Storage/                               contrat de la base de documents (voir storage.md)
   Secrets/                               contrat du coffre de secrets (voir storage.md)
 ```

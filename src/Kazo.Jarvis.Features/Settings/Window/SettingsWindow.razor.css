@@ -1,0 +1,46 @@
+.settings-window {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) 1fr;
+    min-height: 100%;
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
+}
+
+.settings-window-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.5rem 0.75rem;
+    border-right: 1px solid var(--jarvis-line);
+}
+
+.settings-window-tab {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--jarvis-text-muted);
+    font-family: var(--jarvis-font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-align: left;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.settings-window-tab[aria-current="page"] {
+    border-color: var(--jarvis-line-strong);
+    background: var(--jarvis-panel);
+    color: var(--jarvis-cyan);
+}
+
+.settings-window-page {
+    min-width: 0;
+    overflow: auto;
+}
+
+.settings-window-empty {
+    padding: 1.5rem;
+    color: var(--jarvis-text-muted);
+}

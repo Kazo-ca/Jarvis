@@ -15,8 +15,12 @@
         <button type="button" id="simulate-hotkey" @onclick="PressHotkey">Simulate the hotkey (@(Hotkey.Current?.ToString() ?? "none"))</button>
         <button type="button" id="toggle-orb" @onclick="Orb.ToggleVisibility">Show or hide the orb</button>
         <button type="button" id="open-sample-dialog" @onclick="OpenSample">Open a sample dialog</button>
+        <button type="button" id="open-settings" @onclick="OpenSettings">Open the settings (tray menu)</button>
     </nav>
-    <DialogOverlay />
+    @* Like a window of the Windows host, the dialogs rebuild their texts when the language changes. *@
+    <LanguageScope>
+        <DialogOverlay />
+    </LanguageScope>
 </main>
 
 @code {
@@ -37,6 +41,9 @@
     private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
 
     private void PressHotkey() => Hotkey.Press();
+
+    // Same event as the Settings entry of the tray menu (US1.2).
+    private Task OpenSettings() => Bus.PublishAsync(new SettingsWindowRequested()).AsTask();
 
     private void OpenSample() => Dialogs.Open(new DialogRequest(
         "Web.Sample",

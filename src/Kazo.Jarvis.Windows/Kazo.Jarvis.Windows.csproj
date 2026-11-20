@@ -16,6 +16,9 @@
     <!-- Only for the tray icon (NotifyIcon); WPF has none. -->
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>Kazo.Jarvis.Windows</RootNamespace>
+    <!-- English is the neutral language; only the two languages of the first version are published (ADR 0008). -->
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en;fr</SatelliteResourceLanguages>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <StartupObject>Kazo.Jarvis.Windows.Program</StartupObject>
     <!-- Lets the Linux CI compile this host; running it still needs Windows. -->

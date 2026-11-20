@@ -1,0 +1,22 @@
+.language-choice {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--jarvis-line);
+    cursor: pointer;
+}
+
+.language-choice:has(input:checked) {
+    border-color: var(--jarvis-cyan);
+    color: var(--jarvis-cyan);
+}
+
+.language-choice input {
+    accent-color: var(--jarvis-cyan);
+}
+
+.language-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

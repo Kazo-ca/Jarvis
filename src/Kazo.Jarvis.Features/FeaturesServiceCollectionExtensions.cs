@@ -1,5 +1,8 @@
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
+using Kazo.Jarvis.Features.Settings.Language;
+using Kazo.Jarvis.Features.Settings.Window;
+using Kazo.Jarvis.Features.Shared;
 using Kazo.Jarvis.Kernel;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,11 +24,18 @@ public static class FeaturesServiceCollectionExtensions
         // The slices talk through the kernel's bus and read its state machine (ADR 0002, section 5).
         services.AddJarvisKernel();
 
+        // Texts in the language of the assistant, for every slice (ADR 0008).
+        services.AddJarvisShared();
+
         // Desktop slices (stage1/4-hosts): their contracts come from the host.
         services.AddHotkeySlice();
         services.AddLaunchAtLoginSlice();
 
-        // Other slices arrive with their work items (stage1/5-shared-ui-language onwards).
+        // Settings slices (stage1/5-shared-ui-language): the language, and the window that shows the pages.
+        services.AddLanguageSlice();
+        services.AddSettingsWindowSlice();
+
+        // Other slices arrive with their work items (stage1/6-orb onwards).
         return services;
     }
 }
