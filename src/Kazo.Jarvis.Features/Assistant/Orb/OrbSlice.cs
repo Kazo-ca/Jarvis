@@ -21,8 +21,8 @@ public static class OrbSlice
         services.TryAddSingleton<OrbActivation>();
         services.TryAddSingleton<OrbQualityKeeper>();
 
-        // After the language page (order 0).
-        services.AddSingleton(new SettingsPage(PageKey, typeof(OrbSettingsPage), typeof(OrbSettingsPage), "Title", Order: 10));
+        // After the language page (order 0), before the language models (order 10).
+        services.AddSingleton(new SettingsPage(PageKey, typeof(OrbSettingsPage), typeof(OrbSettingsPage), "Title", Order: 5));
         return services;
     }
 }

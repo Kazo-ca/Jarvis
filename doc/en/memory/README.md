@@ -70,8 +70,17 @@ Resume point for any agent. Update it in the same change as what it describes.
   measure of ADR 0011 (section 8) is still to be done on Windows**: it decides whether the high quality stays
   the default. Indicative measure in a container without a graphics card: about 21 % of the main thread while
   animated against under 1 % for the light version, 0 % when idle.
-- **Next step:** work items `stage1/8-audio-devices` and `stage1/11-llm-providers`, which depend on work
-  item 5 only. The pending Windows tests (work items 4, 5, 6 and 7, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 11** (`stage1/11-llm-providers`, language models: kernel contracts `ILlmConnector` and
+  `IAssistantModel` on `Microsoft.Extensions.AI.Abstractions` 10.11.1, `ollama`, `openai-compatible`/`openai`
+  and `anthropic` adapters written on `HttpClient`, slice `Llm/Providers` with the "Language models" page,
+  default model preloaded at start, see [dev/llm.md](../dev/llm.md)) delivered in its PR on 2026-11-20,
+  without a Windows check. **Pending Windows tests** ([list](../dev/llm.md#checks-on-windows)): Ollama on
+  11435 and `llama-server` on 8080, preload at start, named causes, measure of a 7 to 8 billion parameter
+  fallback model. **Provisional choices** ([detail](../dev/llm.md#provisional-choices-of-this-work-item)):
+  default port 11434 (Benoit sets 11435 once), `claude-opus-5-5` for a new Anthropic provider, Anthropic
+  adapter on `HttpClient` rather than the SDK, answers of 16,000 tokens at most, 20 s connection test.
+- **Next step:** work item `stage1/8-audio-devices`, which depends on work item 5 only. The pending Windows
+  tests (work items 4, 5, 6, 7 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

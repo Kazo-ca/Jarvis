@@ -1,0 +1,152 @@
+.llm-provider {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-panel);
+}
+
+.llm-provider:has([data-provider-default]:checked) {
+    border-color: var(--jarvis-cyan);
+}
+
+.llm-provider-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.llm-provider-default {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.llm-provider-default input {
+    accent-color: var(--jarvis-cyan);
+}
+
+.llm-provider-kind {
+    color: var(--jarvis-text-muted);
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.85rem;
+}
+
+.llm-provider-remove {
+    margin-left: auto;
+}
+
+.llm-provider-note,
+.llm-provider-hint {
+    margin: 0;
+    color: var(--jarvis-text-muted);
+    font-size: 0.9rem;
+}
+
+.llm-provider-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.75rem;
+}
+
+.llm-provider-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.llm-provider-wide {
+    grid-column: 1 / -1;
+}
+
+.llm-provider-field input,
+.llm-provider-field select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-mono);
+}
+
+.llm-provider-check {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.llm-provider-check input {
+    accent-color: var(--jarvis-cyan);
+}
+
+.llm-provider-advanced summary {
+    color: var(--jarvis-text-muted);
+    cursor: pointer;
+}
+
+.llm-provider-advanced[open] summary {
+    margin-bottom: 0.75rem;
+}
+
+.llm-provider-test {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.llm-provider-result {
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.llm-provider-result[data-test-result="Passed"] {
+    color: var(--jarvis-green);
+}
+
+.llm-providers-add,
+.llm-providers-save {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.llm-providers-warning,
+.llm-providers-problem {
+    margin: 0;
+    color: var(--jarvis-amber);
+}
+
+.llm-providers-problem {
+    color: var(--jarvis-red);
+}
+
+.llm-providers-saved {
+    margin: 0;
+    color: var(--jarvis-green);
+}
+
+button {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: transparent;
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-display);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.llm-providers-save-button:not(:disabled) {
+    border-color: var(--jarvis-cyan);
+    color: var(--jarvis-cyan);
+}
