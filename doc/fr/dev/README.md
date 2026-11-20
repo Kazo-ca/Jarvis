@@ -9,7 +9,7 @@
 | [kernel.md](kernel.md) | Le noyau : bus de messages, machine à états, niveau sonore |
 | [storage.md](storage.md) | Réglages (`config.json`), base SQLite, coffre de secrets |
 | [hosts.md](hosts.md) | Hôtes Windows et Web : démarrage, orbe, zone de notification, raccourci, dialogues |
-| [orb.md](orb.md) | L'orbe, version légère : composant, aspects, mouvement, page de démonstration |
+| [orb.md](orb.md) | L'orbe, versions haute qualité et légère : composant, réglage de qualité, aspects, mouvement, coût, page de démonstration |
 | [shared-ui.md](shared-ui.md) | Style commun, polices, traductions, réglage de langue, fenêtre des paramètres, champ de secret |
 | [llm.md](llm.md) | Modèles de langage : fournisseurs, adaptateurs, modèle par défaut, test de la connexion |
 | [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |

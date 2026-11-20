@@ -9,7 +9,7 @@
 | [kernel.md](kernel.md) | The kernel: message bus, state machine, sound level |
 | [storage.md](storage.md) | Settings (`config.json`), SQLite database, secret vault |
 | [hosts.md](hosts.md) | Windows and Web hosts: start-up, orb, tray icon, hotkey, dialogs |
-| [orb.md](orb.md) | The orb, light version: component, looks, motion, demonstration page |
+| [orb.md](orb.md) | The orb, high-quality and light versions: component, quality setting, looks, motion, cost, demonstration page |
 | [shared-ui.md](shared-ui.md) | Shared style, fonts, translations, language setting, settings window, secret field |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
