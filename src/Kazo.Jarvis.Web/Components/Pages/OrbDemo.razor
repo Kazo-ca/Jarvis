@@ -1,21 +1,22 @@
 @page "/orb"
 @rendermode InteractiveServer
 
-@* Orb demonstration page (US1.3; ADR 0005, section 5): drives the orb component directly by its inputs,
-   with no microphone and no model. The seven looks, simulated tasks and decisions, the fault on hover,
+@* Orb demonstration page (US1.3; ADR 0005, section 5; ADR 0011): drives the orb component directly by its
+   inputs, with no microphone and no model. Both versions (high quality and light), the seven looks, simulated tasks and decisions, the fault on hover,
    reduced motion, and the animated idle look offered for trying only (forbidden on Windows). *@
 <PageTitle>Orb demonstration</PageTitle>
 
 <main id="orb-demo" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
     <header>
         <h1>Orb</h1>
-        <p>Light version (UI catalog, section 3). Each button sets the look as the state machine would.</p>
+        <p>Both versions (UI catalog, sections 2 and 3). Each look button sets the look as the state machine would.</p>
         <a href="">Back to the host page</a>
     </header>
 
     <div class="demo-stage">
         <Orb @ref="orb"
              Look="@look"
+             Quality="@quality"
              DelegatedTasks="@tasks"
              Progress="@(progressKnown ? progress : null)"
              PendingDecisions="@decisions"
@@ -23,6 +24,13 @@
              ReducedMotion="@reduced"
              AnimateIdle="@animateIdle"
              OnActivate="OnActivate" />
+    </div>
+
+    <div class="demo-looks" role="group" aria-label="Version">
+        @foreach (var each in Enum.GetValues<OrbQuality>())
+        {
+            <button type="button" id="quality-@each" aria-pressed="@(each == quality ? "true" : "false")" @onclick="() => quality = each">@each</button>
+        }
     </div>
 
     <div class="demo-looks" role="group" aria-label="Look">
@@ -58,6 +66,7 @@
 @code {
     private Orb? orb;
     private AssistantLook look = AssistantLook.Listening;
+    private OrbQuality quality = OrbQuality.High;
     private int tasks;
     private bool progressKnown = true;
     private double progress = 0.4;

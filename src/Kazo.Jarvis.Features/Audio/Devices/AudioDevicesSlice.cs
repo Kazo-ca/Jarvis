@@ -28,8 +28,8 @@ public static class AudioDevicesSlice
         services.TryAddSingleton<OutputBinder>();
         services.AddHostedService(provider => provider.GetRequiredService<OutputBinder>());
 
-        // After the language page (order 0).
-        services.AddSingleton(new SettingsPage(PageKey, typeof(AudioSettingsPage), typeof(AudioSettingsPage), "Title", Order: 10));
+        // After the language (0), the orb (5) and the language models (10).
+        services.AddSingleton(new SettingsPage(PageKey, typeof(AudioSettingsPage), typeof(AudioSettingsPage), "Title", Order: 20));
         return services;
     }
 }

@@ -1,0 +1,220 @@
+@using System.Globalization
+@inject ProviderEditor Editor
+@inject IStringLocalizer<LlmProvidersSettingsPage> T
+@implements IDisposable
+
+@* Settings page of the language model providers (US1.8, US1.9, ADR 0007): the list, the default one, a
+   connection test that names the cause of a failure, and the API key of each provider in the vault. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    @foreach (var provider in Editor.Drafts)
+    {
+        var id = provider.Id;
+        var result = Editor.ResultOf(id);
+        <article class="llm-provider" data-provider-id="@id" data-provider-kind="@provider.Kind" @key="id">
+            <header class="llm-provider-header">
+                <label class="llm-provider-default">
+                    <input type="radio"
+                           name="llm-default-provider"
+                           data-provider-default
+                           checked="@(Editor.DefaultId == id)"
+                           disabled="@(!provider.Kind.IsLocal())"
+                           @onchange="() => Editor.DefaultId = id" />
+                    <span>@(Editor.DefaultId == id ? T["IsDefault"] : T["MakeDefault"])</span>
+                </label>
+                <span class="llm-provider-kind">@T["Kind_" + provider.Kind]</span>
+                <button type="button" class="llm-provider-remove" data-provider-remove @onclick="() => Editor.Remove(id)">@T["Remove"]</button>
+            </header>
+            @if (!provider.Kind.IsLocal())
+            {
+                <p class="llm-provider-note">@T["CloudNote"]</p>
+            }
+
+            <div class="llm-provider-grid">
+                <label class="llm-provider-field">
+                    <span>@T["Name"]</span>
+                    <input type="text" data-field="name" value="@provider.Name" @onchange="e => Edit(id, p => p with { Name = Text(e) })" />
+                </label>
+                <label class="llm-provider-field">
+                    <span>@T["KindLabel"]</span>
+                    <select data-field="kind" value="@provider.Kind" @onchange="e => ChangeKind(id, e)">
+                        @foreach (var kind in LlmProviderKinds.All)
+                        {
+                            <option value="@kind">@T["Kind_" + kind]</option>
+                        }
+                    </select>
+                </label>
+                <label class="llm-provider-field llm-provider-wide">
+                    <span>@T["Address"]</span>
+                    <input type="url" data-field="address" spellcheck="false" value="@provider.Address" @onchange="e => Edit(id, p => p with { Address = Text(e) })" />
+                </label>
+                <label class="llm-provider-field llm-provider-wide">
+                    <span>@T["Model"]</span>
+                    <input type="text" data-field="model" spellcheck="false" list="@("llm-models-" + id)" value="@provider.Model"
+                           @onchange="e => Edit(id, p => p with { Model = Text(e) })" />
+                    @if (result is { AvailableModels.Count: > 0 })
+                    {
+                        <datalist id="@("llm-models-" + id)">
+                            @foreach (var model in result.AvailableModels)
+                            {
+                                <option value="@model"></option>
+                            }
+                        </datalist>
+                    }
+                </label>
+            </div>
+
+            <details class="llm-provider-advanced">
+                <summary>@T["Advanced"]</summary>
+                <div class="llm-provider-grid">
+                    <label class="llm-provider-check">
+                        <input type="checkbox" data-field="think" checked="@provider.Think" @onchange="e => Edit(id, p => p with { Think = e.Value is true })" />
+                        <span>@T["Think"]</span>
+                    </label>
+                    @if (provider.Kind == LlmProviderKind.Ollama)
+                    {
+                        <label class="llm-provider-check">
+                            <input type="checkbox" data-field="keep-loaded" checked="@provider.KeepLoaded" @onchange="e => Edit(id, p => p with { KeepLoaded = e.Value is true })" />
+                            <span>@T["KeepLoaded"]</span>
+                        </label>
+                        <label class="llm-provider-field">
+                            <span>@T["ContextLength"]</span>
+                            <input type="number" data-field="context" min="512" max="262144" step="512" value="@provider.ContextLength"
+                                   @onchange="e => Edit(id, p => p with { ContextLength = Integer(e, p.ContextLength) })" />
+                        </label>
+                    }
+                    @if (provider.Kind != LlmProviderKind.Anthropic)
+                    {
+                        <label class="llm-provider-field">
+                            <span>@T["Temperature"]</span>
+                            <input type="number" data-field="temperature" min="0" max="2" step="0.1" value="@provider.Temperature.ToString(CultureInfo.InvariantCulture)"
+                                   @onchange="e => Edit(id, p => p with { Temperature = Number(e, p.Temperature) })" />
+                        </label>
+                    }
+                </div>
+                <p class="llm-provider-hint">@T["AdvancedHint"]</p>
+            </details>
+
+            <SecretField Reference="LlmProviderSettings.KeyReference(id)"
+                         Label="@(provider.Kind.RequiresKey() ? T["Key"] : T["KeyOptional"])" />
+
+            <div class="llm-provider-test">
+                <button type="button" class="llm-provider-test-button" data-provider-test disabled="@Editor.IsTesting(id)" @onclick="() => TestAsync(id)">
+                    @(Editor.IsTesting(id) ? T["Testing"] : T["Test"])
+                </button>
+                @if (result is not null)
+                {
+                    <p class="llm-provider-result" role="status" data-test-result="@(result.Failure?.ToString() ?? "Passed")">@Describe(provider, result)</p>
+                }
+            </div>
+        </article>
+    }
+
+    <div class="llm-providers-add">
+        <label class="llm-provider-field">
+            <span>@T["AddKind"]</span>
+            <select data-field="add-kind" @bind="addKind">
+                @foreach (var kind in LlmProviderKinds.All)
+                {
+                    <option value="@kind">@T["Kind_" + kind]</option>
+                }
+            </select>
+        </label>
+        <button type="button" data-provider-add @onclick="Add">@T["Add"]</button>
+    </div>
+
+    @if (Editor.Drafts.Count > 0 && Editor.DefaultId is null)
+    {
+        <p class="llm-providers-warning" role="alert">@T["NoDefault"]</p>
+    }
+
+    <div class="llm-providers-save">
+        <button type="button" class="llm-providers-save-button" data-providers-save disabled="@(!Editor.IsDirty)" @onclick="SaveAsync">@T["Save"]</button>
+        <button type="button" data-providers-cancel disabled="@(!Editor.IsDirty)" @onclick="Editor.Reload">@T["Cancel"]</button>
+        @if (Editor.LastSave == SettingsWriteOutcome.Saved && !Editor.IsDirty)
+        {
+            <p class="llm-providers-saved" role="status">@T["Saved"]</p>
+        }
+        else if (Editor.LastSave == SettingsWriteOutcome.ReadOnly)
+        {
+            <p class="llm-providers-problem" role="alert">@T["SaveFailed"]</p>
+        }
+        else if (Editor.Problems.Count > 0)
+        {
+            <ul class="llm-providers-problem" role="alert">
+                @foreach (var problem in Editor.Problems)
+                {
+                    <li>@problem</li>
+                }
+            </ul>
+        }
+    </div>
+</SettingsFrame>
+
+@code {
+    private readonly CancellationTokenSource closing = new();
+    private LlmProviderKind addKind = LlmProviderKind.Ollama;
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        closing.Cancel();
+        closing.Dispose();
+    }
+
+    private static string Text(ChangeEventArgs e) => e.Value?.ToString() ?? string.Empty;
+
+    private static int Integer(ChangeEventArgs e, int fallback) =>
+        int.TryParse(Text(e), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : fallback;
+
+    private static double Number(ChangeEventArgs e, double fallback) =>
+        double.TryParse(Text(e), NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? value : fallback;
+
+    private void Edit(string id, Func<LlmProviderSettings, LlmProviderSettings> change)
+    {
+        if (Editor.Drafts.FirstOrDefault(p => p.Id == id) is { } provider)
+        {
+            Editor.Update(change(provider));
+        }
+    }
+
+    private void ChangeKind(string id, ChangeEventArgs e)
+    {
+        if (!Enum.TryParse<LlmProviderKind>(Text(e), out var kind))
+        {
+            return;
+        }
+
+        // A new kind takes the usual address and model of that kind; the name the user typed stays.
+        Edit(id, p => LlmProvidersOptions.Template(kind, p.Id, p.Name));
+    }
+
+    private void Add() => Editor.Add(addKind, T["Kind_" + addKind]);
+
+    private async Task TestAsync(string id)
+    {
+        var running = Editor.TestAsync(id, closing.Token);
+        StateHasChanged();
+        try
+        {
+            await running;
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task SaveAsync() => await Editor.SaveAsync();
+
+    private string Describe(LlmProviderSettings provider, LlmConnectionResult result)
+    {
+        var models = result.AvailableModels.Count == 0 ? string.Empty
+            : " " + T["ServerModels", string.Join(", ", result.AvailableModels.Take(12)) + (result.AvailableModels.Count > 12 ? "…" : string.Empty)];
+        return result.Failure switch
+        {
+            null => T["Passed", (long)result.Elapsed.TotalMilliseconds, provider.Model],
+            LlmFailure.ModelMissing => T["Failure_ModelMissing", provider.Model] + models,
+            LlmFailure.TimedOut => T["Failure_TimedOut", (int)ProviderEditor.TestTimeout.TotalSeconds],
+            { } failure => T["Failure_" + failure],
+        };
+    }
+}

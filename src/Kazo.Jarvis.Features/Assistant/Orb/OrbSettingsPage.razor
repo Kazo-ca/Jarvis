@@ -1,0 +1,38 @@
+@inject OrbQualityKeeper Keeper
+@inject IStringLocalizer<OrbSettingsPage> T
+
+@* Settings page of the orb (ADR 0011, section 1): high quality (default) or light, applied without a
+   restart. Jarvis never changes the version on its own. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["QualityLabel"]" Hint="@T["QualityHint"]">
+        @foreach (var quality in Enum.GetValues<OrbQuality>())
+        {
+            <label class="orb-quality-choice">
+                <input type="radio"
+                       name="orb-quality"
+                       value="@quality"
+                       data-orb-quality="@quality"
+                       checked="@(quality == Keeper.Current)"
+                       @onchange="() => ChooseAsync(quality)" />
+                <span>
+                    <span class="orb-quality-name">@T["Quality_" + quality]</span>
+                    <span class="orb-quality-detail">@T["QualityDetail_" + quality]</span>
+                </span>
+            </label>
+        }
+    </SettingsField>
+    @if (problem)
+    {
+        <p class="orb-quality-problem" role="alert">@T["SaveFailed"]</p>
+    }
+</SettingsFrame>
+
+@code {
+    private bool problem;
+
+    private async Task ChooseAsync(OrbQuality quality)
+    {
+        var result = await Keeper.ChooseAsync(quality);
+        problem = !result.IsSaved;
+    }
+}

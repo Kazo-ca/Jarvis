@@ -1,4 +1,5 @@
-// Drawing of the light orb (UI catalog, section 3). Only draws: the speed and the pulses come from C#
+// Drawing of the light orb (UI catalog, section 3). `root` is the drawing's element; the state attributes
+// (data-motion) and the sound level (--orb-level) go on the enclosing `.orb`, shared by both versions. Only draws: the speed and the pulses come from C#
 // (OrbMotion), and no rule about the assistant state is written here (ADR 0005, section 5).
 //
 // Cost (ADR 0011, section 5): the rings rotate with the Web Animations API on `transform`, which the browser
@@ -57,7 +58,7 @@ export function update(root, rate, pulses, reduced) {
 }
 
 export function setLevel(root, level) {
-    root?.style.setProperty("--orb-level", String(Math.min(1, Math.max(0, Number(level) || 0))));
+    root?.closest(".orb")?.style.setProperty("--orb-level", String(Math.min(1, Math.max(0, Number(level) || 0))));
 }
 
 export function detach(root) {
@@ -79,7 +80,11 @@ function isReduced(state) {
 
 function apply(state) {
     const reduced = isReduced(state);
-    state.root.dataset.motion = reduced ? "reduced" : "full";
+    const orb = state.root.closest(".orb");
+    if (orb) {
+        orb.dataset.motion = reduced ? "reduced" : "full";
+    }
+
     const target = reduced ? 0 : state.target;
 
     stopPulses(state);

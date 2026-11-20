@@ -1,9 +1,11 @@
 using System.Runtime.Versioning;
 using Kazo.Jarvis.Adapters.Files;
+using Kazo.Jarvis.Adapters.Llm;
 using Kazo.Jarvis.Adapters.Secrets;
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Adapters.Updates;
+using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Storage;
@@ -49,6 +51,13 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetRequiredService<JarvisPaths>(),
             provider.GetService<ILogger<GitHubReleaseSource>>()));
         services.TryAddSingleton<IReleaseSource>(provider => provider.GetRequiredService<GitHubReleaseSource>());
+
+        // Language models (ADR 0007): one client for every provider. Its timeout bounds the wait for the first
+        // byte, which includes loading a 9 GB model (70 to 115 s in spike E4); the stream itself is not bounded.
+        services.TryAddSingleton<ILlmConnector>(provider => new HttpLlmConnector(
+            new HttpClient { Timeout = TimeSpan.FromMinutes(5) },
+            provider.GetService<ISecretVault>(),
+            provider.GetService<ILogger<HttpLlmConnector>>()));
 
         // Both vaults need Windows (Credential Manager, DPAPI). The Windows host is the only one to load Adapters.
         if (OperatingSystem.IsWindows())

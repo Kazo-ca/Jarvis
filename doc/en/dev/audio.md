@@ -35,7 +35,7 @@ OutputBinder (slice) ─► IAudioPlayback.SelectOutput (host) ◄─ voice, tes
     to the orb.
 - **`OutputBinder`** gives the chosen output to `IAudioPlayback` at start-up and after each change: the
   slices that play a sound do not read this slice's settings.
-- **"Audio" settings page** (`Audio.Devices`, after the language): microphone (with "Windows default
+- **"Audio" settings page** (`Audio.Devices`, after the language, the orb and the language models): microphone (with "Windows default
   (name)"), live level, "Mute the microphone" box, output, "Test the output" button (two generated notes,
   `OutputChime`).
 - Settings: section `Audio.Devices` of `config.json` (`microphoneId`, `outputId`, `microphoneMuted`).

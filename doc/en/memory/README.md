@@ -24,10 +24,11 @@ Resume point for any agent. Update it in the same change as what it describes.
   change in `BlazorWebView`, tray menu translated, fonts shown offline ([list](../dev/hosts.md#windows-checks),
   item 8), and for work item 6: cost of the light orb when idle, muted and in error under 2 % of a core
   (mandatory), cost of the animated phases and of the long task, click and drag, animations turned off in
-  Windows ([list](../dev/orb.md#windows-checks)), and for work item 8: real microphone and level, muted
-  microphone (Windows no longer shows an application listening, mute kept after a restart), microphone
-  unplugged while Jarvis runs, test sound on speakers and headset, cost of the open microphone while idle
-  ([list](../dev/audio.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
+  Windows, and for work item 7: the same measures for the high-quality version (ADR 0011, section 8),
+  quality change without a restart, look at 160 pixels ([list](../dev/orb.md#windows-checks)), and for work item 8: real microphone
+  and level, muted microphone (Windows no longer shows an application listening, mute kept after a restart),
+  microphone unplugged while Jarvis runs, test sound on speakers and headset, cost of the open microphone
+  while idle ([list](../dev/audio.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -65,6 +66,22 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Work item 6** (`stage1/6-orb`, orb light version: slice `Assistant/Orb`, `Orb` component and `OrbView`
   fed by the state machine, demonstration page `/orb` of the Web host, see [dev/orb.md](../dev/orb.md))
   delivered in its PR on November 20, 2026, without a Windows check.
+- **Work item 7** (`stage1/7-orb-high-quality`, orb high-quality version: plasma sphere and binary clouds in
+  a canvas capped at 30 images per second, five gyroscope rings in SVG and CSS 3D turned by the browser,
+  "orb quality" setting in section `Assistant.Orb` and "Orb" settings page, applied without a restart, see
+  [dev/orb.md](../dev/orb.md)) delivered in its PR on November 20, 2026, without a Windows check. **The
+  measure of ADR 0011 (section 8) is still to be done on Windows**: it decides whether the high quality stays
+  the default. Indicative measure in a container without a graphics card: about 21 % of the main thread while
+  animated against under 1 % for the light version, 0 % when idle.
+- **Work item 11** (`stage1/11-llm-providers`, language models: kernel contracts `ILlmConnector` and
+  `IAssistantModel` on `Microsoft.Extensions.AI.Abstractions` 10.11.1, `ollama`, `openai-compatible`/`openai`
+  and `anthropic` adapters written on `HttpClient`, slice `Llm/Providers` with the "Language models" page,
+  default model preloaded at start, see [dev/llm.md](../dev/llm.md)) delivered in its PR on 2026-11-20,
+  without a Windows check. **Pending Windows tests** ([list](../dev/llm.md#checks-on-windows)): Ollama on
+  11435 and `llama-server` on 8080, preload at start, named causes, measure of a 7 to 8 billion parameter
+  fallback model. **Provisional choices** ([detail](../dev/llm.md#provisional-choices-of-this-work-item)):
+  default port 11434 (Benoit sets 11435 once), `claude-opus-5-5` for a new Anthropic provider, Anthropic
+  adapter on `HttpClient` rather than the SDK, answers of 16,000 tokens at most, 20 s connection test.
 - **Work item 8** (`stage1/8-audio-devices`, audio devices: contracts `IAudioCapture` and `IAudioPlayback`,
   kernel `MicrophoneFeed` (microphone stream and 30 s in-memory buffer, for the wake word and transcription),
   slice `Audio/Devices` (microphone, mute US1.13, "microphone missing" fault, output, "Audio" page), WASAPI
@@ -74,9 +91,8 @@ Resume point for any agent. Update it in the same change as what it describes.
   survives a restart; chosen microphone missing = the Windows default, with no fault; muting clears the
   "microphone missing" fault; 30 s buffer; level in decibels from −60 to 0; conversion to 16 kHz done by
   Jarvis.
-- **Next step:** work items `stage1/7-orb-high-quality` and `stage1/11-llm-providers`; after work item 8,
-  `stage1/9-wake-word`, `stage1/10-transcription` and `stage1/12-speech`. The pending Windows tests (work
-  items 4, 5, 6 and 8, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** work items `stage1/9-wake-word`, `stage1/10-transcription` and `stage1/12-speech`, which
+  depend on work item 8. The pending Windows tests (work items 4, 5, 6, 7, 8 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
@@ -105,11 +121,15 @@ Resume point for any agent. Update it in the same change as what it describes.
   responsive and closed without error. Started on a locked session, the Windows host died: fixed in work
   item 4 (see [pitfalls](../dev/pitfalls.md)).
 - **Provisional choices of work item 6 that ADRs 0005 and 0011 do not settle** (details in
-  [dev/orb.md](../dev/orb.md#provisional-choices-of-this-work-item), for Benoit to confirm): error = flash then
+  [dev/orb.md](../dev/orb.md#provisional-choices), for Benoit to confirm): error = flash then
   still image (not the catalog's speed 0.25); reduced motion = no rotation or pulse, listening and speaking
   told from idle by light only; unknown progress = still dashed green circle; orb body at 80 % of the window;
-  "99+" badge; no "version" input yet (work item 7). The click is still caught by the WPF window, which hands
-  it to the slice's `OrbActivation`.
+  "99+" badge. The click is still caught by the WPF window, which hands it to the slice's `OrbActivation`.
+- **Provisional choices of work item 7** (details in [dev/orb.md](../dev/orb.md#provisional-choices), for
+  Benoit to confirm): the prototype's proportions kept (sphere at 30 % of the side, so about 48 pixels in the
+  160-pixel window, cloud digits reduced to a texture); each look's light shared by both versions; error and
+  reduced motion as in the light version; gyroscope rocking as a 25 s back-and-forth; halo in CSS; "Orb" page
+  after "Language" in the settings.
 - **Choices of work item 5 that ADRs 0008 and 0011 do not settle** (details in [dev/shared-ui.md](../dev/shared-ui.md)):
   `IStringLocalizer` reads the assistant language at each lookup, never the thread culture (formats keep
   those of Windows); a window is built again whole on a language change (`LanguageScope`), the title bar keeps

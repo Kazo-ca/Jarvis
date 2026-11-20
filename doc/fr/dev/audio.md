@@ -35,7 +35,7 @@ OutputBinder (tranche) ─► IAudioPlayback.SelectOutput (hôte) ◄─ voix, p
     vers l'orbe.
 - **`OutputBinder`** donne la sortie choisie à `IAudioPlayback` au démarrage et à chaque changement : les
   tranches qui jouent un son ne lisent pas les réglages de celle-ci.
-- **Page des paramètres « Audio »** (`Audio.Devices`, après la langue) : micro (avec « Par défaut de
+- **Page des paramètres « Audio »** (`Audio.Devices`, après la langue, l'orbe et les modèles de langage) : micro (avec « Par défaut de
   Windows (nom) »), niveau en direct, case « Couper le micro », sortie, bouton « Tester la sortie » (deux
   notes générées, `OutputChime`).
 - Réglages : section `Audio.Devices` de `config.json` (`microphoneId`, `outputId`, `microphoneMuted`).

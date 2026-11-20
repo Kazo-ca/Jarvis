@@ -3,11 +3,14 @@
 @inject IMessageBus Bus
 @inject ISoundLevelSource Levels
 @inject OrbActivation Activation
+@inject OrbQualityKeeper QualityKeeper
 
-@* The orb as the hosts show it: fed by the assistant state (ADR 0005, section 4) and the sound level
-   (section 5), and its click publishes the activation (US1.6). The demonstration page drives Orb directly. *@
+@* The orb as the hosts show it: fed by the assistant state (ADR 0005, section 4), the sound level
+   (section 5) and the "orb quality" setting (ADR 0011, section 1, applied without a restart), and its click
+   publishes the activation (US1.6). The demonstration page drives Orb directly. *@
 <Orb @ref="orb"
      Look="@current.Look"
+     Quality="@quality"
      DelegatedTasks="@current.DelegatedTasks"
      Fault="@current.Fault?.Cause"
      AnimateIdle="@AnimateIdle"
@@ -17,6 +20,7 @@
 @code {
     private Orb? orb;
     private AssistantState current = AssistantState.Initial;
+    private OrbQuality quality;
     private IDisposable? stateSubscription;
     private IDisposable? levelSubscription;
 
@@ -32,6 +36,8 @@
     protected override void OnInitialized()
     {
         current = State.Current;
+        quality = QualityKeeper.Current;
+        QualityKeeper.Changed += OnQualityChanged;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((changed, _) =>
             new ValueTask(InvokeAsync(() =>
             {
@@ -44,6 +50,7 @@
     /// <inheritdoc />
     public void Dispose()
     {
+        QualityKeeper.Changed -= OnQualityChanged;
         stateSubscription?.Dispose();
         levelSubscription?.Dispose();
     }
@@ -59,6 +66,14 @@
             _ = InvokeAsync(() => target.SetLevelAsync(level.Value).AsTask());
         }
     }
+
+    // Raised inside the settings save, on any thread: render on the component's dispatcher.
+    private void OnQualityChanged(OrbQuality next) =>
+        _ = InvokeAsync(() =>
+        {
+            quality = next;
+            StateHasChanged();
+        });
 
     private Task ActivateAsync() => Activation.ClickAsync().AsTask();
 }
