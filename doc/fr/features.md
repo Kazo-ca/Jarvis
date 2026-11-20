@@ -8,8 +8,8 @@
 
 | Fonctionnalité | Étape | Référence |
 | --- | --- | --- |
-| Orbe, voix, modèle local et paramètres | 1 | [Conception](dev/plans/design.md), [plan de la série](dev/plans/stage-1.md) |
-| Outils, MCP, passage de main et sessions Claude | 2 | [Conception](dev/plans/design.md) |
+| Orbe, voix, modèle local et paramètres : construit et fusionné dans `main` le 20 novembre 2026, recette sur Windows à faire | 1 | [Conception](dev/plans/design.md), [plan de la série](dev/plans/stage-1.md) |
+| Outils, MCP, passage de main et sessions Claude | 2 | [Conception](dev/plans/design.md), [plan de la série](dev/plans/stage-2.md) |
 | Éventail des tâches : un double-clic sur l'orbe en fait sortir les tâches en cours | 2 | [ADR 0010](dev/adr/0010-task-fan-and-orb-click.md) |
 | Mode autonome, déclencheurs et courriel | 3 | [Conception](dev/plans/design.md) |
 | Application mobile Android | 4 | [Conception](dev/plans/design.md) |
