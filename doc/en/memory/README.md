@@ -161,6 +161,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   ([detail](../dev/faults.md#provisional-choices-of-this-work-item), to be confirmed by Benoit): window opened by the
   menu entry, and by itself only on a refusal for want of a microphone; unreachable server raised after two failed
   loads in a row; the "Voices" page clears the voice fault; no button for unreadable settings; origin in the kernel.
+- **Stage 2 plan: proposed** on November 20, 2026 (work item `stage1/stage-2-plan`, [plan](../dev/plans/stage-2.md)), waiting for Benoit: 15 work items `stage2/<n>-<topic>`, first spikes E11 to E14 on his PC then ADRs 0017 to 0021 (numbers reserved by the plan). Three open questions: starting point of `stage2/base`, web search provider, order of the first work items.
 - **Next step:** work item `stage1/17-acceptance` (acceptance on Benoit's PC, with him). The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
