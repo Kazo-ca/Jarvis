@@ -54,6 +54,7 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
     private WakeWordStatus status = WakeWordStatus.Starting;
     private WakeWordDetection? lastDetection;
     private float score;
+    private int disposed;
 
     /// <summary>Creates the listener.</summary>
     /// <param name="engine">The host's wake word engine.</param>
@@ -122,7 +123,10 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
             return;
         }
 
-        await stopping.CancelAsync().ConfigureAwait(false);
+        if (Volatile.Read(ref disposed) == 0)
+        {
+            await stopping.CancelAsync().ConfigureAwait(false);
+        }
         try
         {
             await running.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -136,6 +140,13 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        // The container disposes this singleton twice: once as itself, once as the hosted service it was
+        // registered as (a factory registration). The second call does nothing.
+        if (Interlocked.Exchange(ref disposed, 1) == 1)
+        {
+            return;
+        }
+
         settingsWatch?.Dispose();
         stopping?.Cancel();
         stopping?.Dispose();

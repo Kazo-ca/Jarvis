@@ -181,6 +181,17 @@ public sealed class WakeWordListenerTests
     }
 
     [Test]
+    public async Task Disposing_twice_does_nothing_the_second_time()
+    {
+        await StartAsync();
+        await listener.StopAsync(CancellationToken.None);
+
+        listener.Dispose();
+
+        Assert.DoesNotThrow(listener.Dispose);
+    }
+
+    [Test]
     public async Task Missing_models_are_named_and_looked_for_again()
     {
         engine.Missing = ["/models/wake-word/hey_jarvis_v0.1.onnx"];
