@@ -78,8 +78,8 @@ L'ADR 0006 ne les tranche pas ; à confirmer par Benoit :
    retard est pire qu'un mot d'éveil manqué).
 9. **`Microsoft.ML.OnnxRuntime.Managed` 1.28.0 au lieu de `Microsoft.ML.OnnxRuntime` 1.32.0** (version de
    l'ADR 0001) : les deux paquets natifs se marchaient dessus et Piper ne se chargeait plus sous Linux
-   ([pièges](pitfalls.md)). Piper puis le mot d'éveil dans le même processus : « Hey Jarvis. » à 0,993. Un
-   ADR qui remplace la ligne de l'ADR 0001 est à proposer à Benoit.
+   ([pièges](pitfalls.md)). Piper puis le mot d'éveil dans le même processus : « Hey Jarvis. » à 0,993.
+   L'[ADR 0016](adr/0016-onnx-runtime-managed-on-sherpa-native.md) remplace la ligne de l'ADR 0001.
 
 ## Tests
 
@@ -108,3 +108,5 @@ L'ADR 0006 ne les tranche pas ; à confirmer par Benoit :
 3. « Hey Jarvis » pendant que Jarvis parle (après le chantier 12) : la voix de Jarvis ne le réveille pas, et
    celle de Benoit l'interrompt.
 4. Coût du mot d'éveil mesuré à part (méthode de l'essai E6), à noter dans la mémoire.
+5. Un seul `onnxruntime.dll` dans le dossier de l'hôte publié, et le mot d'éveil comme Piper s'y chargent
+   (ADR 0016).

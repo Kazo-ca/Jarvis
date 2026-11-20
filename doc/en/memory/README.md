@@ -45,7 +45,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
-- **Next free ADR number:** 0016. **ADR 0015 (work tracking source: GitHub Issues or Azure Boards; `#<id>` for GitHub, `AB#<id>` for Azure DevOps in commits and PRs): accepted** by Benoit on November 19, 2026 (work item `stage1/work-tracking-adr`), with confirmation before any creation or change, feature for v2 with Relais. **ADR 0014 (Apache 2.0 license, rule on Kazo Bar, removal of `jarvis.py`): accepted** by Benoit on
+- **Next free ADR number:** 0017. **ADR 0016 (a single native ONNX Runtime, the one from sherpa-onnx; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 for the wake word, supersedes one line of ADR 0001): proposed** on November 20, 2026 (work item `stage1/onnx-runtime-adr`), waiting for Benoit's answer. **ADR 0015 (work tracking source: GitHub Issues or Azure Boards; `#<id>` for GitHub, `AB#<id>` for Azure DevOps in commits and PRs): accepted** by Benoit on November 19, 2026 (work item `stage1/work-tracking-adr`), with confirmation before any creation or change, feature for v2 with Relais. **ADR 0014 (Apache 2.0 license, rule on Kazo Bar, removal of `jarvis.py`): accepted** by Benoit on
   November 19, 2026 (work item `stage1/license-kazo-bar-android-calls`). Kazo Bar is never referenced (no project, no package); its code may
   be copied here and then evolves separately. `jarvis.py` is no longer used. Making the repository public is Benoit's to do. **ADR 0013 (preparing the Relais module, v2): accepted** by Benoit on
   November 19, 2026 (work item `stage1/relais-architecture-adr`); nothing is built before v2, except the
@@ -109,7 +109,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   while thinking and speaking, paused while listening; slider from 0.05 to 0.95; best score of the last 3
   seconds shown; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 on sherpa-onnx's native engine instead of
   `Microsoft.ML.OnnxRuntime` 1.32.0 from ADR 0001 (two native `onnxruntime` broke Piper, see the
-  [pitfalls](../dev/pitfalls.md)): **an ADR replacing that line of ADR 0001 is to be proposed to Benoit**.
+  [pitfalls](../dev/pitfalls.md)): **[ADR 0016](../dev/adr/0016-onnx-runtime-managed-on-sherpa-native.md), proposed, replaces that line of ADR 0001**.
 - **Work item 10** (`stage1/10-transcription`, end of utterance and Whisper: kernel contracts
   `ISpeechRecognition` and `IVoiceActivityDetection`, message `UtteranceTranscribed` for the conversation,
   slice `Voice/Transcription` (listening to a spoken turn, end of utterance by Silero with an energy-threshold

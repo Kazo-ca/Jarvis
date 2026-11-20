@@ -51,7 +51,7 @@ ce qu'il décrit.
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX). L'étape 5 est réécrite le 19 novembre 2026 : appels entre Jarvis et l'application Android, dans les deux sens (US5.1 à US5.9 du document de conception), sans ADR pour l'instant ; elle dépend d'E10. En attente : E10
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
-- **Prochain numéro d'ADR libre :** 0016. **ADR 0015 (source de suivi du travail : GitHub Issues ou Azure Boards ; `#<id>` pour GitHub, `AB#<id>` pour Azure DevOps dans les commits et les PR) : accepté** par Benoit le 19 novembre 2026 (chantier `stage1/work-tracking-adr`), avec confirmation avant toute création ou modification, fonctionnalité pour la v2 avec Relais. **ADR 0014 (licence Apache 2.0, règle sur Kazo Bar, retrait de `jarvis.py`) : accepté** par Benoit le 19
+- **Prochain numéro d'ADR libre :** 0017. **ADR 0016 (un seul ONNX Runtime natif, celui de sherpa-onnx ; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 pour le mot d'éveil, remplace une ligne de l'ADR 0001) : proposé** le 20 novembre 2026 (chantier `stage1/onnx-runtime-adr`), en attente de la réponse de Benoit. **ADR 0015 (source de suivi du travail : GitHub Issues ou Azure Boards ; `#<id>` pour GitHub, `AB#<id>` pour Azure DevOps dans les commits et les PR) : accepté** par Benoit le 19 novembre 2026 (chantier `stage1/work-tracking-adr`), avec confirmation avant toute création ou modification, fonctionnalité pour la v2 avec Relais. **ADR 0014 (licence Apache 2.0, règle sur Kazo Bar, retrait de `jarvis.py`) : accepté** par Benoit le 19
   novembre 2026 (chantier `stage1/license-kazo-bar-android-calls`). Kazo Bar ne se référence jamais (ni projet, ni paquet) ; son code peut
   être copié ici et évolue ensuite séparément. `jarvis.py` n'est plus utilisé. Le passage du dépôt en public revient à Benoit. **ADR 0013 (préparer le module Relais, v2) : accepté** par Benoit le 19
   novembre 2026 (chantier `stage1/relais-architecture-adr`) ; rien ne se construit avant la v2, sauf l'hôte
@@ -116,7 +116,7 @@ ce qu'il décrit.
   actif pendant la réflexion et la parole, en pause pendant l'écoute ; curseur de 0,05 à 0,95 ; meilleur score
   des 3 dernières secondes affiché ; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 sur le moteur natif de sherpa-onnx
   au lieu de `Microsoft.ML.OnnxRuntime` 1.32.0 de l'ADR 0001 (deux `onnxruntime` natifs cassaient Piper, voir les
-  [pièges](../dev/pitfalls.md)) : **un ADR qui remplace cette ligne de l'ADR 0001 est à proposer à Benoit**.
+  [pièges](../dev/pitfalls.md)) : **l'[ADR 0016](../dev/adr/0016-onnx-runtime-managed-on-sherpa-native.md), proposé, remplace cette ligne de l'ADR 0001**.
 - **Chantier 10** (`stage1/10-transcription`, fin de phrase et Whisper : contrats `ISpeechRecognition` et
   `IVoiceActivityDetection` du noyau, message `UtteranceTranscribed` pour la conversation, tranche
   `Voice/Transcription` (écoute d'un tour parlé, fin de phrase par Silero avec repli sur un seuil d'énergie,
