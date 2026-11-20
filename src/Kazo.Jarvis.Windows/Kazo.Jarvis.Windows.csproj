@@ -34,6 +34,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <!-- Audio devices (ADR 0003, section 5): WASAPI capture and playback. -->
+    <PackageReference Include="NAudio" />
   </ItemGroup>
 
   <ItemGroup>

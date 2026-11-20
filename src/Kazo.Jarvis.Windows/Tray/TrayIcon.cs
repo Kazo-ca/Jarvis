@@ -2,7 +2,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Desktop;
+using Kazo.Jarvis.Kernel.Messages.Audio;
 using Kazo.Jarvis.Kernel.Messages.Desktop;
 using Kazo.Jarvis.Kernel.Messages.Updates;
 using Kazo.Jarvis.Kernel.Messaging;
@@ -14,8 +16,8 @@ namespace Kazo.Jarvis.Windows.Tray;
 
 /// <summary>
 /// The tray icon (US1.2): left click shows or hides the orb; the menu offers Settings, Conversation, Mute the
-/// microphone, Updates (US1.18) and Quit. A notice tells about a new version; clicking it opens Updates. Settings and Conversation are greyed out until a slice handles their event; Mute the
-/// microphone until work item stage1/8-audio-devices. Created and used on the UI thread.
+/// microphone, Updates (US1.18) and Quit. A notice tells about a new version; clicking it opens Updates. Settings, Conversation and Mute the microphone are greyed out until a slice handles their event; Mute the
+/// microphone is ticked while the microphone is muted (US1.13). Created and used on the UI thread.
 /// </summary>
 internal sealed partial class TrayIcon : IDisposable
 {
@@ -24,16 +26,18 @@ internal sealed partial class TrayIcon : IDisposable
 
     private readonly IOrbWindow orb;
     private readonly IMessageBus bus;
+    private readonly IAssistantStateReader state;
     private readonly IServiceProvider services;
     private readonly ILogger<TrayIcon> logger;
     private NotifyIcon? icon;
     private Icon? image;
 
     /// <summary>Creates the tray icon; nothing shows before <see cref="Show"/>.</summary>
-    public TrayIcon(IOrbWindow orb, IMessageBus bus, IServiceProvider services, ILogger<TrayIcon> logger)
+    public TrayIcon(IOrbWindow orb, IMessageBus bus, IAssistantStateReader state, IServiceProvider services, ILogger<TrayIcon> logger)
     {
         this.orb = orb;
         this.bus = bus;
+        this.state = state;
         this.services = services;
         this.logger = logger;
     }
@@ -113,7 +117,7 @@ internal sealed partial class TrayIcon : IDisposable
     {
         var settingsItem = new ToolStripMenuItem(HostTexts.Settings, null, (_, _) => Publish(new SettingsWindowRequested()));
         var conversationItem = new ToolStripMenuItem(HostTexts.Conversation, null, (_, _) => Publish(new ConversationWindowRequested()));
-        var muteItem = new ToolStripMenuItem(HostTexts.MuteMicrophone) { Enabled = false };
+        var muteItem = new ToolStripMenuItem(HostTexts.MuteMicrophone, null, (_, _) => Publish(new MicrophoneMuteRequested(!state.Current.MicrophoneMuted)));
         var updatesItem = new ToolStripMenuItem(HostTexts.Updates, null, (_, _) => Publish(new UpdatesWindowRequested()));
         var quitItem = new ToolStripMenuItem(HostTexts.Quit, null, (_, _) => QuitRequested?.Invoke(this, EventArgs.Empty));
 
@@ -129,6 +133,8 @@ internal sealed partial class TrayIcon : IDisposable
             quitItem.Text = HostTexts.Quit;
             settingsItem.Enabled = HasHandler<SettingsWindowRequested>();
             conversationItem.Enabled = HasHandler<ConversationWindowRequested>();
+            muteItem.Enabled = HasHandler<MicrophoneMuteRequested>();
+            muteItem.Checked = state.Current.MicrophoneMuted;
             updatesItem.Enabled = HasHandler<UpdatesWindowRequested>();
         };
         return menu;

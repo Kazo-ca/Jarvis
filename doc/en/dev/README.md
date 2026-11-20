@@ -11,6 +11,7 @@
 | [hosts.md](hosts.md) | Windows and Web hosts: start-up, orb, tray icon, hotkey, dialogs |
 | [orb.md](orb.md) | The orb, light version: component, looks, motion, demonstration page |
 | [shared-ui.md](shared-ui.md) | Shared style, fonts, translations, language setting, settings window, secret field |
+| [audio.md](audio.md) | Audio devices: microphone, output, mute, listening buffer |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |
 | [spikes.md](spikes.md) | Summary of the technical spikes |

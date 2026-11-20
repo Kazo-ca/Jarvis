@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Features.Assistant.Orb;
+using Kazo.Jarvis.Features.Audio.Devices;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Maintenance.Updates;
@@ -42,6 +43,9 @@ public static class FeaturesServiceCollectionExtensions
 
         // The orb (stage1/6-orb): its component reads the kernel state; the click publishes the activation.
         services.AddOrbSlice();
+
+        // Audio devices (stage1/8-audio-devices): capture and playback come from the host.
+        services.AddAudioDevicesSlice();
 
         // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
         return services;

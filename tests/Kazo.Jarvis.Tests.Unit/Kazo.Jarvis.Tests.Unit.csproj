@@ -35,6 +35,15 @@
     <Compile Include="..\..\src\Kazo.Jarvis.Updater\Installing\*.cs" LinkBase="Updater\Installing" />
   </ItemGroup>
 
+  <!--
+    Same for the plain .NET audio conversions of the Windows host (no NAudio type): the WASAPI code around
+    them needs Windows, the arithmetic does not.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Kazo.Jarvis.Windows\Audio\CaptureConverter.cs" LinkBase="Windows\Audio" />
+    <Compile Include="..\..\src\Kazo.Jarvis.Windows\Audio\PlaybackConverter.cs" LinkBase="Windows\Audio" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
     <ProjectReference Include="..\..\src\Kazo.Jarvis.Features\Kazo.Jarvis.Features.csproj" />

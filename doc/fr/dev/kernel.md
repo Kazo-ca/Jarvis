@@ -14,7 +14,8 @@ src/Kazo.Jarvis.Kernel/
   Messaging/                             IEvent, IRequest<T>, IMessageBus, gestionnaires, bus en mémoire
   Assistant/                             état, phase, conditions, tour, fonction d'aspect, machine, rédacteur unique
   Messages/Assistant/                    messages d'entrée de la machine et messages qu'elle publie
-  Audio/                                 contrat du niveau sonore (hors du bus)
+  Audio/                                 niveau sonore et flux du micro (hors du bus), contrats de capture et de lecture (voir audio.md)
+  Messages/Audio/                        MicrophoneMuteRequested
   Settings/                              contrats des réglages (voir storage.md), pages de la fenêtre des paramètres
   Localization/                          langue de l'assistant, lecteur de la langue, langue de Windows (voir shared-ui.md)
   Messages/Localization/                 AssistantLanguageChanged

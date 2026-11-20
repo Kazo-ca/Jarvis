@@ -39,6 +39,15 @@ Kazo.Jarvis doit détecter ce message et demander de relancer `/login`, au lieu 
 
 `ISampleProvider.Read` prend un `Span<float>`. Les exemples écrits pour NAudio 2 ne compilent plus.
 
+## NAudio 3 : `WasapiCapture` et `WasapiOut` sont obsolètes (chantier stage1/8-audio-devices)
+
+Elles donnent l'avertissement CS0618, et la construction doit rester sans avertissement. Utiliser
+`WasapiRecorderBuilder` et `WasapiPlayerBuilder`. `DataAvailable` reçoit alors directement un
+`ReadOnlySpan<byte>` (plus de `WaveInEventArgs`) ; `MMDevice.AudioClient` est obsolète aussi
+(`WasapiPlayer.DeviceMixFormat` donne le format de mélange). Les événements d'un enregistreur ou d'un lecteur
+passent par le contexte de synchronisation du fil qui le crée : le créer sur un fil du pool, jamais sur le fil
+d'interface.
+
 ## Un `[SetUpFixture]` NUnit ne vaut que pour son espace de noms (chantier stage1/1-solution)
 
 Placé dans `Kazo.Jarvis.Tests.E2E.Drivers`, le démarrage de l'hôte Web ne tournait pas pour les tests de

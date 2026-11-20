@@ -28,7 +28,10 @@ ce qu'il décrit.
   traduit, polices affichées hors ligne ([liste](../dev/hosts.md#vérifications-sur-windows), point 8), et pour le
   chantier 6 : coût de l'orbe légère en veille, micro coupé et erreur sous 2 % d'un cœur (obligatoire),
   coût des phases animées et de la tâche longue, clic et glissement, animations coupées dans Windows
-  ([liste](../dev/orb.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
+  ([liste](../dev/orb.md#vérifications-sur-windows)), et pour le chantier 8 : micro réel et niveau, micro coupé
+  (Windows n'indique plus d'application qui écoute, coupure gardée après relance), micro débranché pendant
+  que Jarvis tourne, son de test sur haut-parleurs et casque, coût du micro ouvert en veille
+  ([liste](../dev/audio.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
   tranche `Maintenance/Updates`, lecture des versions GitHub, programme `Kazo.Jarvis.Updater`, script
   `build/Publish-Release.ps1`, voir [dev/updates.md](../dev/updates.md)) livré dans sa PR ; sa vérification
   sur Windows attend la prochaine séance. Chantier 5 (`stage1/5-shared-ui-language`, style commun, polices
@@ -68,9 +71,18 @@ ce qu'il décrit.
 - **Chantier 6** (`stage1/6-orb`, orbe version légère : tranche `Assistant/Orb`, composant `Orb` et
   `OrbView` nourri par la machine à états, page de démonstration `/orb` de l'hôte Web, voir
   [dev/orb.md](../dev/orb.md)) livré dans sa PR le 20 novembre 2026, sans vérification Windows.
-- **Prochaine étape :** chantier `stage1/7-orb-high-quality`, et `stage1/8-audio-devices` et
-  `stage1/11-llm-providers`, qui ne dépendent que du chantier 5. Les tests Windows en attente (chantiers 4,
-  5 et 6, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier 8** (`stage1/8-audio-devices`, périphériques audio : contrats `IAudioCapture` et
+  `IAudioPlayback`, `MicrophoneFeed` du noyau (flux du micro et tampon de 30 s en mémoire, pour le mot d'éveil
+  et la transcription), tranche `Audio/Devices` (micro, coupure US1.13, panne « micro absent », sortie, page
+  « Audio »), WASAPI par NAudio 3.3 dans l'hôte Windows, voir [dev/audio.md](../dev/audio.md)) livré dans sa
+  PR le 20 novembre 2026, sans vérification Windows. **Choix provisoires** (détail dans
+  [dev/audio.md](../dev/audio.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : la coupure du
+  micro survit au redémarrage ; micro choisi absent = celui de Windows par défaut, sans panne ; couper le micro
+  lève la panne « micro absent » ; tampon de 30 s ; niveau en décibels de −60 à 0 ; conversion vers 16 kHz
+  faite par Jarvis.
+- **Prochaine étape :** chantier `stage1/7-orb-high-quality` et `stage1/11-llm-providers` ; après le
+  chantier 8, `stage1/9-wake-word`, `stage1/10-transcription` et `stage1/12-speech`. Les tests Windows en
+  attente (chantiers 4, 5, 6 et 8, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
