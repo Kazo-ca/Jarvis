@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-20 (work item `stage2/2-adrs`). The decisions Benoit took after spike E12 are in the
-"Benoit's answers" section; the open questions in "Questions for Benoit".
+Proposed on 2026-11-20 (work item `stage2/2-adrs`). The decisions Benoit took are in the "Benoit's answers"
+section. No question is open in this ADR any more; it is accepted together with ADRs 0017 and 0018.
 
 - **Settles the points left by:** [ADR 0009](0009-permission-and-confirmation-model.md) (section 7: the exact
   command line, and whether the project settings are loaded), [ADR 0013](0013-relais-readiness.md) (sections
@@ -156,7 +156,7 @@ In Jarvis's settings file, with the header `X-Relais-Task: $RELAIS_TASK_ID`:
 ### 8. Hand-off to Claude Code
 
 - `hand_off_to_claude` with `kind: task` is of class **"Read"**: the session starts read-only on an allowed
-  folder, and every write is confirmed afterwards (question 1). Jarvis says the folder before launching
+  folder, and every write is confirmed afterwards (answer 3). Jarvis says the folder before launching
   ("Starting Claude Code on Kazo Bar."); an interruption cancels.
 - The first message of the session, sent through the input stream, carries in this order (ADR 0020,
   answer 1):
@@ -171,8 +171,12 @@ In Jarvis's settings file, with the header `X-Relais-Task: $RELAIS_TASK_ID`:
 - Jarvis announces aloud when a session **finishes** or **waits for a permission** (US2.12).
 - Setting per folder: everything, waits only, nothing. By default: everything for sessions launched by
   Jarvis; everything for the others once their hooks are installed.
-- **Quiet hours** (question 2): during those hours, nothing is said; the orb keeps its amber badge (ADR 0011)
-  and the announcement stays in the conversation.
+- **Quiet hours**: none by default, adjustable (answer 4). During those hours, nothing is said; the orb keeps
+  its amber badge (ADR 0011) and the announcement stays in the conversation.
+- **"I'm going to sleep"** (answer 4): if the user says they are going to sleep and no quiet period is set,
+  Jarvis offers silence for 8 hours. The silence only starts after their "yes". It is a tool of the local
+  model, `start_quiet_period`, of class "Everyday effect"; it does not change the configured periods and ends
+  by itself.
 - An announcement does not interrupt the user nor an answer in progress: it waits until the assistant is
   idle.
 - "Where is Claude at on Kazo Bar?" (US2.13): the local model summarizes from the last message and the task's
@@ -198,13 +202,12 @@ recommendations".
 2. **Does a session launched by Jarvis load the repository's settings?** No: the `CLAUDE.md` alone, without
    settings or hooks. The full settings only for folders marked as "trusted".
 
-## Questions for Benoit
+Questions asked the same day while writing this ADR, answers of 6:46 PM:
 
-Asked in the conversation on 2026-11-20.
-
-1. **Does launching a Claude Code session ask for a confirmation?** Recommendation: no. Jarvis says the
-   folder and launches; the session is read-only and every write is confirmed.
-2. **Default quiet hours.** Recommendation: none by default, adjustable.
+3. **Does launching a Claude Code session ask for a confirmation?** No. Jarvis says the folder and launches;
+   the session is read-only and every write is confirmed.
+4. **Default quiet hours.** None. Benoit adds: "if the user says they are going to sleep, it would be good
+   for the agent to offer to turn on silent mode for 8 hours if no schedule is configured".
 
 ## Options set aside
 

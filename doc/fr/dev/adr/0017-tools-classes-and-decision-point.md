@@ -143,6 +143,9 @@ Posées dans la conversation le 2026-11-20.
    « Search » est prépayé, 5 $ US par 1 000 requêtes, avec 5 $ de crédit offerts chaque mois (environ
    1 000 recherches). D'après un article du 2026-06-08, une carte de crédit est demandée à l'inscription.
    Recommandation : garder Brave Search, désactivé par défaut, la clé fournie par l'utilisateur.
+   **Benoit demande en retour** (2026-11-20) si la recherche peut se faire dans un navigateur visible par
+   l'utilisateur, piloté par quelque chose comme Playwright. La question reste ouverte ; cet ADR ne s'accepte
+   qu'une fois tranchée.
 
 ## Options écartées
 

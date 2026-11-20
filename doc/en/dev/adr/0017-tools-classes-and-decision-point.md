@@ -143,6 +143,9 @@ Asked in the conversation on 2026-11-20.
    1,000 requests, with US$5 of credit given every month (about 1,000 searches). According to an article of
    2026-06-08, a credit card is asked at sign-up. Recommendation: keep Brave Search, disabled by default, the
    key supplied by the user.
+   **Benoit asks in return** (2026-11-20) whether the search can be done in a browser visible to the user,
+   driven by something like Playwright. The question stays open; this ADR is only accepted once it is
+   settled.
 
 ## Options set aside
 

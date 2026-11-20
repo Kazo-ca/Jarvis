@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-20 (chantier `stage2/2-adrs`). Les décisions prises par Benoit après l'essai E12 sont dans
-la section « Réponses de Benoit » ; les questions ouvertes dans « Questions pour Benoit ».
+Proposé le 2026-11-20 (chantier `stage2/2-adrs`). Les décisions prises par Benoit sont dans la section
+« Réponses de Benoit ». Il n'y a plus de question ouverte dans cet ADR ; il s'accepte avec les ADR 0017 et 0018.
 
 - **Tranche les points laissés par :** [ADR 0009](0009-permission-and-confirmation-model.md) (section 7 : la
   ligne de commande exacte, et si les réglages du projet sont chargés),
@@ -156,7 +156,7 @@ Dans le fichier de réglages de Jarvis, avec l'en-tête `X-Relais-Task: $RELAIS_
 ### 8. Passage de main vers Claude Code
 
 - `hand_off_to_claude` avec `kind: task` est de classe **« Lecture »** : la session démarre en lecture seule
-  sur un dossier autorisé, et chaque écriture se confirme ensuite (question n° 1). Jarvis dit le dossier
+  sur un dossier autorisé, et chaque écriture se confirme ensuite (réponse n° 3). Jarvis dit le dossier
   avant de lancer (« Je lance Claude Code sur Kazo Bar. ») ; une interruption annule.
 - Le premier message de la session, envoyé par le flux d'entrée, porte dans cet ordre (ADR 0020, réponse
   n° 1) :
@@ -171,8 +171,12 @@ Dans le fichier de réglages de Jarvis, avec l'en-tête `X-Relais-Task: $RELAIS_
 - Jarvis annonce à voix haute quand une session **se termine** ou **attend une permission** (US2.12).
 - Réglage par dossier : tout, les attentes seulement, rien. Par défaut : tout pour les sessions lancées par
   Jarvis ; tout pour les autres une fois leurs hooks installés.
-- **Heures de silence** (question n° 2) : pendant ces heures, rien n'est dit ; l'orbe garde son badge ambre
-  (ADR 0011) et l'annonce reste dans la conversation.
+- **Heures de silence** : aucune par défaut, réglables (réponse n° 4). Pendant ces heures, rien n'est dit ;
+  l'orbe garde son badge ambre (ADR 0011) et l'annonce reste dans la conversation.
+- **« Je vais dormir »** (réponse n° 4) : si l'utilisateur dit qu'il va dormir et qu'aucune plage de silence
+  n'est réglée, Jarvis lui propose le silence pour 8 heures. Le silence ne commence qu'après son « oui ».
+  C'est un outil du modèle local, `start_quiet_period`, de classe « Effet courant » ; il ne change pas les
+  plages réglées et se termine seul.
 - Une annonce n'interrompt pas l'utilisateur ni une réponse en cours : elle attend que l'assistant soit au
   repos.
 - « Où en est Claude sur Kazo Bar ? » (US2.13) : le modèle local résume à partir du dernier message et de
@@ -198,13 +202,13 @@ recommandations ».
 2. **Une session lancée par Jarvis charge-t-elle les réglages du dépôt ?** Non : le `CLAUDE.md` seul, sans
    réglages ni hooks. Les réglages complets seulement pour les dossiers marqués « de confiance ».
 
-## Questions pour Benoit
+Questions posées le même jour à l'écriture de cet ADR, réponses de 18 h 46 :
 
-Posées dans la conversation le 2026-11-20.
-
-1. **Lancer une session Claude Code demande-t-il une confirmation ?** Recommandation : non. Jarvis dit le
-   dossier et lance ; la session est en lecture seule et chaque écriture se confirme.
-2. **Heures de silence par défaut.** Recommandation : aucune par défaut, réglables.
+3. **Lancer une session Claude Code demande-t-il une confirmation ?** Non. Jarvis dit le dossier et lance ;
+   la session est en lecture seule et chaque écriture se confirme.
+4. **Heures de silence par défaut.** Aucune. Benoit ajoute : « si l'utilisateur dit qu'il va dormir, il
+   serait bien que l'agent lui propose d'activer le mode silencieux pour une durée de 8 heures si aucune
+   planification n'est configurée ».
 
 ## Options écartées
 
