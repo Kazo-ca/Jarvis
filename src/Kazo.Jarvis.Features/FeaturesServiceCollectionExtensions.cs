@@ -1,6 +1,7 @@
 using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
+using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
@@ -42,6 +43,10 @@ public static class FeaturesServiceCollectionExtensions
 
         // The orb (stage1/6-orb): its component reads the kernel state; the click publishes the activation.
         services.AddOrbSlice();
+
+        // Language models (stage1/11-llm-providers): the connector comes from the host; the default model is
+        // preloaded in the background and read by the conversation (work item 13).
+        services.AddLlmProvidersSlice();
 
         // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
         return services;

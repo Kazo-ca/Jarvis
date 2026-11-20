@@ -62,6 +62,15 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Work item 6** (`stage1/6-orb`, orb light version: slice `Assistant/Orb`, `Orb` component and `OrbView`
   fed by the state machine, demonstration page `/orb` of the Web host, see [dev/orb.md](../dev/orb.md))
   delivered in its PR on November 20, 2026, without a Windows check.
+- **Work item 11** (`stage1/11-llm-providers`, language models: kernel contracts `ILlmConnector` and
+  `IAssistantModel` on `Microsoft.Extensions.AI.Abstractions` 10.11.1, `ollama`, `openai-compatible`/`openai`
+  and `anthropic` adapters written on `HttpClient`, slice `Llm/Providers` with the "Language models" page,
+  default model preloaded at start, see [dev/llm.md](../dev/llm.md)) delivered in its PR on 2026-11-20,
+  without a Windows check. **Pending Windows tests** ([list](../dev/llm.md#checks-on-windows)): Ollama on
+  11435 and `llama-server` on 8080, preload at start, named causes, measure of a 7 to 8 billion parameter
+  fallback model. **Provisional choices** ([detail](../dev/llm.md#provisional-choices-of-this-work-item)):
+  default port 11434 (Benoit sets 11435 once), `claude-opus-5-5` for a new Anthropic provider, Anthropic
+  adapter on `HttpClient` rather than the SDK, answers of 16,000 tokens at most, 20 s connection test.
 - **Next step:** work item `stage1/7-orb-high-quality`, and `stage1/8-audio-devices` and
   `stage1/11-llm-providers`, which depend on work item 5 only. The pending Windows tests (work items 4, 5
   and 6, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
