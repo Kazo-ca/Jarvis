@@ -19,6 +19,8 @@ namespace Kazo.Jarvis.Features.Voice.WakeWord;
 /// <list type="bullet">
 /// <item>One detection per activation: after a detection, the score must fall below the threshold before
 /// another one counts, so a long "hey jarviiis" does not publish twice.</item>
+/// <item>After a detection, the detector starts afresh before the next frame it scores, whether or not a pause
+/// was seen in between.</item>
 /// <item>Silent while Jarvis listens (and while the microphone is muted): no frame is scored, and the detector
 /// forgets what it heard before, so the end of the request cannot wake it again. It keeps scoring while Jarvis
 /// thinks or speaks: "hey jarvis" then interrupts (US1.12).</item>
@@ -221,6 +223,7 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
         var filled = 0;
         var paused = true;
         var armed = true;
+        var heard = false;
         await foreach (var block in queue.Reader.ReadAllAsync(token).ConfigureAwait(false))
         {
             var offset = 0;
@@ -249,10 +252,13 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
                     continue;
                 }
 
-                if (paused)
+                if (paused || heard)
                 {
-                    // What was heard before the pause is not part of what comes next.
+                    // What was heard before the pause is not part of what comes next. The same holds after a
+                    // detection, even when listening began and ended between two frames and no pause was seen:
+                    // the end of that "hey jarvis" must not be scored as the start of something else.
                     paused = false;
+                    heard = false;
                     detector.Reset();
                     SetStatus(WakeWordStatus.Active);
                 }
@@ -266,6 +272,7 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
                 else if (armed)
                 {
                     armed = false;
+                    heard = true;
                     Volatile.Write(ref lastDetection, new WakeWordDetection(time.GetUtcNow(), value));
                     LogDetected(value, current.Phase);
                     StatusChanged?.Invoke();
