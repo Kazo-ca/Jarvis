@@ -43,10 +43,10 @@ run on Linux.
 
 ## Choices ADR 0001 does not settle
 
-- **Automatic check off by default** (setting `Maintenance.Updates`, `Automatic`): with the default settings
-  nothing leaves the PC (stage 1 plan, work item 17). Once on, it runs a minute after start then every
-  6 hours, and a tray notice announces each new version once. **Provisional choice, asked to Benoit on
-  November 20, 2026**; changing the default is one line (`UpdateOptions.Automatic`).
+- **Automatic check on by default** (setting `Maintenance.Updates`, `Automatic`): **Benoit's choice on
+  November 20, 2026**. It runs a minute after start then every 6 hours, and a tray notice announces each new
+  version once. The request only reads the list of public releases; it is the one exception to "no connection
+  leaves by default" (stage 1 plan, work item 17). A box of the updates window turns it off.
 - **Pre-releases offered** (`IncludePreReleases`, on) while Kazo.Jarvis is in 0.x and only publishes
   pre-releases.
 - **The updater starts from the new version**, not from the installed folder: it never replaces the files it

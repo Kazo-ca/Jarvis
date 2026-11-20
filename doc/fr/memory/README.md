@@ -123,9 +123,9 @@ ce qu'il décrit.
   par `SettingsPage` du noyau ; polices Rajdhani 500/600, Inter 400/600, JetBrains Mono 400/500 en `woff2`
   latin (`@fontsource` 5.3.0, licence OFL 1.1 vérifiée) ; le champ de secret ne relit jamais la valeur.
 - **Choix du chantier 16 que l'ADR 0001 ne tranche pas** (détail dans [dev/updates.md](../dev/updates.md)) :
-  vérification automatique **désactivée par défaut** (rien ne sort du PC par défaut), recherche manuelle par
-  « Mises à jour… » dans la zone de notification ; **choix provisoire posé à Benoit le 20 novembre 2026, en
-  attente de sa réponse**. Une fois activée : une minute après le démarrage puis toutes les 6 heures.
+  vérification automatique **activée par défaut** (choix de Benoit le 20 novembre 2026 ; seule exception à
+  « aucune connexion sortante par défaut » du chantier 17), une minute après le démarrage puis toutes les
+  6 heures ; recherche manuelle par « Mises à jour… » dans la zone de notification.
   Pré-versions proposées tant que la version est en 0.x ; le programme de mise à jour est lancé depuis la
   nouvelle version décompressée, sans fenêtre ; une construction de développement n'installe jamais.
 - **Choix du chantier 4 que les ADR 0003 et 0013 ne tranchent pas** (détail dans [dev/hosts.md](../dev/hosts.md)) :
