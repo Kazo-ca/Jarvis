@@ -4,6 +4,7 @@
     <Project Path="src/Kazo.Jarvis.Features/Kazo.Jarvis.Features.csproj" />
     <Project Path="src/Kazo.Jarvis.Adapters/Kazo.Jarvis.Adapters.csproj" />
     <Project Path="src/Kazo.Jarvis.Windows/Kazo.Jarvis.Windows.csproj" />
+    <Project Path="src/Kazo.Jarvis.Updater/Kazo.Jarvis.Updater.csproj" />
     <Project Path="src/Kazo.Jarvis.Web/Kazo.Jarvis.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">

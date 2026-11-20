@@ -21,6 +21,12 @@ internal static class HostTexts
 
     public static string MuteMicrophone => French ? "Couper le micro" : "Mute the microphone";
 
+    public static string Updates => French ? "Mises à jour…" : "Updates…";
+
+    public static string UpdateFound(string version) => French
+        ? $"La version {version} est disponible. Cliquer ici pour l'installer."
+        : $"Version {version} is available. Click here to install it.";
+
     public static string Quit => French ? "Quitter" : "Quit";
 
     public static string WaitingForUnlock => French

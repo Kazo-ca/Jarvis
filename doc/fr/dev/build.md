@@ -21,12 +21,14 @@ src/Kazo.Jarvis.Features     tranches verticales : Features/<Domaine>/<Tranche>/
 src/Kazo.Jarvis.Adapters     mises en œuvre réelles des contrats (hôte Windows seulement)
 src/Kazo.Jarvis.Windows      hôte WPF + BlazorWebView
 src/Kazo.Jarvis.Web          hôte Web de test, services simulés, cible de Playwright
+src/Kazo.Jarvis.Updater      programme de mise à jour (aucune référence de projet)
+build/Publish-Release.ps1    publication d'une version (voir dev/updates.md)
 tests/Kazo.Jarvis.Tests.Unit tests unitaires et tests d'architecture
 tests/Kazo.Jarvis.Tests.E2E  tests Playwright contre l'hôte Web
 .github/workflows/ci.yml     intégration continue sous Linux
 ```
 
-`Updater` arrive avec le chantier 16, `Mobile` à l'étape 4. Les essais de `spikes/` restent hors de la
+`Mobile` arrive à l'étape 4. Les essais de `spikes/` restent hors de la
 solution et gardent leurs propres versions de paquets (`spikes/Directory.Packages.props`).
 
 ## Commandes

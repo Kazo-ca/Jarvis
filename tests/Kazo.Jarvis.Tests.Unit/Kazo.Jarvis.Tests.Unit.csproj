@@ -24,6 +24,14 @@
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
+  <!--
+    Kazo.Jarvis.Updater targets net10.0-windows and references no project (ADR 0001): its plain .NET code
+    (Installing/) is compiled here as well, so that it is tested on Linux.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Kazo.Jarvis.Updater\Installing\*.cs" LinkBase="Updater\Installing" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
     <ProjectReference Include="..\..\src\Kazo.Jarvis.Features\Kazo.Jarvis.Features.csproj" />

@@ -76,6 +76,9 @@ internal sealed partial class JarvisApp : Application
         }
 
         tray.QuitRequested += (_, _) => Quit(0);
+
+        // The updater launcher asks to quit from a background thread once the updater started.
+        host.Services.GetRequiredService<QuitSignal>().Requested += (_, _) => Dispatcher.BeginInvoke(() => Quit(0));
         tray.Show();
         orb.Rendered += (_, _) => StartBackgroundServices();
         instance.OnShowRequested(() => Dispatcher.BeginInvoke(() =>
