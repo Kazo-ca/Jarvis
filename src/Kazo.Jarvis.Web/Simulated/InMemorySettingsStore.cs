@@ -26,7 +26,14 @@ public sealed class InMemorySettingsStore : ISettingsStore
     public InMemorySettingsStore(SettingsLoadState? state = null) => State = state ?? new SettingsLoadState(SettingsLoadOutcome.Missing);
 
     /// <inheritdoc />
-    public SettingsLoadState State { get; }
+    public SettingsLoadState State { get; private set; }
+
+    /// <summary>
+    /// Changes the load state, as if Jarvis had started on another file: an unreadable one for the faults tests
+    /// (stage1/15-faults), then a readable one again. A state that cannot save refuses every write, like the file.
+    /// </summary>
+    /// <param name="state">The state to simulate.</param>
+    public void Simulate(SettingsLoadState state) => State = state ?? throw new ArgumentNullException(nameof(state));
 
     /// <inheritdoc />
     public T Read<T>(SettingsSection<T> section)

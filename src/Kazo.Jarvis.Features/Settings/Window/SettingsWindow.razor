@@ -2,6 +2,7 @@
 @inject IStringLocalizerFactory Localizers
 @inject SettingsWindowState State
 @inject IStringLocalizer<SettingsWindow> T
+@implements IDisposable
 
 @* The settings window (US1.2): the pages declared by the slices, in a list, and the selected one beside it.
    The window knows the pages only through their SettingsPage registration (ADR 0002, section 3). *@
@@ -37,8 +38,17 @@
         ordered.FirstOrDefault(page => page.Key == State.SelectedKey) ?? ordered.FirstOrDefault();
 
     /// <inheritdoc />
-    protected override void OnInitialized() =>
+    protected override void OnInitialized()
+    {
         ordered = [.. Pages.OrderBy(page => page.Order).ThenBy(page => page.Key, StringComparer.Ordinal)];
+        State.Changed += OnSelectionChanged;
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => State.Changed -= OnSelectionChanged;
+
+    // A fault asked for another page while the window is open (US1.17).
+    private void OnSelectionChanged() => _ = InvokeAsync(StateHasChanged);
 
     private string TitleOf(SettingsPage page) => Localizers.Create(page.TitleResource)[page.TitleKey];
 }

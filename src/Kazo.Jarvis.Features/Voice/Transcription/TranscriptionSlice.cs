@@ -25,6 +25,9 @@ public static class TranscriptionSlice
         services.TryAddSingleton<RecognizerKeeper>();
         services.AddHostedService(provider => provider.GetRequiredService<RecognizerKeeper>());
 
+        // A Whisper model loaded clears the "Whisper missing" fault (stage1/15-faults).
+        services.AddHostedService<TranscriptionFaultWatcher>();
+
         services.TryAddSingleton<UtteranceListener>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, UtteranceListener>(
             provider => provider.GetRequiredService<UtteranceListener>()));

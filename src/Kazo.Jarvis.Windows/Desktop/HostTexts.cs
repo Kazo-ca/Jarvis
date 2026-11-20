@@ -36,6 +36,9 @@ internal static class HostTexts
     /// <summary>Tray menu entry that opens the first-run wizard again (stage1/14-first-run).</summary>
     public static string FirstRunWizard => Text(nameof(FirstRunWizard));
 
+    /// <summary>Tray menu entry shown while a fault lasts; opens the faults window (stage1/15-faults).</summary>
+    public static string Problem => Text(nameof(Problem));
+
     public static string UpdateFound(string version) => string.Format(CultureInfo.CurrentCulture, Text(nameof(UpdateFound)), version);
 
     public static string Quit => Text(nameof(Quit));

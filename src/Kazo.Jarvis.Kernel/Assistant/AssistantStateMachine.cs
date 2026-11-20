@@ -37,9 +37,9 @@ public static class AssistantStateMachine
             FaultRaised raised => state.Fault == raised.Fault
                 ? Ignored(state, "this fault is already set")
                 : Applied(state with { Fault = raised.Fault }),
-            FaultResolved resolved => state.Fault?.Cause == resolved.Cause
+            FaultResolved resolved => state.Fault?.Matches(resolved.Cause, resolved.Origin) == true
                 ? Applied(state with { Fault = null })
-                : Ignored(state, $"the current fault is not {resolved.Cause}"),
+                : Ignored(state, $"the current fault is not {resolved.Cause} from {resolved.Origin?.ToString() ?? "any origin"}"),
             DelegatedTaskCountChanged tasks => ChangeTasks(state, tasks.Count),
             _ => Ignored(state, $"{input.GetType().Name} is not in the transition table"),
         };

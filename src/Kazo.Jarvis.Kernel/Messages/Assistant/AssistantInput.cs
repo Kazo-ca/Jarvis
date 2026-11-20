@@ -65,7 +65,8 @@ public sealed record FaultRaised(AssistantFault Fault) : AssistantInput;
 
 /// <summary>The cause of a fault went away; the condition is cleared if it is the current one.</summary>
 /// <param name="Cause">The cause that went away.</param>
-public sealed record FaultResolved(FaultCause Cause) : AssistantInput;
+/// <param name="Origin">Where it went away; <see langword="null"/> clears the cause whatever its origin.</param>
+public sealed record FaultResolved(FaultCause Cause, FaultOrigin? Origin = null) : AssistantInput;
 
 /// <summary>The number of delegated tasks changed (stage 2).</summary>
 /// <param name="Count">The new number, zero or more.</param>

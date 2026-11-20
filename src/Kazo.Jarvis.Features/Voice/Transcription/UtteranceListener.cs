@@ -183,7 +183,7 @@ public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEve
         {
             LogFailed(exception, session.Turn);
             await bus.PublishAsync(
-                new TurnFailed(session.Turn, new AssistantFault(FaultCause.ModelMissing, exception.Message)),
+                new TurnFailed(session.Turn, new AssistantFault(FaultCause.ModelMissing, exception.Message, FaultOrigin.Transcription)),
                 CancellationToken.None).ConfigureAwait(false);
         }
         finally
@@ -256,7 +256,7 @@ public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEve
             LogRecognitionFailed(session.Turn, exception.Failure, exception.Message);
             var detail = exception.ModelPath is { } path ? $"{exception.Message} ({path})" : exception.Message;
             await bus.PublishAsync(
-                new TurnFailed(session.Turn, new AssistantFault(FaultCause.ModelMissing, detail)),
+                new TurnFailed(session.Turn, new AssistantFault(FaultCause.ModelMissing, detail, FaultOrigin.Transcription)),
                 CancellationToken.None).ConfigureAwait(false);
             return;
         }

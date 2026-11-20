@@ -229,7 +229,7 @@ public sealed class ConversationEngineTests
         Assert.Multiple(() =>
         {
             Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Idle));
-            Assert.That(State.Current.Fault, Is.EqualTo(new AssistantFault(cause, failure.ToString())));
+            Assert.That(State.Current.Fault, Is.EqualTo(new AssistantFault(cause, failure.ToString(), FaultOrigin.LanguageModel)));
             Assert.That(stored.Outcome, Is.EqualTo(TurnOutcome.Failed));
             Assert.That(stored.Failure, Is.EqualTo(failure.ToString()));
         });

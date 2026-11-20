@@ -152,7 +152,16 @@ Resume point for any agent. Update it in the same change as what it describes.
   `qwen3:8b` advised as fallback; SHA-1 for Whisper; dependency SharpZipLib 1.4.2; no "Voices" step; both Piper
   voices checked by default; automatic Ollama search while the providers are the default ones. The Web host now
   simulates an existing profile.
-- **Next step:** work items `stage1/15-faults` then `stage1/17-acceptance`. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 and 14, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 15** (`stage1/15-faults`, faults: kernel `FaultOrigin` and `AssistantFault.Origin`, `FaultResolved` with
+  an origin, `SettingsWindowRequested(PageKey)`, `FaultWindowRequested`; slice `Assistant/Faults` (title, explanation,
+  corrective action and page of each cause, "Jarvis problem" window, unreadable settings raised at start); language
+  model fault raised and cleared outside a turn, Whisper found again and a voice heard clear theirs; "Solve the
+  problem…" tray entry during a fault, see [dev/faults.md](../dev/faults.md)) delivered in its PR on 20 November 2026,
+  without Windows checks. The transition table did not change. **Provisional choices**
+  ([detail](../dev/faults.md#provisional-choices-of-this-work-item), to be confirmed by Benoit): window opened by the
+  menu entry, and by itself only on a refusal for want of a microphone; unreachable server raised after two failed
+  loads in a row; the "Voices" page clears the voice fault; no button for unreadable settings; origin in the kernel.
+- **Next step:** work item `stage1/17-acceptance` (acceptance on Benoit's PC, with him). The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

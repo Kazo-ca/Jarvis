@@ -115,6 +115,8 @@ internal sealed partial class TrayIcon : IDisposable
 
     private ContextMenuStrip BuildMenu()
     {
+        // Shown only while a fault lasts (US1.17): the orb is red, this says why and what to do.
+        var problemItem = new ToolStripMenuItem(HostTexts.Problem, null, (_, _) => Publish(new FaultWindowRequested()));
         var settingsItem = new ToolStripMenuItem(HostTexts.Settings, null, (_, _) => Publish(new SettingsWindowRequested()));
         var conversationItem = new ToolStripMenuItem(HostTexts.Conversation, null, (_, _) => Publish(new ConversationWindowRequested()));
         var muteItem = new ToolStripMenuItem(HostTexts.MuteMicrophone, null, (_, _) => Publish(new MicrophoneMuteRequested(!state.Current.MicrophoneMuted)));
@@ -123,10 +125,12 @@ internal sealed partial class TrayIcon : IDisposable
         var quitItem = new ToolStripMenuItem(HostTexts.Quit, null, (_, _) => QuitRequested?.Invoke(this, EventArgs.Empty));
 
         var menu = new ContextMenuStrip();
-        menu.Items.AddRange([settingsItem, conversationItem, muteItem, updatesItem, setupItem, new ToolStripSeparator(), quitItem]);
+        menu.Items.AddRange([problemItem, settingsItem, conversationItem, muteItem, updatesItem, setupItem, new ToolStripSeparator(), quitItem]);
         menu.Opening += (_, _) =>
         {
             // Read the texts again: the assistant language may have changed since the last opening (ADR 0008).
+            problemItem.Text = HostTexts.Problem;
+            problemItem.Visible = state.Current.Fault is not null && HasHandler<FaultWindowRequested>();
             settingsItem.Text = HostTexts.Settings;
             conversationItem.Text = HostTexts.Conversation;
             muteItem.Text = HostTexts.MuteMicrophone;

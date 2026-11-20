@@ -337,7 +337,7 @@ public sealed partial class ConversationEngine :
             answering.Update(turn => turn with { Failure = exception.Failure.ToString(), Duration = time.GetElapsedTime(started) });
             var cause = exception.Failure == LlmFailure.ModelMissing ? FaultCause.ModelMissing : FaultCause.ModelUnreachable;
             await bus.PublishAsync<AssistantInput>(
-                new TurnFailed(answering.Turn, new AssistantFault(cause, exception.Failure.ToString())),
+                new TurnFailed(answering.Turn, new AssistantFault(cause, exception.Failure.ToString(), FaultOrigin.LanguageModel)),
                 CancellationToken.None).ConfigureAwait(false);
         }
         catch (Exception exception)
@@ -345,7 +345,7 @@ public sealed partial class ConversationEngine :
             LogAnswerFailed(exception, answering.Turn);
             answering.Update(turn => turn with { Failure = exception.GetType().Name });
             await bus.PublishAsync<AssistantInput>(
-                new TurnFailed(answering.Turn, new AssistantFault(FaultCause.ModelUnreachable, exception.GetType().Name)),
+                new TurnFailed(answering.Turn, new AssistantFault(FaultCause.ModelUnreachable, exception.GetType().Name, FaultOrigin.LanguageModel)),
                 CancellationToken.None).ConfigureAwait(false);
         }
     }

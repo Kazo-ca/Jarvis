@@ -310,6 +310,24 @@ public sealed class AssistantStateMachineTests
     }
 
     [Test]
+    public void A_fault_with_an_origin_is_cleared_only_by_that_origin_or_by_any_origin()
+    {
+        var whisperMissing = AssistantState.Initial with
+        {
+            Fault = new AssistantFault(FaultCause.ModelMissing, "ggml-large-v3-turbo.bin", FaultOrigin.Transcription),
+        };
+
+        // A language model found again does not bring Whisper back.
+        AssertIgnored(Apply(whisperMissing, new FaultResolved(FaultCause.ModelMissing, FaultOrigin.LanguageModel)), whisperMissing);
+        Assert.That(Apply(whisperMissing, new FaultResolved(FaultCause.ModelMissing, FaultOrigin.Transcription)).State.Fault, Is.Null);
+        Assert.That(Apply(whisperMissing, new FaultResolved(FaultCause.ModelMissing)).State.Fault, Is.Null);
+
+        // A fault without an origin is cleared by its cause from any origin.
+        var noOrigin = AssistantState.Initial with { Fault = new AssistantFault(FaultCause.ModelMissing) };
+        Assert.That(Apply(noOrigin, new FaultResolved(FaultCause.ModelMissing, FaultOrigin.Voice)).State.Fault, Is.Null);
+    }
+
+    [Test]
     public void The_number_of_delegated_tasks_is_a_condition()
     {
         var speaking = In(AssistantPhase.Speaking);
