@@ -2,7 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-20 (work item `stage1/onnx-runtime-adr`). Waiting for Benoit's answer.
+Accepted by Benoit on 2026-11-20 (answer to the question asked in the conversation, work item
+`stage1/onnx-runtime-adr`).
 
 - **Partly supersedes:** [ADR 0001](0001-target-dotnet-10-and-projects.md), section 4, for the single
   `Microsoft.ML.OnnxRuntime` 1.32.0 line of the versions table. The rest of ADR 0001 does not change.
