@@ -4,9 +4,10 @@ using Microsoft.Playwright.NUnit;
 namespace Kazo.Jarvis.Tests.E2E.Scenarios;
 
 /// <summary>
-/// The orb slice (work item stage1/6-orb): the seven looks on the demonstration page (US1.3), reduced
-/// motion, the still image of the idle look, the badge, the progress ring, the fault on hover, and the click
-/// that activates the assistant on the host page (US1.6).
+/// The orb slice (work items stage1/6-orb and stage1/7-orb-high-quality): both versions and the seven looks
+/// on the demonstration page (US1.3), reduced motion, the still image of the idle look, the badge, the
+/// progress ring, the fault on hover, the "orb quality" setting applied without a restart (ADR 0011,
+/// section 1), and the click that activates the assistant on the host page (US1.6).
 /// </summary>
 [TestFixture]
 public sealed class OrbTests : PageTest
@@ -15,14 +16,32 @@ public sealed class OrbTests : PageTest
 
     private static readonly string[] Looks = ["Idle", "Listening", "Thinking", "Speaking", "LongTask", "Error", "MicrophoneMuted"];
 
-    private async Task OpenDemoAsync()
+    /// <summary>Ring rotations of the light version: three rings.</summary>
+    private const int LightRotations = 3;
+
+    /// <summary>Rotations of the high-quality version: five rings, the gyroscope's turn and its rocking.</summary>
+    private const int HighQualityRotations = 7;
+
+    private async Task OpenDemoAsync(string quality = "Light")
     {
         await Page.GotoAsync(new Uri(WebHost.BaseAddress, "orb").ToString());
         await Expect(Page.Locator("#orb-demo")).ToHaveAttributeAsync("data-interactive", "true");
 
+        // The demonstration opens on the high quality, the default version (ADR 0011, section 1).
+        await Expect(Orb).ToHaveAttributeAsync("data-quality", "High");
+        if (quality != "High")
+        {
+            await Page.ClickAsync($"#quality-{quality}");
+            await Expect(Orb).ToHaveAttributeAsync("data-quality", quality);
+        }
+
         // The script is attached once the motion attribute appears.
         await Expect(Orb).ToHaveAttributeAsync("data-motion", "full");
     }
+
+    /// <summary>Waits until the canvas loop of the high-quality version is <paramref name="expected"/>.</summary>
+    private Task ExpectLoopAsync(string expected) =>
+        Expect(Orb.Locator(".hq")).ToHaveAttributeAsync("data-loop", expected, new() { Timeout = 5000 });
 
     /// <summary>Number of ring rotations that run (Web Animations API, compositor only).</summary>
     private Task<int> RunningRotationsAsync() =>
@@ -60,7 +79,7 @@ public sealed class OrbTests : PageTest
         await OpenDemoAsync();
 
         await Page.ClickAsync("#look-Listening");
-        await ExpectRunningRotationsAsync(3);
+        await ExpectRunningRotationsAsync(LightRotations);
 
         // After the speed eases down (about 0.6 s), no animation runs at all.
         await Page.ClickAsync("#look-Idle");
@@ -79,7 +98,7 @@ public sealed class OrbTests : PageTest
         await ExpectRunningRotationsAsync(0);
 
         await Page.CheckAsync("#demo-animate-idle");
-        await ExpectRunningRotationsAsync(3);
+        await ExpectRunningRotationsAsync(LightRotations);
 
         await Page.UncheckAsync("#demo-animate-idle");
         await ExpectRunningRotationsAsync(0);
@@ -91,6 +110,8 @@ public sealed class OrbTests : PageTest
         await Page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
         await Page.GotoAsync(new Uri(WebHost.BaseAddress, "orb").ToString());
         await Expect(Page.Locator("#orb-demo")).ToHaveAttributeAsync("data-interactive", "true");
+        await Page.ClickAsync("#quality-Light");
+        await Expect(Orb).ToHaveAttributeAsync("data-quality", "Light");
         await Expect(Orb).ToHaveAttributeAsync("data-motion", "reduced");
 
         await Page.ClickAsync("#look-Thinking");
@@ -103,7 +124,7 @@ public sealed class OrbTests : PageTest
     {
         await OpenDemoAsync();
         await Page.ClickAsync("#look-Thinking");
-        await ExpectRunningRotationsAsync(3);
+        await ExpectRunningRotationsAsync(LightRotations);
 
         await Page.CheckAsync("#demo-reduced");
         await Expect(Orb).ToHaveAttributeAsync("data-motion", "reduced");
@@ -166,5 +187,105 @@ public sealed class OrbTests : PageTest
         await orb.ClickAsync();
         await Expect(root).ToHaveAttributeAsync("data-phase", "Idle");
         await Expect(orb).ToHaveAttributeAsync("data-look", "Idle");
+    }
+
+    [Test]
+    public async Task High_quality_turns_its_rings_and_draws_while_listening_then_stops_in_idle()
+    {
+        await OpenDemoAsync("High");
+
+        await Page.ClickAsync("#look-Listening");
+        await ExpectRunningRotationsAsync(HighQualityRotations);
+        await ExpectLoopAsync("running");
+
+        // The canvas is drawn at 30 images per second at most (ADR 0005, section 5).
+        await Expect(Orb.Locator("canvas.hq-sphere")).ToHaveCountAsync(1);
+
+        // Idle: after the speed eases down and the color fades, nothing runs, not even the canvas loop.
+        await Page.ClickAsync("#look-Idle");
+        await ExpectRunningRotationsAsync(0);
+        await ExpectLoopAsync("stopped");
+
+        foreach (var still in new[] { "MicrophoneMuted", "Error" })
+        {
+            await Page.ClickAsync($"#look-{still}");
+            await Expect(Orb).ToHaveAttributeAsync("data-look", still);
+            await ExpectLoopAsync("stopped");
+            Assert.That(await RunningRotationsAsync(), Is.Zero, still);
+        }
+    }
+
+    [Test]
+    public async Task High_quality_speaking_follows_the_voice_by_light_without_pulses()
+    {
+        await OpenDemoAsync("High");
+        await Page.ClickAsync("#look-Speaking");
+        await ExpectRunningRotationsAsync(HighQualityRotations);
+
+        // The light version's random ring pulses are short, finite animations; the high quality has none.
+        await Page.WaitForTimeoutAsync(800);
+        var finite = await Page.EvaluateAsync<int>("() => document.getAnimations().filter(a => a.effect?.getComputedTiming().iterations !== Infinity && a.playState === 'running').length");
+        Assert.That(finite, Is.Zero);
+    }
+
+    [Test]
+    public async Task The_reduced_motion_option_stops_the_high_quality_rotations()
+    {
+        await OpenDemoAsync("High");
+        await Page.ClickAsync("#look-Thinking");
+        await ExpectRunningRotationsAsync(HighQualityRotations);
+
+        await Page.CheckAsync("#demo-reduced");
+        await Expect(Orb).ToHaveAttributeAsync("data-motion", "reduced");
+        await ExpectRunningRotationsAsync(0);
+        await ExpectLoopAsync("stopped");
+    }
+
+    [Test]
+    public async Task Changing_the_version_swaps_the_drawing_in_place()
+    {
+        await OpenDemoAsync("High");
+        await Page.ClickAsync("#look-Listening");
+        await Expect(Orb.Locator(".hq")).ToHaveCountAsync(1);
+        await ExpectRunningRotationsAsync(HighQualityRotations);
+
+        await Page.ClickAsync("#quality-Light");
+        await Expect(Orb.Locator(".hq")).ToHaveCountAsync(0);
+        await Expect(Orb.Locator(".orb-ring")).ToHaveCountAsync(3);
+        await ExpectRunningRotationsAsync(LightRotations);
+
+        await Page.ClickAsync("#quality-High");
+        await Expect(Orb.Locator(".hq")).ToHaveCountAsync(1);
+        await ExpectRunningRotationsAsync(HighQualityRotations);
+    }
+
+    [Test]
+    public async Task The_orb_quality_setting_applies_to_the_host_orb_without_reloading()
+    {
+        await Page.GotoAsync(WebHost.BaseAddress.ToString());
+        await Expect(Page.Locator("#jarvis-root")).ToHaveAttributeAsync("data-interactive", "true");
+        var orb = Page.Locator(".orb-frame .orb");
+        await Expect(orb).ToHaveAttributeAsync("data-quality", "High");
+        await Page.EvaluateAsync("() => window.notReloaded = true");
+
+        var settings = Page.Locator("[data-dialog-key='Settings.Window']");
+        await Page.ClickAsync("#open-settings");
+        await settings.Locator("[data-settings-page='Assistant.Orb']").ClickAsync();
+        await Expect(settings.Locator("input[data-orb-quality='High']")).ToBeCheckedAsync();
+
+        try
+        {
+            await settings.Locator("input[data-orb-quality='Light']").CheckAsync();
+            await Expect(orb).ToHaveAttributeAsync("data-quality", "Light");
+            await Expect(orb.Locator(".orb-ring")).ToHaveCountAsync(3);
+            Assert.That(await Page.EvaluateAsync<bool>("() => window.notReloaded === true"), Is.True);
+        }
+        finally
+        {
+            // The Web host keeps its settings for the whole run: back to the default for the other tests.
+            await settings.Locator("input[data-orb-quality='High']").CheckAsync();
+            await Expect(orb).ToHaveAttributeAsync("data-quality", "High");
+            await Page.ClickAsync("[data-dialog-key='Settings.Window'] .dialog-close");
+        }
     }
 }

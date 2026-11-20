@@ -27,8 +27,9 @@ ce qu'il décrit.
   la fenêtre des paramètres au changement de langue dans `BlazorWebView`, menu de la zone de notification
   traduit, polices affichées hors ligne ([liste](../dev/hosts.md#vérifications-sur-windows), point 8), et pour le
   chantier 6 : coût de l'orbe légère en veille, micro coupé et erreur sous 2 % d'un cœur (obligatoire),
-  coût des phases animées et de la tâche longue, clic et glissement, animations coupées dans Windows
-  ([liste](../dev/orb.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
+  coût des phases animées et de la tâche longue, clic et glissement, animations coupées dans Windows, et pour
+  le chantier 7 : les mêmes mesures pour la version haute qualité (ADR 0011, section 8), changement de
+  qualité sans redémarrer, rendu à 160 pixels ([liste](../dev/orb.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
   tranche `Maintenance/Updates`, lecture des versions GitHub, programme `Kazo.Jarvis.Updater`, script
   `build/Publish-Release.ps1`, voir [dev/updates.md](../dev/updates.md)) livré dans sa PR ; sa vérification
   sur Windows attend la prochaine séance. Chantier 5 (`stage1/5-shared-ui-language`, style commun, polices
@@ -68,9 +69,15 @@ ce qu'il décrit.
 - **Chantier 6** (`stage1/6-orb`, orbe version légère : tranche `Assistant/Orb`, composant `Orb` et
   `OrbView` nourri par la machine à états, page de démonstration `/orb` de l'hôte Web, voir
   [dev/orb.md](../dev/orb.md)) livré dans sa PR le 20 novembre 2026, sans vérification Windows.
-- **Prochaine étape :** chantier `stage1/7-orb-high-quality`, et `stage1/8-audio-devices` et
-  `stage1/11-llm-providers`, qui ne dépendent que du chantier 5. Les tests Windows en attente (chantiers 4,
-  5 et 6, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier 7** (`stage1/7-orb-high-quality`, orbe version haute qualité : sphère plasma et nuages binaires
+  dans une toile limitée à 30 images par seconde, cinq anneaux gyroscopiques en SVG et CSS 3D tournés par le
+  navigateur, réglage « qualité de l'orbe » dans la section `Assistant.Orb` et page « Orbe » des paramètres,
+  appliqué sans redémarrer, voir [dev/orb.md](../dev/orb.md)) livré dans sa PR le 20 novembre 2026, sans
+  vérification Windows. **La mesure de l'ADR 0011 (section 8) reste à faire sur Windows** : elle décide si
+  la haute qualité reste la version par défaut. Mesure indicative dans un conteneur sans carte graphique :
+  environ 21 % du fil principal en animation contre moins de 1 % pour la légère, 0 % en veille.
+- **Prochaine étape :** chantiers `stage1/8-audio-devices` et `stage1/11-llm-providers`, qui ne dépendent
+  que du chantier 5. Les tests Windows en attente (chantiers 4, 5, 6 et 7, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
@@ -100,11 +107,16 @@ ce qu'il décrit.
   HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. Lancé sur une session verrouillée, l'hôte
   Windows mourait : réglé au chantier 4 (voir [pièges](../dev/pitfalls.md)).
 - **Choix provisoires du chantier 6 que les ADR 0005 et 0011 ne tranchent pas** (détail dans
-  [dev/orb.md](../dev/orb.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : erreur = éclair
+  [dev/orb.md](../dev/orb.md#choix-provisoires), à confirmer par Benoit) : erreur = éclair
   puis image fixe (pas la vitesse 0,25 du catalogue) ; mouvement réduit = aucune rotation ni pulsation,
   écoute et parole distinguées de la veille par la lumière seulement ; progression inconnue = cercle vert
-  pointillé fixe ; corps de l'orbe à 80 % de la fenêtre ; badge « 99+ » ; pas encore d'entrée « version »
-  (chantier 7). Le clic reste attrapé par la fenêtre WPF, qui le passe à `OrbActivation` de la tranche.
+  pointillé fixe ; corps de l'orbe à 80 % de la fenêtre ; badge « 99+ ». Le clic reste attrapé par la
+  fenêtre WPF, qui le passe à `OrbActivation` de la tranche.
+- **Choix provisoires du chantier 7** (détail dans [dev/orb.md](../dev/orb.md#choix-provisoires), à
+  confirmer par Benoit) : proportions du prototype gardées (sphère à 30 % du côté, donc environ 48 pixels
+  dans la fenêtre de 160 pixels, chiffres des nuages réduits à une texture) ; lumière de chaque aspect
+  commune aux deux versions ; erreur et mouvement réduit comme la version légère ; balancement du
+  gyroscope en aller-retour de 25 s ; halo en CSS ; page « Orbe » après « Langue » dans les paramètres.
 - **Choix du chantier 5 que les ADR 0008 et 0011 ne tranchent pas** (détail dans [dev/shared-ui.md](../dev/shared-ui.md)) :
   `IStringLocalizer` lit la langue de l'assistant à chaque recherche, jamais la culture du fil (les formats
   gardent ceux de Windows) ; une fenêtre se reconstruit entière au changement de langue (`LanguageScope`),

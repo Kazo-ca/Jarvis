@@ -1,0 +1,99 @@
+@inherits OrbDrawing
+
+@* The high-quality version of the orb (UI catalog, section 2; ADR 0011): a plasma sphere with binary planet
+   clouds drawn in a canvas (OrbHighQuality.razor.js), inside five translucent gyroscope rings in SVG and
+   CSS 3D, turned by the browser's compositor. The ring drawings are computed once in C#
+   (OrbGyroscopeGeometry); their size and tilt are in the style sheet. *@
+<span class="hq" @ref="Root" data-loop="stopped">
+    <span class="hq-halo"></span>
+    <canvas class="hq-sphere" aria-hidden="true"></canvas>
+    <span class="hq-scene">
+        <span class="hq-world">
+            <span class="hq-wobble">
+                @foreach (var ring in OrbGyroscopeGeometry.Rings.Where(ring => !ring.Flat))
+                {
+                    <span class="hq-ring hq-ring-@ring.Kind">
+                        <span class="hq-spin" data-turn="@ring.TurnMilliseconds" data-direction="@ring.Direction">
+                            @RingDrawing(ring.Kind)
+                        </span>
+                    </span>
+                }
+            </span>
+        </span>
+    </span>
+    @foreach (var ring in OrbGyroscopeGeometry.Rings.Where(ring => ring.Flat))
+    {
+        <span class="hq-ring hq-ring-@ring.Kind">
+            <span class="hq-spin" data-turn="@ring.TurnMilliseconds" data-direction="@ring.Direction">
+                @RingDrawing(ring.Kind)
+            </span>
+        </span>
+    }
+    <svg class="hq-brackets" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <path d="M2 20V2h18M80 2h18v18M98 80v18H80M20 98H2V80" fill="none" stroke="currentColor" stroke-width="2" stroke-opacity="0.9" />
+        <path d="M50 40v8M50 52v8M40 50h8M52 50h8" stroke="#fff" stroke-opacity="0.7" stroke-width="1" />
+    </svg>
+</span>
+
+@code {
+    // Gradient ids must be unique in the page: the demonstration may show several orbs.
+    private readonly string id = "hq-" + Guid.NewGuid().ToString("N")[..8];
+
+    /// <inheritdoc />
+    protected override string ModulePath => "./_content/Kazo.Jarvis.Features/Assistant/Orb/OrbHighQuality.razor.js";
+
+    /// <inheritdoc />
+    protected override bool RedrawsOnLook => true;
+
+    private static string N(double value) => OrbGyroscopeGeometry.N(value);
+
+    private RenderFragment RingDrawing(string kind) => kind switch
+    {
+        "scale" => @<svg viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+            <circle cx="500" cy="500" r="470" fill="none" stroke="currentColor" stroke-opacity="0.55" stroke-width="3" />
+            <path d="@OrbGyroscopeGeometry.ScaleTicks.Fine" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="2" />
+            <path d="@OrbGyroscopeGeometry.ScaleTicks.Major" fill="none" stroke="currentColor" stroke-opacity="0.9" stroke-width="4" />
+            @foreach (var label in OrbGyroscopeGeometry.ScaleLabels)
+            {
+                @* Wrapped in a group: right after C#, Razor would read <text> as its own tag. *@
+                <g transform="@label.Transform">
+                    <text x="@label.X" y="@label.Y" class="hq-scale-label"
+                          fill="currentColor" fill-opacity="0.8" text-anchor="middle" dominant-baseline="middle">@label.Text</text>
+                </g>
+            }
+        </svg>,
+        "arcs" => @<svg viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+            @foreach (var (path, width, opacity) in OrbGyroscopeGeometry.Arcs)
+            {
+                <path d="@path" fill="none" stroke="currentColor" stroke-opacity="@N(opacity)" stroke-width="@N(width)" />
+            }
+            <circle cx="500" cy="500" r="420" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-width="2" stroke-dasharray="4 14" />
+        </svg>,
+        "dash" => @<svg viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+            <circle cx="500" cy="500" r="470" fill="none" stroke="currentColor" stroke-opacity="0.5" stroke-width="4" stroke-dasharray="60 30 8 30" />
+            @foreach (var (x, y) in OrbGyroscopeGeometry.DashNodes)
+            {
+                <circle cx="@N(x)" cy="@N(y)" r="16" fill="#03121e" stroke="currentColor" stroke-width="5" />
+                <circle cx="@N(x)" cy="@N(y)" r="6" fill="currentColor" />
+            }
+        </svg>,
+        "band" => @<svg viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+            <defs>
+                <linearGradient id="@($"{id}-band")" x1="0" x2="1">
+                    <stop offset="0" stop-color="currentColor" stop-opacity="0" />
+                    <stop offset="0.5" stop-color="currentColor" stop-opacity="0.35" />
+                    <stop offset="1" stop-color="currentColor" stop-opacity="0" />
+                </linearGradient>
+            </defs>
+            <circle cx="500" cy="500" r="440" fill="none" stroke="url(#@($"{id}-band"))" stroke-width="60" />
+            <circle cx="500" cy="500" r="472" fill="none" stroke="currentColor" stroke-opacity="0.6" stroke-width="2" />
+            <circle cx="500" cy="500" r="408" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="2" />
+            <path d="@OrbGyroscopeGeometry.BandMarks" fill="currentColor" fill-opacity="0.55" />
+        </svg>,
+        _ => @<svg viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+            <path d="@OrbGyroscopeGeometry.InnerTicks.Minor" fill="none" stroke="currentColor" stroke-opacity="0.7" stroke-width="3" />
+            <path d="@OrbGyroscopeGeometry.InnerTicks.Major" fill="none" stroke="currentColor" stroke-opacity="0.7" stroke-width="6" />
+            <circle cx="500" cy="500" r="395" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="3" />
+        </svg>,
+    };
+}

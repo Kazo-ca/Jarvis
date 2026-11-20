@@ -1,65 +1,28 @@
-@implements IAsyncDisposable
-@inject IJSRuntime JS
 @inject IStringLocalizer<Orb> T
 
-@* The orb (ADR 0005, section 5; ADR 0011), light version (UI catalog, section 3). It only shows its inputs:
-   the look comes from the kernel's look function, the motion rule from OrbMotion. Its script only draws.
-   The look is exposed in data-look for the tests; the script sets data-motion ("full" or "reduced"). *@
+@* The orb (ADR 0005, section 5; ADR 0011), in its two versions: high quality (UI catalog, section 2) and
+   light (section 3). It only shows its inputs: the look comes from the kernel's look function, the motion
+   rule from OrbMotion. The drawings' scripts only draw. The look and the version are exposed in data-look
+   and data-quality for the tests; the script sets data-motion ("full" or "reduced"). *@
 <button type="button"
         class="orb"
         data-look="@Look"
+        data-quality="@Quality"
         data-tasks="@DelegatedTasks"
         data-decisions="@PendingDecisions"
         title="@Hover"
         aria-label="@Label"
-        @ref="root"
         @onclick="ClickAsync">
-    <span class="orb-body">
-        <span class="orb-glow"></span>
-        <span class="orb-ring orb-ring-outer">
-            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-                <defs>
-                    <linearGradient id="@($"{id}-g3")" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="currentColor" stop-opacity="0.9" />
-                        <stop offset="1" stop-color="currentColor" stop-opacity="0.15" />
-                    </linearGradient>
-                </defs>
-                <path d="@Outer.Arc" fill="none" stroke="url(#@($"{id}-g3"))" stroke-width="1.6" />
-                <path d="@Outer.FineTicks" fill="none" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.45" />
-                <path d="@Outer.Ticks" fill="none" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.8" />
-                <path d="@Outer.Cursor" fill="none" stroke="currentColor" stroke-width="2.5" stroke-opacity="0.6" />
-                <path d="@Outer.Teeth" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-        </span>
-        <span class="orb-ring orb-ring-middle">
-            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-                <defs>
-                    <linearGradient id="@($"{id}-g2")" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="currentColor" stop-opacity="0.25" />
-                        <stop offset="1" stop-color="currentColor" stop-opacity="1" />
-                    </linearGradient>
-                </defs>
-                <path d="@Middle.First" fill="none" stroke="url(#@($"{id}-g2"))" stroke-width="3.5" />
-                <path d="@Middle.Second" fill="none" stroke="currentColor" stroke-width="3.5" stroke-opacity="0.75" />
-                <path d="@Middle.Track" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.25" stroke-dasharray="1.5 3" />
-                <path d="@Middle.Teeth" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-            </svg>
-        </span>
-        <span class="orb-ring orb-ring-inner">
-            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-                <defs>
-                    <linearGradient id="@($"{id}-g1")" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="currentColor" stop-opacity="1" />
-                        <stop offset="1" stop-color="currentColor" stop-opacity="0.25" />
-                    </linearGradient>
-                </defs>
-                <path d="@Inner.Arc" fill="none" stroke="url(#@($"{id}-g1"))" stroke-width="6" />
-                <path d="@Inner.Track" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.35" />
-                <path d="@Inner.Ticks" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6" />
-                <path d="@Inner.Teeth" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
-            </svg>
-        </span>
-        <span class="orb-sphere"></span>
+    @* One component, two drawings (ADR 0011, section 1). Changing the quality swaps the drawing at once. *@
+    @if (Quality == OrbQuality.Light)
+    {
+        <OrbLight @ref="light" Look="@Look" Motion="@Motion" ReducedMotion="@ReducedMotion" />
+    }
+    else
+    {
+        <OrbHighQuality @ref="high" Look="@Look" Motion="@Motion" ReducedMotion="@ReducedMotion" />
+    }
+    <span class="orb-overlay">
         @if (DelegatedTasks > 0)
         {
             @* Drawn over any look as soon as a task is delegated (ADR 0011, section 4). Without a percentage,
@@ -94,35 +57,16 @@
 @code {
     private static readonly string Radius = OrbGeometry.ProgressRadius.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
-    private static readonly (string Arc, string FineTicks, string Ticks, string Cursor, string Teeth) Outer = (
-        OrbGeometry.Arc(78, 120, 400),
-        OrbGeometry.Ticks(78, 125, 395, 5, 3),
-        OrbGeometry.Ticks(78, 130, 390, 30, 6),
-        OrbGeometry.Arc(84, 140, 175),
-        OrbGeometry.Teeth(78, 12, 120, 400));
-
-    private static readonly (string First, string Second, string Track, string Teeth) Middle = (
-        OrbGeometry.Arc(60, 200, 330),
-        OrbGeometry.Arc(60, 10, 165),
-        OrbGeometry.Arc(55, 0, 359),
-        OrbGeometry.Teeth(60, 8, 10, 165, 200, 330));
-
-    private static readonly (string Arc, string Track, string Ticks, string Teeth) Inner = (
-        OrbGeometry.Arc(44, 30, 330),
-        OrbGeometry.Arc(38.5, 40, 320),
-        OrbGeometry.Ticks(49.5, 40, 320, 10, 2.5),
-        OrbGeometry.Teeth(44, 11, 30, 330));
-
-    // Gradient ids must be unique in the page: the demonstration may show several orbs.
-    private readonly string id = "orb-" + Guid.NewGuid().ToString("N")[..8];
-    private ElementReference root;
-    private IJSObjectReference? module;
-    private (OrbMotion Motion, bool Reduced)? applied;
-    private bool disposed;
+    private OrbLight? light;
+    private OrbHighQuality? high;
 
     /// <summary>The look to show (kernel look function, ADR 0011, section 4).</summary>
     [Parameter]
     public AssistantLook Look { get; set; }
+
+    /// <summary>The version of the orb (ADR 0011, section 1): high quality by default.</summary>
+    [Parameter]
+    public OrbQuality Quality { get; set; } = OrbQuality.High;
 
     /// <summary>Number of delegated tasks; the progress ring shows when above zero.</summary>
     [Parameter]
@@ -152,7 +96,7 @@
     [Parameter]
     public EventCallback OnActivate { get; set; }
 
-    private OrbMotion Motion => OrbMotion.For(Look, AnimateIdle, reducedMotion: false);
+    private OrbMotion Motion => OrbMotion.For(Look, Quality, AnimateIdle, reducedMotion: false);
 
     private string Label => Hover ?? T["Look_" + Look].Value;
 
@@ -169,70 +113,12 @@
     /// </summary>
     /// <param name="level">The level, from 0 to 1.</param>
     /// <returns>A task that completes once the script received it.</returns>
-    public async ValueTask SetLevelAsync(float level)
+    public ValueTask SetLevelAsync(float level)
     {
-        if (module is not null && !disposed)
-        {
-            try
-            {
-                await module.InvokeVoidAsync("setLevel", root, Math.Clamp(level, 0f, 1f));
-            }
-            catch (JSDisconnectedException)
-            {
-                // The page went away: nothing left to draw.
-            }
-        }
-    }
-
-    /// <inheritdoc />
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (disposed)
-        {
-            return;
-        }
-
-        try
-        {
-            var wanted = (Motion, ReducedMotion);
-            if (firstRender)
-            {
-                module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Kazo.Jarvis.Features/Assistant/Orb/Orb.razor.js");
-                applied = wanted;
-                await module.InvokeVoidAsync("attach", root, Motion.Rate, Motion.Pulses, ReducedMotion);
-            }
-            else if (module is not null && applied != wanted)
-            {
-                // Only on a change of motion: a render for the badge or the progress does not touch the rings.
-                applied = wanted;
-                await module.InvokeVoidAsync("update", root, Motion.Rate, Motion.Pulses, ReducedMotion);
-            }
-        }
-        catch (JSDisconnectedException)
-        {
-            // Prerendering ended or the circuit closed.
-        }
+        // A reference to the drawing that was swapped out stays set: pick by the current quality.
+        OrbDrawing? drawing = Quality == OrbQuality.Light ? light : high;
+        return drawing?.SetLevelAsync(level) ?? ValueTask.CompletedTask;
     }
 
     private Task ClickAsync() => OnActivate.InvokeAsync();
-
-    /// <inheritdoc />
-    public async ValueTask DisposeAsync()
-    {
-        disposed = true;
-        if (module is null)
-        {
-            return;
-        }
-
-        try
-        {
-            await module.InvokeVoidAsync("detach", root);
-            await module.DisposeAsync();
-        }
-        catch (JSDisconnectedException)
-        {
-            // The page is already gone, and the script with it.
-        }
-    }
 }
