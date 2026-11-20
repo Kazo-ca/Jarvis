@@ -58,8 +58,12 @@ Resume point for any agent. Update it in the same change as what it describes.
   only, with the orb in any corner of the screen: amber decision, dimmed desktop, animation at opening and
   closing only. Benoit's answer of November 19, 2026 about the click: **the double click opens the fan,
   the single click starts listening** (US1.6 and ADR 0005 do not change).
-- **Spike to run at the start of stage 2:** E11, cost and smoothness of the transparent fan window
-  (ADR 0010).
+- **Spikes E11 to E14: done** on November 20, 2026 on Benoit's PC (work item `stage2/1-spikes`), all
+  passed: fan in WPF, window kept hidden (E11); `claude -p` permissions through a local MCP tool and hooks to
+  `/hook/…` (E12, Claude Code 2.1.328); tools in English 117 of 117 (E13); `ModelContextProtocol` 2.4.0 MCP
+  client against Home Assistant (E14). Summary and **proposed decisions, to be accepted by Benoit**:
+  [dev/spikes.md](../dev/spikes.md#decisions-proposed-after-e11-to-e14). Still for Benoit to judge: smoothness of
+  the animation and comfort of the delayed single click.
 - **ADR 0011 (colors and drawing of the orb): accepted** by Benoit on November 19, 2026 (work item
   `spikes/14-orb-look-adr`). It carries the validated catalog: two versions
   (high quality by default, light as a setting), seven looks, a progress ring in place of the satellites,
@@ -162,7 +166,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   menu entry, and by itself only on a refusal for want of a microphone; unreachable server raised after two failed
   loads in a row; the "Voices" page clears the voice fault; no button for unreadable settings; origin in the kernel.
 - **Stage 2 plan: validated** by Benoit on November 20, 2026 (work item `stage1/stage-2-plan`, [plan](../dev/plans/stage-2.md)): 15 work items `stage2/<n>-<topic>`, first spikes E11 to E14 on his PC then ADRs 0017 to 0021 (numbers reserved by the plan). His answers: `stage1/base` merged into `main` without waiting for the acceptance (he allowed the agent to merge that PR), `stage2/base` starts from `main`; web search through an API with a key (Brave Search) behind a contract; spikes, then ADRs, then tools, the fan towards the end.
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/1-spikes` (spikes E11 to E14 on Benoit's PC, through remote control). `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/2-adrs` (ADRs 0017 to 0021, from the [decisions proposed after E11 to E14](../dev/spikes.md#decisions-proposed-after-e11-to-e14)); work item `stage2/1-spikes` (spikes E11 to E14) is done, its branch is pushed without a PR. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
