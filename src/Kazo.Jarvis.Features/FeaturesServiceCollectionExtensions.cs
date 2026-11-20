@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Features.Assistant.Orb;
+using Kazo.Jarvis.Features.Conversation.Dialogue;
 using Kazo.Jarvis.Features.Audio.Devices;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
@@ -66,7 +67,11 @@ public static class FeaturesServiceCollectionExtensions
         services.AddSpeechSlice();
         services.AddTestVoiceSlice();
 
-        // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
+        // Conversation (stage1/13-conversation): the full turn by messages, the interruption, the conversation window
+        // and the personality; the default model comes from the language models slice.
+        services.AddConversationSlice();
+
+        // Other slices arrive with their work items (stage1/14-first-run onwards).
         return services;
     }
 }

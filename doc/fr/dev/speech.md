@@ -28,7 +28,7 @@ page « Voix » (tranche Voice/TestVoice) ─► IVoiceSelection + ISpeechEngine
 | `SpeechException`, `SpeechFailure` | La cause d'un échec : modèle absent, clé absente ou refusée, service injoignable, voix inconnue, autre. |
 | `IVoiceSelection` | La voix de chaque langue, fournie par la tranche `Voice/Speech` qui possède le réglage ; lue et changée par la page « Voix », plus tard par le premier lancement (chantier 14). |
 | `SpeechKeys` | Références des clés des voix dans le coffre : `voice.elevenlabs.apikey`, `voice.openai.apikey`. |
-| `SentenceToSpeak`, `AnswerSentencesEnded` | Ce que la conversation publiera : chaque phrase complète dans l'ordre, puis la fin de la réponse. |
+| `SentenceToSpeak`, `AnswerSentencesEnded` | Ce que la [conversation](conversation.md) publie : chaque phrase complète dans l'ordre, puis la fin de la réponse. |
 
 ### Tranche `Features/Voice/Speech`
 
@@ -79,7 +79,7 @@ page « Voix » (tranche Voice/TestVoice) ─► IVoiceSelection + ISpeechEngine
 `SimulatedSpeechEngine` se fait passer pour Piper (`fr_FR-tom-medium`, `fr_FR-siwis-medium`,
 `en_GB-alan-medium`) et produit un bourdonnement dont la durée suit le texte ; `SimulatedCloudSpeechEngine`
 liste « Simulated Nova » quand la clé OpenAI des voix est dans le coffre. La page d'accueil a un bouton
-« Simulate a spoken answer », qui joue un tour comme le fera la conversation, et affiche la dernière phrase
+« Simulate a spoken answer », qui joue un tour sur la voix seule (sans transcription ni modèle), et affiche la dernière phrase
 dite (`#voice-spoken`).
 
 ## Essai réel dans le conteneur

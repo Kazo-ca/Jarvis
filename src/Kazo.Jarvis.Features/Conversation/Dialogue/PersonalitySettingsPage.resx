@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Personality</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>What Jarvis is told before each request, in each language. By default, the butler from the film: polite, concise, dry humour, "Sir".</value>
+  </data>
+  <data name="Language_fr" xml:space="preserve">
+    <value>French</value>
+  </data>
+  <data name="Language_en" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="IsDefault" xml:space="preserve">
+    <value>The butler's text (default).</value>
+  </data>
+  <data name="IsCustom" xml:space="preserve">
+    <value>Your text. « Reset » brings back the butler.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="RulesLabel" xml:space="preserve">
+    <value>Fixed rules</value>
+  </data>
+  <data name="RulesHint" xml:space="preserve">
+    <value>Jarvis always adds, after this text: answer in the language of the assistant, write a text made to be said (no lists, no Markdown, short sentences), and the date and time of the moment.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The personality could not be saved: the settings cannot be written.</value>
+  </data>
+</root>

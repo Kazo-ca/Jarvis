@@ -51,7 +51,7 @@ TurnStarted (voice) ─► UtteranceListener ─► voice detector (Silero or en
 - **Settings page "Transcription"** (`Voice.Transcription`, after the "Audio" page): model and device with the
   loading state, detector, end-of-utterance silence, wait for speech, and the **last request heard** with its
   measures (audio length, transcription time, detector). It is the way to try the microphone and the model
-  before work item 13.
+  without the language model. Since work item 13, the [conversation](conversation.md) answers each request heard.
 - Settings: section `Voice.Transcription` of `config.json` (`model`, `device`, `detector`,
   `silenceMilliseconds`, `noSpeechTimeoutSeconds`, `maxUtteranceSeconds`).
 

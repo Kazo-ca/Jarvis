@@ -17,7 +17,8 @@
 @* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
    (stage1/4-hosts), simulated releases and updater (stage1/16-updates), simulated microphones and outputs
    (stage1/8-audio-devices), simulated wake word (stage1/9-wake-word), a simulated phrase and its transcription
-   (stage1/10-transcription), a spoken answer said by the simulated voice (stage1/12-speech). The orb demonstration page, which
+   (stage1/10-transcription), a spoken answer said by the simulated voice (stage1/12-speech), the conversation window
+   opened as from the tray menu (stage1/13-conversation). The orb demonstration page, which
    drives the component directly, is /orb (US1.3). *@
 <main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
     <div class="orb-frame" hidden="@(!Orb.IsVisible)">
@@ -28,6 +29,7 @@
         <button type="button" id="toggle-orb" @onclick="Orb.ToggleVisibility">Show or hide the orb</button>
         <button type="button" id="open-sample-dialog" @onclick="OpenSample">Open a sample dialog</button>
         <button type="button" id="open-settings" @onclick="OpenSettings">Open the settings (tray menu)</button>
+        <button type="button" id="open-conversation" @onclick="OpenConversation">Open the conversation (tray menu)</button>
         <button type="button" id="open-updates" @onclick="OpenUpdates">Open the updates window</button>
         <button type="button" id="simulate-release" @onclick="PublishRelease">Publish version 9.9.0</button>
         <button type="button" id="simulate-offline" @onclick="ToggleNetwork">@(Releases.Reachable ? "Cut the network" : "Restore the network")</button>
@@ -89,7 +91,7 @@
 
     private void ToggleNetwork() => Releases.Reachable = !Releases.Reachable;
 
-    // What the conversation (work item 13) will do: a spoken turn, then its answer sentence by sentence.
+    // The voice alone, without the transcription and the model: a spoken turn, then two sentences to say.
     private async Task SimulateAnswerAsync()
     {
         await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Click));
@@ -112,6 +114,9 @@
 
     // Same event as the Settings entry of the tray menu (US1.2).
     private Task OpenSettings() => Bus.PublishAsync(new SettingsWindowRequested()).AsTask();
+
+    // Same event as the Conversation entry of the tray menu (US1.14).
+    private Task OpenConversation() => Bus.PublishAsync(new ConversationWindowRequested()).AsTask();
 
     private void OpenSample() => Dialogs.Open(new DialogRequest(
         "Web.Sample",

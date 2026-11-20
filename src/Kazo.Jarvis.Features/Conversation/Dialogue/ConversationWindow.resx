@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Conversation</value>
+  </data>
+  <data name="YouSaid" xml:space="preserve">
+    <value>You said</value>
+  </data>
+  <data name="YouWrote" xml:space="preserve">
+    <value>You wrote</value>
+  </data>
+  <data name="Empty" xml:space="preserve">
+    <value>Nothing yet. Say "Hey Jarvis" or type a request below.</value>
+  </data>
+  <data name="ModelLoading" xml:space="preserve">
+    <value>The model {0} is loading; Jarvis answers as soon as it is ready.</value>
+  </data>
+  <data name="Placeholder" xml:space="preserve">
+    <value>Type a request…</value>
+  </data>
+  <data name="InputLabel" xml:space="preserve">
+    <value>Request to Jarvis</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="WrittenAnswerHint" xml:space="preserve">
+    <value>A typed request gets a written answer only.</value>
+  </data>
+  <data name="Busy" xml:space="preserve">
+    <value>Jarvis is busy: wait for the end of the turn, or interrupt him.</value>
+  </data>
+  <data name="EraseAll" xml:space="preserve">
+    <value>Erase everything</value>
+  </data>
+  <data name="EraseConfirm" xml:space="preserve">
+    <value>Erase the whole conversation, the memory and the log? Settings and keys are kept.</value>
+  </data>
+  <data name="EraseYes" xml:space="preserve">
+    <value>Erase</value>
+  </data>
+  <data name="EraseNo" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="EraseFailed" xml:space="preserve">
+    <value>The conversation could not be erased: the store is not available.</value>
+  </data>
+  <data name="Seconds" xml:space="preserve">
+    <value>{0} s</value>
+  </data>
+  <data name="Tokens" xml:space="preserve">
+    <value>{0} tokens in, {1} out</value>
+  </data>
+  <data name="FirstSound" xml:space="preserve">
+    <value>first sound after {0} s</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>answering…</value>
+  </data>
+  <data name="Interrupted" xml:space="preserve">
+    <value>interrupted</value>
+  </data>
+  <data name="Failure_NotConfigured" xml:space="preserve">
+    <value>failed: no model is chosen in the settings</value>
+  </data>
+  <data name="Failure_InvalidAddress" xml:space="preserve">
+    <value>failed: the address of the model server is not valid</value>
+  </data>
+  <data name="Failure_Unreachable" xml:space="preserve">
+    <value>failed: the model server does not answer; check its address and port</value>
+  </data>
+  <data name="Failure_ModelMissing" xml:space="preserve">
+    <value>failed: the model is missing; download it</value>
+  </data>
+  <data name="Failure_KeyMissing" xml:space="preserve">
+    <value>failed: the provider has no key</value>
+  </data>
+  <data name="Failure_KeyRejected" xml:space="preserve">
+    <value>failed: the provider refused the key</value>
+  </data>
+  <data name="Failure_TimedOut" xml:space="preserve">
+    <value>failed: the model took too long</value>
+  </data>
+  <data name="Failure_ServerError" xml:space="preserve">
+    <value>failed: the model server returned an error</value>
+  </data>
+  <data name="Failure_ModelUnreachable" xml:space="preserve">
+    <value>failed: the model does not answer</value>
+  </data>
+  <data name="Failure_VoiceMissing" xml:space="preserve">
+    <value>failed: the voice could not speak</value>
+  </data>
+  <data name="Failure_Other" xml:space="preserve">
+    <value>failed</value>
+  </data>
+</root>

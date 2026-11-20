@@ -37,7 +37,10 @@ ce qu'il décrit.
   français et en anglais, durée de transcription ([liste](../dev/transcription.md#vérifications-sur-windows)), et pour le chantier 12 : écoute des voix par Benoit
   (qualité perçue, vitesse, délai de la carte son, arrêt net, [liste](../dev/speech.md#vérifications-sur-windows)), et pour le chantier 9 : **seuil du mot d'éveil réglé avec la voix
   de Benoit** (valeur à écrire ici), « Hey Jarvis » pendant que Jarvis parle, coût du mot d'éveil
-  ([liste](../dev/wake-word.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
+  ([liste](../dev/wake-word.md#vérifications-sur-windows)), et pour le chantier 13 : **délai entre la fin de la phrase et
+  le premier son** (cible sous 2 s, valeur à écrire ici), « Hey Jarvis » pendant que Jarvis parle (sinon un ADR
+  limite l'interruption au raccourci et au clic), fenêtre de conversation et personnalité
+  ([liste](../dev/conversation.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
   tranche `Maintenance/Updates`, lecture des versions GitHub, programme `Kazo.Jarvis.Updater`, script
   `build/Publish-Release.ps1`, voir [dev/updates.md](../dev/updates.md)) livré dans sa PR ; sa vérification
   sur Windows attend la prochaine séance. Chantier 5 (`stage1/5-shared-ui-language`, style commun, polices
@@ -125,7 +128,6 @@ ce qu'il décrit.
   parole 8 s, énoncé coupé à 25 s, 150 ms de voix pour commencer, 300 ms gardées avant la parole, repli silencieux
   sur le seuil d'énergie, pas de panne au démarrage si Whisper manque (seulement `TurnFailed` en fin de tour),
   texte vide publié tel quel (le chantier 13 termine le tour), modèles dans `models\whisper\` et `models\vad\`.
-  Jusqu'au chantier 13, Jarvis reste en « réflexion » après chaque phrase.
 - **Chantier 12** (`stage1/12-speech`, synthèse vocale : contrat `ISpeechEngine` et `IVoiceSelection` du noyau,
   messages `SentenceToSpeak` et `AnswerSentencesEnded` pour la conversation, tranche `Voice/Speech` (phrases
   jouées dans l'ordre, arrêt net sur interruption, niveau de la voix vers l'orbe), tranche `Voice/TestVoice`
@@ -136,7 +138,16 @@ ce qu'il décrit.
   la tranche de la voix publie `FirstSentenceReady` au premier son ; une voix par tour ; une voix dans le nuage
   qui échoue fait échouer le tour ; voix choisie absente = voix locale de la langue ; vitesse par langue ; clé
   OpenAI des voix séparée.
-- **Prochaine étape :** chantier `stage1/13-conversation`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11 et 12, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier 13** (`stage1/13-conversation`, le tour complet : tranche `Conversation/Dialogue` (moteur du tour par
+  messages, découpage en phrases, message système avec la personnalité et des règles fixes, historique dans la
+  moitié du contexte, collection `Conversation.Turns`, fenêtre de conversation avec « Tout effacer », page
+  « Personnalité »), la voix se tait aussi sur `TurnFailed`, rang des pages des paramètres corrigé (mot d'éveil 25,
+  transcription 30, voix 35), voir [dev/conversation.md](../dev/conversation.md)) livré dans sa PR le 20 novembre
+  2026, sans vérification Windows. Le noyau n'a pas changé. **Choix provisoires**
+  ([détail](../dev/conversation.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : fin de phrase et
+  abréviations, Markdown non dit, historique de 20 tours au plus sans limite d'âge, tour enregistré à sa fin,
+  personnalités des deux langues sur une page, envoi écrit seulement en veille.
+- **Prochaine étape :** chantier `stage1/14-first-run`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12 et 13, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

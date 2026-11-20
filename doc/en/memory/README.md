@@ -33,7 +33,10 @@ Resume point for any agent. Update it in the same change as what it describes.
   reliable), text in French and English, transcription time ([list](../dev/transcription.md#windows-checks)), and for work item 12: Benoit listening to the voices
   (perceived quality, speed, sound card delay, clean stop, [list](../dev/speech.md#windows-checks)), and for work item 9: **wake word threshold tuned with
   Benoit's voice** (value to write here), "Hey Jarvis" while Jarvis speaks, cost of the wake word
-  ([list](../dev/wake-word.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
+  ([list](../dev/wake-word.md#windows-checks)), and for work item 13: **delay between the end of the sentence and the
+  first sound** (target under 2 s, value to write here), "Hey Jarvis" while Jarvis speaks (otherwise an ADR limits
+  the interruption to the hotkey and the click), conversation window and personality
+  ([list](../dev/conversation.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -117,8 +120,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   ([details](../dev/transcription.md#provisional-choices-of-this-work-item)): 8 s wait for speech, utterance
   cut at 25 s, 150 ms of voice to start, 300 ms kept before speech, silent fallback to the energy threshold, no
   fault at start when Whisper is missing (only `TurnFailed` at the end of a turn), empty text published as is
-  (work item 13 ends the turn), models in `models\whisper\` and `models\vad\`. Until work item 13, Jarvis stays
-  "thinking" after each utterance.
+  (work item 13 ends the turn), models in `models\whisper\` and `models\vad\`.
 - **Work item 12** (`stage1/12-speech`, speech: kernel contracts `ISpeechEngine` and `IVoiceSelection`,
   messages `SentenceToSpeak` and `AnswerSentencesEnded` for the conversation, slice `Voice/Speech` (sentences
   played in order, clean stop on interruption, voice level to the orb), slice `Voice/TestVoice` ("Voices"
@@ -129,7 +131,16 @@ Resume point for any agent. Update it in the same change as what it describes.
   the voice slice publishes `FirstSentenceReady` at the first sound; one voice per turn; a failing cloud voice
   fails the turn; chosen voice missing = local voice of the language; speed per language; separate OpenAI
   voice key.
-- **Next step:** work item `stage1/13-conversation`. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11 and 12, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 13** (`stage1/13-conversation`, the full turn: slice `Conversation/Dialogue` (engine of the turn by
+  messages, sentence splitting, system message with the personality and fixed rules, history in half of the
+  context, collection `Conversation.Turns`, conversation window with "Erase everything", "Personality" page), the
+  voice also stops on `TurnFailed`, rank of the settings pages fixed (wake word 25, transcription 30, voices 35),
+  see [dev/conversation.md](../dev/conversation.md)) delivered in its PR on 20 November 2026, without a Windows
+  check. The kernel did not change. **Provisional choices**
+  ([detail](../dev/conversation.md#provisional-choices-of-this-work-item), for Benoit to confirm): end of sentence
+  and abbreviations, Markdown not said, history of 20 turns at most without age limit, turn stored when it ends,
+  personalities of both languages on one page, typed request sent only when idle.
+- **Next step:** work item `stage1/14-first-run`. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12 and 13, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
