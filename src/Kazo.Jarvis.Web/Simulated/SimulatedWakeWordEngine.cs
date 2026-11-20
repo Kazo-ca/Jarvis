@@ -18,6 +18,9 @@ public sealed class SimulatedWakeWordEngine : IWakeWordEngine
     private readonly Lock gate = new();
     private readonly Queue<float> pending = new();
 
+    // True once the first frame of a spoken "hey jarvis" has been scored and some of it is still to come.
+    private bool underway;
+
     /// <inheritdoc />
     public IWakeWordDetector Load() => new Detector(this);
 
@@ -37,7 +40,29 @@ public sealed class SimulatedWakeWordEngine : IWakeWordEngine
     {
         lock (gate)
         {
-            return pending.TryDequeue(out var value) ? value : Background;
+            if (!pending.TryDequeue(out var value))
+            {
+                underway = false;
+                return Background;
+            }
+
+            underway = pending.Count > 0;
+            return value;
+        }
+    }
+
+    // The listener resets its detector when it resumes after a pause. The end of a "hey jarvis" cut by that
+    // pause was said during the pause: a real detector never hears it. Without this, its last frames came out
+    // seconds later, as the best recent score of the next thing shown.
+    private void DropWhatWasCut()
+    {
+        lock (gate)
+        {
+            if (underway)
+            {
+                pending.Clear();
+                underway = false;
+            }
         }
     }
 
@@ -47,10 +72,8 @@ public sealed class SimulatedWakeWordEngine : IWakeWordEngine
 
         public float Process(ReadOnlySpan<float> frame) => owner.Next();
 
-        public void Reset()
-        {
-            // Nothing heard is kept; a "hey jarvis" said just before still comes out.
-        }
+        // A "hey jarvis" said just before, not started yet, still comes out; one cut by the pause does not.
+        public void Reset() => owner.DropWhatWasCut();
 
         public void Dispose()
         {
