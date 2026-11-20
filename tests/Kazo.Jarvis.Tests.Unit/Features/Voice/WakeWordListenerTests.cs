@@ -153,6 +153,26 @@ public sealed class WakeWordListenerTests
     }
 
     [Test]
+    public async Task The_detector_starts_afresh_after_a_detection_even_when_no_pause_was_seen()
+    {
+        // Listening that begins and ends between two frames: the state the listener reads never leaves Idle.
+        engine.Queue([0.9f, 0.1f]);
+        await StartAsync();
+        Speak(1);
+        await Eventually(() => engine.Processed == 1 && Activations().Count == 1);
+        var resetsBefore = engine.Resets;
+
+        Speak(1);
+
+        await Eventually(() => engine.Processed == 2);
+        Assert.Multiple(() =>
+        {
+            Assert.That(engine.Resets, Is.EqualTo(resetsBefore + 1));
+            Assert.That(listener.Status.State, Is.EqualTo(WakeWordState.Active));
+        });
+    }
+
+    [Test]
     public async Task Nothing_is_scored_while_the_microphone_is_muted()
     {
         await StartAsync();
