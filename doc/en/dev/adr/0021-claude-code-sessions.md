@@ -12,7 +12,7 @@ Proposed on 2026-11-20 (work item `stage2/2-adrs`). The decisions Benoit took af
   the summary and the initial request reach Claude Code).
 - **Stories:** US2.9 to US2.15 of the [design document](../plans/design.md).
 - **Spikes:** E2, E3, E8 and E12
-  ([E12 results](../../../spikes/e12-claude-code-permissions/RESULTS.md), in French).
+  ([E12 results](../../../../spikes/e12-claude-code-permissions/RESULTS.md), in French).
 - **Builds on:** [ADR 0017](0017-tools-classes-and-decision-point.md) (decision point).
 
 ## Context

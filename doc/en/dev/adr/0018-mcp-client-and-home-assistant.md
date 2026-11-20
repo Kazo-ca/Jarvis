@@ -11,7 +11,7 @@ Proposed on 2026-11-20 (work item `stage2/2-adrs`). The decisions Benoit took af
   'Sensitive'". That "script" is a script run on the PC (ADR 0009, section 6). A Home Assistant script is a
   home automation action, classed by section 5 of this ADR.
 - **Stories:** US2.2 and US2.3 of the [design document](../plans/design.md).
-- **Spike:** E14 ([results](../../../spikes/e14-mcp-home-assistant/RESULTS.md), in French).
+- **Spike:** E14 ([results](../../../../spikes/e14-mcp-home-assistant/RESULTS.md), in French).
 - **Builds on:** [ADR 0017](0017-tools-classes-and-decision-point.md) (tool registry, per-call class,
   decision point).
 
