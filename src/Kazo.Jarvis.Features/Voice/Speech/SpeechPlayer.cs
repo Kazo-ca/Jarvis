@@ -258,7 +258,7 @@ public sealed class SpeechPlayer :
             if (Close(speech))
             {
                 await bus.PublishAsync(
-                    new TurnFailed(speech.Turn, new AssistantFault(FaultCause.VoiceMissing, exception.GetType().Name)),
+                    new TurnFailed(speech.Turn, new AssistantFault(FaultCause.VoiceMissing, exception.GetType().Name, FaultOrigin.Voice)),
                     CancellationToken.None).ConfigureAwait(false);
             }
         }
@@ -344,9 +344,9 @@ public sealed class SpeechPlayer :
 
     private static AssistantFault FaultOf(Exception exception) => exception switch
     {
-        SpeechException { Failure: SpeechFailure.ModelMissing } speech => new AssistantFault(FaultCause.ModelMissing, speech.Message),
-        SpeechException speech => new AssistantFault(FaultCause.VoiceMissing, $"{speech.Failure}: {speech.Message}"),
-        _ => new AssistantFault(FaultCause.VoiceMissing, exception.Message),
+        SpeechException { Failure: SpeechFailure.ModelMissing } speech => new AssistantFault(FaultCause.ModelMissing, speech.Message, FaultOrigin.Voice),
+        SpeechException speech => new AssistantFault(FaultCause.VoiceMissing, $"{speech.Failure}: {speech.Message}", FaultOrigin.Voice),
+        _ => new AssistantFault(FaultCause.VoiceMissing, exception.Message, FaultOrigin.Voice),
     };
 
     /// <summary>The speech of one turn: its sentences in order and its cancellation.</summary>

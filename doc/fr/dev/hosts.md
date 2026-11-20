@@ -23,6 +23,8 @@ est ajouté quand une tranche en a besoin »). Son menu publie `SettingsWindowRe
 `UpdatesWindowRequested` ([updates.md](updates.md)), et « Assistant de configuration… » publie `FirstRunWizardRequested` ([first-run.md](first-run.md)) ; une entrée reste grisée tant qu'aucune tranche ne
 traite son événement. « Paramètres » est actif depuis le chantier 5 (tranche `Settings/Window`, voir
 [interface partagée](shared-ui.md)) ; « Conversation » est actif depuis le chantier 13 ([conversation](conversation.md)). « Couper le micro » est actif depuis le chantier 8 et coché tant que le micro est coupé ([audio](audio.md)).
+« Résoudre le problème… » publie `FaultWindowRequested` ; il n'apparaît, en tête du menu, que pendant une panne
+(chantier 15, [pannes](faults.md)).
 Les textes du menu suivent la langue de l'assistant : ils sont relus à chaque ouverture du menu.
 
 ## Tranches

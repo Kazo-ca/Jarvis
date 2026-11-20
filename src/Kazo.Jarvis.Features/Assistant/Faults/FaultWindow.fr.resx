@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Problème de Jarvis</value>
+  </data>
+  <data name="WhatToDo" xml:space="preserve">
+    <value>À faire :</value>
+  </data>
+  <data name="OpenSetting" xml:space="preserve">
+    <value>Ouvrir la page « {0} »</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>Détail technique : {0}</value>
+  </data>
+  <data name="NoFault" xml:space="preserve">
+    <value>Aucun problème en ce moment : Jarvis fonctionne normalement.</value>
+  </data>
+  <data name="Resolved" xml:space="preserve">
+    <value>Le problème est réglé : Jarvis fonctionne de nouveau normalement.</value>
+  </data>
+  <data name="Microphone_Title" xml:space="preserve">
+    <value>Micro absent</value>
+  </data>
+  <data name="Microphone_Explanation" xml:space="preserve">
+    <value>Aucun micro n'est utilisable : il est débranché, désactivé dans Windows, ou une autre application le bloque. Jarvis ne peut pas vous entendre ; le mot d'éveil, le raccourci et le clic sur l'orbe ne lancent pas l'écoute.</value>
+  </data>
+  <data name="Microphone_Action" xml:space="preserve">
+    <value>Branchez un micro ou choisissez-en un autre dans la page Audio. Le problème disparaît dès qu'un micro répond. Vous pouvez toujours écrire à Jarvis dans la fenêtre de conversation.</value>
+  </data>
+  <data name="ModelUnreachable_Title" xml:space="preserve">
+    <value>Modèle de langage injoignable</value>
+  </data>
+  <data name="ModelUnreachable_Explanation" xml:space="preserve">
+    <value>Le serveur du modèle de langage ne répond pas, ou refuse la demande. Jarvis entend votre demande mais ne peut pas y répondre.</value>
+  </data>
+  <data name="ModelUnreachable_Action" xml:space="preserve">
+    <value>Vérifiez que le serveur est démarré (Ollama, llama-server…) et que l'adresse et le port de la page Modèles de langage sont les bons, puis lancez « Tester la connexion ». Le problème disparaît dès que le modèle répond.</value>
+  </data>
+  <data name="LanguageModelMissing_Title" xml:space="preserve">
+    <value>Modèle de langage absent</value>
+  </data>
+  <data name="LanguageModelMissing_Explanation" xml:space="preserve">
+    <value>Le serveur répond, mais il n'a pas le modèle choisi.</value>
+  </data>
+  <data name="LanguageModelMissing_Action" xml:space="preserve">
+    <value>Téléchargez le modèle sur le serveur (par exemple « ollama pull qwen3:14b »), ou choisissez dans la page Modèles de langage un modèle que le serveur propose.</value>
+  </data>
+  <data name="VoiceModelMissing_Title" xml:space="preserve">
+    <value>Voix absente</value>
+  </data>
+  <data name="VoiceModelMissing_Explanation" xml:space="preserve">
+    <value>Le fichier de la voix choisie manque : Jarvis ne peut pas dire sa réponse. Elle reste écrite dans la fenêtre de conversation.</value>
+  </data>
+  <data name="VoiceModelMissing_Action" xml:space="preserve">
+    <value>Téléchargez la voix dans la page Modèles vocaux, puis essayez-la dans la page Voix.</value>
+  </data>
+  <data name="WakeWordModelMissing_Title" xml:space="preserve">
+    <value>Mot d'éveil absent</value>
+  </data>
+  <data name="WakeWordModelMissing_Explanation" xml:space="preserve">
+    <value>Les fichiers du mot d'éveil manquent : « Hey Jarvis » n'est pas entendu. Le raccourci et le clic sur l'orbe fonctionnent toujours.</value>
+  </data>
+  <data name="WakeWordModelMissing_Action" xml:space="preserve">
+    <value>Téléchargez les modèles dans la page Modèles vocaux.</value>
+  </data>
+  <data name="WhisperMissing_Title" xml:space="preserve">
+    <value>Modèle de transcription absent</value>
+  </data>
+  <data name="WhisperMissing_Explanation" xml:space="preserve">
+    <value>Le modèle Whisper n'a pas pu être chargé : Jarvis vous entend mais ne peut pas transcrire votre demande.</value>
+  </data>
+  <data name="WhisperMissing_Action" xml:space="preserve">
+    <value>Téléchargez le modèle Whisper dans la page Modèles vocaux, ou choisissez-en un plus petit dans la page Transcription. Le problème disparaît dès que le modèle est chargé.</value>
+  </data>
+  <data name="Voice_Title" xml:space="preserve">
+    <value>Voix muette</value>
+  </data>
+  <data name="Voice_Explanation" xml:space="preserve">
+    <value>Aucune voix n'a pu dire la réponse : la voix choisie manque, la clé d'une voix dans le nuage manque ou est refusée, ou la sortie audio est absente. La réponse reste écrite dans la fenêtre de conversation.</value>
+  </data>
+  <data name="Voice_Action" xml:space="preserve">
+    <value>Choisissez une voix dans la page Voix et essayez-la ; vérifiez aussi la sortie dans la page Audio. Le problème disparaît dès qu'une voix se fait entendre.</value>
+  </data>
+  <data name="Unknown_Title" xml:space="preserve">
+    <value>Problème</value>
+  </data>
+  <data name="Unknown_Explanation" xml:space="preserve">
+    <value>Jarvis a rencontré un problème.</value>
+  </data>
+  <data name="Unknown_Action" xml:space="preserve">
+    <value>Consultez le journal dans %USERPROFILE%\.kazo\jarvis\logs.</value>
+  </data>
+  <data name="Configuration_Title" xml:space="preserve">
+    <value>Réglages illisibles</value>
+  </data>
+  <data name="Configuration_Unreadable" xml:space="preserve">
+    <value>Le fichier config.json n'a pas pu être lu. Jarvis fonctionne avec les valeurs par défaut et n'enregistre aucun réglage tant que ce fichier est là. Une copie est dans le dossier backups.</value>
+  </data>
+  <data name="Configuration_NewerVersion" xml:space="preserve">
+    <value>Le fichier config.json a été écrit par une version plus récente de Jarvis. Jarvis fonctionne avec les valeurs par défaut et ne touche pas à ce fichier.</value>
+  </data>
+  <data name="Configuration_MigrationFailed" xml:space="preserve">
+    <value>Le fichier config.json n'a pas pu être mis à jour vers cette version. Jarvis fonctionne avec les valeurs par défaut et ne touche pas à ce fichier. Une copie est dans le dossier backups.</value>
+  </data>
+  <data name="Configuration_Action_Unreadable" xml:space="preserve">
+    <value>Corrigez ou renommez %USERPROFILE%\.kazo\jarvis\config.json, puis relancez Jarvis. Renommé, il est remplacé par un fichier neuf au premier réglage.</value>
+  </data>
+  <data name="Configuration_Action_NewerVersion" xml:space="preserve">
+    <value>Installez la version la plus récente de Jarvis (menu « Mises à jour… »), ou renommez %USERPROFILE%\.kazo\jarvis\config.json, puis relancez Jarvis.</value>
+  </data>
+  <data name="Configuration_Action_MigrationFailed" xml:space="preserve">
+    <value>Renommez %USERPROFILE%\.kazo\jarvis\config.json, puis relancez Jarvis ; le journal dit quelle étape a échoué.</value>
+  </data>
+</root>

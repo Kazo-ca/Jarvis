@@ -18,6 +18,7 @@
 | [conversation.md](conversation.md) | Conversation: the full turn, the interruption, the conversation window, the personality |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [first-run.md](first-run.md) | First run: setup wizard, "Voice models" page (checked downloads), Ollama search |
+| [faults.md](faults.md) | Faults: named causes, corrective action, link to the right setting, "Jarvis problem" window |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |
 | [spikes.md](spikes.md) | Summary of the technical spikes |

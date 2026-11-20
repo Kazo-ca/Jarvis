@@ -1,5 +1,8 @@
+using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Audio;
 using Kazo.Jarvis.Kernel.Localization;
+using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Speech;
 
@@ -40,6 +43,8 @@ public sealed class VoiceTrial : IDisposable
     private readonly IVoiceSelection selection;
     private readonly IReadOnlyList<ISpeechEngine> engines;
     private readonly IAudioPlayback playback;
+    private readonly IMessageBus? bus;
+    private readonly IAssistantStateReader? state;
     private IReadOnlyList<SpeechVoice> allVoices = [];
     private CancellationTokenSource? listening;
 
@@ -48,11 +53,21 @@ public sealed class VoiceTrial : IDisposable
     /// <param name="engines">The engines that speak.</param>
     /// <param name="playback">The playback, on the output chosen in the audio page.</param>
     /// <param name="language">The language of the assistant, tried first.</param>
-    public VoiceTrial(IVoiceSelection selection, IEnumerable<ISpeechEngine> engines, IAudioPlayback playback, IAssistantLanguageReader language)
+    /// <param name="bus">Where a voice heard clears the voice fault (stage1/15-faults); none in some tests.</param>
+    /// <param name="state">Tells whether the current fault is the voice's.</param>
+    public VoiceTrial(
+        IVoiceSelection selection,
+        IEnumerable<ISpeechEngine> engines,
+        IAudioPlayback playback,
+        IAssistantLanguageReader language,
+        IMessageBus? bus = null,
+        IAssistantStateReader? state = null)
     {
         this.selection = selection;
         this.engines = [.. engines];
         this.playback = playback;
+        this.bus = bus;
+        this.state = state;
         Language = language.Current;
         Speed = VoiceChoice.NormalSpeed;
     }
@@ -157,6 +172,7 @@ public sealed class VoiceTrial : IDisposable
                 ?? throw new SpeechException(SpeechFailure.UnknownVoice, $"No engine '{voice.Engine}'.");
             var clip = await engine.SynthesizeAsync(voice, text.Trim(), Speed, cancel.Token);
             await playback.PlayAsync(clip, cancel.Token);
+            await ClearVoiceFaultAsync();
         }
         catch (OperationCanceledException) when (cancel.IsCancellationRequested)
         {
@@ -186,6 +202,20 @@ public sealed class VoiceTrial : IDisposable
 
             cancel.Dispose();
             Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>
+    /// A voice was heard to the end: the voice fault goes away (US1.17), as the faults window promises. The user
+    /// fixes a silent voice on this page, so this is where the fix is seen.
+    /// </summary>
+    private async Task ClearVoiceFaultAsync()
+    {
+        if (bus is not null
+            && state?.Current.Fault is { Cause: FaultCause.VoiceMissing or FaultCause.ModelMissing } fault
+            && (fault.Origin == FaultOrigin.Voice || fault.Origin is null && fault.Cause == FaultCause.VoiceMissing))
+        {
+            await bus.PublishAsync<AssistantInput>(new FaultResolved(fault.Cause, FaultOrigin.Voice));
         }
     }
 

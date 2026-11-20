@@ -1,3 +1,4 @@
+using Kazo.Jarvis.Features.Assistant.Faults;
 using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
 using Kazo.Jarvis.Features.Audio.Devices;
@@ -78,7 +79,11 @@ public static class FeaturesServiceCollectionExtensions
         services.AddModelsSlice();
         services.AddFirstRunSlice();
 
-        // Other slices arrive with their work items (stage1/15-faults onwards).
+        // Faults (stage1/15-faults): each slice raises and clears its own causes; this one names them, says what to
+        // do and opens the right setting, and checks the settings file at start.
+        services.AddFaultsSlice();
+
+        // Other slices arrive with the next stages.
         return services;
     }
 }

@@ -18,6 +18,7 @@
 | [conversation.md](conversation.md) | Conversation : le tour complet, l'interruption, la fenêtre de conversation, la personnalité |
 | [llm.md](llm.md) | Modèles de langage : fournisseurs, adaptateurs, modèle par défaut, test de la connexion |
 | [first-run.md](first-run.md) | Premier lancement : assistant de configuration, page « Modèles vocaux » (téléchargement vérifié), recherche d'Ollama |
+| [faults.md](faults.md) | Pannes : causes nommées, action corrective, lien vers le bon réglage, fenêtre « Problème de Jarvis » |
 | [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |
 | [pitfalls.md](pitfalls.md) | Pièges rencontrés et leur solution |
 | [spikes.md](spikes.md) | Synthèse des essais techniques |

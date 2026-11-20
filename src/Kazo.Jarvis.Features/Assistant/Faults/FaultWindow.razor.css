@@ -1,0 +1,63 @@
+.fault-window {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 1.5rem;
+    border-left: 3px solid var(--jarvis-red);
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
+}
+
+.fault-title {
+    margin: 0;
+    color: var(--jarvis-red);
+    font-family: var(--jarvis-font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fault-text {
+    margin: 0;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.fault-label {
+    margin-right: 0.4rem;
+    color: var(--jarvis-text-muted);
+    font-family: var(--jarvis-font-display);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fault-button {
+    align-self: flex-start;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: var(--jarvis-panel);
+    color: var(--jarvis-cyan);
+    font: inherit;
+    cursor: pointer;
+}
+
+.fault-detail {
+    margin: 0;
+    color: var(--jarvis-text-muted);
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+}
+
+.fault-none {
+    color: var(--jarvis-green);
+}
+
+.fault-window-ok {
+    border-left-color: var(--jarvis-green);
+}

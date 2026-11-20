@@ -47,6 +47,9 @@ Le détail est dans le journal :
   <data name="UpdateFound" xml:space="preserve">
     <value>La version {0} est disponible. Cliquer ici pour l'installer.</value>
   </data>
+  <data name="Problem" xml:space="preserve">
+    <value>Résoudre le problème…</value>
+  </data>
   <data name="FirstRunWizard" xml:space="preserve">
     <value>Assistant de configuration…</value>
   </data>

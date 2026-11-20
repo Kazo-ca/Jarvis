@@ -22,7 +22,8 @@ needs it"). Its menu publishes `SettingsWindowRequested` and `ConversationWindow
 (`Kernel.Messages.Desktop`), "Updates…" publishes `UpdatesWindowRequested` ([updates.md](updates.md)), and "Setup wizard…" publishes `FirstRunWizardRequested` ([first-run.md](first-run.md));
 an entry stays greyed out while no slice handles its event. "Settings" is enabled since work item 5 (slice
 `Settings/Window`, see [shared UI](shared-ui.md)); "Conversation" is enabled since work item 13 ([conversation](conversation.md)). "Mute the
-microphone" is enabled since work item 8 and ticked while the microphone is muted ([audio](audio.md)). The menu texts follow the assistant language: they are read again each time the
+microphone" is enabled since work item 8 and ticked while the microphone is muted ([audio](audio.md)). "Solve the problem…" publishes `FaultWindowRequested`;
+it shows, at the top of the menu, only during a fault (work item 15, [faults](faults.md)). The menu texts follow the assistant language: they are read again each time the
 menu opens.
 
 ## Slices

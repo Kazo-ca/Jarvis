@@ -280,7 +280,7 @@ public sealed partial class MicrophoneService : IHostedService, IEventHandler<Mi
         if (!faultRaised)
         {
             faultRaised = true;
-            messages.Add(new FaultRaised(new AssistantFault(FaultCause.MicrophoneMissing, detail)));
+            messages.Add(new FaultRaised(new AssistantFault(FaultCause.MicrophoneMissing, detail, FaultOrigin.Microphone)));
         }
     }
 
@@ -289,7 +289,7 @@ public sealed partial class MicrophoneService : IHostedService, IEventHandler<Mi
         if (faultRaised)
         {
             faultRaised = false;
-            messages.Add(new FaultResolved(FaultCause.MicrophoneMissing));
+            messages.Add(new FaultResolved(FaultCause.MicrophoneMissing, FaultOrigin.Microphone));
         }
     }
 

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Jarvis problem</value>
+  </data>
+  <data name="WhatToDo" xml:space="preserve">
+    <value>What to do:</value>
+  </data>
+  <data name="OpenSetting" xml:space="preserve">
+    <value>Open the “{0}” page</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>Technical detail: {0}</value>
+  </data>
+  <data name="NoFault" xml:space="preserve">
+    <value>No problem right now: Jarvis works normally.</value>
+  </data>
+  <data name="Resolved" xml:space="preserve">
+    <value>The problem is solved: Jarvis works normally again.</value>
+  </data>
+  <data name="Microphone_Title" xml:space="preserve">
+    <value>No microphone</value>
+  </data>
+  <data name="Microphone_Explanation" xml:space="preserve">
+    <value>No microphone can be used: it is unplugged, disabled in Windows, or another application holds it. Jarvis cannot hear you; the wake word, the hotkey and a click on the orb do not start listening.</value>
+  </data>
+  <data name="Microphone_Action" xml:space="preserve">
+    <value>Plug in a microphone or pick another one on the Audio page. The problem goes away as soon as a microphone answers. You can still write to Jarvis in the conversation window.</value>
+  </data>
+  <data name="ModelUnreachable_Title" xml:space="preserve">
+    <value>Language model unreachable</value>
+  </data>
+  <data name="ModelUnreachable_Explanation" xml:space="preserve">
+    <value>The language model server does not answer, or refuses the request. Jarvis hears your request but cannot answer it.</value>
+  </data>
+  <data name="ModelUnreachable_Action" xml:space="preserve">
+    <value>Check that the server is started (Ollama, llama-server…) and that the address and port on the Language models page are right, then run “Test the connection”. The problem goes away as soon as the model answers.</value>
+  </data>
+  <data name="LanguageModelMissing_Title" xml:space="preserve">
+    <value>Language model missing</value>
+  </data>
+  <data name="LanguageModelMissing_Explanation" xml:space="preserve">
+    <value>The server answers, but it does not have the chosen model.</value>
+  </data>
+  <data name="LanguageModelMissing_Action" xml:space="preserve">
+    <value>Download the model on the server (for instance “ollama pull qwen3:14b”), or pick on the Language models page a model the server offers.</value>
+  </data>
+  <data name="VoiceModelMissing_Title" xml:space="preserve">
+    <value>Voice missing</value>
+  </data>
+  <data name="VoiceModelMissing_Explanation" xml:space="preserve">
+    <value>The file of the chosen voice is missing: Jarvis cannot say its answer. It stays written in the conversation window.</value>
+  </data>
+  <data name="VoiceModelMissing_Action" xml:space="preserve">
+    <value>Download the voice on the Voice models page, then try it on the Voices page.</value>
+  </data>
+  <data name="WakeWordModelMissing_Title" xml:space="preserve">
+    <value>Wake word missing</value>
+  </data>
+  <data name="WakeWordModelMissing_Explanation" xml:space="preserve">
+    <value>The wake word files are missing: “Hey Jarvis” is not heard. The hotkey and a click on the orb still work.</value>
+  </data>
+  <data name="WakeWordModelMissing_Action" xml:space="preserve">
+    <value>Download the models on the Voice models page.</value>
+  </data>
+  <data name="WhisperMissing_Title" xml:space="preserve">
+    <value>Transcription model missing</value>
+  </data>
+  <data name="WhisperMissing_Explanation" xml:space="preserve">
+    <value>The Whisper model could not be loaded: Jarvis hears you but cannot transcribe your request.</value>
+  </data>
+  <data name="WhisperMissing_Action" xml:space="preserve">
+    <value>Download the Whisper model on the Voice models page, or pick a smaller one on the Transcription page. The problem goes away as soon as the model is loaded.</value>
+  </data>
+  <data name="Voice_Title" xml:space="preserve">
+    <value>Silent voice</value>
+  </data>
+  <data name="Voice_Explanation" xml:space="preserve">
+    <value>No voice could say the answer: the chosen voice is missing, the key of a cloud voice is missing or refused, or the audio output is gone. The answer stays written in the conversation window.</value>
+  </data>
+  <data name="Voice_Action" xml:space="preserve">
+    <value>Pick a voice on the Voices page and try it; also check the output on the Audio page. The problem goes away as soon as a voice is heard.</value>
+  </data>
+  <data name="Unknown_Title" xml:space="preserve">
+    <value>Problem</value>
+  </data>
+  <data name="Unknown_Explanation" xml:space="preserve">
+    <value>Jarvis ran into a problem.</value>
+  </data>
+  <data name="Unknown_Action" xml:space="preserve">
+    <value>Look at the log in %USERPROFILE%\.kazo\jarvis\logs.</value>
+  </data>
+  <data name="Configuration_Title" xml:space="preserve">
+    <value>Unreadable settings</value>
+  </data>
+  <data name="Configuration_Unreadable" xml:space="preserve">
+    <value>The config.json file could not be read. Jarvis runs on default values and saves no setting while this file is there. A copy is in the backups folder.</value>
+  </data>
+  <data name="Configuration_NewerVersion" xml:space="preserve">
+    <value>The config.json file was written by a newer version of Jarvis. Jarvis runs on default values and leaves this file alone.</value>
+  </data>
+  <data name="Configuration_MigrationFailed" xml:space="preserve">
+    <value>The config.json file could not be brought up to this version. Jarvis runs on default values and leaves this file alone. A copy is in the backups folder.</value>
+  </data>
+  <data name="Configuration_Action_Unreadable" xml:space="preserve">
+    <value>Fix or rename %USERPROFILE%\.kazo\jarvis\config.json, then restart Jarvis. Once renamed, a new file replaces it at the first setting saved.</value>
+  </data>
+  <data name="Configuration_Action_NewerVersion" xml:space="preserve">
+    <value>Install the newest version of Jarvis (“Updates…” menu), or rename %USERPROFILE%\.kazo\jarvis\config.json, then restart Jarvis.</value>
+  </data>
+  <data name="Configuration_Action_MigrationFailed" xml:space="preserve">
+    <value>Rename %USERPROFILE%\.kazo\jarvis\config.json, then restart Jarvis; the log says which step failed.</value>
+  </data>
+</root>

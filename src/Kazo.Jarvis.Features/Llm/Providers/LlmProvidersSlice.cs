@@ -1,4 +1,6 @@
 using Kazo.Jarvis.Kernel.Llm;
+using Kazo.Jarvis.Kernel.Messages.Llm;
+using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -25,6 +27,9 @@ public static class LlmProvidersSlice
         services.TryAddSingleton<IAssistantModel>(provider => provider.GetRequiredService<AssistantModelKeeper>());
         services.AddHostedService(provider => provider.GetRequiredService<AssistantModelKeeper>());
         services.TryAddTransient<ProviderEditor>();
+
+        // The faults of the language model outside a turn (stage1/15-faults).
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AssistantModelLoadChanged>, LanguageModelFaultWatcher>());
 
         // After the language page: the language changes every other page.
         services.AddSingleton(new SettingsPage(PageKey, typeof(LlmProvidersSettingsPage), typeof(LlmProvidersSettingsPage), "Title", Order: 10));

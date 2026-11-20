@@ -160,7 +160,17 @@ ce qu'il décrit.
   repli ; SHA-1 pour Whisper ; dépendance SharpZipLib 1.4.2 ; pas d'étape « Voix » ; les deux voix Piper cochées
   d'office ; recherche d'Ollama automatique tant que les fournisseurs sont ceux par défaut. L'hôte Web simule
   désormais un profil existant.
-- **Prochaine étape :** chantiers `stage1/15-faults` puis `stage1/17-acceptance`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 et 14, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier 15** (`stage1/15-faults`, pannes : `FaultOrigin` et `AssistantFault.Origin` du noyau, `FaultResolved` avec
+  origine, `SettingsWindowRequested(PageKey)`, `FaultWindowRequested` ; tranche `Assistant/Faults` (titre, explication,
+  action corrective et page de chaque cause, fenêtre « Problème de Jarvis », réglages illisibles posés au démarrage) ;
+  panne du modèle de langage posée et levée hors d'un tour, Whisper retrouvé et voix entendue lèvent la leur ; entrée
+  « Résoudre le problème… » de la zone de notification pendant une panne, voir [dev/faults.md](../dev/faults.md)) livré
+  dans sa PR le 20 novembre 2026, sans vérification Windows. La table des transitions n'a pas changé. **Choix
+  provisoires** ([détail](../dev/faults.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : fenêtre ouverte
+  par l'entrée du menu et toute seule seulement sur un refus faute de micro ; serveur injoignable posé après deux
+  chargements ratés de suite ; la page « Voix » lève la panne de la voix ; aucun bouton pour les réglages illisibles ;
+  origine dans le noyau.
+- **Prochaine étape :** chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui). Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

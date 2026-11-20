@@ -28,6 +28,12 @@ public sealed class SimulatedLlmConnector : ILlmConnector
     /// <summary>The models every simulated server has.</summary>
     public static IReadOnlyList<string> Models { get; } = ["qwen3:14b", "qwen2.5:14b", "default", "claude-opus-5-5", "gpt-5"];
 
+    /// <summary>
+    /// When set, every provider fails with this cause, as if the server were stopped (<see cref="LlmFailure.Unreachable"/>)
+    /// or had lost its model (<see cref="LlmFailure.ModelMissing"/>). The faults tests use it (stage1/15-faults).
+    /// </summary>
+    public LlmFailure? ForcedFailure { get; set; }
+
     /// <summary>How long a simulated load takes.</summary>
     public TimeSpan LoadDuration { get; set; } = TimeSpan.FromMilliseconds(300);
 
@@ -90,6 +96,11 @@ public sealed class SimulatedLlmConnector : ILlmConnector
 
     private async Task CheckAsync(LlmProvider provider, CancellationToken cancellationToken)
     {
+        if (ForcedFailure is { } forced)
+        {
+            throw new LlmException(forced, $"Simulated: {forced}.");
+        }
+
         if (!provider.Endpoint.IsAbsoluteUri || (provider.Endpoint.Scheme != Uri.UriSchemeHttp && provider.Endpoint.Scheme != Uri.UriSchemeHttps))
         {
             throw new LlmException(LlmFailure.InvalidAddress, "Simulated: not an http address.");
