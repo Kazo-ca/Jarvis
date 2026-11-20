@@ -1,13 +1,17 @@
 using System.Runtime.Versioning;
 using Kazo.Jarvis.Adapters.Files;
+using Kazo.Jarvis.Adapters.Hardware;
 using Kazo.Jarvis.Adapters.Llm;
+using Kazo.Jarvis.Adapters.Models;
 using Kazo.Jarvis.Adapters.Secrets;
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Speech;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Adapters.Updates;
 using Kazo.Jarvis.Adapters.Voice;
+using Kazo.Jarvis.Kernel.Hardware;
 using Kazo.Jarvis.Kernel.Llm;
+using Kazo.Jarvis.Kernel.Models;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Speech;
@@ -87,6 +91,15 @@ public static class AdaptersServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, KokoroSpeechEngine>(provider => provider.GetRequiredService<KokoroSpeechEngine>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, ElevenLabsSpeechEngine>(provider => provider.GetRequiredService<ElevenLabsSpeechEngine>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, OpenAiSpeechEngine>(provider => provider.GetRequiredService<OpenAiSpeechEngine>()));
+
+        // Models (ADR 0006, section 7, stage1/14-first-run): downloaded on the user's request only, checked by
+        // checksum. Its own client: 30 minutes cover the largest model (Kokoro, 350 MB) on a slow line.
+        services.TryAddSingleton<IModelInstaller>(provider => new HttpModelInstaller(
+            new HttpClient { Timeout = TimeSpan.FromMinutes(30) },
+            provider.GetRequiredService<JarvisPaths>(),
+            provider.GetService<ILogger<HttpModelInstaller>>()));
+        services.TryAddSingleton<IGraphicsCardProbe>(provider => new NvidiaSmiGraphicsCardProbe(
+            provider.GetService<ILogger<NvidiaSmiGraphicsCardProbe>>()));
 
         // Both vaults need Windows (Credential Manager, DPAPI). The Windows host is the only one to load Adapters.
         if (OperatingSystem.IsWindows())

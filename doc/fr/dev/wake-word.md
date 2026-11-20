@@ -65,7 +65,7 @@ Jarvis” » de la page d'accueil fait monter les trames suivantes (0,2, 0,6, 0,
 L'ADR 0006 ne les tranche pas ; à confirmer par Benoit :
 
 1. **Modèles absents = pas de panne** : l'orbe ne passe pas en erreur, la page le dit, nouvel essai toutes
-   les 30 s. L'assistant du premier lancement (chantier 14) les téléchargera.
+   les 30 s. Depuis le chantier 14, la page « Modèles vocaux » les télécharge ([first-run.md](first-run.md)).
 2. Dossier `models\wake-word\` avec les noms de fichiers d'openWakeWord.
 3. Une détection par passage au-dessus du seuil, sans délai supplémentaire.
 4. Le mot d'éveil reste actif pendant la réflexion et la parole (pour interrompre), en pause seulement
@@ -98,7 +98,7 @@ L'ADR 0006 ne les tranche pas ; à confirmer par Benoit :
 
 À faire à la prochaine séance avec Benoit (sa voix ; l'hôte Web ne les prouve pas) :
 
-1. Copier les trois modèles dans `%USERPROFILE%\.kazo\jarvis\models\wake-word` (en attendant le chantier 14),
+1. Télécharger les modèles par la page « Modèles vocaux » (ou les copier dans `%USERPROFILE%\.kazo\jarvis\models\wake-word`),
    lancer Jarvis : la page « Mot d'éveil » passe à « Jarvis attend « Hey Jarvis » ».
 2. **Seuil avec la voix de Benoit** (ADR 0006, section 2) : dire « Hey Jarvis » une dizaine de fois, à
    distance normale, puis parler normalement et laisser jouer de la musique ou une vidéo quelques minutes.

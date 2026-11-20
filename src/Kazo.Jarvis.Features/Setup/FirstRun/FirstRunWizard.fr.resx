@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Configuration de Jarvis</value>
+  </data>
+  <data name="StepOf" xml:space="preserve">
+    <value>Étape {0} sur {1}</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Bonjour. Quelques choix avant d'être à votre service : ma langue, le micro et les haut-parleurs, les modèles dont j'ai besoin sur ce PC, et le modèle de langage qui répond. Chaque choix est enregistré tout de suite et se change plus tard dans les paramètres.</value>
+  </data>
+  <data name="DoneTitle" xml:space="preserve">
+    <value>Prêt</value>
+  </data>
+  <data name="DoneText" xml:space="preserve">
+    <value>Dites « Hey Jarvis », appuyez sur le raccourci clavier ou cliquez sur l'orbe, puis posez votre question.</value>
+  </data>
+  <data name="DoneLater" xml:space="preserve">
+    <value>Les téléchargements en cours continuent en arrière-plan ; la page « Modèles vocaux » des paramètres les montre. Cet assistant se rouvre depuis le menu de la zone de notification.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>La fin de l'assistant n'a pas pu être enregistrée : le fichier des réglages ne peut pas être écrit. La cause est dans le journal.</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Précédent</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>Terminer</value>
+  </data>
+</root>

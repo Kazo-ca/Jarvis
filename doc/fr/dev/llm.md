@@ -78,7 +78,7 @@ une adresse en `.slow` ne répond jamais, la clé `refused` est refusée, seuls 
 L'ADR 0007 ne les tranche pas ; ils se changent en une ligne :
 
 1. **Port par défaut 11434** (celui d'Ollama), pas 11435 : chez Benoit, l'adresse se règle une fois dans la
-   page. L'assistant du premier lancement (chantier 14) pourra chercher Ollama sur les deux ports.
+   page. Depuis le chantier 14, la page cherche Ollama sur 11434 puis 11435 tant que les fournisseurs sont ceux par défaut ([first-run.md](first-run.md#ollama-sur-11434-puis-11435-tranche-llmproviders)).
 2. **Modèle par défaut d'un nouveau fournisseur Anthropic :** `claude-opus-5-5`. OpenAI n'a pas de modèle
    proposé : le test liste ceux du compte.
 3. **Adaptateur Anthropic écrit sur `HttpClient`** plutôt que sur le SDK officiel : même code que les deux

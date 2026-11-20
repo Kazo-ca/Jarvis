@@ -48,6 +48,12 @@
     <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="10.0.15" />
   </ItemGroup>
 
+  <!-- Models download (stage1/14-first-run): sherpa-onnx publishes its voices as .tar.bz2; .NET reads tar but
+       not bzip2. SharpZipLib (MIT) for bzip2 only, in Adapters. -->
+  <ItemGroup>
+    <PackageVersion Include="SharpZipLib" Version="1.4.2" />
+  </ItemGroup>
+
   <!-- Tests (NUnit, as in Kazo Bar; Playwright against the Web host). -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />

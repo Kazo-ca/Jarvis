@@ -19,8 +19,8 @@ obligatoire, pour qu'une saisie dans une autre application ne le déclenche jama
 
 La zone de notification n'a pas de contrat : aucune tranche n'en a besoin (ADR 0003, section 5, « un contrat
 est ajouté quand une tranche en a besoin »). Son menu publie `SettingsWindowRequested` et
-`ConversationWindowRequested` (`Kernel.Messages.Desktop`), et « Mises à jour… » publie
-`UpdatesWindowRequested` ([updates.md](updates.md)) ; une entrée reste grisée tant qu'aucune tranche ne
+`ConversationWindowRequested` (`Kernel.Messages.Desktop`), « Mises à jour… » publie
+`UpdatesWindowRequested` ([updates.md](updates.md)), et « Assistant de configuration… » publie `FirstRunWizardRequested` ([first-run.md](first-run.md)) ; une entrée reste grisée tant qu'aucune tranche ne
 traite son événement. « Paramètres » est actif depuis le chantier 5 (tranche `Settings/Window`, voir
 [interface partagée](shared-ui.md)) ; « Conversation » est actif depuis le chantier 13 ([conversation](conversation.md)). « Couper le micro » est actif depuis le chantier 8 et coché tant que le micro est coupé ([audio](audio.md)).
 Les textes du menu suivent la langue de l'assistant : ils sont relus à chaque ouverture du menu.
@@ -127,3 +127,4 @@ Ce que l'hôte Web ne prouve pas (plan de l'étape 1, chantier 4) :
    redémarrer (titre de la page, onglet, aide), et le menu de la zone de notification est traduit à
    l'ouverture suivante. Les polices (Rajdhani pour les titres) s'affichent sans connexion à Internet.
 9. Chantier 6 : la [liste de l'orbe](orb.md#vérifications-sur-windows).
+10. Chantier 14 : la [liste du premier lancement](first-run.md#vérifications-sur-windows).

@@ -26,7 +26,7 @@ page « Voix » (tranche Voice/TestVoice) ─► IVoiceSelection + ISpeechEngine
 | `ISpeechEngine` | Contrat natif d'un moteur : son nom (`piper`, `kokoro`, `elevenlabs`, `openai`), s'il envoie le texte hors du PC, ses voix utilisables maintenant, la synthèse d'une phrase en `AudioClip`. Plusieurs moteurs sont inscrits. |
 | `SpeechVoice`, `VoiceChoice` | Une voix (moteur, identifiant, nom, langue ou `null` si multilingue, sortie du PC) ; le choix gardé dans les réglages (moteur, voix, vitesse de 0,5 à 2). |
 | `SpeechException`, `SpeechFailure` | La cause d'un échec : modèle absent, clé absente ou refusée, service injoignable, voix inconnue, autre. |
-| `IVoiceSelection` | La voix de chaque langue, fournie par la tranche `Voice/Speech` qui possède le réglage ; lue et changée par la page « Voix », plus tard par le premier lancement (chantier 14). |
+| `IVoiceSelection` | La voix de chaque langue, fournie par la tranche `Voice/Speech` qui possède le réglage ; lue et changée par la page « Voix » (le premier lancement n'a pas d'étape « Voix » : les voix Piper des deux langues restent celles par défaut). |
 | `SpeechKeys` | Références des clés des voix dans le coffre : `voice.elevenlabs.apikey`, `voice.openai.apikey`. |
 | `SentenceToSpeak`, `AnswerSentencesEnded` | Ce que la [conversation](conversation.md) publie : chaque phrase complète dans l'ordre, puis la fin de la réponse. |
 

@@ -63,7 +63,7 @@ The wake word adapter tests (`OnnxWakeWordEngineTests`, category `Models`) need 
 models, which are never in the repository (ADR 0004, section 5). They read them from the folder named by the
 `KAZO_JARVIS_WAKE_WORD_MODELS` variable; without it, they are ignored. The CI downloads them from the
 openWakeWord 0.5.1 release on GitHub and checks their SHA-256 hash (step "Download the wake word models" of
-`ci.yml`). On Windows, after work item 14:
+`ci.yml`). On Windows, once the "Voice models" page has downloaded the models:
 `$env:KAZO_JARVIS_WAKE_WORD_MODELS = "$env:USERPROFILE\.kazo\jarvis\models\wake-word"`.
 
 ## Continuous integration

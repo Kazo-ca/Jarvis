@@ -101,6 +101,16 @@
                 <button type="button" class="llm-provider-test-button" data-provider-test disabled="@Editor.IsTesting(id)" @onclick="() => TestAsync(id)">
                     @(Editor.IsTesting(id) ? T["Testing"] : T["Test"])
                 </button>
+                @if (provider.Kind == LlmProviderKind.Ollama)
+                {
+                    <button type="button" class="llm-provider-test-button" data-provider-find-ollama disabled="@Editor.IsTesting(id)" @onclick="() => FindOllamaAsync(id, saveIfDefault: false)">
+                        @T["FindOllama"]
+                    </button>
+                }
+                @if (searches.TryGetValue(id, out var search))
+                {
+                    <p class="llm-provider-result" role="status" data-ollama-search="@(search.Found?.Port.ToString(CultureInfo.InvariantCulture) ?? "none")">@DescribeSearch(search)</p>
+                }
                 @if (result is not null)
                 {
                     <p class="llm-provider-result" role="status" data-test-result="@(result.Failure?.ToString() ?? "Passed")">@Describe(provider, result)</p>
@@ -152,7 +162,18 @@
 
 @code {
     private readonly CancellationTokenSource closing = new();
+    private readonly Dictionary<string, OllamaSearch> searches = new(StringComparer.Ordinal);
     private LlmProviderKind addKind = LlmProviderKind.Ollama;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        // Providers never changed (first run): look for Ollama on its standard port, then on 11435 (work item 14).
+        if (Editor.IsUntouchedDefault && Editor.Drafts.FirstOrDefault(p => p.Id == Editor.DefaultId) is { Kind: LlmProviderKind.Ollama } local)
+        {
+            await FindOllamaAsync(local.Id, saveIfDefault: true);
+        }
+    }
 
     /// <inheritdoc />
     public void Dispose()
@@ -204,6 +225,40 @@
     }
 
     private async Task SaveAsync() => await Editor.SaveAsync();
+
+    private async Task FindOllamaAsync(string id, bool saveIfDefault)
+    {
+        var before = Editor.Drafts.FirstOrDefault(p => p.Id == id)?.Address;
+        Uri? found;
+        try
+        {
+            var running = Editor.FindOllamaAsync(id, closing.Token);
+            StateHasChanged();
+            found = await running;
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        // Found elsewhere than in the untouched defaults: saved at once, so the wizard can move on.
+        var saved = false;
+        if (saveIfDefault && found is not null && !string.Equals(before, found.GetLeftPart(UriPartial.Authority), StringComparison.Ordinal))
+        {
+            saved = (await Editor.SaveAsync()).IsSaved;
+        }
+
+        searches[id] = new OllamaSearch(found, saved);
+    }
+
+    private string DescribeSearch(OllamaSearch search) => search.Found switch
+    {
+        null => T["OllamaNotFound", string.Join(", ", ProviderEditor.OllamaPorts)],
+        { } address when search.Saved => T["OllamaFoundSaved", address.Port],
+        { } address => T["OllamaFound", address.Port],
+    };
+
+    private sealed record OllamaSearch(Uri? Found, bool Saved);
 
     private string Describe(LlmProviderSettings provider, LlmConnectionResult result)
     {

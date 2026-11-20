@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Settings;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,9 @@ public static class TranscriptionSlice
             provider => provider.GetRequiredService<UtteranceListener>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, UtteranceListener>(
             provider => provider.GetRequiredService<UtteranceListener>()));
+
+        // The Whisper model installed from the models page (stage1/14-first-run) becomes the one in use.
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<WhisperModelChosen>, WhisperChoiceApplier>());
 
         // After the wake word page (25): the order of the voice chain, ear first.
         services.AddSingleton(new SettingsPage(PageKey, typeof(TranscriptionSettingsPage), typeof(TranscriptionSettingsPage), "Title", Order: 30));

@@ -1,7 +1,9 @@
 using Kazo.Jarvis.Kernel.Audio;
 using Kazo.Jarvis.Kernel.Desktop;
+using Kazo.Jarvis.Kernel.Hardware;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;
+using Kazo.Jarvis.Kernel.Models;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Speech;
@@ -17,7 +19,7 @@ public static class SimulatedServiceCollectionExtensions
 {
     /// <summary>
     /// Adds the in-memory settings, document store and vault, and the simulated desktop services (orb, dialogs,
-    /// hotkey, start with Windows), the audio devices, the Windows display language, the simulated release source and updater launcher, the simulated language model connector, the simulated wake word, transcription and voices. Called before <c>AddJarvisFeatures</c>.
+    /// hotkey, start with Windows), the audio devices, the Windows display language, the simulated release source and updater launcher, the simulated language model connector, the simulated wake word, transcription and voices, the simulated model downloads and graphics card. Called before <c>AddJarvisFeatures</c>.
     /// </summary>
     /// <param name="services">The host's service collection.</param>
     /// <returns>The same collection, for chaining.</returns>
@@ -65,6 +67,11 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<ISpeechRecognition>(provider => provider.GetRequiredService<SimulatedSpeechRecognition>());
         services.TryAddSingleton<SimulatedVoiceActivity>();
         services.TryAddSingleton<IVoiceActivityDetection>(provider => provider.GetRequiredService<SimulatedVoiceActivity>());
+
+        services.TryAddSingleton<SimulatedModelInstaller>();
+        services.TryAddSingleton<IModelInstaller>(provider => provider.GetRequiredService<SimulatedModelInstaller>());
+        services.TryAddSingleton<SimulatedGraphicsCardProbe>();
+        services.TryAddSingleton<IGraphicsCardProbe>(provider => provider.GetRequiredService<SimulatedGraphicsCardProbe>());
         return services;
     }
 }

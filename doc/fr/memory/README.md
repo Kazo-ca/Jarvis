@@ -147,7 +147,20 @@ ce qu'il décrit.
   ([détail](../dev/conversation.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : fin de phrase et
   abréviations, Markdown non dit, historique de 20 tours au plus sans limite d'âge, tour enregistré à sa fin,
   personnalités des deux langues sur une page, envoi écrit seulement en veille.
-- **Prochaine étape :** chantier `stage1/14-first-run`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12 et 13, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier 14** (`stage1/14-first-run`, premier lancement : contrats `IModelInstaller` et `IGraphicsCardProbe` du
+  noyau, messages `WhisperModelChosen` et `FirstRunWizardRequested`, adaptateurs `HttpModelInstaller` (taille et
+  empreinte vérifiées, `.tar.bz2` dépliés par SharpZipLib) et `NvidiaSmiGraphicsCardProbe`, tranche `Setup/Models`
+  (page « Modèles vocaux », conseil selon la carte graphique), tranche `Setup/FirstRun` (assistant : langue, audio,
+  modèles vocaux, modèle de langage ; section `Setup.FirstRun`), recherche d'Ollama sur 11434 puis 11435 dans la page
+  « Modèles de langage », entrée « Assistant de configuration… » de la zone de notification, voir
+  [dev/first-run.md](../dev/first-run.md)) livré dans sa PR le 20 novembre 2026, sans vérification Windows. Vrai
+  téléchargement essayé dans le conteneur (GitHub) ; **Whisper (Hugging Face) jamais téléchargé pour de vrai**.
+  **Choix provisoires** ([détail](../dev/first-run.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) :
+  10 Go pour la chaîne complète, `small` en dessous, `base` sur le processeur sans NVIDIA, `qwen3:8b` conseillé en
+  repli ; SHA-1 pour Whisper ; dépendance SharpZipLib 1.4.2 ; pas d'étape « Voix » ; les deux voix Piper cochées
+  d'office ; recherche d'Ollama automatique tant que les fournisseurs sont ceux par défaut. L'hôte Web simule
+  désormais un profil existant.
+- **Prochaine étape :** chantiers `stage1/15-faults` puis `stage1/17-acceptance`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 et 14, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

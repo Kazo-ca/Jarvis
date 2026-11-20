@@ -13,3 +13,10 @@ public sealed record SettingsWindowRequested : IEvent;
 /// slice handles this event, the host greys the menu entry out.
 /// </summary>
 public sealed record ConversationWindowRequested : IEvent;
+
+/// <summary>
+/// The user asked for the first-run wizard again (tray menu, stage 1 plan, work item 14). The first-run slice
+/// opens it; it also opens by itself when there is no settings file. Until a slice handles this event, the host
+/// greys the menu entry out.
+/// </summary>
+public sealed record FirstRunWizardRequested : IEvent;

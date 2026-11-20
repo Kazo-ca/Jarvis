@@ -77,7 +77,7 @@ unreachable, one ending in `.slow` never answers, the key `refused` is refused, 
 ADR 0007 does not settle them; each is a one-line change:
 
 1. **Default port 11434** (Ollama's), not 11435: on Benoit's PC the address is set once in the page. The
-   first-run wizard (work item 14) may look for Ollama on both ports.
+   page looks for Ollama on 11434 then 11435 since work item 14, while the providers are the default ones ([first-run.md](first-run.md#ollama-on-11434-then-11435-slice-llmproviders)).
 2. **Default model of a new Anthropic provider:** `claude-opus-5-5`. OpenAI has no proposed model: the test
    lists the account's models.
 3. **Anthropic adapter written on `HttpClient`** rather than the official SDK: same code as the two others, no

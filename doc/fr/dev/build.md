@@ -63,7 +63,7 @@ Les tests de l'adaptateur du mot d'éveil (`OnnxWakeWordEngineTests`, catégorie
 modèles d'openWakeWord 0.5.1, qui ne sont jamais dans le dépôt (ADR 0004, section 5). Ils les lisent dans le
 dossier nommé par la variable `KAZO_JARVIS_WAKE_WORD_MODELS` ; sans elle, ils sont ignorés. L'intégration
 continue les télécharge depuis la version 0.5.1 d'openWakeWord sur GitHub et vérifie leur empreinte SHA-256
-(étape « Download the wake word models » de `ci.yml`). Sous Windows, après le chantier 14 :
+(étape « Download the wake word models » de `ci.yml`). Sous Windows, une fois les modèles téléchargés par la page « Modèles vocaux » :
 `$env:KAZO_JARVIS_WAKE_WORD_MODELS = "$env:USERPROFILE\.kazo\jarvis\models\wake-word"`.
 
 ## Intégration continue

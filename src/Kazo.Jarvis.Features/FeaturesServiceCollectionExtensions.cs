@@ -7,6 +7,8 @@ using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
+using Kazo.Jarvis.Features.Setup.FirstRun;
+using Kazo.Jarvis.Features.Setup.Models;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
 using Kazo.Jarvis.Features.Voice.Speech;
@@ -71,7 +73,12 @@ public static class FeaturesServiceCollectionExtensions
         // and the personality; the default model comes from the language models slice.
         services.AddConversationSlice();
 
-        // Other slices arrive with their work items (stage1/14-first-run onwards).
+        // First run (stage1/14-first-run): the models page downloads the models (installer and graphics card from the
+        // host); the wizard shows the language, audio, models and language model pages one after the other.
+        services.AddModelsSlice();
+        services.AddFirstRunSlice();
+
+        // Other slices arrive with their work items (stage1/15-faults onwards).
         return services;
     }
 }

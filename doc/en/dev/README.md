@@ -17,6 +17,7 @@
 | [speech.md](speech.md) | Speech: Piper, Kokoro and cloud engines, voice of each language, "Voices" page |
 | [conversation.md](conversation.md) | Conversation: the full turn, the interruption, the conversation window, the personality |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
+| [first-run.md](first-run.md) | First run: setup wizard, "Voice models" page (checked downloads), Ollama search |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |
 | [spikes.md](spikes.md) | Summary of the technical spikes |

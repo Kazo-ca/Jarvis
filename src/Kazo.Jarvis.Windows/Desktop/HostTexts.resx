@@ -47,4 +47,7 @@ The details are in the log:
   <data name="UpdateFound" xml:space="preserve">
     <value>Version {0} is available. Click here to install it.</value>
   </data>
+  <data name="FirstRunWizard" xml:space="preserve">
+    <value>Setup wizard…</value>
+  </data>
 </root>

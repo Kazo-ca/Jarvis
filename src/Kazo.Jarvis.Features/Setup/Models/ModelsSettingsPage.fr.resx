@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Modèles vocaux</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Les fichiers dont Jarvis a besoin pour entendre et parler sur ce PC. Ils sont téléchargés une fois, vérifiés par leur empreinte publiée, et restent dans le dossier des modèles.</value>
+  </data>
+  <data name="LookingForCard" xml:space="preserve">
+    <value>Recherche de la carte graphique…</value>
+  </data>
+  <data name="CardFound" xml:space="preserve">
+    <value>Carte graphique : {0}, {1} Go. Reconnaissance proposée : {2}.</value>
+  </data>
+  <data name="NoCard" xml:space="preserve">
+    <value>Aucune carte graphique NVIDIA trouvée : Jarvis tournera sur le processeur, plus lentement. Reconnaissance proposée : {0}.</value>
+  </data>
+  <data name="SmallerLanguageModel" xml:space="preserve">
+    <value>Cette carte n'a pas la mémoire pour qwen3:14b à côté de Whisper. Sur la page des modèles de langage, préférez un modèle de 7 à 8 milliards de paramètres, par exemple qwen3:8b.</value>
+  </data>
+  <data name="Group_WakeWord" xml:space="preserve">
+    <value>Mot d'éveil</value>
+  </data>
+  <data name="GroupHint_WakeWord" xml:space="preserve">
+    <value>Permet à Jarvis d'entendre « Hey Jarvis ». Sans lui, le raccourci et le clic sur l'orbe marchent toujours.</value>
+  </data>
+  <data name="Group_EndOfSpeech" xml:space="preserve">
+    <value>Fin de phrase</value>
+  </data>
+  <data name="GroupHint_EndOfSpeech" xml:space="preserve">
+    <value>Sait quand vous avez fini de parler. Sans lui, un simple seuil de niveau sonore est utilisé.</value>
+  </data>
+  <data name="Group_Recognition" xml:space="preserve">
+    <value>Reconnaissance de la parole</value>
+  </data>
+  <data name="GroupHint_Recognition" xml:space="preserve">
+    <value>Whisper transforme votre demande en texte. Un modèle suffit ; celui choisi est utilisé dès qu'il est en place.</value>
+  </data>
+  <data name="Group_Voice" xml:space="preserve">
+    <value>Voix</value>
+  </data>
+  <data name="GroupHint_Voice" xml:space="preserve">
+    <value>Jarvis parle français et anglais : une voix par langue. Kokoro est une option de meilleure qualité, plus lente sur le processeur.</value>
+  </data>
+  <data name="Model_wake-word" xml:space="preserve">
+    <value>« Hey Jarvis » (openWakeWord 0.5.1)</value>
+  </data>
+  <data name="Model_silero-vad" xml:space="preserve">
+    <value>Silero</value>
+  </data>
+  <data name="Model_whisper-large-v3-turbo" xml:space="preserve">
+    <value>Whisper large-v3-turbo (carte graphique)</value>
+  </data>
+  <data name="Model_whisper-small" xml:space="preserve">
+    <value>Whisper small (carte graphique avec moins de mémoire)</value>
+  </data>
+  <data name="Model_whisper-base" xml:space="preserve">
+    <value>Whisper base (processeur)</value>
+  </data>
+  <data name="Model_piper-fr" xml:space="preserve">
+    <value>Piper, voix française (Tom)</value>
+  </data>
+  <data name="Model_piper-en" xml:space="preserve">
+    <value>Piper, voix anglaise (Alan)</value>
+  </data>
+  <data name="Model_kokoro" xml:space="preserve">
+    <value>Kokoro, voix françaises et anglaises</value>
+  </data>
+  <data name="Advised" xml:space="preserve">
+    <value>conseillé</value>
+  </data>
+  <data name="Megabytes" xml:space="preserve">
+    <value>{0} Mo</value>
+  </data>
+  <data name="State_Installed" xml:space="preserve">
+    <value>Installé</value>
+  </data>
+  <data name="State_Missing" xml:space="preserve">
+    <value>Non téléchargé</value>
+  </data>
+  <data name="State_Queued" xml:space="preserve">
+    <value>En attente</value>
+  </data>
+  <data name="State_Downloading" xml:space="preserve">
+    <value>Téléchargement, {0} %</value>
+  </data>
+  <data name="Failure_Unreachable" xml:space="preserve">
+    <value>Échec : le serveur est injoignable. Vérifiez la connexion et réessayez.</value>
+  </data>
+  <data name="Failure_ChecksumMismatch" xml:space="preserve">
+    <value>Échec : le fichier n'est pas celui publié (empreinte). Il a été supprimé.</value>
+  </data>
+  <data name="Failure_DiskError" xml:space="preserve">
+    <value>Échec : le dossier des modèles ne peut pas être écrit (disque plein ?).</value>
+  </data>
+  <data name="Failure_Failed" xml:space="preserve">
+    <value>Échec : la cause est dans le journal.</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Télécharger la sélection ({0})</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Utiliser la reconnaissance choisie</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Arrêter les téléchargements</value>
+  </data>
+  <data name="AllInstalled" xml:space="preserve">
+    <value>Tout ce qui a été choisi est installé. Reconnaissance : {0}.</value>
+  </data>
+  <data name="SomeMissing" xml:space="preserve">
+    <value>Certains modèles ne sont pas installés ; leur ligne dit pourquoi. Vous pouvez réessayer.</value>
+  </data>
+</root>

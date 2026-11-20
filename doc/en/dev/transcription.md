@@ -65,8 +65,8 @@ TurnStarted (voice) ─► UtteranceListener ─► voice detector (Silero or en
 
 ### Models
 
-No model in the repository (ADR 0006, section 7). The first-run wizard (work item 14) will download them; until
-then they are copied by hand into the models folder:
+No model in the repository (ADR 0006, section 7). The "Voice models" page and the first-run wizard (work item 14,
+[first-run.md](first-run.md)) download them; they can also be copied by hand into the models folder:
 
 | File | Where | Source |
 | --- | --- | --- |

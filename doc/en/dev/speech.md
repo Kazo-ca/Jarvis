@@ -26,7 +26,7 @@ conversation (work item 13) ─► SentenceToSpeak, AnswerSentencesEnded ─► 
 | `ISpeechEngine` | Native contract of an engine: its name (`piper`, `kokoro`, `elevenlabs`, `openai`), whether the text leaves the PC, its voices usable now, the synthesis of one sentence into an `AudioClip`. Several engines are registered. |
 | `SpeechVoice`, `VoiceChoice` | A voice (engine, identifier, name, language or `null` when multilingual, leaves the PC); the choice kept in the settings (engine, voice, speed from 0.5 to 2). |
 | `SpeechException`, `SpeechFailure` | Why a voice failed: model missing, key missing or refused, service unreachable, unknown voice, other. |
-| `IVoiceSelection` | The voice of each language, given by the `Voice/Speech` slice which owns the setting; read and changed by the "Voices" page, later by the first run (work item 14). |
+| `IVoiceSelection` | The voice of each language, given by the `Voice/Speech` slice which owns the setting; read and changed by the "Voices" page (the first run has no "Voices" step: the Piper voices of both languages stay the default ones). |
 | `SpeechKeys` | References of the voice keys in the vault: `voice.elevenlabs.apikey`, `voice.openai.apikey`. |
 | `SentenceToSpeak`, `AnswerSentencesEnded` | What the [conversation](conversation.md) publishes: each complete sentence in order, then the end of the answer. |
 
