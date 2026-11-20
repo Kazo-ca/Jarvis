@@ -118,9 +118,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   500/600, Inter 400/600, JetBrains Mono 400/500 as Latin `woff2` (`@fontsource` 5.3.0, OFL 1.1 license
   checked); the secret field never reads the value back.
 - **Choices of work item 16 that ADR 0001 does not settle** (details in [dev/updates.md](../dev/updates.md)):
-  automatic check **off by default** (nothing leaves the PC by default), manual check through "Updates…" in
-  the tray; **provisional choice asked to Benoit on November 20, 2026, waiting for his answer**. Once on: a
-  minute after start, then every 6 hours. Pre-releases offered while the version is 0.x; the updater starts
+  automatic check **on by default** (Benoit's choice on November 20, 2026; the one exception to "no outgoing
+  connection by default" of work item 17), a minute after start, then every 6 hours; manual check through
+  "Updates…" in the tray. Pre-releases offered while the version is 0.x; the updater starts
   from the unpacked new version, without a window; a development build never installs.
 - **Choices of work item 4 that ADRs 0003 and 0013 do not settle** (details in [dev/hosts.md](../dev/hosts.md)):
   default hotkey `Ctrl+Alt+J` (section `Desktop.Hotkey`); no contract for the tray icon, its Settings and

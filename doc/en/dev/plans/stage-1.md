@@ -269,7 +269,9 @@ the other, and 16 (updates) at any time after 4.
 ### 17. Stage acceptance (`stage1/17-acceptance`)
 
 - On Benoit's PC, the stage goal in French then in English: "hey jarvis", a question, the answer out loud.
-- Check that no connection leaves the machine with the default configuration.
+- Check that no connection leaves the machine with the default configuration, except the automatic update
+  check (reading the releases on GitHub, Benoit's choice on November 20, 2026, see
+  [updates.md](../updates.md)).
 - Table of the final measurements in the project memory: delay, processor while idle and in an animated
   phase for both orbs, graphics memory, wake word threshold.
 - `features.md` moves stage 1 to "Available", the project memory says the series is over.
