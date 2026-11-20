@@ -77,8 +77,8 @@ ADR 0006 does not settle them; to be confirmed by Benoit:
    a missed one).
 9. **`Microsoft.ML.OnnxRuntime.Managed` 1.28.0 instead of `Microsoft.ML.OnnxRuntime` 1.32.0** (version of
    ADR 0001): the two native packages overwrote each other and Piper no longer loaded on Linux
-   ([pitfalls](pitfalls.md)). Piper then the wake word in the same process: "Hey Jarvis." at 0.993. An ADR
-   replacing that line of ADR 0001 is to be proposed to Benoit.
+   ([pitfalls](pitfalls.md)). Piper then the wake word in the same process: "Hey Jarvis." at 0.993.
+   [ADR 0016](adr/0016-onnx-runtime-managed-on-sherpa-native.md) replaces that line of ADR 0001.
 
 ## Tests
 
@@ -106,3 +106,5 @@ To do at the next session with Benoit (his voice; the Web host does not prove th
 3. "Hey Jarvis" while Jarvis speaks (after work item 12): Jarvis's own voice does not wake it, and Benoit's
    interrupts it.
 4. Cost of the wake word measured on its own (method of spike E6), to note in the memory.
+5. A single `onnxruntime.dll` in the folder of the published host, and both the wake word and Piper load
+   from it (ADR 0016).
