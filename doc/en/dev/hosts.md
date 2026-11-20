@@ -76,16 +76,17 @@ the application stops: never a silent crash.
 
 - Transparent (`AllowsTransparency`), borderless, always on top, out of the taskbar and of Alt+Tab
   (`WS_EX_TOOLWINDOW`), never takes the focus (`ShowActivated = false`, `WS_EX_NOACTIVATE`).
-- 160 × 160 device-independent pixels; the provisional orb is a 96 pixel disc in the centre. The transparent
-  pixels around it let clicks through.
+- 160 × 160 device-independent pixels; the orb of the orb slice ([orb.md](orb.md)) fills it, with a margin
+  for its glow. The transparent pixels around it let clicks through.
 - Pressing and dragging moves the window (`DragMove`); the position is saved in the `Desktop.OrbWindow`
   section of `config.json` (`screenX`, `screenY`), owned by the host, **in physical screen pixels**: in
   device-independent pixels, WPF converts it with the scale of the screen the window is created on, and the
   orb drifted at each restart with screens of different scales ([pitfalls](pitfalls.md)). At start-up the
   window is placed with `SetWindowPos` before it shows; a position outside every work area is replaced by the
   bottom right corner of the primary screen.
-- Pressing without moving (under 4 pixels) is a click: it publishes `ActivationRequested(Click)`. This is
-  provisional: the orb slice (work item 6) takes the click over in its component.
+- Pressing without moving (under 4 pixels) is a click. The window catches the press itself to tell a click
+  from a move (the web view never receives it) and hands the click to `OrbActivation` of the orb slice, which
+  publishes `ActivationRequested(Click)`: the same path as a click on the component in the Web host.
 - The web view has a transparent background (`DefaultBackgroundColor` and
   `WEBVIEW2_DEFAULT_BACKGROUND_COLOR`).
 - The WebView2 profile of every window goes to `%USERPROFILE%\.kazo\jarvis\webview`, not next to the
@@ -102,7 +103,8 @@ value in every case.
 
 ## Web host
 
-The home page shows the provisional orb and three buttons: simulate the hotkey, show or hide the orb, open a
+The home page shows the orb, fed by the state machine, at the size of the Windows host's window, a link to
+the [orb demonstration page](orb.md#demonstration-page) (`/orb`) and buttons: simulate the hotkey, show or hide the orb, open a
 sample dialog. It exposes the assistant phase in `data-phase`, and `data-interactive="true"` once the
 interactive circuit is ready (the page is first rendered on the server: an earlier click is lost). Dialogs
 show below the buttons, which stay usable.
@@ -121,3 +123,4 @@ What the Web host does not prove (stage 1 plan, work item 4):
 8. Work item 5: with the settings window open, choosing the other language reloads its texts without a
    restart (page title, tab, help), and the tray menu is translated the next time it opens. The fonts
    (Rajdhani for titles) show without an Internet connection.
+9. Work item 6: the [orb list](orb.md#windows-checks).

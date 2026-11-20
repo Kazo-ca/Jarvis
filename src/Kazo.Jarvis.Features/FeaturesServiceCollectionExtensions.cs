@@ -1,3 +1,4 @@
+using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Maintenance.Updates;
@@ -39,7 +40,10 @@ public static class FeaturesServiceCollectionExtensions
         // Updates (stage1/16-updates): release source and updater launcher come from the host.
         services.AddUpdatesSlice();
 
-        // Other slices arrive with their work items (stage1/6-orb onwards).
+        // The orb (stage1/6-orb): its component reads the kernel state; the click publishes the activation.
+        services.AddOrbSlice();
+
+        // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
         return services;
     }
 }

@@ -79,16 +79,18 @@ journalisée, puis une boîte de dialogue donne le chemin du journal avant l'arr
 
 - Transparente (`AllowsTransparency`), sans bordure, toujours au premier plan, hors de la barre des tâches et
   d'Alt+Tab (`WS_EX_TOOLWINDOW`), sans prise de focus (`ShowActivated = false`, `WS_EX_NOACTIVATE`).
-- 160 × 160 pixels indépendants ; l'orbe provisoire est un disque de 96 pixels au centre. Les pixels
-  transparents autour laissent passer les clics.
+- 160 × 160 pixels indépendants ; l'orbe de la tranche de l'orbe ([orb.md](orb.md)) la remplit, avec une
+  marge pour son halo. Les pixels transparents autour laissent passer les clics.
 - Un appui suivi d'un glissement déplace la fenêtre (`DragMove`) ; la position est enregistrée dans la
   section `Desktop.OrbWindow` de `config.json` (`screenX`, `screenY`), propre à l'hôte, **en pixels physiques
   de l'écran** : en pixels indépendants, WPF la convertit avec l'échelle de l'écran où la fenêtre est créée,
   et l'orbe dérivait à chaque relance avec des écrans d'échelles différentes ([pièges](pitfalls.md)). Au
   démarrage, la fenêtre est placée par `SetWindowPos` avant d'être affichée ; une position hors de toutes
   les zones de travail est remplacée par le coin inférieur droit de l'écran principal.
-- Un appui sans déplacement (moins de 4 pixels) est un clic : il publie `ActivationRequested(Click)`. C'est
-  provisoire : la tranche de l'orbe (chantier 6) reprend le clic dans son composant.
+- Un appui sans déplacement (moins de 4 pixels) est un clic. La fenêtre attrape l'appui elle-même pour
+  distinguer un clic d'un déplacement (la vue web ne le reçoit jamais) et passe le clic à `OrbActivation` de
+  la tranche de l'orbe, qui publie `ActivationRequested(Click)` : c'est le même chemin que le clic sur le
+  composant dans l'hôte Web.
 - La vue web a un fond transparent (`DefaultBackgroundColor` et `WEBVIEW2_DEFAULT_BACKGROUND_COLOR`).
 - Le profil WebView2 de toutes les fenêtres va dans `%USERPROFILE%\.kazo\jarvis\webview`, pas à côté de
   l'exécutable (le dossier d'installation n'est pas forcément accessible en écriture). Ce dossier n'est pas
@@ -104,7 +106,8 @@ ouverture de session. Pour vérifier l'inscription depuis une telle construction
 
 ## Hôte Web
 
-La page d'accueil montre l'orbe provisoire et trois boutons : simuler le raccourci, afficher ou cacher l'orbe,
+La page d'accueil montre l'orbe, nourri par la machine à états, à la taille de la fenêtre de l'hôte Windows,
+un lien vers la [page de démonstration de l'orbe](orb.md#page-de-démonstration) (`/orb`) et des boutons : simuler le raccourci, afficher ou cacher l'orbe,
 ouvrir un dialogue d'essai. Elle expose la phase de l'assistant dans `data-phase` et `data-interactive="true"`
 quand le circuit interactif est prêt (la page est d'abord rendue côté serveur : un clic plus tôt est perdu).
 Les dialogues s'affichent sous les boutons, qui restent utilisables.
@@ -123,3 +126,4 @@ Ce que l'hôte Web ne prouve pas (plan de l'étape 1, chantier 4) :
 8. Chantier 5 : la fenêtre des paramètres ouverte, choisir l'autre langue recharge ses textes sans
    redémarrer (titre de la page, onglet, aide), et le menu de la zone de notification est traduit à
    l'ouverture suivante. Les polices (Rajdhani pour les titres) s'affichent sans connexion à Internet.
+9. Chantier 6 : la [liste de l'orbe](orb.md#vérifications-sur-windows).

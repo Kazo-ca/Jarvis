@@ -8,19 +8,24 @@ main {
     font-family: system-ui, sans-serif;
 }
 
-.orb-disc {
-    width: 96px;
-    height: 96px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 40% 35%, #b8f1ff 0%, #4fd8ff 45%, #0a6f9c 100%);
-    box-shadow: 0 0 18px 4px rgba(79, 216, 255, 0.45);
+/* Same size as the orb window of the Windows host (160 device-independent pixels). */
+.orb-frame {
+    width: 160px;
+    height: 160px;
 }
 
-.orb-disc[hidden] {
+.orb-frame[hidden] {
     display: none;
 }
 
 .host-controls {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 8px;
+}
+
+.host-controls a {
+    align-self: center;
+    color: var(--jarvis-cyan);
 }

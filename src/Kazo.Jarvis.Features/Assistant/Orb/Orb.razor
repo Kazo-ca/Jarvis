@@ -1,0 +1,238 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject IStringLocalizer<Orb> T
+
+@* The orb (ADR 0005, section 5; ADR 0011), light version (UI catalog, section 3). It only shows its inputs:
+   the look comes from the kernel's look function, the motion rule from OrbMotion. Its script only draws.
+   The look is exposed in data-look for the tests; the script sets data-motion ("full" or "reduced"). *@
+<button type="button"
+        class="orb"
+        data-look="@Look"
+        data-tasks="@DelegatedTasks"
+        data-decisions="@PendingDecisions"
+        title="@Hover"
+        aria-label="@Label"
+        @ref="root"
+        @onclick="ClickAsync">
+    <span class="orb-body">
+        <span class="orb-glow"></span>
+        <span class="orb-ring orb-ring-outer">
+            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="@($"{id}-g3")" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="currentColor" stop-opacity="0.9" />
+                        <stop offset="1" stop-color="currentColor" stop-opacity="0.15" />
+                    </linearGradient>
+                </defs>
+                <path d="@Outer.Arc" fill="none" stroke="url(#@($"{id}-g3"))" stroke-width="1.6" />
+                <path d="@Outer.FineTicks" fill="none" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.45" />
+                <path d="@Outer.Ticks" fill="none" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.8" />
+                <path d="@Outer.Cursor" fill="none" stroke="currentColor" stroke-width="2.5" stroke-opacity="0.6" />
+                <path d="@Outer.Teeth" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </span>
+        <span class="orb-ring orb-ring-middle">
+            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="@($"{id}-g2")" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="currentColor" stop-opacity="0.25" />
+                        <stop offset="1" stop-color="currentColor" stop-opacity="1" />
+                    </linearGradient>
+                </defs>
+                <path d="@Middle.First" fill="none" stroke="url(#@($"{id}-g2"))" stroke-width="3.5" />
+                <path d="@Middle.Second" fill="none" stroke="currentColor" stroke-width="3.5" stroke-opacity="0.75" />
+                <path d="@Middle.Track" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.25" stroke-dasharray="1.5 3" />
+                <path d="@Middle.Teeth" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+        </span>
+        <span class="orb-ring orb-ring-inner">
+            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="@($"{id}-g1")" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="currentColor" stop-opacity="1" />
+                        <stop offset="1" stop-color="currentColor" stop-opacity="0.25" />
+                    </linearGradient>
+                </defs>
+                <path d="@Inner.Arc" fill="none" stroke="url(#@($"{id}-g1"))" stroke-width="6" />
+                <path d="@Inner.Track" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.35" />
+                <path d="@Inner.Ticks" fill="none" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.6" />
+                <path d="@Inner.Teeth" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+        </span>
+        <span class="orb-sphere"></span>
+        @if (DelegatedTasks > 0)
+        {
+            @* Drawn over any look as soon as a task is delegated (ADR 0011, section 4). Without a percentage,
+               a faint dashed circle (provisional: the stage 2 ADR decides, ADR 0011, section 9). *@
+            <svg class="orb-progress" viewBox="0 0 200 200" aria-hidden="true" focusable="false"
+                 data-progress="@(Progress is { } known ? known.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : "unknown")">
+                <circle class="orb-progress-track" cx="100" cy="100" r="@Radius" fill="none" stroke-width="2" />
+                @if (Progress is { } value)
+                {
+                    <circle class="orb-progress-value" cx="100" cy="100" r="@Radius" fill="none" stroke-width="2.5"
+                            stroke-linecap="round" stroke-dasharray="@OrbGeometry.ProgressDash(value)"
+                            transform="rotate(-90 100 100)" />
+                }
+                else
+                {
+                    <circle class="orb-progress-unknown" cx="100" cy="100" r="@Radius" fill="none" stroke-width="2"
+                            stroke-dasharray="2 6" />
+                }
+            </svg>
+        }
+        @if (PendingDecisions > 0)
+        {
+            <span class="orb-badge">@(PendingDecisions > 99 ? "99+" : PendingDecisions.ToString(System.Globalization.CultureInfo.CurrentCulture))</span>
+        }
+        @if (Look == AssistantLook.MicrophoneMuted)
+        {
+            <span class="orb-label">@T["MicrophoneMutedLabel"]</span>
+        }
+    </span>
+</button>
+
+@code {
+    private static readonly string Radius = OrbGeometry.ProgressRadius.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    private static readonly (string Arc, string FineTicks, string Ticks, string Cursor, string Teeth) Outer = (
+        OrbGeometry.Arc(78, 120, 400),
+        OrbGeometry.Ticks(78, 125, 395, 5, 3),
+        OrbGeometry.Ticks(78, 130, 390, 30, 6),
+        OrbGeometry.Arc(84, 140, 175),
+        OrbGeometry.Teeth(78, 12, 120, 400));
+
+    private static readonly (string First, string Second, string Track, string Teeth) Middle = (
+        OrbGeometry.Arc(60, 200, 330),
+        OrbGeometry.Arc(60, 10, 165),
+        OrbGeometry.Arc(55, 0, 359),
+        OrbGeometry.Teeth(60, 8, 10, 165, 200, 330));
+
+    private static readonly (string Arc, string Track, string Ticks, string Teeth) Inner = (
+        OrbGeometry.Arc(44, 30, 330),
+        OrbGeometry.Arc(38.5, 40, 320),
+        OrbGeometry.Ticks(49.5, 40, 320, 10, 2.5),
+        OrbGeometry.Teeth(44, 11, 30, 330));
+
+    // Gradient ids must be unique in the page: the demonstration may show several orbs.
+    private readonly string id = "orb-" + Guid.NewGuid().ToString("N")[..8];
+    private ElementReference root;
+    private IJSObjectReference? module;
+    private (OrbMotion Motion, bool Reduced)? applied;
+    private bool disposed;
+
+    /// <summary>The look to show (kernel look function, ADR 0011, section 4).</summary>
+    [Parameter]
+    public AssistantLook Look { get; set; }
+
+    /// <summary>Number of delegated tasks; the progress ring shows when above zero.</summary>
+    [Parameter]
+    public int DelegatedTasks { get; set; }
+
+    /// <summary>Progress of the long task, from 0 to 1, or <see langword="null"/> when unknown.</summary>
+    [Parameter]
+    public double? Progress { get; set; }
+
+    /// <summary>Number of decisions waiting for the user: the amber badge (ADR 0011, section 4).</summary>
+    [Parameter]
+    public int PendingDecisions { get; set; }
+
+    /// <summary>The cause of the fault, shown on hover in the error look.</summary>
+    [Parameter]
+    public FaultCause? Fault { get; set; }
+
+    /// <summary>The "reduced motion" option. The system setting of the same name applies as well.</summary>
+    [Parameter]
+    public bool ReducedMotion { get; set; }
+
+    /// <summary>The host's animation rule: <see langword="false"/> keeps the idle look still (ADR 0005, section 6).</summary>
+    [Parameter]
+    public bool AnimateIdle { get; set; }
+
+    /// <summary>Raised on a click (US1.6).</summary>
+    [Parameter]
+    public EventCallback OnActivate { get; set; }
+
+    private OrbMotion Motion => OrbMotion.For(Look, AnimateIdle, reducedMotion: false);
+
+    private string Label => Hover ?? T["Look_" + Look].Value;
+
+    private string? Hover => Look switch
+    {
+        AssistantLook.Error when Fault is { } cause => T["ErrorHover", T["Fault_" + cause].Value].Value,
+        AssistantLook.Error => T["Look_Error"].Value,
+        _ => null,
+    };
+
+    /// <summary>
+    /// Passes the sound level on to the drawing (0 to 1): it raises the light while listening, never the size
+    /// (ADR 0011, section 3). Called at most 30 times per second by the owner, outside rendering.
+    /// </summary>
+    /// <param name="level">The level, from 0 to 1.</param>
+    /// <returns>A task that completes once the script received it.</returns>
+    public async ValueTask SetLevelAsync(float level)
+    {
+        if (module is not null && !disposed)
+        {
+            try
+            {
+                await module.InvokeVoidAsync("setLevel", root, Math.Clamp(level, 0f, 1f));
+            }
+            catch (JSDisconnectedException)
+            {
+                // The page went away: nothing left to draw.
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        try
+        {
+            var wanted = (Motion, ReducedMotion);
+            if (firstRender)
+            {
+                module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Kazo.Jarvis.Features/Assistant/Orb/Orb.razor.js");
+                applied = wanted;
+                await module.InvokeVoidAsync("attach", root, Motion.Rate, Motion.Pulses, ReducedMotion);
+            }
+            else if (module is not null && applied != wanted)
+            {
+                // Only on a change of motion: a render for the badge or the progress does not touch the rings.
+                applied = wanted;
+                await module.InvokeVoidAsync("update", root, Motion.Rate, Motion.Pulses, ReducedMotion);
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // Prerendering ended or the circuit closed.
+        }
+    }
+
+    private Task ClickAsync() => OnActivate.InvokeAsync();
+
+    /// <inheritdoc />
+    public async ValueTask DisposeAsync()
+    {
+        disposed = true;
+        if (module is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await module.InvokeVoidAsync("detach", root);
+            await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // The page is already gone, and the script with it.
+        }
+    }
+}

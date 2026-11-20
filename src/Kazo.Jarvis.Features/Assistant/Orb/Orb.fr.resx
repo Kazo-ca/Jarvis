@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Look_Idle" xml:space="preserve">
+    <value>Jarvis attend. Cliquez pour parler.</value>
+  </data>
+  <data name="Look_Listening" xml:space="preserve">
+    <value>Jarvis écoute. Cliquez pour annuler.</value>
+  </data>
+  <data name="Look_Thinking" xml:space="preserve">
+    <value>Jarvis réfléchit. Cliquez pour l'interrompre.</value>
+  </data>
+  <data name="Look_Speaking" xml:space="preserve">
+    <value>Jarvis parle. Cliquez pour l'interrompre.</value>
+  </data>
+  <data name="Look_LongTask" xml:space="preserve">
+    <value>Une tâche travaille en arrière-plan. Cliquez pour parler.</value>
+  </data>
+  <data name="Look_Error" xml:space="preserve">
+    <value>Jarvis a un problème</value>
+  </data>
+  <data name="Look_MicrophoneMuted" xml:space="preserve">
+    <value>Micro coupé</value>
+  </data>
+  <data name="ErrorHover" xml:space="preserve">
+    <value>Jarvis a un problème : {0}</value>
+  </data>
+  <data name="MicrophoneMutedLabel" xml:space="preserve">
+    <value>Micro coupé</value>
+  </data>
+  <data name="Fault_MicrophoneMissing" xml:space="preserve">
+    <value>aucun micro n'est utilisable.</value>
+  </data>
+  <data name="Fault_ModelUnreachable" xml:space="preserve">
+    <value>le modèle de langage ne répond pas.</value>
+  </data>
+  <data name="Fault_ModelMissing" xml:space="preserve">
+    <value>un fichier de modèle manque.</value>
+  </data>
+  <data name="Fault_VoiceMissing" xml:space="preserve">
+    <value>aucune voix ne peut être jouée.</value>
+  </data>
+  <data name="Fault_ConfigurationUnreadable" xml:space="preserve">
+    <value>le fichier des réglages n'a pas pu être lu ; Jarvis fonctionne avec les valeurs par défaut.</value>
+  </data>
+</root>
