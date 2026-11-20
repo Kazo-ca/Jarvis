@@ -26,7 +26,7 @@ ce qu'il décrit.
   paramètres au changement de langue dans `BlazorWebView`, menu de la zone de notification traduit, polices
   affichées hors ligne ([liste](../dev/hosts.md#vérifications-sur-windows), point 8). Chantier 5
   (`stage1/5-shared-ui-language`, style commun, polices embarquées, traductions `.resx`, réglage de langue,
-  fenêtre des paramètres, champ de secret, voir [dev/shared-ui.md](../dev/shared-ui.md)) fusionné (PR #PRNUM#),
+  fenêtre des paramètres, champ de secret, voir [dev/shared-ui.md](../dev/shared-ui.md)) fusionné (PR 22),
   sans vérification Windows (Benoit a arrêté les tests le 20 novembre 2026). Benoit fusionne `main` ; un agent fusionne
   lui-même ses PR dans une branche `<série>/base` une fois les vérifications vertes (règle redite par Benoit
   le 19 novembre 2026).

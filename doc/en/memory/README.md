@@ -23,7 +23,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   item 5: settings window texts reloaded on a language change in `BlazorWebView`, tray menu translated, fonts
   shown offline ([list](../dev/hosts.md#windows-checks), item 8). Work item 5 (`stage1/5-shared-ui-language`,
   shared style, embedded fonts, `.resx` translations, language setting, settings window, secret field, see
-  [dev/shared-ui.md](../dev/shared-ui.md)) merged (PR #PRNUM#), without a Windows check (Benoit stopped the
+  [dev/shared-ui.md](../dev/shared-ui.md)) merged (PR 22), without a Windows check (Benoit stopped the
   tests on November 20, 2026). Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
