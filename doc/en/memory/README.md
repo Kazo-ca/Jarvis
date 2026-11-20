@@ -28,7 +28,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   quality change without a restart, look at 160 pixels ([list](../dev/orb.md#windows-checks)), and for work item 8: real microphone
   and level, muted microphone (Windows no longer shows an application listening, mute kept after a restart),
   microphone unplugged while Jarvis runs, test sound on speakers and headset, cost of the open microphone
-  while idle ([list](../dev/audio.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
+  while idle ([list](../dev/audio.md#windows-checks)), and for work item 10: Whisper and Silero models copied by hand,
+  end of utterance with the real microphone and some noise (fallback to the energy threshold if Silero is not
+  reliable), text in French and English, transcription time ([list](../dev/transcription.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -91,6 +93,18 @@ Resume point for any agent. Update it in the same change as what it describes.
   survives a restart; chosen microphone missing = the Windows default, with no fault; muting clears the
   "microphone missing" fault; 30 s buffer; level in decibels from −60 to 0; conversion to 16 kHz done by
   Jarvis.
+- **Work item 10** (`stage1/10-transcription`, end of utterance and Whisper: kernel contracts
+  `ISpeechRecognition` and `IVoiceActivityDetection`, message `UtteranceTranscribed` for the conversation,
+  slice `Voice/Transcription` (listening to a spoken turn, end of utterance by Silero with an energy-threshold
+  fallback, Whisper loaded once, "Transcription" page with the last request heard), adapters Whisper.net 1.9.1
+  and Silero through sherpa-onnx 1.13.8, see [dev/transcription.md](../dev/transcription.md)) delivered in its
+  PR on November 20, 2026, without a Windows check. Silero tried in the container on a real recording: with
+  500 ms the utterance ends at the first natural pause (to watch with Benoit's voice). **Provisional choices**
+  ([details](../dev/transcription.md#provisional-choices-of-this-work-item)): 8 s wait for speech, utterance
+  cut at 25 s, 150 ms of voice to start, 300 ms kept before speech, silent fallback to the energy threshold, no
+  fault at start when Whisper is missing (only `TurnFailed` at the end of a turn), empty text published as is
+  (work item 13 ends the turn), models in `models\whisper\` and `models\vad\`. Until work item 13, Jarvis stays
+  "thinking" after each utterance.
 - **Next step:** work items `stage1/9-wake-word`, `stage1/10-transcription` and `stage1/12-speech`, which
   depend on work item 8. The pending Windows tests (work items 4, 5, 6, 7, 8 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
