@@ -135,4 +135,16 @@
   <data name="SaveFailed" xml:space="preserve">
     <value>The settings could not be saved: the settings file cannot be written. See the log for the cause.</value>
   </data>
+  <data name="FindOllama" xml:space="preserve">
+    <value>Look for Ollama on this PC</value>
+  </data>
+  <data name="OllamaNotFound" xml:space="preserve">
+    <value>Ollama does not answer on this PC (ports {0}). Start it, or type its address.</value>
+  </data>
+  <data name="OllamaFound" xml:space="preserve">
+    <value>Ollama answers on port {0}; its address is in the field.</value>
+  </data>
+  <data name="OllamaFoundSaved" xml:space="preserve">
+    <value>Ollama answers on port {0}; its address is saved.</value>
+  </data>
 </root>

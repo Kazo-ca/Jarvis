@@ -12,6 +12,15 @@ public sealed class ProviderEditor
     /// <summary>The longest a connection test waits (ADR 0007, section 1: « délai dépassé » is one of the causes).</summary>
     public static readonly TimeSpan TestTimeout = TimeSpan.FromSeconds(20);
 
+    /// <summary>
+    /// The ports where Ollama is looked for on this PC, in order: its standard port, then 11435, where Benoit runs it in
+    /// Docker (stage 1 plan, work item 14).
+    /// </summary>
+    public static readonly IReadOnlyList<int> OllamaPorts = [11434, 11435];
+
+    /// <summary>The longest the search waits for each port: a local server answers at once or not at all.</summary>
+    public static readonly TimeSpan SearchTimeout = TimeSpan.FromSeconds(3);
+
     private readonly ISettingsStore settings;
     private readonly ILlmConnector connector;
     private readonly Dictionary<string, LlmConnectionResult> results = new(StringComparer.Ordinal);
@@ -177,6 +186,83 @@ public sealed class ProviderEditor
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Whether the providers are still the ones created by default (Ollama on its standard port), never changed by the
+    /// user: the page then looks for Ollama by itself.
+    /// </summary>
+    public bool IsUntouchedDefault
+    {
+        get
+        {
+            var defaults = LlmProvidersOptions.Section.CreateDefault();
+            return !IsDirty && DefaultId == defaults.DefaultId && Drafts.SequenceEqual(defaults.Providers);
+        }
+    }
+
+    /// <summary>
+    /// Looks for Ollama on this PC, on <see cref="OllamaPorts"/>, and puts the first address that answers in the draft of
+    /// the provider <paramref name="id"/>. A server that answers without the model still counts: the test then says
+    /// which model to pull.
+    /// </summary>
+    /// <param name="id">The id of an Ollama provider.</param>
+    /// <param name="cancellationToken">Cancels the search (the page closes).</param>
+    /// <returns>The address found, or <see langword="null"/> when no port answers.</returns>
+    public async Task<Uri?> FindOllamaAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var draft = Drafts.FirstOrDefault(p => p.Id == id) ?? throw new ArgumentException($"No provider '{id}'.", nameof(id));
+        if (draft.Kind != LlmProviderKind.Ollama)
+        {
+            throw new ArgumentException($"Provider '{id}' is not an Ollama one.", nameof(id));
+        }
+
+        testing.Add(id);
+        try
+        {
+            (Uri Address, LlmConnectionResult Result)? found = null;
+            foreach (var port in OllamaPorts)
+            {
+                var address = new Uri($"http://127.0.0.1:{port}");
+                var candidate = (draft with { Address = address.GetLeftPart(UriPartial.Authority) }).ToProvider();
+                if (candidate is null)
+                {
+                    continue;
+                }
+
+                using var bounded = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                bounded.CancelAfter(SearchTimeout);
+                LlmConnectionResult result;
+                try
+                {
+                    result = await connector.TestConnectionAsync(candidate, bounded.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                {
+                    continue;
+                }
+
+                if (result.Failure is null or LlmFailure.ModelMissing)
+                {
+                    found = (address, result);
+                    break;
+                }
+            }
+
+            if (found is not { } hit || Drafts.FirstOrDefault(p => p.Id == id) != draft)
+            {
+                return found?.Address;
+            }
+
+            var updated = draft with { Address = hit.Address.GetLeftPart(UriPartial.Authority) };
+            Update(updated);
+            results[id] = hit.Result;
+            return hit.Address;
+        }
+        finally
+        {
+            testing.Remove(id);
+        }
     }
 
     /// <summary>Saves the draft; the default model follows at once.</summary>

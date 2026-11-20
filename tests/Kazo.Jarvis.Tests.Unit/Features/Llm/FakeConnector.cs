@@ -20,6 +20,9 @@ internal sealed class FakeConnector : ILlmConnector
 
     public LlmConnectionResult TestResult { get; set; } = LlmConnectionResult.Passed(TimeSpan.FromMilliseconds(5), ["qwen3:14b"]);
 
+    /// <summary>When set, answers each test by provider instead of <see cref="TestResult"/>.</summary>
+    public Func<LlmProvider, LlmConnectionResult>? Answer { get; set; }
+
     public IChatClient CreateClient(LlmProvider provider)
     {
         var client = new FakeClient(provider);
@@ -35,7 +38,7 @@ internal sealed class FakeConnector : ILlmConnector
             await HoldTest.Task.WaitAsync(cancellationToken);
         }
 
-        return TestResult;
+        return Answer?.Invoke(provider) ?? TestResult;
     }
 
     public Task<bool?> IsLoadedAsync(LlmProvider provider, CancellationToken cancellationToken = default) =>

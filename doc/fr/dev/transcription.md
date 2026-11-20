@@ -68,8 +68,8 @@ TurnStarted (voix) ─► UtteranceListener ─► détecteur de voix (Silero ou
 
 ### Modèles
 
-Aucun modèle dans le dépôt (ADR 0006, section 7). L'assistant du premier lancement (chantier 14) les
-téléchargera ; d'ici là, ils se copient à la main dans le dossier des modèles :
+Aucun modèle dans le dépôt (ADR 0006, section 7). La page « Modèles vocaux » et l'assistant du premier
+lancement (chantier 14, [first-run.md](first-run.md)) les téléchargent ; ils peuvent aussi se copier à la main dans le dossier des modèles :
 
 | Fichier | Où le mettre | Source |
 | --- | --- | --- |

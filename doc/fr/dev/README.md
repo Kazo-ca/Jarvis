@@ -17,6 +17,7 @@
 | [speech.md](speech.md) | Synthèse vocale : moteurs Piper, Kokoro et dans le nuage, voix de chaque langue, page « Voix » |
 | [conversation.md](conversation.md) | Conversation : le tour complet, l'interruption, la fenêtre de conversation, la personnalité |
 | [llm.md](llm.md) | Modèles de langage : fournisseurs, adaptateurs, modèle par défaut, test de la connexion |
+| [first-run.md](first-run.md) | Premier lancement : assistant de configuration, page « Modèles vocaux » (téléchargement vérifié), recherche d'Ollama |
 | [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |
 | [pitfalls.md](pitfalls.md) | Pièges rencontrés et leur solution |
 | [spikes.md](spikes.md) | Synthèse des essais techniques |

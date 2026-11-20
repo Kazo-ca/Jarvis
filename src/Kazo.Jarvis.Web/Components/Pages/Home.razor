@@ -18,7 +18,7 @@
    (stage1/4-hosts), simulated releases and updater (stage1/16-updates), simulated microphones and outputs
    (stage1/8-audio-devices), simulated wake word (stage1/9-wake-word), a simulated phrase and its transcription
    (stage1/10-transcription), a spoken answer said by the simulated voice (stage1/12-speech), the conversation window
-   opened as from the tray menu (stage1/13-conversation). The orb demonstration page, which
+   opened as from the tray menu (stage1/13-conversation), the first-run wizard (stage1/14-first-run). The orb demonstration page, which
    drives the component directly, is /orb (US1.3). *@
 <main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
     <div class="orb-frame" hidden="@(!Orb.IsVisible)">
@@ -39,6 +39,7 @@
         <button type="button" id="simulate-wake-word" @onclick="WakeWord.Say">Say “Hey Jarvis”</button>
         <button type="button" id="say-phrase" @onclick="Voice.SayPhrase">Say a phrase</button>
         <button type="button" id="simulate-answer" @onclick="SimulateAnswerAsync">Simulate a spoken answer</button>
+        <button type="button" id="open-first-run" @onclick="OpenFirstRun">Open the first-run wizard (tray menu)</button>
         <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="microphone-open" data-device="@(Microphones.OpenDevice?.Id ?? "")">@(Microphones.OpenDevice?.Name ?? "No microphone open")</output>
         <output id="output-played" data-count="@Speakers.PlayedCount" data-device="@(Speakers.LastOutput?.Id ?? "")">@Speakers.PlayedCount sound(s) played</output>
@@ -114,6 +115,9 @@
 
     // Same event as the Settings entry of the tray menu (US1.2).
     private Task OpenSettings() => Bus.PublishAsync(new SettingsWindowRequested()).AsTask();
+
+    // Same event as the "Setup wizard" entry of the tray menu (stage1/14-first-run).
+    private Task OpenFirstRun() => Bus.PublishAsync(new FirstRunWizardRequested()).AsTask();
 
     // Same event as the Conversation entry of the tray menu (US1.14).
     private Task OpenConversation() => Bus.PublishAsync(new ConversationWindowRequested()).AsTask();

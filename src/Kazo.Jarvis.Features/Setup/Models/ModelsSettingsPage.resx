@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Voice models</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>The files Jarvis needs to hear and speak on this PC. They are downloaded once, checked against their published checksum, and stay in the models folder.</value>
+  </data>
+  <data name="LookingForCard" xml:space="preserve">
+    <value>Looking for the graphics card…</value>
+  </data>
+  <data name="CardFound" xml:space="preserve">
+    <value>Graphics card: {0}, {1} GB. Proposed recognition: {2}.</value>
+  </data>
+  <data name="NoCard" xml:space="preserve">
+    <value>No NVIDIA graphics card found: Jarvis will run on the processor, more slowly. Proposed recognition: {0}.</value>
+  </data>
+  <data name="SmallerLanguageModel" xml:space="preserve">
+    <value>This card does not have the memory for qwen3:14b next to Whisper. On the language models page, prefer a model of 7 to 8 billion parameters, for instance qwen3:8b.</value>
+  </data>
+  <data name="Group_WakeWord" xml:space="preserve">
+    <value>Wake word</value>
+  </data>
+  <data name="GroupHint_WakeWord" xml:space="preserve">
+    <value>Lets Jarvis hear “Hey Jarvis”. Without it, the hotkey and a click on the orb still work.</value>
+  </data>
+  <data name="Group_EndOfSpeech" xml:space="preserve">
+    <value>End of speech</value>
+  </data>
+  <data name="GroupHint_EndOfSpeech" xml:space="preserve">
+    <value>Tells when you stopped speaking. Without it, a simple sound level threshold is used.</value>
+  </data>
+  <data name="Group_Recognition" xml:space="preserve">
+    <value>Speech recognition</value>
+  </data>
+  <data name="GroupHint_Recognition" xml:space="preserve">
+    <value>Whisper turns your request into text. One model is enough; the chosen one is used once in place.</value>
+  </data>
+  <data name="Group_Voice" xml:space="preserve">
+    <value>Voices</value>
+  </data>
+  <data name="GroupHint_Voice" xml:space="preserve">
+    <value>Jarvis speaks French and English: one voice per language. Kokoro is a higher quality option, slower on the processor.</value>
+  </data>
+  <data name="Model_wake-word" xml:space="preserve">
+    <value>“Hey Jarvis” (openWakeWord 0.5.1)</value>
+  </data>
+  <data name="Model_silero-vad" xml:space="preserve">
+    <value>Silero</value>
+  </data>
+  <data name="Model_whisper-large-v3-turbo" xml:space="preserve">
+    <value>Whisper large-v3-turbo (graphics card)</value>
+  </data>
+  <data name="Model_whisper-small" xml:space="preserve">
+    <value>Whisper small (graphics card with less memory)</value>
+  </data>
+  <data name="Model_whisper-base" xml:space="preserve">
+    <value>Whisper base (processor)</value>
+  </data>
+  <data name="Model_piper-fr" xml:space="preserve">
+    <value>Piper, French voice (Tom)</value>
+  </data>
+  <data name="Model_piper-en" xml:space="preserve">
+    <value>Piper, English voice (Alan)</value>
+  </data>
+  <data name="Model_kokoro" xml:space="preserve">
+    <value>Kokoro, French and English voices</value>
+  </data>
+  <data name="Advised" xml:space="preserve">
+    <value>advised</value>
+  </data>
+  <data name="Megabytes" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="State_Installed" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="State_Missing" xml:space="preserve">
+    <value>Not downloaded</value>
+  </data>
+  <data name="State_Queued" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
+  <data name="State_Downloading" xml:space="preserve">
+    <value>Downloading, {0} %</value>
+  </data>
+  <data name="Failure_Unreachable" xml:space="preserve">
+    <value>Failed: the server could not be reached. Check the connection and try again.</value>
+  </data>
+  <data name="Failure_ChecksumMismatch" xml:space="preserve">
+    <value>Failed: the file is not the published one (checksum). It was deleted.</value>
+  </data>
+  <data name="Failure_DiskError" xml:space="preserve">
+    <value>Failed: the models folder cannot be written (disk full?).</value>
+  </data>
+  <data name="Failure_Failed" xml:space="preserve">
+    <value>Failed: see the log for the cause.</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download the selection ({0})</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Use the chosen recognition</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Stop the downloads</value>
+  </data>
+  <data name="AllInstalled" xml:space="preserve">
+    <value>Everything chosen is installed. Recognition: {0}.</value>
+  </data>
+  <data name="SomeMissing" xml:space="preserve">
+    <value>Some models are not installed; their line says why. You can try again.</value>
+  </data>
+</root>

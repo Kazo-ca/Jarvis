@@ -140,7 +140,19 @@ Resume point for any agent. Update it in the same change as what it describes.
   ([detail](../dev/conversation.md#provisional-choices-of-this-work-item), for Benoit to confirm): end of sentence
   and abbreviations, Markdown not said, history of 20 turns at most without age limit, turn stored when it ends,
   personalities of both languages on one page, typed request sent only when idle.
-- **Next step:** work item `stage1/14-first-run`. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12 and 13, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 14** (`stage1/14-first-run`, first run: kernel contracts `IModelInstaller` and `IGraphicsCardProbe`,
+  messages `WhisperModelChosen` and `FirstRunWizardRequested`, adapters `HttpModelInstaller` (size and checksum
+  checked, `.tar.bz2` unpacked with SharpZipLib) and `NvidiaSmiGraphicsCardProbe`, slice `Setup/Models` ("Voice
+  models" page, advice from the graphics card), slice `Setup/FirstRun` (wizard: language, audio, voice models,
+  language model; section `Setup.FirstRun`), Ollama search on 11434 then 11435 in the "Language models" page,
+  "Setup wizard…" tray menu entry, see [dev/first-run.md](../dev/first-run.md)) delivered in its PR on 20 November
+  2026, without a Windows check. Real download tried in the container (GitHub); **Whisper (Hugging Face) never
+  really downloaded**. **Provisional choices** ([detail](../dev/first-run.md#provisional-choices-of-this-work-item),
+  to be confirmed by Benoit): 10 GB for the full chain, `small` below, `base` on the processor without NVIDIA,
+  `qwen3:8b` advised as fallback; SHA-1 for Whisper; dependency SharpZipLib 1.4.2; no "Voices" step; both Piper
+  voices checked by default; automatic Ollama search while the providers are the default ones. The Web host now
+  simulates an existing profile.
+- **Next step:** work items `stage1/15-faults` then `stage1/17-acceptance`. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 and 14, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

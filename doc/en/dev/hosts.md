@@ -19,7 +19,7 @@ so that typing in another application never triggers it by accident.
 
 The tray icon has no contract: no slice needs one (ADR 0003, section 5, "a contract is added when a slice
 needs it"). Its menu publishes `SettingsWindowRequested` and `ConversationWindowRequested`
-(`Kernel.Messages.Desktop`), and "Updates…" publishes `UpdatesWindowRequested` ([updates.md](updates.md));
+(`Kernel.Messages.Desktop`), "Updates…" publishes `UpdatesWindowRequested` ([updates.md](updates.md)), and "Setup wizard…" publishes `FirstRunWizardRequested` ([first-run.md](first-run.md));
 an entry stays greyed out while no slice handles its event. "Settings" is enabled since work item 5 (slice
 `Settings/Window`, see [shared UI](shared-ui.md)); "Conversation" is enabled since work item 13 ([conversation](conversation.md)). "Mute the
 microphone" is enabled since work item 8 and ticked while the microphone is muted ([audio](audio.md)). The menu texts follow the assistant language: they are read again each time the
@@ -124,3 +124,4 @@ What the Web host does not prove (stage 1 plan, work item 4):
    restart (page title, tab, help), and the tray menu is translated the next time it opens. The fonts
    (Rajdhani for titles) show without an Internet connection.
 9. Work item 6: the [orb list](orb.md#windows-checks).
+10. Work item 14: the [first-run list](first-run.md#windows-checks).

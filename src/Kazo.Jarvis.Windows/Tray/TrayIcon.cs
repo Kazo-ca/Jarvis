@@ -119,10 +119,11 @@ internal sealed partial class TrayIcon : IDisposable
         var conversationItem = new ToolStripMenuItem(HostTexts.Conversation, null, (_, _) => Publish(new ConversationWindowRequested()));
         var muteItem = new ToolStripMenuItem(HostTexts.MuteMicrophone, null, (_, _) => Publish(new MicrophoneMuteRequested(!state.Current.MicrophoneMuted)));
         var updatesItem = new ToolStripMenuItem(HostTexts.Updates, null, (_, _) => Publish(new UpdatesWindowRequested()));
+        var setupItem = new ToolStripMenuItem(HostTexts.FirstRunWizard, null, (_, _) => Publish(new FirstRunWizardRequested()));
         var quitItem = new ToolStripMenuItem(HostTexts.Quit, null, (_, _) => QuitRequested?.Invoke(this, EventArgs.Empty));
 
         var menu = new ContextMenuStrip();
-        menu.Items.AddRange([settingsItem, conversationItem, muteItem, updatesItem, new ToolStripSeparator(), quitItem]);
+        menu.Items.AddRange([settingsItem, conversationItem, muteItem, updatesItem, setupItem, new ToolStripSeparator(), quitItem]);
         menu.Opening += (_, _) =>
         {
             // Read the texts again: the assistant language may have changed since the last opening (ADR 0008).
@@ -130,12 +131,14 @@ internal sealed partial class TrayIcon : IDisposable
             conversationItem.Text = HostTexts.Conversation;
             muteItem.Text = HostTexts.MuteMicrophone;
             updatesItem.Text = HostTexts.Updates;
+            setupItem.Text = HostTexts.FirstRunWizard;
             quitItem.Text = HostTexts.Quit;
             settingsItem.Enabled = HasHandler<SettingsWindowRequested>();
             conversationItem.Enabled = HasHandler<ConversationWindowRequested>();
             muteItem.Enabled = HasHandler<MicrophoneMuteRequested>();
             muteItem.Checked = state.Current.MicrophoneMuted;
             updatesItem.Enabled = HasHandler<UpdatesWindowRequested>();
+            setupItem.Enabled = HasHandler<FirstRunWizardRequested>();
         };
         return menu;
     }

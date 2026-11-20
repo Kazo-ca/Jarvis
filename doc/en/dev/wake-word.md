@@ -64,7 +64,7 @@ button of the home page makes the next frames rise (0.2, 0.6, 0.93, 0.97, 0.7, 0
 ADR 0006 does not settle them; to be confirmed by Benoit:
 
 1. **Models missing = no fault**: the orb does not turn to error, the page says so, another try every 30 s.
-   The first-run wizard (work item 14) will download them.
+   Since work item 14, the "Voice models" page downloads them ([first-run.md](first-run.md)).
 2. Folder `models\wake-word\` with the openWakeWord file names.
 3. One detection per crossing of the threshold, with no extra delay.
 4. The wake word stays active while thinking and speaking (to interrupt), paused only while listening and
@@ -97,7 +97,7 @@ ADR 0006 does not settle them; to be confirmed by Benoit:
 
 To do at the next session with Benoit (his voice; the Web host does not prove them):
 
-1. Copy the three models into `%USERPROFILE%\.kazo\jarvis\models\wake-word` (until work item 14), start
+1. Download the models from the "Voice models" page (or copy them into `%USERPROFILE%\.kazo\jarvis\models\wake-word`), start
    Jarvis: the "Wake word" page shows "Jarvis is listening for “Hey Jarvis”".
 2. **Threshold with Benoit's voice** (ADR 0006, section 2): say "Hey Jarvis" about ten times at a normal
    distance, then talk normally and let music or a video play for a few minutes. Note the best scores, choose

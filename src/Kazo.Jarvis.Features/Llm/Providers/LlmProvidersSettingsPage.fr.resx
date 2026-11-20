@@ -135,4 +135,16 @@
   <data name="SaveFailed" xml:space="preserve">
     <value>Les réglages n'ont pas pu être enregistrés : le fichier des réglages ne peut pas être écrit. La cause est dans le journal.</value>
   </data>
+  <data name="FindOllama" xml:space="preserve">
+    <value>Chercher Ollama sur ce PC</value>
+  </data>
+  <data name="OllamaNotFound" xml:space="preserve">
+    <value>Ollama ne répond pas sur ce PC (ports {0}). Démarrez-le, ou saisissez son adresse.</value>
+  </data>
+  <data name="OllamaFound" xml:space="preserve">
+    <value>Ollama répond sur le port {0} ; son adresse est dans le champ.</value>
+  </data>
+  <data name="OllamaFoundSaved" xml:space="preserve">
+    <value>Ollama répond sur le port {0} ; son adresse est enregistrée.</value>
+  </data>
 </root>
