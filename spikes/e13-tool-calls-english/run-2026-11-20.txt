@@ -1,0 +1,126 @@
+
+===== en =====
+OK  What time is it?
+      expected get_datetime
+      got get_datetime({}) | get_datetime({}) | get_datetime({})
+OK  What is 347 times 29?
+      expected calculate
+      got calculate({"expression":"347*29"}) | calculate({"expression":"347*29"}) | calculate({"expression":"347*29"})
+OK  Turn on the living room.
+      expected home_assistant_turn_on
+      got home_assistant_turn_on({"target":"living room"}) | home_assistant_turn_on({"target":"living room"}) | home_assistant_turn_on({"target":"living room"})
+OK  Turn off the kitchen lights, please.
+      expected home_assistant_turn_off
+      got home_assistant_turn_off({"target":"kitchen lights"}) | home_assistant_turn_off({"target":"kitchen lights"}) | home_assistant_turn_off({"target":"kitchen lights"})
+OK  What will the weather be like tomorrow in Quebec City?
+      expected web_search
+      got web_search({"query":"weather in Quebec City tomorrow"}) | web_search({"query":"weather in Quebec City tomorrow"}) | web_search({"query":"weather in Quebec City tomorrow"})
+OK  Read me the file C:\notes\groceries.txt.
+      expected read_file
+      got read_file({"path":"C:\\notes\\groceries.txt"}) | read_file({"path":"C:\\notes\\groceries.txt"}) | read_file({"path":"C:\\notes\\groceries.txt"})
+OK  Fix the build error in my Kazo Bar project and open a PR.
+      expected hand_off_to_claude (task)
+      got hand_off(task: Fixing build errors and opening a PR requires access to the …) | hand_off(task: Fixing build errors and opening a PR requires access to the …) | hand_off(task: Fixing build errors and opening a PR requires access to the …)
+OK  Write a PowerShell script that renames all my photos by date, then test it.
+      expected hand_off_to_claude (task)
+      got hand_off(task: The user wants a PowerShell script that renames photos by da…) | hand_off(task: The user wants a PowerShell script to rename photos by date …) | hand_off(task: The user wants a PowerShell script to rename photos by date …)
+OK  Ask Claude to summarize this week's changes in the Kazo Os repository.
+      expected hand_off_to_claude (task)
+      got hand_off(task: summarize this week's changes in the Kazo Os repository) | hand_off(question: request to summarize changes in Kazo Os repository) | hand_off(question: request to summarize changes in Kazo Os repository)
+OK  Explain in detail the difference between special and general relativity.
+      expected hand_off_to_claude (question)
+      got hand_off(question: The question requires detailed knowledge of physics concepts…) | hand_off(question: This is a complex question that requires in-depth knowledge …) | hand_off(question: The question requires detailed knowledge of physics concepts…)
+OK  Ask Claude which architecture to choose for an offline mobile app.
+      expected hand_off_to_claude (question)
+      got hand_off(question: architecture choice for an offline mobile app) | hand_off(question: architecture for an offline mobile app) | hand_off(question: architecture choice for an offline mobile app)
+OK  Thank you Jarvis, that will be all.
+      expected -
+      got - | - | -
+OK  How are you this morning?
+      expected -
+      got - | - | -
+SUMMARY en qwen3:14b: right tool 39/39 (100 %), official channel 33, JSON text 0, kind right 13/15, empty args 0, mean 1066 ms, median 938 ms, p90 1746 ms
+
+===== fr =====
+OK  Quelle heure est-il ?
+      expected get_datetime
+      got get_datetime({}) | get_datetime({}) | get_datetime({})
+OK  Combien font 347 fois 29 ?
+      expected calculate
+      got calculate({"expression":"347*29"}) | calculate({"expression":"347*29"}) | calculate({"expression":"347*29"})
+OK  Allume le salon.
+      expected home_assistant_turn_on
+      got home_assistant_turn_on({"target":"salon"}) | home_assistant_turn_on({"target":"salon"}) | home_assistant_turn_on({"target":"salon"})
+OK  Éteins les lumières de la cuisine, s'il te plaît.
+      expected home_assistant_turn_off
+      got home_assistant_turn_off({"target":"cuisine"}) | home_assistant_turn_off({"target":"cuisine"}) | home_assistant_turn_off({"target":"cuisine"})
+OK  Quel temps fera-t-il demain à Québec ?
+      expected web_search
+      got web_search({"query":"m\u00E9t\u00E9o Qu\u00E9bec demain"}) | web_search({"query":"m\u00E9t\u00E9o Qu\u00E9bec demain"}) | web_search({"query":"M\u00E9t\u00E9o Qu\u00E9bec demain"})
+OK  Lis-moi le fichier C:\notes\courses.txt.
+      expected read_file
+      got read_file({"path":"C:\\notes\\courses.txt"}) | read_file({"path":"C:\\notes\\courses.txt"}) | read_file({"path":"C:\\notes\\courses.txt"})
+OK  Corrige le bogue de compilation dans mon projet Kazo Bar et ouvre une PR.
+      expected hand_off_to_claude (task)
+      got hand_off(task: correction de bogue et ouverture de PR) | hand_off(task: correction de bogue et création de PR) | hand_off(task: correction de bogue et création de PR)
+OK  Écris un script PowerShell qui renomme toutes mes photos par date, puis teste-le.
+      expected hand_off_to_claude (task)
+      got hand_off(task: script PowerShell pour renommer des photos par date) | hand_off(task: script PowerShell pour renommer des photos par date) | hand_off(task: script PowerShell pour renommer des photos par date)
+OK  Demande à Claude de résumer les changements de la semaine dans le dépôt Kazo Os.
+      expected hand_off_to_claude (task)
+      got hand_off(task: demander un résumé des changements de la semaine dans le dép…) | hand_off(task: demander un résumé des changements de la semaine dans le dép…) | hand_off(task: demander un résumé des changements de la semaine dans le dép…)
+OK  Explique-moi en détail la différence entre la relativité restreinte et la relativité générale.
+      expected hand_off_to_claude (question)
+      got hand_off(question: demande complexe nécessitant des connaissances approfondies …) | hand_off(question: La question porte sur des concepts physiques complexes qui n…) | hand_off(question: demande de connaissances scientifiques)
+OK  Demande à Claude quelle architecture choisir pour une application mobile hors ligne.
+      expected hand_off_to_claude (question)
+      got hand_off(question: architecture application mobile hors ligne) | hand_off(question: architecture application mobile hors ligne) | hand_off(question: architecture application mobile hors ligne)
+OK  Merci Jarvis, ce sera tout.
+      expected -
+      got - | - | -
+OK  Comment vas-tu ce matin ?
+      expected -
+      got - | - | -
+SUMMARY fr qwen3:14b: right tool 39/39 (100 %), official channel 33, JSON text 0, kind right 15/15, empty args 0, mean 1059 ms, median 917 ms, p90 1594 ms
+
+===== mixed =====
+OK  Quelle heure est-il ?
+      expected get_datetime
+      got get_datetime({}) | get_datetime({}) | get_datetime({})
+OK  Combien font 347 fois 29 ?
+      expected calculate
+      got calculate({"expression":"347*29"}) | calculate({"expression":"347*29"}) | calculate({"expression":"347*29"})
+OK  Allume le salon.
+      expected home_assistant_turn_on
+      got home_assistant_turn_on({"target":"salon"}) | home_assistant_turn_on({"target":"salon"}) | home_assistant_turn_on({"target":"salon"})
+OK  Éteins les lumières de la cuisine, s'il te plaît.
+      expected home_assistant_turn_off
+      got home_assistant_turn_off({"target":"kitchen"}) | home_assistant_turn_off({"target":"kitchen"}) | home_assistant_turn_off({"target":"kitchen"})
+OK  Quel temps fera-t-il demain à Québec ?
+      expected web_search
+      got web_search({"query":"Quel temps fera-t-il demain \u00E0 Qu\u00E9bec ?"}) | web_search({"query":"Quel temps fera-t-il demain \u00E0 Qu\u00E9bec ?"}) | web_search({"query":"Quel temps fera-t-il demain \u00E0 Qu\u00E9bec ?"})
+OK  Lis-moi le fichier C:\notes\courses.txt.
+      expected read_file
+      got read_file({"path":"C:\\notes\\courses.txt"}) | read_file({"path":"C:\\notes\\courses.txt"}) | read_file({"path":"C:\\notes\\courses.txt"})
+OK  Corrige le bogue de compilation dans mon projet Kazo Bar et ouvre une PR.
+      expected hand_off_to_claude (task)
+      got hand_off(task: Correction de bug de compilation et ouverture d'une PR néces…) | hand_off(task: Correction de bug et ouverture de PR pour le projet Kazo Bar) | hand_off(task: Corriger un bogue de compilation et ouvrir une PR nécessite …)
+OK  Écris un script PowerShell qui renomme toutes mes photos par date, puis teste-le.
+      expected hand_off_to_claude (task)
+      got hand_off(task: Writing and testing a PowerShell script involves multiple st…) | hand_off(task: Writing and testing a PowerShell script requires handling fi…) | hand_off(task: Writing and testing a PowerShell script involves multiple st…)
+OK  Demande à Claude de résumer les changements de la semaine dans le dépôt Kazo Os.
+      expected hand_off_to_claude (task)
+      got hand_off(task: summary of changes in the Kazo Os repository for the week) | hand_off(task: summary of changes in the Kazo Os repository for the week) | hand_off(task: summary of changes in the Kazo Os repository for the week)
+OK  Explique-moi en détail la différence entre la relativité restreinte et la relativité générale.
+      expected hand_off_to_claude (question)
+      got hand_off(question: This is a complex physics question requiring detailed explan…) | hand_off(question: This is a complex physics question requiring detailed explan…) | hand_off(question: This is a complex physics question requiring detailed explan…)
+OK  Demande à Claude quelle architecture choisir pour une application mobile hors ligne.
+      expected hand_off_to_claude (question)
+      got hand_off(question: architecture for an offline mobile application) | hand_off(question: Need to determine the best architecture for an offline mobil…) | hand_off(question: Need to determine the best architecture for an offline mobil…)
+OK  Merci Jarvis, ce sera tout.
+      expected -
+      got - | - | -
+OK  Comment vas-tu ce matin ?
+      expected -
+      got - | - | -
+SUMMARY mixed qwen3:14b: right tool 39/39 (100 %), official channel 33, JSON text 0, kind right 15/15, empty args 0, mean 1121 ms, median 1078 ms, p90 1626 ms
