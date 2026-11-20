@@ -42,21 +42,9 @@ public sealed class AutomaticUpdateCheckTests
     }
 
     [Test]
-    public async Task Off_by_default_nothing_leaves_the_pc()
+    public async Task On_by_default_checks_a_minute_after_start_then_every_six_hours()
     {
-        Assert.That(settings.Read(UpdateOptions.Section).Automatic, Is.False);
-        await check.StartAsync(CancellationToken.None);
-        await Settle();
-
-        await Advance(AutomaticUpdateCheck.FirstDelay + (AutomaticUpdateCheck.Interval * 3));
-
-        Assert.That(releases.Checks, Is.Zero);
-    }
-
-    [Test]
-    public async Task When_on_checks_a_minute_after_start_then_every_six_hours()
-    {
-        await settings.WriteAsync(UpdateOptions.Section, new UpdateOptions { Automatic = true });
+        Assert.That(settings.Read(UpdateOptions.Section).Automatic, Is.True);
         await check.StartAsync(CancellationToken.None);
         await Settle();
 
@@ -75,8 +63,21 @@ public sealed class AutomaticUpdateCheckTests
     }
 
     [Test]
-    public async Task Turning_it_on_needs_no_restart()
+    public async Task Turned_off_nothing_leaves_the_pc()
     {
+        await settings.WriteAsync(UpdateOptions.Section, new UpdateOptions { Automatic = false });
+        await check.StartAsync(CancellationToken.None);
+        await Settle();
+
+        await Advance(AutomaticUpdateCheck.FirstDelay + (AutomaticUpdateCheck.Interval * 3));
+
+        Assert.That(releases.Checks, Is.Zero);
+    }
+
+    [Test]
+    public async Task Turning_it_off_and_on_needs_no_restart()
+    {
+        await settings.WriteAsync(UpdateOptions.Section, new UpdateOptions { Automatic = false });
         await check.StartAsync(CancellationToken.None);
         await Settle();
         await Advance(AutomaticUpdateCheck.FirstDelay);
