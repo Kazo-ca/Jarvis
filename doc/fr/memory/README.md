@@ -68,6 +68,16 @@ ce qu'il décrit.
 - **Chantier 6** (`stage1/6-orb`, orbe version légère : tranche `Assistant/Orb`, composant `Orb` et
   `OrbView` nourri par la machine à états, page de démonstration `/orb` de l'hôte Web, voir
   [dev/orb.md](../dev/orb.md)) livré dans sa PR le 20 novembre 2026, sans vérification Windows.
+- **Chantier 11** (`stage1/11-llm-providers`, modèles de langage : contrat `ILlmConnector` et `IAssistantModel`
+  du noyau sur `Microsoft.Extensions.AI.Abstractions` 10.11.1, adaptateurs `ollama`, `openai-compatible`/`openai`
+  et `anthropic` écrits sur `HttpClient`, tranche `Llm/Providers` avec la page « Modèles de langage », modèle
+  par défaut préchargé au démarrage, voir [dev/llm.md](../dev/llm.md)) livré dans sa PR le 20 novembre 2026,
+  sans vérification Windows. **Tests Windows en attente** ([liste](../dev/llm.md#vérifications-sur-windows)) :
+  Ollama sur 11435 et `llama-server` sur 8080, préchargement au démarrage, causes nommées, mesure d'un modèle
+  de repli de 7 à 8 milliards de paramètres. **Choix provisoires** ([détail](../dev/llm.md#choix-provisoires-de-ce-chantier)) :
+  port par défaut 11434 (Benoit règle 11435 une fois), `claude-opus-5-5` pour un nouveau fournisseur
+  Anthropic, adaptateur Anthropic sur `HttpClient` plutôt que le SDK, réponse de 16 000 jetons au plus, test
+  de connexion de 20 s.
 - **Prochaine étape :** chantier `stage1/7-orb-high-quality`, et `stage1/8-audio-devices` et
   `stage1/11-llm-providers`, qui ne dépendent que du chantier 5. Les tests Windows en attente (chantiers 4,
   5 et 6, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),

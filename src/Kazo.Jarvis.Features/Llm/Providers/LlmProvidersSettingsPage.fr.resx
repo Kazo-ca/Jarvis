@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Modèles de langage</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Les serveurs et les modèles auxquels Jarvis parle. Le modèle par défaut répond ; il doit être local à cette étape. Claude et ChatGPT se configurent et se testent dès maintenant ; ils répondront plus tard, par le passage de main.</value>
+  </data>
+  <data name="IsDefault" xml:space="preserve">
+    <value>Modèle par défaut</value>
+  </data>
+  <data name="MakeDefault" xml:space="preserve">
+    <value>Choisir par défaut</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="CloudNote" xml:space="preserve">
+    <value>Fournisseur cloud : il se configure et se teste, mais il ne répond pas encore.</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="KindLabel" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Kind_Ollama" xml:space="preserve">
+    <value>Ollama</value>
+  </data>
+  <data name="Kind_OpenAiCompatible" xml:space="preserve">
+    <value>Serveur compatible OpenAI (llama.cpp, LM Studio)</value>
+  </data>
+  <data name="Kind_OpenAi" xml:space="preserve">
+    <value>OpenAI (ChatGPT)</value>
+  </data>
+  <data name="Kind_Anthropic" xml:space="preserve">
+    <value>Anthropic (Claude)</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Modèle</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Réglages avancés</value>
+  </data>
+  <data name="Think" xml:space="preserve">
+    <value>Laisser le modèle réfléchir avant de répondre (plus lent)</value>
+  </data>
+  <data name="KeepLoaded" xml:space="preserve">
+    <value>Charger le modèle au démarrage et le garder en mémoire</value>
+  </data>
+  <data name="ContextLength" xml:space="preserve">
+    <value>Contexte (jetons)</value>
+  </data>
+  <data name="Temperature" xml:space="preserve">
+    <value>Température</value>
+  </data>
+  <data name="AdvancedHint" xml:space="preserve">
+    <value>Valeurs de départ : réflexion coupée, contexte 4096, température 0,3. Sur une carte de 12 Go, gardez le contexte à 8192 ou moins.</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Clé d'API</value>
+  </data>
+  <data name="KeyOptional" xml:space="preserve">
+    <value>Clé d'API (seulement si le serveur en demande une)</value>
+  </data>
+  <data name="Test" xml:space="preserve">
+    <value>Tester la connexion</value>
+  </data>
+  <data name="Testing" xml:space="preserve">
+    <value>Test en cours…</value>
+  </data>
+  <data name="Passed" xml:space="preserve">
+    <value>Connexion réussie en {0} ms. Le modèle « {1} » est disponible.</value>
+  </data>
+  <data name="ServerModels" xml:space="preserve">
+    <value>Modèles du serveur : {0}.</value>
+  </data>
+  <data name="Failure_NotConfigured" xml:space="preserve">
+    <value>Aucun fournisseur par défaut : ajoutez-en un, puis choisissez-le par défaut.</value>
+  </data>
+  <data name="Failure_InvalidAddress" xml:space="preserve">
+    <value>L'adresse n'est pas valide : elle commence par http:// ou https://, par exemple http://127.0.0.1:11434.</value>
+  </data>
+  <data name="Failure_Unreachable" xml:space="preserve">
+    <value>Serveur injoignable : vérifiez l'adresse et le port, et que le serveur est démarré.</value>
+  </data>
+  <data name="Failure_ModelMissing" xml:space="preserve">
+    <value>Le serveur n'a pas le modèle « {0} » : téléchargez-le (ollama pull {0}) ou choisissez-en un que le serveur liste.</value>
+  </data>
+  <data name="Failure_KeyMissing" xml:space="preserve">
+    <value>Aucune clé d'API : enregistrez-la dans le champ ci-dessus.</value>
+  </data>
+  <data name="Failure_KeyRejected" xml:space="preserve">
+    <value>Clé refusée par le serveur : vérifiez-la, ou créez-en une nouvelle.</value>
+  </data>
+  <data name="Failure_TimedOut" xml:space="preserve">
+    <value>Délai dépassé : le serveur n'a pas répondu en {0} s.</value>
+  </data>
+  <data name="Failure_ServerError" xml:space="preserve">
+    <value>Le serveur a répondu par une erreur. Le détail est dans le journal.</value>
+  </data>
+  <data name="AddKind" xml:space="preserve">
+    <value>Nouveau fournisseur</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="NoDefault" xml:space="preserve">
+    <value>Aucun modèle par défaut : Jarvis ne peut pas répondre tant qu'un fournisseur local n'est pas choisi par défaut.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuler les changements</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Enregistré. Le modèle par défaut s'applique tout de suite.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Les réglages n'ont pas pu être enregistrés : le fichier des réglages ne peut pas être écrit. La cause est dans le journal.</value>
+  </data>
+</root>
