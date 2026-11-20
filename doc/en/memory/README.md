@@ -28,7 +28,8 @@ Resume point for any agent. Update it in the same change as what it describes.
   quality change without a restart, look at 160 pixels ([list](../dev/orb.md#windows-checks)), and for work item 8: real microphone
   and level, muted microphone (Windows no longer shows an application listening, mute kept after a restart),
   microphone unplugged while Jarvis runs, test sound on speakers and headset, cost of the open microphone
-  while idle ([list](../dev/audio.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
+  while idle ([list](../dev/audio.md#windows-checks)), and for work item 12: Benoit listening to the voices
+  (perceived quality, speed, sound card delay, clean stop, [list](../dev/speech.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -91,8 +92,18 @@ Resume point for any agent. Update it in the same change as what it describes.
   survives a restart; chosen microphone missing = the Windows default, with no fault; muting clears the
   "microphone missing" fault; 30 s buffer; level in decibels from −60 to 0; conversion to 16 kHz done by
   Jarvis.
-- **Next step:** work items `stage1/9-wake-word`, `stage1/10-transcription` and `stage1/12-speech`, which
-  depend on work item 8. The pending Windows tests (work items 4, 5, 6, 7, 8 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 12** (`stage1/12-speech`, speech: kernel contracts `ISpeechEngine` and `IVoiceSelection`,
+  messages `SentenceToSpeak` and `AnswerSentencesEnded` for the conversation, slice `Voice/Speech` (sentences
+  played in order, clean stop on interruption, voice level to the orb), slice `Voice/TestVoice` ("Voices"
+  page), Piper and Kokoro through sherpa-onnx 1.13.8, ElevenLabs and OpenAI, see
+  [dev/speech.md](../dev/speech.md)) delivered in its PR on November 20, 2026. Piper tried for real on Linux;
+  **listening to the voices waits for Benoit** ([list](../dev/speech.md#windows-checks): perceived quality,
+  speed, sound card delay, clean stop). **Provisional choices** ([detail](../dev/speech.md#provisional-choices-of-this-work-item)):
+  the voice slice publishes `FirstSentenceReady` at the first sound; one voice per turn; a failing cloud voice
+  fails the turn; chosen voice missing = local voice of the language; speed per language; separate OpenAI
+  voice key.
+- **Next step:** work items `stage1/9-wake-word` and `stage1/10-transcription`, which
+  depend on work item 8, then `stage1/13-conversation`. The pending Windows tests (work items 4, 5, 6, 7, 8, 11 and 12, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

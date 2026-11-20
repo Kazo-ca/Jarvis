@@ -3,11 +3,13 @@ using Kazo.Jarvis.Adapters.Files;
 using Kazo.Jarvis.Adapters.Llm;
 using Kazo.Jarvis.Adapters.Secrets;
 using Kazo.Jarvis.Adapters.Settings;
+using Kazo.Jarvis.Adapters.Speech;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Adapters.Updates;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
+using Kazo.Jarvis.Kernel.Speech;
 using Kazo.Jarvis.Kernel.Storage;
 using Kazo.Jarvis.Kernel.Updates;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +60,23 @@ public static class AdaptersServiceCollectionExtensions
             new HttpClient { Timeout = TimeSpan.FromMinutes(5) },
             provider.GetService<ISecretVault>(),
             provider.GetService<ILogger<HttpLlmConnector>>()));
+
+        // Voices (ADR 0006, section 5): Piper and Kokoro read the models folder; the cloud voices are listed only
+        // when their key is in the vault. One client for both cloud services: 30 s bounds one sentence.
+        services.TryAddSingleton(provider => new PiperSpeechEngine(provider.GetRequiredService<JarvisPaths>().Models));
+        services.TryAddSingleton(provider => new KokoroSpeechEngine(provider.GetRequiredService<JarvisPaths>().Models));
+        services.TryAddSingleton(new SpeechHttp(new HttpClient { Timeout = TimeSpan.FromSeconds(30) }));
+        services.TryAddSingleton(provider => new ElevenLabsSpeechEngine(
+            provider.GetRequiredService<SpeechHttp>().Client,
+            provider.GetService<ISecretVault>(),
+            provider.GetRequiredService<TimeProvider>()));
+        services.TryAddSingleton(provider => new OpenAiSpeechEngine(
+            provider.GetRequiredService<SpeechHttp>().Client,
+            provider.GetService<ISecretVault>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, PiperSpeechEngine>(provider => provider.GetRequiredService<PiperSpeechEngine>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, KokoroSpeechEngine>(provider => provider.GetRequiredService<KokoroSpeechEngine>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, ElevenLabsSpeechEngine>(provider => provider.GetRequiredService<ElevenLabsSpeechEngine>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, OpenAiSpeechEngine>(provider => provider.GetRequiredService<OpenAiSpeechEngine>()));
 
         // Both vaults need Windows (Credential Manager, DPAPI). The Windows host is the only one to load Adapters.
         if (OperatingSystem.IsWindows())

@@ -4,6 +4,7 @@ using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
+using Kazo.Jarvis.Kernel.Speech;
 using Kazo.Jarvis.Kernel.Storage;
 using Kazo.Jarvis.Kernel.Updates;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,7 +16,7 @@ public static class SimulatedServiceCollectionExtensions
 {
     /// <summary>
     /// Adds the in-memory settings, document store and vault, and the simulated desktop services (orb, dialogs,
-    /// hotkey, start with Windows), the audio devices, the Windows display language, and the simulated release source and updater launcher, and the simulated language model connector. Called before <c>AddJarvisFeatures</c>.
+    /// hotkey, start with Windows), the audio devices, the Windows display language, and the simulated release source and updater launcher, the simulated voices, and the simulated language model connector. Called before <c>AddJarvisFeatures</c>.
     /// </summary>
     /// <param name="services">The host's service collection.</param>
     /// <returns>The same collection, for chaining.</returns>
@@ -48,6 +49,11 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<IReleaseSource>(provider => provider.GetRequiredService<SimulatedReleaseSource>());
         services.TryAddSingleton<SimulatedUpdateLauncher>();
         services.TryAddSingleton<IUpdateLauncher>(provider => provider.GetRequiredService<SimulatedUpdateLauncher>());
+
+        services.TryAddSingleton<SimulatedSpeechEngine>();
+        services.TryAddSingleton<SimulatedCloudSpeechEngine>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, SimulatedSpeechEngine>(provider => provider.GetRequiredService<SimulatedSpeechEngine>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ISpeechEngine, SimulatedCloudSpeechEngine>(provider => provider.GetRequiredService<SimulatedCloudSpeechEngine>()));
 
         services.TryAddSingleton<SimulatedLlmConnector>();
         services.TryAddSingleton<ILlmConnector>(provider => provider.GetRequiredService<SimulatedLlmConnector>());

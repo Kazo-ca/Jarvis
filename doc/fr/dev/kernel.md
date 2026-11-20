@@ -16,6 +16,8 @@ src/Kazo.Jarvis.Kernel/
   Messages/Assistant/                    messages d'entrée de la machine et messages qu'elle publie
   Audio/                                 niveau sonore et flux du micro (hors du bus), contrats de capture et de lecture (voir audio.md)
   Messages/Audio/                        MicrophoneMuteRequested
+  Speech/                                contrats des moteurs de voix, choix de la voix, clés des voix (voir speech.md)
+  Messages/Speech/                       SentenceToSpeak, AnswerSentencesEnded
   Settings/                              contrats des réglages (voir storage.md), pages de la fenêtre des paramètres
   Localization/                          langue de l'assistant, lecteur de la langue, langue de Windows (voir shared-ui.md)
   Messages/Localization/                 AssistantLanguageChanged

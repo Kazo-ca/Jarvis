@@ -71,7 +71,7 @@ Les ADR 0003 et 0006 ne les tranchent pas ; à confirmer par Benoit :
 4. **Tampon d'écoute de 30 s** (environ 2 Mo).
 5. **Niveau sonore en décibels**, de −60 dB (0) à 0 dB (1).
 6. Conversion vers 16 kHz faite par Jarvis (filtre et interpolation), pas par le moteur audio de Windows.
-7. Pas de niveau de la voix dans la lecture : il arrive avec la synthèse (chantier 12).
+7. Pas de niveau de la voix dans la lecture : il arrive avec la synthèse (chantier 12, voir [speech.md](speech.md)).
 
 ## Tests
 

@@ -1,0 +1,153 @@
+@using Kazo.Jarvis.Kernel.Speech
+@implements IDisposable
+@inject VoiceTrial Trial
+@inject IStringLocalizer<VoicesSettingsPage> T
+
+@* Voices page (US1.10, US1.11): the voices of each language by engine, a sentence to listen to, the speed, the
+   default voice of each language, and the keys of the cloud voices with what they imply (ADR 0009, section 9). *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["LanguageLabel"]">
+        <div class="voices-languages">
+            @foreach (var language in AssistantLanguage.Supported)
+            {
+                <label class="voices-language">
+                    <input type="radio" name="voices-language" value="@language.Code" data-voices-language="@language.Code"
+                           checked="@(language == Trial.Language)" @onchange="() => ShowLanguage(language)" />
+                    <span>@T["LanguageName_" + language.Code]</span>
+                </label>
+            }
+        </div>
+    </SettingsField>
+
+    <SettingsField Label="@T["VoiceLabel"]" Hint="@VoiceHint">
+        @if (Trial.Voices.Count == 0)
+        {
+            <p class="voices-empty" data-voices-empty>@T["NoVoice"]</p>
+        }
+        else
+        {
+            <select class="voices-select" data-voices-voice @onchange="Select">
+                <optgroup label="@T["LocalGroup"]">
+                    @foreach (var voice in Trial.Voices.Where(voice => !voice.LeavesMachine))
+                    {
+                        <option value="@VoiceTrial.KeyOf(voice)" selected="@(voice == Trial.Selected)">@Label(voice)</option>
+                    }
+                </optgroup>
+                @if (Trial.Voices.Any(voice => voice.LeavesMachine))
+                {
+                    <optgroup label="@T["CloudGroup"]">
+                        @foreach (var voice in Trial.Voices.Where(voice => voice.LeavesMachine))
+                        {
+                            <option value="@VoiceTrial.KeyOf(voice)" selected="@(voice == Trial.Selected)">@Label(voice)</option>
+                        }
+                    </optgroup>
+                }
+            </select>
+            @if (Trial.Selected is { LeavesMachine: true } cloud)
+            {
+                <p class="voices-warning" role="note" data-voices-cloud-warning>@T["CloudWarning", ServiceName(cloud.Engine)]</p>
+            }
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["SentenceLabel"]">
+        <textarea class="voices-sentence" rows="2" data-voices-sentence @bind="sentence" @bind:event="oninput"></textarea>
+    </SettingsField>
+
+    <SettingsField Label="@T["SpeedLabel"]">
+        <div class="voices-speed">
+            <input type="range" data-voices-speed min="@Invariant(VoiceChoice.MinimumSpeed)" max="@Invariant(VoiceChoice.MaximumSpeed)" step="0.1"
+                   value="@Invariant(Trial.Speed)" @oninput="ChangeSpeed" aria-label="@T["SpeedLabel"]" />
+            <output data-voices-speed-value>@T["SpeedValue", Trial.Speed.ToString("0.0")]</output>
+        </div>
+    </SettingsField>
+
+    <div class="voices-actions">
+        @if (Trial.IsPlaying)
+        {
+            <button type="button" class="voices-button" data-voices-stop @onclick="Trial.Stop">@T["Stop"]</button>
+        }
+        else
+        {
+            <button type="button" class="voices-button" data-voices-listen disabled="@(Trial.Selected is null || string.IsNullOrWhiteSpace(sentence))"
+                    @onclick="ListenAsync">@T["Listen"]</button>
+        }
+        <button type="button" class="voices-button voices-default" data-voices-default disabled="@(Trial.Selected is null || Trial.IsDefault)"
+                @onclick="MakeDefaultAsync">@T["MakeDefault", T["Language_" + Trial.Language.Code]]</button>
+        @if (Trial.IsDefault)
+        {
+            <span class="voices-is-default" role="status" data-voices-is-default>@T["IsDefault", T["Language_" + Trial.Language.Code]]</span>
+        }
+    </div>
+    @if (Trial.Problem is { } problem)
+    {
+        <p class="voices-problem" role="alert" data-voices-problem="@problem">@T["Problem_" + problem]</p>
+    }
+
+    <SettingsField Label="@T["CloudKeysLabel"]" Hint="@T["CloudKeysHint"]">
+        <SecretField Reference="SpeechKeys.ElevenLabs" Label="@T["ElevenLabsKey"]" Changed="ReloadAsync" />
+        <SecretField Reference="SpeechKeys.OpenAi" Label="@T["OpenAiKey"]" Changed="ReloadAsync" />
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private string sentence = string.Empty;
+
+    private string? VoiceHint => Trial.Selected is { LeavesMachine: false } ? T["LocalHint"].Value : null;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        Trial.Changed += OnChanged;
+        sentence = SampleFor(Trial.Language);
+        await Trial.LoadAsync();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Trial.Changed -= OnChanged;
+        Trial.Dispose();
+    }
+
+    private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    private void ShowLanguage(AssistantLanguage language)
+    {
+        // The sample follows the language unless the user wrote their own sentence.
+        var untouched = sentence == SampleFor(Trial.Language) || string.IsNullOrWhiteSpace(sentence);
+        Trial.Stop();
+        Trial.ShowLanguage(language);
+        if (untouched)
+        {
+            sentence = SampleFor(language);
+        }
+    }
+
+    private void Select(ChangeEventArgs change) => Trial.Select(change.Value as string);
+
+    private void ChangeSpeed(ChangeEventArgs change)
+    {
+        if (double.TryParse(change.Value as string, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var speed))
+        {
+            Trial.ChangeSpeed(speed);
+        }
+    }
+
+    private Task ListenAsync() => Trial.ListenAsync(sentence);
+
+    private Task MakeDefaultAsync() => Trial.MakeDefaultAsync();
+
+    private Task ReloadAsync() => Trial.LoadAsync();
+
+    // The sample is in the language tried, whatever the language of the interface.
+    private string SampleFor(AssistantLanguage language) => T["Sample_" + language.Code];
+
+    private string Label(SpeechVoice voice) => T["VoiceName", voice.Name, EngineName(voice.Engine)];
+
+    private string EngineName(string engine) => T["Engine_" + engine] is { ResourceNotFound: false } name ? name : engine;
+
+    private string ServiceName(string engine) => EngineName(engine);
+
+    private static string Invariant(double value) => value.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+}

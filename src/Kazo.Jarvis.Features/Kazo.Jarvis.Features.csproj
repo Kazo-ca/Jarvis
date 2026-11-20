@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Kazo.Jarvis.Tests.Unit" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
   </ItemGroup>
 

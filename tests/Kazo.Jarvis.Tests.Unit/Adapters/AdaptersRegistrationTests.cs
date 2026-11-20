@@ -3,9 +3,11 @@ using Kazo.Jarvis.Adapters;
 using Kazo.Jarvis.Adapters.Files;
 using Kazo.Jarvis.Adapters.Secrets;
 using Kazo.Jarvis.Adapters.Settings;
+using Kazo.Jarvis.Adapters.Speech;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
+using Kazo.Jarvis.Kernel.Speech;
 using Kazo.Jarvis.Kernel.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,6 +35,21 @@ public sealed class AdaptersRegistrationTests
             Assert.That(provider.GetRequiredService<ISettingsStore>(), Is.TypeOf<JsonFileSettingsStore>());
             Assert.That(provider.GetRequiredService<IDocumentStore>(), Is.TypeOf<SqliteDocumentStore>());
             Assert.That(provider.GetRequiredService<JarvisPaths>(), Is.EqualTo(folder.Paths));
+        });
+    }
+
+    [Test]
+    public void The_four_voice_engines_are_registered_local_ones_first()
+    {
+        using var provider = new ServiceCollection().AddJarvisAdapters(folder.Paths).BuildServiceProvider();
+
+        var engines = provider.GetServices<ISpeechEngine>().ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(engines.Select(engine => engine.Engine), Is.EqualTo(new[] { "piper", "kokoro", "elevenlabs", "openai" }));
+            Assert.That(engines.Select(engine => engine.IsCloud), Is.EqualTo(new[] { false, false, true, true }));
+            Assert.That(engines[0], Is.SameAs(provider.GetRequiredService<PiperSpeechEngine>()));
         });
     }
 
