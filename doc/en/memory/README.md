@@ -22,7 +22,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   the screens reconnect (240 × 240 seen once on the 100 % screen, right after a restart), an end-to-end update between two test versions (work item 16,
   [list](../dev/updates.md#windows-check)), and for work item 5: settings window texts reloaded on a language
   change in `BlazorWebView`, tray menu translated, fonts shown offline ([list](../dev/hosts.md#windows-checks),
-  item 8). Work item 16 (`stage1/16-updates`, updates: slice
+  item 8), and for work item 6: cost of the light orb when idle, muted and in error under 2 % of a core
+  (mandatory), cost of the animated phases and of the long task, click and drag, animations turned off in
+  Windows ([list](../dev/orb.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -57,9 +59,12 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** work item `stage1/6-orb` (orb, light version), then `stage1/8-audio-devices` and
-  `stage1/11-llm-providers`, which depend on work item 5 only. The pending Windows tests (work items 4 and 5,
-  [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 6** (`stage1/6-orb`, orb light version: slice `Assistant/Orb`, `Orb` component and `OrbView`
+  fed by the state machine, demonstration page `/orb` of the Web host, see [dev/orb.md](../dev/orb.md))
+  delivered in its PR on November 20, 2026, without a Windows check.
+- **Next step:** work item `stage1/7-orb-high-quality`, and `stage1/8-audio-devices` and
+  `stage1/11-llm-providers`, which depend on work item 5 only. The pending Windows tests (work items 4, 5
+  and 6, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
@@ -87,6 +92,12 @@ Resume point for any agent. Update it in the same change as what it describes.
   build without warnings, unit tests 29/29, Playwright 1/1, Web host HTTP 200, Windows host opened,
   responsive and closed without error. Started on a locked session, the Windows host died: fixed in work
   item 4 (see [pitfalls](../dev/pitfalls.md)).
+- **Provisional choices of work item 6 that ADRs 0005 and 0011 do not settle** (details in
+  [dev/orb.md](../dev/orb.md#provisional-choices-of-this-work-item), for Benoit to confirm): error = flash then
+  still image (not the catalog's speed 0.25); reduced motion = no rotation or pulse, listening and speaking
+  told from idle by light only; unknown progress = still dashed green circle; orb body at 80 % of the window;
+  "99+" badge; no "version" input yet (work item 7). The click is still caught by the WPF window, which hands
+  it to the slice's `OrbActivation`.
 - **Choices of work item 5 that ADRs 0008 and 0011 do not settle** (details in [dev/shared-ui.md](../dev/shared-ui.md)):
   `IStringLocalizer` reads the assistant language at each lookup, never the thread culture (formats keep
   those of Windows); a window is built again whole on a language change (`LanguageScope`), the title bar keeps

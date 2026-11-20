@@ -9,11 +9,13 @@
 @inject SimulatedReleaseSource Releases
 @inject SimulatedUpdateLauncher Launcher
 
-@* Page of the Web host: provisional orb, simulated hotkey and dialogs (stage1/4-hosts), simulated releases
-   and updater (stage1/16-updates). The orb
-   demonstration page arrives with stage1/6-orb. *@
+@* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
+   (stage1/4-hosts), simulated releases and updater (stage1/16-updates). The orb demonstration page, which
+   drives the component directly, is /orb (US1.3). *@
 <main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
-    <div class="orb-disc" hidden="@(!Orb.IsVisible)"></div>
+    <div class="orb-frame" hidden="@(!Orb.IsVisible)">
+        <OrbView AnimateIdle="false" />
+    </div>
     <nav class="host-controls">
         <button type="button" id="simulate-hotkey" @onclick="PressHotkey">Simulate the hotkey (@(Hotkey.Current?.ToString() ?? "none"))</button>
         <button type="button" id="toggle-orb" @onclick="Orb.ToggleVisibility">Show or hide the orb</button>
@@ -22,6 +24,7 @@
         <button type="button" id="open-updates" @onclick="OpenUpdates">Open the updates window</button>
         <button type="button" id="simulate-release" @onclick="PublishRelease">Publish version 9.9.0</button>
         <button type="button" id="simulate-offline" @onclick="ToggleNetwork">@(Releases.Reachable ? "Cut the network" : "Restore the network")</button>
+        <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="updater-launched" data-folder="@(Launcher.LaunchedFolder ?? "")">@(Launcher.LaunchedFolder is null ? "Updater not started" : "Updater started")</output>
     </nav>
     @* Like a window of the Windows host, the dialogs rebuild their texts when the language changes. *@

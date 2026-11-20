@@ -1,9 +1,8 @@
 using System.Windows;
 using System.Windows.Threading;
 using Kazo.Jarvis.Adapters.Files;
+using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Kernel.Desktop;
-using Kazo.Jarvis.Kernel.Messages.Assistant;
-using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Settings;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +21,7 @@ internal sealed partial class OrbWindowService : IOrbWindow
     private readonly IServiceProvider services;
     private readonly Dispatcher dispatcher;
     private readonly ISettingsStore settings;
-    private readonly IMessageBus bus;
+    private readonly OrbActivation activation;
     private readonly JarvisPaths paths;
     private readonly ILogger<OrbWindowService> logger;
     private OrbWindow? window;
@@ -33,14 +32,14 @@ internal sealed partial class OrbWindowService : IOrbWindow
         IServiceProvider services,
         Dispatcher dispatcher,
         ISettingsStore settings,
-        IMessageBus bus,
+        OrbActivation activation,
         JarvisPaths paths,
         ILogger<OrbWindowService> logger)
     {
         this.services = services;
         this.dispatcher = dispatcher;
         this.settings = settings;
-        this.bus = bus;
+        this.activation = activation;
         this.paths = paths;
         this.logger = logger;
     }
@@ -145,12 +144,13 @@ internal sealed partial class OrbWindowService : IOrbWindow
 
     private void OnClicked(object? sender, EventArgs e)
     {
-        // Provisional: the orb slice (stage1/6-orb) takes the click over, with its component.
+        // The window catches the press to tell a click from a move (the WebView never sees it); what the click
+        // does belongs to the orb slice (stage1/6-orb), the same as a click on the component in the Web host.
         _ = Task.Run(async () =>
         {
             try
             {
-                await bus.PublishAsync(new ActivationRequested(ActivationSource.Click)).ConfigureAwait(false);
+                await activation.ClickAsync().ConfigureAwait(false);
             }
             catch (Exception exception)
             {

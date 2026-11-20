@@ -37,7 +37,7 @@ public sealed class DesktopHostTests : PageTest
     [Test]
     public async Task The_orb_hides_and_shows_again()
     {
-        var orb = Page.Locator(".orb-disc");
+        var orb = Page.Locator(".orb-frame");
         await Expect(orb).ToBeVisibleAsync();
 
         await Page.ClickAsync("#toggle-orb");
