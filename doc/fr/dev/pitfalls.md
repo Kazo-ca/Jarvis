@@ -128,3 +128,14 @@ Une variable de boucle nommée `page` donne `@page.Key` dans le balisage, que Ra
 `dotnet run --no-launch-profile` démarre en `Production`, où `MapStaticAssets` cherche les fichiers publiés
 (`blazor.web.js`, `_content/...`) dans `wwwroot` et ne les trouve pas : la page reste sans interactivité.
 Ajouter `ASPNETCORE_ENVIRONMENT=Development` et lancer depuis le dossier du projet (racine du contenu).
+
+## Deux `onnxruntime` natifs : celui de sherpa-onnx et celui de `Microsoft.ML.OnnxRuntime` (chantier stage1/9-wake-word)
+
+`org.k2fsa.sherpa.onnx` 1.13.8 livre son propre `onnxruntime.dll` / `libonnxruntime.so` (version 1.28.2), et
+`Microsoft.ML.OnnxRuntime` 1.32.0 un autre, sous le même nom. Dans un même dossier de sortie, le second
+écrase le premier. Sous Linux, `libsherpa-onnx-c-api.so` exige alors le symbole `OrtGetApiBase@VERS_1.28.2`
+absent de la 1.32 : Piper et Silero ne se chargent plus (« Unable to load shared library
+'sherpa-onnx-c-api' »). Solution du chantier 9 : le mot d'éveil prend `Microsoft.ML.OnnxRuntime.Managed`
+**1.28.0** (la partie .NET seule) et s'appuie sur le moteur natif 1.28.2 de sherpa-onnx ; un seul
+`onnxruntime` dans le processus. Une version managée plus récente que le natif échoue (`GetApi` rend null) :
+monter l'une demande de monter l'autre.

@@ -1,0 +1,164 @@
+@using System.Globalization
+@using Kazo.Jarvis.Kernel.Assistant
+@implements IDisposable
+@inject WakeWordListener Listener
+@inject ISettingsStore Settings
+@inject IAssistantStateReader State
+@inject IStringLocalizer<WakeWordSettingsPage> T
+
+@* Settings page of the wake word (US1.5): live score with the threshold, best recent score, threshold, last
+   detection. Built to tune the threshold by voice (ADR 0006, section 2). *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["ScoreLabel"]" Hint="@StateHint">
+        <div class="wake-score" data-wake-state="@Shown">
+            <meter class="wake-meter" data-wake-score min="0" max="1" value="@Invariant(score)" aria-label="@T["ScoreLabel"]"></meter>
+            <span class="wake-threshold-mark" data-wake-threshold-mark aria-hidden="true">@ThresholdMark</span>
+        </div>
+        <p class="wake-peak" data-wake-peak="@Invariant(Peak)">@T["Peak", Number(Peak)]</p>
+        @if (status.State == WakeWordState.ModelsMissing)
+        {
+            <ul class="wake-missing" data-wake-missing>
+                @foreach (var file in status.MissingFiles)
+                {
+                    <li>@file</li>
+                }
+            </ul>
+        }
+    </SettingsField>
+    <SettingsField Label="@T["ThresholdLabel"]" Hint="@T["ThresholdHint"]">
+        <input type="range" class="wake-threshold" data-wake-threshold min="@Invariant(WakeWordOptions.MinimumThreshold)"
+               max="@Invariant(WakeWordOptions.MaximumThreshold)" step="0.05" value="@Invariant(threshold)"
+               aria-label="@T["ThresholdLabel"]" @onchange="ChooseThresholdAsync" />
+        <output class="wake-threshold-value" data-wake-threshold-value>@Number(threshold)</output>
+    </SettingsField>
+    <SettingsField Label="@T["DetectionLabel"]">
+        <p class="wake-detection" data-wake-detection="@(detection is null ? "" : Invariant(detection.Score))">@DetectionText</p>
+    </SettingsField>
+    @if (problem is { } text)
+    {
+        <p class="wake-problem" role="alert">@text</p>
+    }
+</SettingsFrame>
+
+@code {
+    // A setting aid, not the orb: ten refreshes per second are enough.
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromMilliseconds(100);
+
+    // "Hey jarvis" lasts under a second: the best score of the last 3 s is easier to read than the live one.
+    private static readonly TimeSpan PeakWindow = TimeSpan.FromSeconds(3);
+
+    private readonly Queue<(long Ticks, float Score)> recent = new();
+    private WakeWordStatus status = WakeWordStatus.Starting;
+    private WakeWordDetection? detection;
+    private float threshold = WakeWordOptions.DefaultThreshold;
+    private float score;
+    private bool muted;
+    private long lastRefreshTicks;
+    private string? problem;
+    private IDisposable? settingsWatch;
+
+    private float Peak
+    {
+        get
+        {
+            lock (recent)
+            {
+                return recent.Count == 0 ? 0f : recent.Max(sample => sample.Score);
+            }
+        }
+    }
+
+    // What the page shows: the mute wins, since no frame arrives then and the listener keeps its last state.
+    private string Shown => muted ? "Muted" : status.State.ToString();
+
+    private string ThresholdMark => T["ThresholdMark", Number(threshold)];
+
+    private string StateHint => muted
+        ? T["StateMuted"]
+        : status.State switch
+        {
+            WakeWordState.Active => T["StateActive"],
+            WakeWordState.Paused => T["StatePaused"],
+            WakeWordState.ModelsMissing => T["StateModelsMissing"],
+            WakeWordState.Failed => T["StateFailed"],
+            _ => T["StateStarting"],
+        };
+
+    private string DetectionText => detection is { } last
+        ? T["LastDetection", last.At.ToLocalTime().ToString("T", CultureInfo.CurrentCulture), Number(last.Score)]
+        : T["NoDetection"];
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Refresh();
+        Listener.StatusChanged += OnChanged;
+        Listener.ScoreReported += OnScore;
+        settingsWatch = Settings.Watch(WakeWordOptions.Section, _ => OnChanged());
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Listener.StatusChanged -= OnChanged;
+        Listener.ScoreReported -= OnScore;
+        settingsWatch?.Dispose();
+    }
+
+    private void Refresh()
+    {
+        status = Listener.Status;
+        detection = Listener.LastDetection;
+        threshold = Settings.Read(WakeWordOptions.Section).EffectiveThreshold;
+        muted = State.Current.MicrophoneMuted;
+        score = muted ? 0f : Listener.Score;
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Refresh();
+        StateHasChanged();
+    });
+
+    private void OnScore(float value)
+    {
+        var now = Environment.TickCount64;
+        lock (recent)
+        {
+            recent.Enqueue((now, value));
+            while (recent.Count > 0 && now - recent.Peek().Ticks > PeakWindow.TotalMilliseconds)
+            {
+                recent.Dequeue();
+            }
+        }
+
+        if (now - Interlocked.Read(ref lastRefreshTicks) < RefreshInterval.TotalMilliseconds)
+        {
+            return;
+        }
+
+        Interlocked.Exchange(ref lastRefreshTicks, now);
+        _ = InvokeAsync(() =>
+        {
+            Refresh();
+            StateHasChanged();
+        });
+    }
+
+    private async Task ChooseThresholdAsync(ChangeEventArgs change)
+    {
+        if (!float.TryParse(change.Value as string, NumberStyles.Float, CultureInfo.InvariantCulture, out var wanted))
+        {
+            return;
+        }
+
+        var options = Settings.Read(WakeWordOptions.Section) with { Threshold = (float)Math.Round(wanted, 2) };
+        var result = await Settings.WriteAsync(WakeWordOptions.Section, options);
+        problem = result.IsSaved ? null : T["SaveFailed"].Value;
+        Refresh();
+    }
+
+    private static string Invariant(float value) => value.ToString("0.###", CultureInfo.InvariantCulture);
+
+    private static string Number(float value) => value.ToString("0.00", CultureInfo.CurrentCulture);
+}

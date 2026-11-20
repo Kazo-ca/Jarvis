@@ -1,0 +1,53 @@
+.wake-score {
+    position: relative;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.wake-meter {
+    width: 18rem;
+    max-width: 100%;
+    height: 0.8rem;
+}
+
+.wake-threshold-mark {
+    color: var(--jarvis-amber);
+    font-family: var(--jarvis-font-mono);
+    white-space: nowrap;
+}
+
+.wake-peak,
+.wake-detection {
+    margin: 0.6rem 0 0;
+    font-family: var(--jarvis-font-mono);
+}
+
+.wake-detection {
+    margin-top: 0;
+}
+
+.wake-missing {
+    margin: 0.6rem 0 0;
+    padding-left: 1.2rem;
+    color: var(--jarvis-red);
+    font-family: var(--jarvis-font-mono);
+    word-break: break-all;
+}
+
+.wake-threshold {
+    width: 18rem;
+    max-width: 100%;
+    accent-color: var(--jarvis-cyan);
+    vertical-align: middle;
+}
+
+.wake-threshold-value {
+    margin-left: 0.6rem;
+    font-family: var(--jarvis-font-mono);
+}
+
+.wake-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

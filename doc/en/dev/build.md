@@ -57,6 +57,15 @@ does each work item's Windows checks through Remote Control.
 To run only them: `dotnet test tests/Kazo.Jarvis.Tests.Unit --filter "TestCategory=Windows"`. They also carry
 `[SupportedOSPlatform("windows")]`, which skips them elsewhere ([pitfalls](pitfalls.md)).
 
+## Models for the tests
+
+The wake word adapter tests (`OnnxWakeWordEngineTests`, category `Models`) need the three openWakeWord 0.5.1
+models, which are never in the repository (ADR 0004, section 5). They read them from the folder named by the
+`KAZO_JARVIS_WAKE_WORD_MODELS` variable; without it, they are ignored. The CI downloads them from the
+openWakeWord 0.5.1 release on GitHub and checks their SHA-256 hash (step "Download the wake word models" of
+`ci.yml`). On Windows, after work item 14:
+`$env:KAZO_JARVIS_WAKE_WORD_MODELS = "$env:USERPROFILE\.kazo\jarvis\models\wake-word"`.
+
 ## Continuous integration
 
 `.github/workflows/ci.yml` runs on Linux (answer no. 2 of the [stage 1 plan](plans/stage-1.md)) on every PR,
@@ -65,9 +74,10 @@ and on every push to `main` and to a `*/base` branch:
 1. installs the SDK from `global.json`;
 2. builds the whole solution in Release, Windows host included (`EnableWindowsTargeting`): it is compiled,
    not run;
-3. runs the unit and architecture tests, except those marked `Windows`;
-4. installs Chromium and runs the Playwright tests against the Web host;
-5. keeps the test results for a week when something fails.
+3. downloads the wake word models and checks their hash ([above](#models-for-the-tests));
+4. runs the unit and architecture tests, except those marked `Windows`;
+5. installs Chromium and runs the Playwright tests against the Web host;
+6. keeps the test results for a week when something fails.
 
 A PR is merged into a `*/base` branch only when this run is green (AGENTS.md, IV.5 and IV.7).
 

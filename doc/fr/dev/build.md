@@ -57,6 +57,15 @@ un agent fait les vérifications sur Windows de chaque chantier par le contrôle
 Pour ne lancer qu'eux : `dotnet test tests/Kazo.Jarvis.Tests.Unit --filter "TestCategory=Windows"`. Ils portent aussi
 `[SupportedOSPlatform("windows")]`, ce qui les fait ignorer ailleurs ([pièges](pitfalls.md)).
 
+## Modèles pour les tests
+
+Les tests de l'adaptateur du mot d'éveil (`OnnxWakeWordEngineTests`, catégorie `Models`) ont besoin des trois
+modèles d'openWakeWord 0.5.1, qui ne sont jamais dans le dépôt (ADR 0004, section 5). Ils les lisent dans le
+dossier nommé par la variable `KAZO_JARVIS_WAKE_WORD_MODELS` ; sans elle, ils sont ignorés. L'intégration
+continue les télécharge depuis la version 0.5.1 d'openWakeWord sur GitHub et vérifie leur empreinte SHA-256
+(étape « Download the wake word models » de `ci.yml`). Sous Windows, après le chantier 14 :
+`$env:KAZO_JARVIS_WAKE_WORD_MODELS = "$env:USERPROFILE\.kazo\jarvis\models\wake-word"`.
+
 ## Intégration continue
 
 `.github/workflows/ci.yml` tourne sous Linux (réponse n° 2 du [plan de l'étape 1](plans/stage-1.md)) à
@@ -65,9 +74,10 @@ chaque PR, et à chaque poussée sur `main` et sur une branche `*/base` :
 1. installe le SDK de `global.json` ;
 2. construit toute la solution en Release, hôte Windows compris (`EnableWindowsTargeting`) : il est compilé,
    pas lancé ;
-3. lance les tests unitaires et d'architecture, sauf ceux marqués `Windows` ;
-4. installe Chromium et lance les tests Playwright contre l'hôte Web ;
-5. garde les résultats des tests une semaine en cas d'échec.
+3. télécharge les modèles du mot d'éveil et vérifie leur empreinte ([plus haut](#modèles-pour-les-tests)) ;
+4. lance les tests unitaires et d'architecture, sauf ceux marqués `Windows` ;
+5. installe Chromium et lance les tests Playwright contre l'hôte Web ;
+6. garde les résultats des tests une semaine en cas d'échec.
 
 Une PR ne se fusionne dans une branche `*/base` que si ce travail est vert (AGENTS.md, IV.5 et IV.7).
 

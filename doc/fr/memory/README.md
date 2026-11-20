@@ -35,7 +35,9 @@ ce qu'il décrit.
   ([liste](../dev/audio.md#vérifications-sur-windows)), et pour le chantier 10 : modèles Whisper et Silero déposés à la main,
   fin de phrase avec le vrai micro et du bruit (repli sur le seuil d'énergie si Silero n'est pas fiable), texte en
   français et en anglais, durée de transcription ([liste](../dev/transcription.md#vérifications-sur-windows)), et pour le chantier 12 : écoute des voix par Benoit
-  (qualité perçue, vitesse, délai de la carte son, arrêt net, [liste](../dev/speech.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
+  (qualité perçue, vitesse, délai de la carte son, arrêt net, [liste](../dev/speech.md#vérifications-sur-windows)), et pour le chantier 9 : **seuil du mot d'éveil réglé avec la voix
+  de Benoit** (valeur à écrire ici), « Hey Jarvis » pendant que Jarvis parle, coût du mot d'éveil
+  ([liste](../dev/wake-word.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
   tranche `Maintenance/Updates`, lecture des versions GitHub, programme `Kazo.Jarvis.Updater`, script
   `build/Publish-Release.ps1`, voir [dev/updates.md](../dev/updates.md)) livré dans sa PR ; sa vérification
   sur Windows attend la prochaine séance. Chantier 5 (`stage1/5-shared-ui-language`, style commun, polices
@@ -101,6 +103,17 @@ ce qu'il décrit.
   micro survit au redémarrage ; micro choisi absent = celui de Windows par défaut, sans panne ; couper le micro
   lève la panne « micro absent » ; tampon de 30 s ; niveau en décibels de −60 à 0 ; conversion vers 16 kHz
   faite par Jarvis.
+- **Chantier 9** (`stage1/9-wake-word`, mot d'éveil : contrats `IWakeWordEngine` et `IWakeWordDetector` du
+  noyau, adaptateur ONNX Runtime des trois modèles d'openWakeWord 0.5.1 dans `models\wake-word`, tranche
+  `Voice/WakeWord` (écoute du flux du micro, seuil 0,5 réglable, une détection par activation, silencieux
+  pendant l'écoute, page « Mot d'éveil » avec le score en direct), voir [dev/wake-word.md](../dev/wake-word.md))
+  livré dans sa PR le 20 novembre 2026, sans vérification Windows. « Hey Jarvis. » de Piper : 0,999 ;
+  « Hey Travis… » : 0,488. **Choix provisoires** ([détail](../dev/wake-word.md#choix-provisoires-de-ce-chantier),
+  à confirmer par Benoit) : modèles absents = pas de panne (la page le dit, nouvel essai toutes les 30 s) ;
+  actif pendant la réflexion et la parole, en pause pendant l'écoute ; curseur de 0,05 à 0,95 ; meilleur score
+  des 3 dernières secondes affiché ; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 sur le moteur natif de sherpa-onnx
+  au lieu de `Microsoft.ML.OnnxRuntime` 1.32.0 de l'ADR 0001 (deux `onnxruntime` natifs cassaient Piper, voir les
+  [pièges](../dev/pitfalls.md)) : **un ADR qui remplace cette ligne de l'ADR 0001 est à proposer à Benoit**.
 - **Chantier 10** (`stage1/10-transcription`, fin de phrase et Whisper : contrats `ISpeechRecognition` et
   `IVoiceActivityDetection` du noyau, message `UtteranceTranscribed` pour la conversation, tranche
   `Voice/Transcription` (écoute d'un tour parlé, fin de phrase par Silero avec repli sur un seuil d'énergie,
@@ -123,7 +136,7 @@ ce qu'il décrit.
   la tranche de la voix publie `FirstSentenceReady` au premier son ; une voix par tour ; une voix dans le nuage
   qui échoue fait échouer le tour ; voix choisie absente = voix locale de la langue ; vitesse par langue ; clé
   OpenAI des voix séparée.
-- **Prochaine étape :** chantier `stage1/9-wake-word`, puis `stage1/13-conversation`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 10, 11 et 12, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Prochaine étape :** chantier `stage1/13-conversation`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11 et 12, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

@@ -12,6 +12,7 @@
 | [orb.md](orb.md) | The orb, high-quality and light versions: component, quality setting, looks, motion, cost, demonstration page |
 | [shared-ui.md](shared-ui.md) | Shared style, fonts, translations, language setting, settings window, secret field |
 | [audio.md](audio.md) | Audio devices: microphone, output, mute, listening buffer |
+| [wake-word.md](wake-word.md) | Wake word: openWakeWord models, threshold, live score, settings page |
 | [transcription.md](transcription.md) | Transcription: end of utterance (Silero, energy threshold), Whisper, "Transcription" page, models |
 | [speech.md](speech.md) | Speech: Piper, Kokoro and cloud engines, voice of each language, "Voices" page |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |

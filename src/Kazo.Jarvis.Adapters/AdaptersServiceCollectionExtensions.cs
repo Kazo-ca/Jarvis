@@ -63,6 +63,8 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetService<ISecretVault>(),
             provider.GetService<ILogger<HttpLlmConnector>>()));
 
+        // Wake word (ADR 0006, section 2): openWakeWord models in models\wake-word, loaded by the wake word slice.
+        services.TryAddSingleton<IWakeWordEngine>(provider => new OnnxWakeWordEngine(provider.GetRequiredService<JarvisPaths>()));
         // Transcription (ADR 0006, sections 3 and 4): Whisper.net and Silero, models read from the models folder.
         services.TryAddSingleton<ISpeechRecognition>(provider => new WhisperSpeechRecognition(
             provider.GetRequiredService<JarvisPaths>(),

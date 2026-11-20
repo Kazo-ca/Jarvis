@@ -31,7 +31,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   while idle ([list](../dev/audio.md#windows-checks)), and for work item 10: Whisper and Silero models copied by hand,
   end of utterance with the real microphone and some noise (fallback to the energy threshold if Silero is not
   reliable), text in French and English, transcription time ([list](../dev/transcription.md#windows-checks)), and for work item 12: Benoit listening to the voices
-  (perceived quality, speed, sound card delay, clean stop, [list](../dev/speech.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
+  (perceived quality, speed, sound card delay, clean stop, [list](../dev/speech.md#windows-checks)), and for work item 9: **wake word threshold tuned with
+  Benoit's voice** (value to write here), "Hey Jarvis" while Jarvis speaks, cost of the wake word
+  ([list](../dev/wake-word.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -94,6 +96,17 @@ Resume point for any agent. Update it in the same change as what it describes.
   survives a restart; chosen microphone missing = the Windows default, with no fault; muting clears the
   "microphone missing" fault; 30 s buffer; level in decibels from −60 to 0; conversion to 16 kHz done by
   Jarvis.
+- **Work item 9** (`stage1/9-wake-word`, wake word: kernel contracts `IWakeWordEngine` and
+  `IWakeWordDetector`, ONNX Runtime adapter of the three openWakeWord 0.5.1 models in `models\wake-word`, slice
+  `Voice/WakeWord` (listens to the microphone stream, threshold 0.5 to set, one detection per activation,
+  silent while listening, "Wake word" page with the live score), see [dev/wake-word.md](../dev/wake-word.md))
+  delivered in its PR on November 20, 2026, without a Windows check. Piper "Hey Jarvis.": 0.999; "Hey
+  Travis…": 0.488. **Provisional choices** ([details](../dev/wake-word.md#provisional-choices-of-this-work-item),
+  to be confirmed by Benoit): models missing = no fault (the page says so, another try every 30 s); active
+  while thinking and speaking, paused while listening; slider from 0.05 to 0.95; best score of the last 3
+  seconds shown; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 on sherpa-onnx's native engine instead of
+  `Microsoft.ML.OnnxRuntime` 1.32.0 from ADR 0001 (two native `onnxruntime` broke Piper, see the
+  [pitfalls](../dev/pitfalls.md)): **an ADR replacing that line of ADR 0001 is to be proposed to Benoit**.
 - **Work item 10** (`stage1/10-transcription`, end of utterance and Whisper: kernel contracts
   `ISpeechRecognition` and `IVoiceActivityDetection`, message `UtteranceTranscribed` for the conversation,
   slice `Voice/Transcription` (listening to a spoken turn, end of utterance by Silero with an energy-threshold
@@ -116,7 +129,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   the voice slice publishes `FirstSentenceReady` at the first sound; one voice per turn; a failing cloud voice
   fails the turn; chosen voice missing = local voice of the language; speed per language; separate OpenAI
   voice key.
-- **Next step:** work item `stage1/9-wake-word`, then `stage1/13-conversation`. The pending Windows tests (work items 4, 5, 6, 7, 8, 10, 11 and 12, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** work item `stage1/13-conversation`. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11 and 12, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
