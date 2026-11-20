@@ -39,7 +39,7 @@ public static class KernelServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>The host's logger when it registered logging; a silent one otherwise (the Windows host has none yet).</summary>
+    /// <summary>The host's logger when it registered logging; a silent one otherwise (unit tests without logging).</summary>
     private static ILogger LoggerFor<T>(IServiceProvider provider) =>
         (provider.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance).CreateLogger<T>();
 }

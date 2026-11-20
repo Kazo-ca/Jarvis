@@ -29,6 +29,12 @@ public sealed record JarvisPaths(string Root)
     /// <summary>Technical logs.</summary>
     public string Logs => Path.Combine(Root, "logs");
 
+    /// <summary>
+    /// Data of the web views of the Windows host (WebView2 profile), kept out of the installation folder.
+    /// Created by WebView2 itself, not by <see cref="EnsureCreated"/>.
+    /// </summary>
+    public string WebView => Path.Combine(Root, "webview");
+
     /// <summary>The root of the current Windows user: <c>%USERPROFILE%\.kazo\jarvis</c>.</summary>
     /// <returns>The paths.</returns>
     public static JarvisPaths ForCurrentUser() =>

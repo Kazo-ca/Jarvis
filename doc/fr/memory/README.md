@@ -10,7 +10,10 @@ ce qu'il décrit.
   fusionné et vérifié sous Windows. Chantier 2 (`stage1/2-kernel`, bus de messages, machine à états, niveau
   sonore, voir [dev/kernel.md](../dev/kernel.md)) fusionné (PR 17). Chantier 3
   (`stage1/3-settings-storage-vault`, réglages `config.json`, base SQLite, coffre de secrets, voir
-  [dev/storage.md](../dev/storage.md)) livré dans sa PR ; prochain chantier : `stage1/4-hosts`. Benoit fusionne `main` ; un agent fusionne
+  [dev/storage.md](../dev/storage.md)) fusionné (PR 18). Chantier 4 (`stage1/4-hosts`, hôte Windows sur
+  l'hôte générique .NET, orbe provisoire, zone de notification, raccourci global, démarrage avec Windows,
+  dialogues, attente du déverrouillage, voir [dev/hosts.md](../dev/hosts.md)) livré dans sa PR ; vérification
+  sur Windows à faire. Benoit fusionne `main` ; un agent fusionne
   lui-même ses PR dans une branche `<série>/base` une fois les vérifications vertes (règle redite par Benoit
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX). L'étape 5 est réécrite le 19 novembre 2026 : appels entre Jarvis et l'application Android, dans les deux sens (US5.1 à US5.9 du document de conception), sans ADR pour l'instant ; elle dépend d'E10. En attente : E10
@@ -41,7 +44,8 @@ ce qu'il décrit.
 - **Décisions issues des essais (prises le 18 novembre 2026, reprises dans les ADR 0003 à 0009) :** voir
   [dev/spikes.md](../dev/spikes.md#décisions-prises-le-18-novembre-2026). Orbe immobile en veille, `qwen3:14b`
   sans réflexion, Piper par défaut, E10 reporté avant l'étape 4.
-- **Prochaine étape :** chantier `stage1/4-hosts` du [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Prochaine étape :** vérification sur Windows du chantier 4 ([liste](../dev/hosts.md#vérifications-sur-windows)),
+  puis chantier `stage1/5-shared-ui-language` du [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
@@ -68,8 +72,15 @@ ce qu'il décrit.
 - **Échecs de tests connus :** aucun.
 - **Vérification sur Windows du chantier 1 : faite** le 19 novembre 2026 par un agent sur le PC de Benoit
   (SDK 10.0.402) : construction sans avertissement, tests unitaires 29/29, Playwright 1/1, hôte Web en
-  HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. **À traiter au chantier 4 :** lancé sur une
-  session verrouillée, l'hôte Windows meurt (voir [pièges](../dev/pitfalls.md)).
+  HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. Lancé sur une session verrouillée, l'hôte
+  Windows mourait : réglé au chantier 4 (voir [pièges](../dev/pitfalls.md)).
+- **Choix du chantier 4 que les ADR 0003 et 0013 ne tranchent pas** (détail dans [dev/hosts.md](../dev/hosts.md)) :
+  raccourci par défaut `Ctrl+Alt+J` (section `Desktop.Hotkey`) ; pas de contrat pour la zone de notification,
+  ses entrées Paramètres et Conversation publient un événement et restent grisées sans tranche qui le traite ;
+  le clic sur l'orbe est attrapé par la fenêtre WPF en attendant le chantier 6 ; position de l'orbe dans la
+  section `Desktop.OrbWindow` ; journal technique en fichiers texte quotidiens gardés 14 jours ; profil
+  WebView2 dans `%USERPROFILE%\.kazo\jarvis\webview` ; une construction de développement ne s'inscrit pas
+  au démarrage avec Windows (sauf `KAZO_JARVIS_REGISTER_STARTUP=1`).
 - **Choix du chantier 3 que l'ADR 0004 ne tranche pas** (détail dans [dev/storage.md](../dev/storage.md)) :
   sections de `config.json` au premier niveau à côté de `schemaVersion` ; choix du coffre dans la section
   `Secrets.Vault` ; secrets du gestionnaire d'identification nommés `Kazo.Jarvis/<référence>`, 2 560 octets

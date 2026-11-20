@@ -9,7 +9,9 @@ Resume point for any agent. Update it in the same change as what it describes.
   merged and checked on Windows. Work item 2 (`stage1/2-kernel`, message bus, state machine, sound level,
   see [dev/kernel.md](../dev/kernel.md)) merged (PR 17). Work item 3
   (`stage1/3-settings-storage-vault`, `config.json` settings, SQLite database, secret vault, see
-  [dev/storage.md](../dev/storage.md)) delivered in its PR; next work item: `stage1/4-hosts`. Benoit merges `main`; an agent merges its own PRs
+  [dev/storage.md](../dev/storage.md)) merged (PR 18). Work item 4 (`stage1/4-hosts`, Windows host on the .NET
+  generic host, provisional orb, tray icon, global hotkey, start with Windows, dialogs, wait for the unlock,
+  see [dev/hosts.md](../dev/hosts.md)) delivered in its PR; Windows check to do. Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
@@ -39,7 +41,8 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Decisions from the spikes (taken on November 18, 2026, carried into ADRs 0003 to 0009):** see
   [dev/spikes.md](../dev/spikes.md#decisions-taken-on-november-18-2026). Still idle orb, `qwen3:14b`
   without thinking, Piper by default, E10 postponed until before stage 4.
-- **Next step:** work item `stage1/4-hosts` of the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** Windows check of work item 4 ([list](../dev/hosts.md#windows-checks)), then work item
+  `stage1/5-shared-ui-language` of the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
@@ -65,8 +68,14 @@ Resume point for any agent. Update it in the same change as what it describes.
 - **Known test failures:** none.
 - **Windows check of work item 1: done** on November 19, 2026 by an agent on Benoit's PC (SDK 10.0.402):
   build without warnings, unit tests 29/29, Playwright 1/1, Web host HTTP 200, Windows host opened,
-  responsive and closed without error. **To handle in work item 4:** started on a locked session, the
-  Windows host dies (see [pitfalls](../dev/pitfalls.md)).
+  responsive and closed without error. Started on a locked session, the Windows host died: fixed in work
+  item 4 (see [pitfalls](../dev/pitfalls.md)).
+- **Choices of work item 4 that ADRs 0003 and 0013 do not settle** (details in [dev/hosts.md](../dev/hosts.md)):
+  default hotkey `Ctrl+Alt+J` (section `Desktop.Hotkey`); no contract for the tray icon, its Settings and
+  Conversation entries publish an event and stay greyed out without a slice handling it; the click on the orb
+  is caught by the WPF window until work item 6; orb position in the `Desktop.OrbWindow` section; technical
+  log in daily text files kept 14 days; WebView2 profile in `%USERPROFILE%\.kazo\jarvis\webview`; a
+  development build does not register the start with Windows (unless `KAZO_JARVIS_REGISTER_STARTUP=1`).
 - **Choices of work item 3 that ADR 0004 does not settle** (details in [dev/storage.md](../dev/storage.md)):
   `config.json` sections at the top level next to `schemaVersion`; the choice of vault in the
   `Secrets.Vault` section; Credential Manager secrets named `Kazo.Jarvis/<reference>`, 2,560 bytes at most;

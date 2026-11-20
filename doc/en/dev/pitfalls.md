@@ -61,6 +61,9 @@ available: `COMException 0x8876086A` (D3DERR_NOTAVAILABLE) in `Direct3DHelper.Cr
 and the process ends with code `0xC000041D`, without a window. Unlocked, the host starts normally. Starting
 with Windows and waking from sleep can hit this case: work item `stage1/4-hosts` must wait for the unlock (or
 retry) instead of dying. `LogonUI.exe` also runs in a Remote Desktop session: it is not a good lock signal.
+**Fixed in work item `stage1/4-hosts`**: the host waits until the input desktop is `Default` before creating
+the orb, and catches `D3DERR_NOTAVAILABLE` or `D3DERR_DEVICELOST` by opening the orb again later
+([hosts](hosts.md#locked-session)).
 
 ## An `OperatingSystem.IsWindows()` guard does not cover a lambda (work item stage1/3-settings-storage-vault)
 
@@ -74,3 +77,17 @@ method marked `[SupportedOSPlatform("windows")]`, called under the guard.
 On Linux, a test or a class marked `[SupportedOSPlatform("windows")]` is skipped, not failed. Windows tests
 also carry `[Category("Windows")]`, so that continuous integration leaves them out explicitly and the agent on
 Benoit's PC can run them alone (`--filter "TestCategory=Windows"`).
+
+## A Playwright click on a prerendered Blazor page is lost (work item stage1/4-hosts)
+
+An `InteractiveServer` page is first rendered on the server: the buttons are there, but their `@onclick`
+answer only once the SignalR circuit is up. An earlier click does nothing, and the test fails at random.
+Wait for a sign of interactivity: the Web host home page exposes
+`data-interactive="@RendererInfo.IsInteractive"`, and the tests wait for `true` before clicking.
+
+## Windows Forms and WPF in one project: `Application` becomes ambiguous (work item stage1/4-hosts)
+
+`UseWindowsForms` (for the tray icon) adds the global usings `System.Windows.Forms` and `System.Drawing`,
+whose `Application`, `MessageBox` and `Color` clash with WPF's. Remove them in the `.csproj`
+(`<Using Remove="System.Windows.Forms" />`, same for `System.Drawing`) and write the usings by hand in the few
+files that need them.

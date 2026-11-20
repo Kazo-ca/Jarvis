@@ -63,6 +63,9 @@ Direct3D 9 n'est pas disponible : `COMException 0x8876086A` (D3DERR_NOTAVAILABLE
 fenêtre. Déverrouillé, l'hôte démarre normalement. Le démarrage avec Windows et la sortie de veille peuvent
 tomber sur ce cas : le chantier `stage1/4-hosts` doit attendre le déverrouillage (ou réessayer) au lieu de
 mourir. `LogonUI.exe` tourne aussi en session Bureau à distance : ce n'est pas un bon signe de verrouillage.
+**Réglé au chantier `stage1/4-hosts`** : l'hôte attend que le bureau d'entrée soit `Default` avant de créer
+l'orbe, et rattrape `D3DERR_NOTAVAILABLE` ou `D3DERR_DEVICELOST` en rouvrant l'orbe plus tard
+([hôtes](hosts.md#session-verrouillée)).
 
 ## Une garde `OperatingSystem.IsWindows()` ne couvre pas un lambda (chantier stage1/3-settings-storage-vault)
 
@@ -76,3 +79,17 @@ enregistrements dans une méthode marquée `[SupportedOSPlatform("windows")]`, a
 Sous Linux, un test ou une classe marqué `[SupportedOSPlatform("windows")]` est ignoré (« Skipped »), sans
 échec. Les tests Windows portent aussi `[Category("Windows")]`, pour que l'intégration continue les écarte
 explicitement et que l'agent sur le PC de Benoit puisse les lancer seuls (`--filter "TestCategory=Windows"`).
+
+## Un clic Playwright sur une page Blazor pré-rendue se perd (chantier stage1/4-hosts)
+
+Une page `InteractiveServer` est d'abord rendue côté serveur : les boutons sont là, mais leurs `@onclick` ne
+répondent qu'une fois le circuit SignalR établi. Un clic plus tôt ne fait rien, et le test échoue au hasard.
+Attendre un signe d'interactivité : la page d'accueil de l'hôte Web expose
+`data-interactive="@RendererInfo.IsInteractive"`, et les tests attendent `true` avant de cliquer.
+
+## Windows Forms et WPF dans le même projet : `Application` devient ambigu (chantier stage1/4-hosts)
+
+`UseWindowsForms` (pour l'icône de la zone de notification) ajoute les `using` globaux `System.Windows.Forms`
+et `System.Drawing`, dont `Application`, `MessageBox` et `Color` entrent en conflit avec ceux de WPF. Les
+retirer dans le `.csproj` (`<Using Remove="System.Windows.Forms" />`, idem pour `System.Drawing`) et écrire
+les `using` à la main dans les seuls fichiers qui en ont besoin.
