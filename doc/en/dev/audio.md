@@ -70,7 +70,7 @@ ADRs 0003 and 0006 do not settle them; to be confirmed by Benoit:
 4. **30 s listening buffer** (about 2 MB).
 5. **Sound level in decibels**, from −60 dB (0) to 0 dB (1).
 6. Conversion to 16 kHz done by Jarvis (filter and interpolation), not by the Windows audio engine.
-7. No voice level in the playback: it comes with synthesis (work item 12).
+7. No voice level in the playback: it comes with synthesis (work item 12, see [speech.md](speech.md)).
 
 ## Tests
 

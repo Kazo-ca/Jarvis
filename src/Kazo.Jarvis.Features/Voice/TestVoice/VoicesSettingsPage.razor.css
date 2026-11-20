@@ -1,0 +1,83 @@
+.voices-languages {
+    display: flex;
+    gap: 1.2rem;
+}
+
+.voices-language {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.voices-language input {
+    accent-color: var(--jarvis-cyan);
+}
+
+.voices-select,
+.voices-sentence {
+    min-width: 18rem;
+    width: 28rem;
+    max-width: 100%;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.voices-sentence {
+    resize: vertical;
+}
+
+.voices-speed {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.voices-speed input {
+    width: 14rem;
+    accent-color: var(--jarvis-cyan);
+}
+
+.voices-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    margin: 0.4rem 0 1.2rem;
+}
+
+.voices-button {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: transparent;
+    color: var(--jarvis-cyan);
+    font: inherit;
+    cursor: pointer;
+}
+
+.voices-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.voices-is-default {
+    color: var(--jarvis-text-muted);
+}
+
+.voices-empty,
+.voices-warning,
+.voices-problem {
+    margin: 0.6rem 0 0;
+    max-width: 40rem;
+}
+
+.voices-warning {
+    color: var(--jarvis-amber);
+}
+
+.voices-problem {
+    color: var(--jarvis-red);
+}

@@ -34,7 +34,8 @@ ce qu'il décrit.
   pendant que Jarvis tourne, son de test sur haut-parleurs et casque, coût du micro ouvert en veille
   ([liste](../dev/audio.md#vérifications-sur-windows)), et pour le chantier 10 : modèles Whisper et Silero déposés à la main,
   fin de phrase avec le vrai micro et du bruit (repli sur le seuil d'énergie si Silero n'est pas fiable), texte en
-  français et en anglais, durée de transcription ([liste](../dev/transcription.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
+  français et en anglais, durée de transcription ([liste](../dev/transcription.md#vérifications-sur-windows)), et pour le chantier 12 : écoute des voix par Benoit
+  (qualité perçue, vitesse, délai de la carte son, arrêt net, [liste](../dev/speech.md#vérifications-sur-windows)). Chantier 16 (`stage1/16-updates`, mises à jour :
   tranche `Maintenance/Updates`, lecture des versions GitHub, programme `Kazo.Jarvis.Updater`, script
   `build/Publish-Release.ps1`, voir [dev/updates.md](../dev/updates.md)) livré dans sa PR ; sa vérification
   sur Windows attend la prochaine séance. Chantier 5 (`stage1/5-shared-ui-language`, style commun, polices
@@ -112,8 +113,17 @@ ce qu'il décrit.
   sur le seuil d'énergie, pas de panne au démarrage si Whisper manque (seulement `TurnFailed` en fin de tour),
   texte vide publié tel quel (le chantier 13 termine le tour), modèles dans `models\whisper\` et `models\vad\`.
   Jusqu'au chantier 13, Jarvis reste en « réflexion » après chaque phrase.
-- **Prochaine étape :** chantiers `stage1/9-wake-word`, `stage1/10-transcription` et `stage1/12-speech`, qui
-  dépendent du chantier 8. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8 et 11, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier 12** (`stage1/12-speech`, synthèse vocale : contrat `ISpeechEngine` et `IVoiceSelection` du noyau,
+  messages `SentenceToSpeak` et `AnswerSentencesEnded` pour la conversation, tranche `Voice/Speech` (phrases
+  jouées dans l'ordre, arrêt net sur interruption, niveau de la voix vers l'orbe), tranche `Voice/TestVoice`
+  (page « Voix »), Piper et Kokoro par sherpa-onnx 1.13.8, ElevenLabs et OpenAI, voir
+  [dev/speech.md](../dev/speech.md)) livré dans sa PR le 20 novembre 2026. Piper essayé pour de vrai sous Linux ;
+  **l'écoute des voix attend Benoit** ([liste](../dev/speech.md#vérifications-sur-windows) : qualité perçue,
+  vitesse, délai de la carte son, arrêt net). **Choix provisoires** ([détail](../dev/speech.md#choix-provisoires-de-ce-chantier)) :
+  la tranche de la voix publie `FirstSentenceReady` au premier son ; une voix par tour ; une voix dans le nuage
+  qui échoue fait échouer le tour ; voix choisie absente = voix locale de la langue ; vitesse par langue ; clé
+  OpenAI des voix séparée.
+- **Prochaine étape :** chantier `stage1/9-wake-word`, puis `stage1/13-conversation`. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 10, 11 et 12, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
