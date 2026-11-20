@@ -1,0 +1,58 @@
+17:55:00 render=wpf mode=recreate start work_area=0;0;2560;1392 double_click_time=500ms
+17:55:21 render=wpf mode=recreate phase=closed seconds=15 cpu_one_core=3,27% [TaskFanWindow:3,3]
+17:55:57 render=wpf mode=recreate phase=open_anim n=8 cpu_one_core_mean=58,1% min=43,2 max=79,0 frames=[9f/350ms(maxgap101) 13f/366ms(maxgap67) 14f/373ms(maxgap50) 13f/381ms(maxgap33) 13f/370ms(maxgap51) 14f/397ms(maxgap33) 13f/348ms(maxgap50) 15f/378ms(maxgap50)]
+17:55:57 render=wpf mode=recreate phase=close_anim n=8 cpu_one_core_mean=32,6% min=23,7 max=40,0 frames=[12f/321ms(maxgap33) 11f/322ms(maxgap34) 9f/356ms(maxgap118) 10f/293ms(maxgap50) 10f/324ms(maxgap50) 9f/308ms(maxgap50) 10f/281ms(maxgap33) 10f/316ms(maxgap50)]
+17:55:57 render=wpf mode=recreate phase=first_image n=8 mean=71ms min=62 max=86 values=[86 72 68 72 72 62 72 66] (from the second injected mouse-down)
+17:55:57 render=wpf mode=recreate phase=whole_cycle cpu_one_core_mean=20,8% (open anim + 1.2 s open + close anim + 1.2 s closed)
+17:55:57 render=wpf mode=recreate check=double_click_never_single singles_during_cycles=0
+17:56:15 render=wpf mode=recreate phase=open_still seconds=15 cpu_one_core=1,74% [TaskFanWindow:1,7]
+17:56:15 render=wpf mode=recreate click=panel_while_open at=(3036,1440) expected=panel1 got=[panel1] OK
+17:56:15 render=wpf mode=recreate click=amber_panel_while_open at=(3753,1134) expected=panel3 got=[panel3] OK
+17:56:16 render=wpf mode=recreate click=orb_single_while_open at=(3660,1908) expected=orb_single got=[orb_single] OK
+17:56:16 render=wpf mode=recreate check=fan_still_open_after_orb_single open=True
+17:56:17 render=wpf mode=recreate click=target_area_while_open at=(401,330) expected=dim got=[dim] OK
+17:56:17 render=wpf mode=recreate check=dim_click_closed_fan open=False fan_activations=2
+17:56:18 render=wpf mode=recreate click=target_area_while_closed at=(401,330) expected=target got=[target] OK
+17:56:21 render=wpf mode=recreate phase=single_click n=3 delay_mean=515ms values=[547 501 497] double_click_time=500ms
+17:56:21 render=wpf mode=recreate end
+17:56:24 render=wpf mode=hidden start work_area=0;0;2560;1392 double_click_time=500ms
+17:56:45 render=wpf mode=hidden phase=closed seconds=15 cpu_one_core=4,60% [TaskFanWindow:4,6]
+17:57:20 render=wpf mode=hidden phase=open_anim n=8 cpu_one_core_mean=35,6% min=27,3 max=45,1 frames=[11f/385ms(maxgap67) 13f/421ms(maxgap67) 13f/420ms(maxgap67) 11f/412ms(maxgap50) 12f/383ms(maxgap50) 11f/365ms(maxgap50) 16f/403ms(maxgap35) 13f/389ms(maxgap36)]
+17:57:20 render=wpf mode=hidden phase=close_anim n=8 cpu_one_core_mean=28,4% min=20,2 max=37,9 frames=[10f/331ms(maxgap50) 11f/304ms(maxgap50) 9f/318ms(maxgap50) 9f/311ms(maxgap51) 11f/290ms(maxgap33) 10f/314ms(maxgap67) 9f/277ms(maxgap50) 9f/287ms(maxgap50)]
+17:57:20 render=wpf mode=hidden phase=first_image n=8 mean=6ms min=4 max=10 values=[6 5 5 4 9 6 10 4] (from the second injected mouse-down)
+17:57:20 render=wpf mode=hidden phase=whole_cycle cpu_one_core_mean=14,2% (open anim + 1.2 s open + close anim + 1.2 s closed)
+17:57:20 render=wpf mode=hidden check=double_click_never_single singles_during_cycles=0
+17:57:38 render=wpf mode=hidden phase=open_still seconds=15 cpu_one_core=2,15% [TaskFanWindow:2,1]
+17:57:39 render=wpf mode=hidden click=panel_while_open at=(3036,1440) expected=panel1 got=[panel1] OK
+17:57:39 render=wpf mode=hidden click=amber_panel_while_open at=(3753,1134) expected=panel3 got=[panel3] OK
+17:57:40 render=wpf mode=hidden click=orb_single_while_open at=(3660,1908) expected=orb_single got=[orb_single] OK
+17:57:40 render=wpf mode=hidden check=fan_still_open_after_orb_single open=True
+17:57:41 render=wpf mode=hidden click=target_area_while_open at=(401,330) expected=dim got=[dim] OK
+17:57:41 render=wpf mode=hidden check=dim_click_closed_fan open=False fan_activations=2
+17:57:42 render=wpf mode=hidden click=target_area_while_closed at=(401,330) expected=target got=[target] OK
+17:57:45 render=wpf mode=hidden phase=single_click n=3 delay_mean=525ms values=[516 516 544] double_click_time=500ms
+17:57:45 render=wpf mode=hidden end
+17:57:48 render=webview mode=recreate start work_area=0;0;2560;1392 double_click_time=500ms
+17:58:12 render=webview mode=recreate phase=closed seconds=15 cpu_one_core=3,15% [TaskFanWindow:3,2]
+17:58:19 render=webview mode=recreate ERROR System.InvalidOperationException: fan did not become open
+   at Spikes.TaskFanWindow.Runner.WaitFan(Boolean open) in C:\jarvis\temp\jarvis-stage2\spikes\e11-task-fan-window\Program.cs:line 183
+   at Spikes.TaskFanWindow.Runner.Animate(Boolean open, List`1 pids) in C:\jarvis\temp\jarvis-stage2\spikes\e11-task-fan-window\Program.cs:line 192
+   at Spikes.TaskFanWindow.Runner.RunAsync() in C:\jarvis\temp\jarvis-stage2\spikes\e11-task-fan-window\Program.cs:line 93
+   at Spikes.TaskFanWindow.Program.<>c__DisplayClass0_0.<<Main>b__1>d.MoveNext() in C:\jarvis\temp\jarvis-stage2\spikes\e11-task-fan-window\Program.cs:line 31
+17:58:22 render=webview mode=hidden start work_area=0;0;2560;1392 double_click_time=500ms
+17:58:46 render=webview mode=hidden phase=closed seconds=15 cpu_one_core=4,08% [TaskFanWindow:3,7 msedgewebview2:0,2 msedgewebview2:0,0 msedgewebview2:0,1 msedgewebview2:0,1 msedgewebview2:0,0 msedgewebview2:0,0]
+17:59:23 render=webview mode=hidden phase=open_anim n=8 cpu_one_core_mean=42,6% min=12,9 max=97,0 frames=[15f/410ms(maxgap51) 18f/415ms(maxgap51) 15f/403ms(maxgap51) 17f/427ms(maxgap85) 21f/415ms(maxgap33) 16f/444ms(maxgap52) 18f/424ms(maxgap51) 21f/442ms(maxgap34)]
+17:59:23 render=webview mode=hidden phase=close_anim n=8 cpu_one_core_mean=32,5% min=20,6 max=48,2 frames=[14f/319ms(maxgap33) 16f/323ms(maxgap39) 15f/320ms(maxgap39) 14f/333ms(maxgap40) 11f/307ms(maxgap57) 18f/338ms(maxgap39) 14f/313ms(maxgap39) 7f/334ms(maxgap84)]
+17:59:23 render=webview mode=hidden phase=first_image n=8 mean=25ms min=24 max=26 values=[24 24 25 24 26 24 25 26] (from the second injected mouse-down)
+17:59:23 render=webview mode=hidden phase=whole_cycle cpu_one_core_mean=17,3% (open anim + 1.2 s open + close anim + 1.2 s closed)
+17:59:23 render=webview mode=hidden check=double_click_never_single singles_during_cycles=0
+17:59:41 render=webview mode=hidden phase=open_still seconds=15 cpu_one_core=5,31% [TaskFanWindow:4,4 msedgewebview2:0,5 msedgewebview2:0,0 msedgewebview2:0,3 msedgewebview2:0,1 msedgewebview2:0,0 msedgewebview2:0,0]
+17:59:42 render=webview mode=hidden click=panel_while_open at=(3036,1440) expected=panel1 got=[panel1] OK
+17:59:42 render=webview mode=hidden click=amber_panel_while_open at=(3753,1134) expected=panel3 got=[panel3] OK
+17:59:43 render=webview mode=hidden click=orb_single_while_open at=(3660,1908) expected=orb_single got=[orb_single] OK
+17:59:43 render=webview mode=hidden check=fan_still_open_after_orb_single open=True
+17:59:43 render=webview mode=hidden click=target_area_while_open at=(401,330) expected=dim got=[dim] OK
+17:59:43 render=webview mode=hidden check=dim_click_closed_fan open=False fan_activations=2
+17:59:45 render=webview mode=hidden click=target_area_while_closed at=(401,330) expected=target got=[target] OK
+17:59:48 render=webview mode=hidden phase=single_click n=3 delay_mean=524ms values=[508 495 570] double_click_time=500ms
+17:59:48 render=webview mode=hidden end

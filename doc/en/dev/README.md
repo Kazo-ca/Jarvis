@@ -21,4 +21,4 @@
 | [faults.md](faults.md) | Faults: named causes, corrective action, link to the right setting, "Jarvis problem" window |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |
-| [spikes.md](spikes.md) | Summary of the technical spikes |
+| [spikes.md](spikes.md) | Summary of the technical spikes (E1 to E14) |

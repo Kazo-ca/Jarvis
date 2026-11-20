@@ -21,4 +21,4 @@
 | [faults.md](faults.md) | Pannes : causes nommées, action corrective, lien vers le bon réglage, fenêtre « Problème de Jarvis » |
 | [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |
 | [pitfalls.md](pitfalls.md) | Pièges rencontrés et leur solution |
-| [spikes.md](spikes.md) | Synthèse des essais techniques |
+| [spikes.md](spikes.md) | Synthèse des essais techniques (E1 à E14) |

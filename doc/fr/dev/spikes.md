@@ -40,3 +40,52 @@ l'étape 1, indiqués à la fin de chaque ligne.
    l'étape 3.)
 7. **Mobile** (E10) : l'étape 1 commence sans les essais sur le téléphone ; ils seront faits avant l'étape 4.
    ([ADR 0003](adr/0003-hosts-and-native-services.md))
+
+## Essais de l'étape 2 (20 novembre 2026)
+
+Faits sur le PC de Benoit par un agent en contrôle à distance (chantier `stage2/1-spikes`, voir le
+[plan de l'étape 2](plans/stage-2.md)). Benoit n'a rien eu à faire.
+
+| Essai | Verdict | En une phrase | Détail |
+| --- | --- | --- | --- |
+| E11 fenêtre de l'éventail | **Réussi** | WPF, fenêtre gardée cachée : fermé 0,5 %, ouvert immobile 0,3 %, animation 33 % d'un cœur pendant 0,4 s, première image en 6 ms ; clics justes ; simple clic retardé de 500 ms. WebView2 recréé : 2,4 s. | [e11-task-fan-window](../../../spikes/e11-task-fan-window/RESULTS.md) |
+| E12 permissions et hooks de Claude Code | **Réussi, trois surprises** | Refus et accords de l'outil MCP de `--permission-prompt-tool` respectés ; les cinq hooks atteignent `/hook/…` et voient `RELAIS_TASK_ID` ; `SessionStart` n'accepte que les hooks `command` ; `CLAUDE.md` vient avec la source `project` et ses hooks. 0,009 $ la session. | [e12-claude-code-permissions](../../../spikes/e12-claude-code-permissions/RESULTS.md) |
+| E13 outils en anglais | **Réussi** | `qwen3:14b` : 117 sur 117 en anglais, en français et en mélange, tous par le canal officiel, 0,9 s ; `kind` de `hand_off_to_claude` juste 43 fois sur 45. | [e13-tool-calls-english](../../../spikes/e13-tool-calls-english/RESULTS.md) |
+| E14 MCP Home Assistant | **Réussi, mise en garde** | `ModelContextProtocol` 2.4.0, HTTP « streamable » sans état : 47 outils devenus `AIFunction`, lecture en 0,3 s, lumière allumée puis remise éteinte, reprise après coupure ; `HassTurnOff` déverrouille aussi les serrures et les étiquettes ne passent pas par MCP. | [e14-mcp-home-assistant](../../../spikes/e14-mcp-home-assistant/RESULTS.md) |
+
+## Décisions proposées après E11 à E14
+
+**À faire accepter par Benoit**, puis à écrire dans les ADR du chantier 2 (indiqués à la fin de chaque ligne).
+
+1. **Éventail** (E11) : rendu WPF dans une seconde fenêtre transparente, **créée au démarrage et gardée
+   cachée** (jamais détruite) ; animation de 400 ms à l'ouverture et 300 ms à la fermeture à 30 images par
+   seconde ; l'orbe est remis au sommet à chaque activation de la fenêtre de l'éventail. L'ADR 0010 tient tel
+   quel : pas d'ADR de remplacement. Si les panneaux doivent être des vues Razor, la même fenêtre cachée avec
+   `BlazorWebView` tient aussi (21 ms, 0,6 % fermé). (Chantier 14.)
+2. **Confirmation des écritures de Claude Code** (E12) : Jarvis expose un serveur MCP local en HTTP
+   (`ModelContextProtocol.AspNetCore`) avec un outil `approve` passé par `--permission-prompt-tool` ; c'est
+   **le seul point de décision** ; le hook `PermissionRequest` ne sert qu'à passer la tâche en
+   `waiting_approval`. (ADR 0021)
+3. **Hooks des sessions lancées par Jarvis** (E12) : dans le fichier de Jarvis passé par `--settings`, de type
+   `http` avec `allowedEnvVars: ["RELAIS_TASK_ID"]`, sauf `SessionStart` en commande `curl`. Une tâche n'est
+   finie qu'au `result` sans tâche de fond ; un `UserPromptSubmit` qui commence par `<task-notification>` n'est
+   pas une demande humaine. (ADR 0021)
+4. **Réglages chargés** (E12) : `--setting-sources ""` (rien de l'utilisateur ni du dépôt) et les consignes du
+   dossier par `--append-system-prompt-file CLAUDE.md` ; la source `project` (consignes complètes, mais hooks
+   du dépôt exécutés sans question) seulement pour les dossiers que l'utilisateur marque de confiance. Ligne de
+   commande complète : [E12, section (d)](../../../spikes/e12-claude-code-permissions/RESULTS.md#d-ligne-de-commande-recommandée-pour-jarvis).
+   (ADR 0021)
+5. **Langue des outils** (E13) : la règle de l'ADR 0007 est confirmée (noms en anglais, descriptions dans la
+   langue de l'assistant) ; `hand_off_to_claude(kind: question|task, reason)` dans les deux langues ; `kind`
+   choisit la cible, jamais une permission. (ADR 0017 et 0020)
+6. **Client MCP** (E14) : paquet `ModelContextProtocol` 2.4.0, transport HTTP « streamable » (`/api/mcp`) avec
+   repli SSE, jeton dans l'en-tête `Authorization`, les outils donnés tels quels comme `AIFunction` ; sur une
+   erreur réseau, réessayer sans recréer de session. (ADR 0018)
+7. **Domotique de sécurité** (E14) : la classe se décide **après résolution de l'entité visée**, jamais sur le
+   nom de l'outil : domaine `lock`, `alarm_control_panel`, `valve`, `siren`, ou `cover` de classe `garage`,
+   `door` ou `gate` = critique ; scripts (`script__…`, `intent_script__…`) sensibles par défaut ; liste réglable
+   d'entités et de scripts « sécurité » (MCP ne donne ni étiquettes ni zones). (ADR 0018)
+
+Ce qui reste après ces essais : le jugement de Benoit sur la fluidité de l'éventail et le confort du simple
+clic, la confirmation à la voix avec un vrai délai (l'expiration de l'appel MCP par Claude Code n'est pas
+mesurée), et les 47 outils de Home Assistant donnés au modèle local.

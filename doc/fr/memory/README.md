@@ -64,8 +64,12 @@ ce qu'il décrit.
   l'ordinateur seulement, l'orbe dans n'importe quel coin de l'écran : décision ambre, bureau assombri,
   animation à l'ouverture et à la fermeture seulement. Réponse de Benoit du 19 novembre 2026 sur le clic :
   **le double-clic ouvre l'éventail, le simple clic lance l'écoute** (US1.6 et l'ADR 0005 ne changent pas).
-- **Essai à faire au début de l'étape 2 :** E11, coût et fluidité de la fenêtre transparente de l'éventail
-  (ADR 0010).
+- **Essais E11 à E14 : faits** le 20 novembre 2026 sur le PC de Benoit (chantier `stage2/1-spikes`), tous
+  réussis : éventail en WPF, fenêtre gardée cachée (E11) ; permissions de `claude -p` par un outil MCP local et
+  hooks vers `/hook/…` (E12, Claude Code 2.1.328) ; outils en anglais 117 sur 117 (E13) ; client MCP
+  `ModelContextProtocol` 2.4.0 contre Home Assistant (E14). Synthèse et **décisions proposées, à faire
+  accepter par Benoit** : [dev/spikes.md](../dev/spikes.md#décisions-proposées-après-e11-à-e14). Reste à juger
+  par Benoit : fluidité de l'animation et confort du simple clic retardé.
 - **ADR 0011 (couleurs et dessin de l'orbe) : accepté** par Benoit le 19 novembre 2026 (chantier
   `spikes/14-orb-look-adr`). Il reprend le catalogue validé : deux
   versions (haute qualité par défaut, légère en réglage), sept aspects, anneau de progression à la place des
@@ -171,7 +175,7 @@ ce qu'il décrit.
   chargements ratés de suite ; la page « Voix » lève la panne de la voix ; aucun bouton pour les réglages illisibles ;
   origine dans le noyau.
 - **Plan de l'étape 2 : validé** par Benoit le 20 novembre 2026 (chantier `stage1/stage-2-plan`, [plan](../dev/plans/stage-2.md)) : 15 chantiers `stage2/<n>-<sujet>`, d'abord les essais E11 à E14 sur son PC puis les ADR 0017 à 0021 (numéros réservés par le plan). Ses réponses : `stage1/base` fusionné dans `main` sans attendre la recette (il a autorisé l'agent à fusionner cette PR), `stage2/base` part de `main` ; recherche web par une API avec clé (Brave Search) derrière un contrat ; essais, puis ADR, puis outils, l'éventail vers la fin.
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/1-spikes` (essais E11 à E14 sur le PC de Benoit, par le contrôle à distance). `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/2-adrs` (ADR 0017 à 0021, à partir des [décisions proposées après E11 à E14](../dev/spikes.md#décisions-proposées-après-e11-à-e14)) ; le chantier `stage2/1-spikes` (essais E11 à E14) est fait, sa branche est poussée sans PR. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
