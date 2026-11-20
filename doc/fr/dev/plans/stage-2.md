@@ -176,7 +176,7 @@ de main). Le chantier 11 ne dépend que des ADR et peut avancer dès le chantier
   code et envoyés directement à la cible (US2.6).
 - Page des cibles : une pour les tâches avec fichiers ou étapes (Claude Code, branchée au chantier 12), une
   pour les questions difficiles (fournisseur `anthropic` ou `openai`) (US2.7).
-- L'orbe et la conversation disent qui répond. L'écran qui active une cible cloud dit ce qui sort de la machine.
+- La conversation dit qui répond ; rien ne change sur l'orbe (ADR 0020, réponse n° 2). L'écran qui active une cible cloud dit ce qui sort de la machine.
 
 ### 10. Plafond de dépense (`stage2/10-spend-cap`)
 

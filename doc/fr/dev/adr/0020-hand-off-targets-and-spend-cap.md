@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-20 (chantier `stage2/2-adrs`). En attente des réponses de Benoit aux questions de la
-section « Questions ouvertes ».
+Accepté par Benoit le 2026-11-20 (chantier `stage2/2-adrs`). Ses réponses sont dans la section « Réponses de
+Benoit ».
 
 - **Tranche les points laissés par :** [ADR 0007](0007-llm-providers-and-tool-format.md) (sections 1 et 7 :
   les fournisseurs cloud « ne répondent qu'à partir de l'étape 2, par le passage de main et sous le plafond
@@ -69,8 +69,11 @@ section « Questions ouvertes ».
 - Un message système propre au cloud : la personnalité et les règles fixes (langue, texte fait pour être
   dit).
 - La demande, et la même fenêtre d'historique que le modèle local, pour que la question se comprenne.
-- **Les faits retenus et le résumé de la mémoire** ([ADR 0019](0019-conversation-memory.md)) : selon la
-  question n° 1.
+- **Les faits retenus et le résumé de la mémoire** ([ADR 0019](0019-conversation-memory.md)) ne partent
+  pas. Un réglage, coupé par défaut, permet de les ajouter (réponse n° 1).
+- **Quand le passage de main ouvre une session lancée par Jarvis** (cible des tâches, ADR 0021), la cible
+  reçoit en plus un résumé des échanges précédents et la demande initiale complète, mot pour mot (réponse
+  n° 1). Le résumé est fait par le modèle local à partir de la conversation en cours.
 - Les outils de classe « Lecture » activés, par la même boucle et le même point de décision que le modèle
   local (ADR 0007, section 2). `hand_off_to_claude` n'est pas donné à la cible.
 - Jamais : un secret, le contenu du coffre, un son.
@@ -79,14 +82,17 @@ section « Questions ouvertes ».
 
 - La conversation montre déjà le fournisseur et le modèle de chaque tour (US1.14). Un tour passé à une cible
   montre en plus le motif du passage.
-- Sur l'orbe : selon la question n° 2. Les sept aspects de l'ADR 0011 ne changent pas.
+- **Rien sur l'orbe** (réponse n° 2) : la phrase « Je demande à Claude » et la fenêtre de conversation
+  suffisent. Les sept aspects de l'ADR 0011 ne changent pas.
 
 ### 6. Plafond de dépense
 
 - **Un plafond mensuel, en dollars américains**, la monnaie de facturation des API. Le mois est le mois
   civil, à l'heure locale.
 - **Ce qui est compté :** chaque réponse d'un fournisseur cloud, à partir des jetons déjà enregistrés,
-  multipliés par le prix du modèle. Les sessions Claude Code : selon la question n° 4.
+  multipliés par le prix du modèle. Les sessions Claude Code : un réglage « Claude Code
+  est payé par abonnement », coché par défaut ; coché, le coût annoncé par la session est affiché à part et
+  ne compte pas ; décoché, il compte (réponse n° 4).
 - **Prix :** par fournisseur configuré, deux nombres réglables (entrée et sortie, par million de jetons).
   L'application propose les prix connus à sa date de publication ; elle ne va jamais les chercher sur le
   réseau. Un fournisseur cloud sans prix ne peut pas être choisi comme cible.
@@ -98,7 +104,7 @@ section « Questions ouvertes ».
 - Le compteur est visible sur la page « Passage de main » et dans la fenêtre de conversation.
 - Les voix cloud (ElevenLabs, OpenAI) ne sont pas comptées à cette étape : elles se facturent au caractère
   et se règlent à part. La page le dit.
-- Montant par défaut : selon la question n° 3.
+- Montant par défaut : **10 $ US** (réponse n° 3).
 
 ### 7. Tranches
 
@@ -107,31 +113,20 @@ section « Questions ouvertes ».
 - Elles ne se référencent pas (ADR 0002) : le noyau porte le message « réponse d'un fournisseur enregistrée »
   (fournisseur, modèle, jetons) et le contrat « cet appel est-il permis par le plafond ? ».
 
-## Questions ouvertes
+## Réponses de Benoit
 
-1. **La mémoire part-elle vers la cible cloud avec la question ?**
-   - A. Non : la demande et la conversation récente seulement. Un réglage permet de l'ajouter.
-     **(Recommandé :** ce que Jarvis sait de toi reste sur le PC tant que tu ne l'as pas choisi.**)**
-   - B. Oui, toujours : Claude répond mieux en te connaissant.
-   - C. Rien que la demande, sans la conversation récente. Les questions qui s'appuient sur l'échange en
-     cours seront mal comprises.
-2. **Comment l'orbe dit-il que Claude répond ?**
-   - A. Un petit nom sous l'orbe (« Claude ») pendant la réflexion et la parole de ce tour.
-     **(Recommandé :** lisible du coin de l'œil, sans toucher au dessin validé.**)**
-   - B. Rien sur l'orbe : la fenêtre de conversation et la phrase « Je demande à Claude » suffisent.
-   - C. Une couleur propre à la cible. Demande un nouvel ADR sur l'orbe et une maquette.
-3. **Plafond mensuel par défaut.**
-   - A. 10 $ US. **(Recommandé.)**
-   - B. 25 $ US.
-   - C. 5 $ US.
-   - D. Aucun montant par défaut : le cloud reste bloqué tant que tu n'as pas saisi un plafond.
-4. **Les sessions Claude Code comptent-elles dans le plafond ?** Claude Code annonce un coût à la fin de
-   chaque session, même quand il tourne sur un abonnement où ce coût n'est pas facturé.
-   - A. Un réglage « Claude Code est payé par abonnement » : coché, le coût annoncé est affiché à part et ne
-     compte pas ; décoché, il compte. Coché par défaut. **(Recommandé si tu utilises Claude Code avec ton
-     abonnement.)**
-   - B. Toujours compté.
-   - C. Jamais compté.
+Questions posées dans la conversation le 2026-11-20, réponses du même jour.
+
+1. **La mémoire part-elle vers la cible cloud avec la question ?** Non : la demande et la conversation
+   récente seulement, avec un réglage pour l'ajouter. Benoit ajoute : « si la session a été démarrée sur
+   Jarvis : avec un résumé des échanges précédents et le prompt initial complet ». Lecture retenue : une
+   session ouverte par Jarvis reçoit ce résumé et la demande initiale entière (section 4) ; l'ADR 0021 dit
+   comment ils sont passés à Claude Code.
+2. **Comment l'orbe dit-il que Claude répond ?** Rien sur l'orbe. La recommandation était un petit nom sous
+   l'orbe.
+3. **Plafond mensuel par défaut.** 10 $ US.
+4. **Les sessions Claude Code comptent-elles dans le plafond ?** Un réglage « Claude Code est payé par
+   abonnement », coché par défaut.
 
 ## Options écartées
 

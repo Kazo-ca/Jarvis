@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-20 (work item `stage2/2-adrs`). Waiting for Benoit's answers to the questions of the
-"Open questions" section.
+Accepted by Benoit on 2026-11-20 (work item `stage2/2-adrs`). His answers are in the "Benoit's answers"
+section.
 
 - **Settles the points left by:** [ADR 0004](0004-configuration-storage-and-secret-vault.md) (section 3,
   "then the memory"), [ADR 0007](0007-llm-providers-and-tool-format.md) (section 6, "the automatic summary
@@ -43,7 +43,7 @@ The turns themselves stay in the `Conversation.Turns` collection, with no time l
 - **On request**: "souviens-toi que…", "retiens que…", "remember that…". The model calls the
   `remember_fact` tool. "Forget that…" calls `forget_fact`. Both are of class "Ordinary effect": no
   confirmation, but the call shows in the conversation like any tool call.
-- **Automatically** (see question 1): when a turn ends, the local model reads **what the user said or
+- **Automatically**, with a switch to turn it off (answer 1): when a turn ends, the local model reads **what the user said or
   wrote** in that turn and distills zero to three facts.
 - **By hand**: the "Memory" page lets the user add a fact.
 
@@ -76,8 +76,9 @@ Each fact keeps its source (`asked`, `auto`, `manual`), its date and the turn it
 
 - When turns leave the window sent to the model, the local model folds them into the summary: old summary
   plus the turns that left, to a new summary of 1,200 characters at most.
-- A turn leaves the window by size (more than 20 turns, or more than half the context), or by age (see
-  question 2).
+- A turn leaves the window by size (more than 20 turns, or more than half the context), or by age: after
+  **2 hours of silence**, the earlier turns are no longer sent word for word, only the summary recalls them.
+  The duration is adjustable in the settings (answer 2).
 - As long as a turn that left is not summarized, it is simply no longer sent: the summary may be one turn
   late, the conversation never.
 
@@ -111,21 +112,18 @@ comes the history.
 - The list of facts: text, date, source, pinned or not, sent to the model or out of budget.
 - Erase a fact, pin it, add one, erase everything. Correcting a fact means erasing it and adding one.
 - The current summary, with a button to erase it.
+- The length of silence after which an exchange becomes old (2 hours by default).
 - The switch of the automatic memory, and a general switch: memory off, nothing is extracted or sent, and
   what is already kept stays visible.
 
-## Open questions
+## Benoit's answers
 
-1. **When does Jarvis keep a fact?**
-   - A. On request and automatically, with a switch to turn the automatic part off. **(Recommended:** this
-     is what OpenJarvis does, and the page lets you correct.**)**
-   - B. On request only ("remember that…"): nothing is kept unless Benoit says so.
-   - C. Automatically only.
-2. **When does an exchange become "old"?** Today a turn from yesterday is sent as is to the model.
-   - A. After 30 minutes of silence, the earlier turns are no longer sent word for word: only the summary
-     recalls them. **(Recommended:** an evening question does not drag the morning's details along.**)**
-   - B. After 2 hours of silence.
-   - C. Never by age: only when the window is full.
+Questions asked in the conversation on 2026-11-20, answered the same day.
+
+1. **When does Jarvis keep a fact?** On request and automatically, with a switch to turn the automatic part
+   off (the recommendation, taken by default).
+2. **When does an exchange become "old"?** After 2 hours of silence, "but adjustable in the settings". The
+   recommendation was 30 minutes.
 
 ## Options set aside
 

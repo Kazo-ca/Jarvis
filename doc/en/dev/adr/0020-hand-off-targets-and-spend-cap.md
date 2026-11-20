@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-20 (work item `stage2/2-adrs`). Waiting for Benoit's answers to the questions of the
-"Open questions" section.
+Accepted by Benoit on 2026-11-20 (work item `stage2/2-adrs`). His answers are in the "Benoit's answers"
+section.
 
 - **Settles the points left by:** [ADR 0007](0007-llm-providers-and-tool-format.md) (sections 1 and 7:
   cloud providers "only answer from stage 2 on, through the hand-off and under the spend cap"),
@@ -68,8 +68,11 @@ Proposed on 2026-11-20 (work item `stage2/2-adrs`). Waiting for Benoit's answers
 - A system message of its own for the cloud: the personality and the fixed rules (language, text made to be
   spoken).
 - The request, and the same history window as the local model, so that the question can be understood.
-- **The kept facts and the summary of the memory** ([ADR 0019](0019-conversation-memory.md)): depending on
-  question 1.
+- **The kept facts and the summary of the memory** ([ADR 0019](0019-conversation-memory.md)) do not go.
+  A setting, off by default, lets the user add them (answer 1).
+- **When the hand-off opens a session started by Jarvis** (tasks target, ADR 0021), the target also gets a
+  summary of the previous exchanges and the full initial request, word for word (answer 1). The summary is
+  made by the local model from the current conversation.
 - The enabled tools of class "Read", through the same loop and the same decision point as the local model
   (ADR 0007, section 2). `hand_off_to_claude` is not given to the target.
 - Never: a secret, the content of the vault, a sound.
@@ -78,14 +81,17 @@ Proposed on 2026-11-20 (work item `stage2/2-adrs`). Waiting for Benoit's answers
 
 - The conversation already shows the provider and model of each turn (US1.14). A turn handed to a target
   also shows the reason of the hand-off.
-- On the orb: depending on question 2. The seven looks of ADR 0011 do not change.
+- **Nothing on the orb** (answer 2): the sentence "I am asking Claude" and the conversation window are
+  enough. The seven looks of ADR 0011 do not change.
 
 ### 6. Spend cap
 
 - **A monthly cap, in US dollars**, the billing currency of the APIs. The month is the calendar month, in
   local time.
 - **What is counted:** every answer of a cloud provider, from the tokens already recorded, multiplied by
-  the price of the model. Claude Code sessions: depending on question 4.
+  the price of the model. Claude Code sessions: a setting "Claude Code is paid by
+  subscription", checked by default; checked, the cost reported by the session is shown apart and does not
+  count; unchecked, it counts (answer 4).
 - **Prices:** per configured provider, two adjustable numbers (input and output, per million tokens). The
   application proposes the prices known at its release date; it never fetches them from the network. A
   cloud provider without a price cannot be chosen as a target.
@@ -98,7 +104,7 @@ Proposed on 2026-11-20 (work item `stage2/2-adrs`). Waiting for Benoit's answers
 - The counter is visible on the "Hand-off" page and in the conversation window.
 - Cloud voices (ElevenLabs, OpenAI) are not counted at this stage: they are billed per character and are
   set apart. The page says so.
-- Default amount: depending on question 3.
+- Default amount: **US$10** (answer 3).
 
 ### 7. Slices
 
@@ -107,31 +113,20 @@ Proposed on 2026-11-20 (work item `stage2/2-adrs`). Waiting for Benoit's answers
 - They do not reference each other (ADR 0002): the kernel carries the message "answer of a provider
   recorded" (provider, model, tokens) and the contract "is this call allowed by the cap?".
 
-## Open questions
+## Benoit's answers
 
-1. **Does the memory go to the cloud target with the question?**
-   - A. No: the request and the recent conversation only. A setting lets the user add it.
-     **(Recommended:** what Jarvis knows about you stays on the PC until you choose otherwise.**)**
-   - B. Yes, always: Claude answers better when it knows you.
-   - C. The request alone, without the recent conversation. Questions that build on the current exchange
-     will be misunderstood.
-2. **How does the orb say that Claude is answering?**
-   - A. A small name under the orb ("Claude") during the thinking and speaking of that turn.
-     **(Recommended:** readable at a glance, without touching the validated drawing.**)**
-   - B. Nothing on the orb: the conversation window and the sentence "I am asking Claude" are enough.
-   - C. A color of its own for the target. Needs a new ADR on the orb and a mockup.
-3. **Default monthly cap.**
-   - A. US$10. **(Recommended.)**
-   - B. US$25.
-   - C. US$5.
-   - D. No default amount: the cloud stays blocked until you enter a cap.
-4. **Do Claude Code sessions count towards the cap?** Claude Code reports a cost at the end of each
-   session, even when it runs on a subscription where that cost is not billed.
-   - A. A setting "Claude Code is paid by subscription": checked, the reported cost is shown apart and does
-     not count; unchecked, it counts. Checked by default. **(Recommended if you use Claude Code with your
-     subscription.)**
-   - B. Always counted.
-   - C. Never counted.
+Questions asked in the conversation on 2026-11-20, answered the same day.
+
+1. **Does the memory go to the cloud target with the question?** No: the request and the recent
+   conversation only, with a setting to add it. Benoit adds: "if the session was started on Jarvis: with a
+   summary of the previous exchanges and the full initial prompt". Reading kept: a session opened by Jarvis
+   gets that summary and the whole initial request (section 4); ADR 0021 says how they are passed to
+   Claude Code.
+2. **How does the orb say that Claude is answering?** Nothing on the orb. The recommendation was a small
+   name under the orb.
+3. **Default monthly cap.** US$10.
+4. **Do Claude Code sessions count towards the cap?** A setting "Claude Code is paid by subscription",
+   checked by default.
 
 ## Options set aside
 

@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-20 (chantier `stage2/2-adrs`). En attente des réponses de Benoit aux questions de la
-section « Questions ouvertes ».
+Accepté par Benoit le 2026-11-20 (chantier `stage2/2-adrs`). Ses réponses sont dans la section « Réponses de
+Benoit ».
 
 - **Tranche les points laissés par :** [ADR 0004](0004-configuration-storage-and-secret-vault.md) (section 3,
   « puis la mémoire »), [ADR 0007](0007-llm-providers-and-tool-format.md) (section 6, « le résumé automatique
@@ -43,7 +43,7 @@ Les tours eux-mêmes restent dans la collection `Conversation.Turns`, sans limit
 - **Sur demande** : « souviens-toi que… », « retiens que… », « remember that… ». Le modèle appelle l'outil
   `remember_fact`. « Oublie que… » appelle `forget_fact`. Les deux sont de classe « Effet courant » : pas de
   confirmation, mais l'appel s'affiche dans la conversation comme tout appel d'outil.
-- **Automatiquement** (voir la question n° 1) : quand un tour finit, le modèle local relit **ce que
+- **Automatiquement**, avec un interrupteur pour le couper (réponse n° 1) : quand un tour finit, le modèle local relit **ce que
   l'utilisateur a dit ou écrit** dans ce tour et en tire zéro à trois faits.
 - **À la main** : la page « Mémoire » permet d'ajouter un fait.
 
@@ -79,7 +79,8 @@ Chaque fait garde sa source (`asked`, `auto`, `manual`), sa date et le tour d'or
 - Quand des tours sortent de la fenêtre envoyée au modèle, le modèle local les fond dans le résumé : ancien
   résumé plus tours sortis, vers un nouveau résumé de 1 200 caractères au plus.
 - Un tour sort de la fenêtre par la taille (plus de 20 tours, ou plus que la moitié du contexte), ou par
-  l'âge (voir la question n° 2).
+  l'âge : après **2 heures de silence**, les tours précédents ne sont plus envoyés mot pour mot, seul le
+  résumé les rappelle. La durée se règle dans les paramètres (réponse n° 2).
 - Tant qu'un tour sorti n'est pas résumé, il n'est simplement plus envoyé : le résumé peut avoir un tour de
   retard, jamais la conversation.
 
@@ -114,21 +115,18 @@ puis vient l'historique.
 - Effacer un fait, l'épingler, en ajouter un, tout effacer. Corriger un fait revient à l'effacer et à en
   ajouter un.
 - Le résumé courant, avec un bouton pour l'effacer.
+- La durée de silence après laquelle un échange devient ancien (2 heures par défaut).
 - L'interrupteur de la mémoire automatique, et un interrupteur général : mémoire coupée, rien n'est extrait
   ni envoyé, et ce qui est déjà retenu reste visible.
 
-## Questions ouvertes
+## Réponses de Benoit
 
-1. **Quand Jarvis retient-il un fait ?**
-   - A. Sur demande et automatiquement, avec un interrupteur pour couper l'automatique. **(Recommandé :**
-     c'est le comportement d'OpenJarvis, et la page permet de corriger.**)**
-   - B. Sur demande seulement (« souviens-toi que… ») : rien n'est retenu sans que Benoit le dise.
-   - C. Automatiquement seulement.
-2. **Quand un échange devient-il « ancien » ?** Aujourd'hui un tour d'hier est renvoyé tel quel au modèle.
-   - A. Après 30 minutes de silence, les tours précédents ne sont plus envoyés mot pour mot : seul le résumé
-     les rappelle. **(Recommandé :** une question du soir ne traîne pas les détails du matin.**)**
-   - B. Après 2 heures de silence.
-   - C. Jamais par l'âge : seulement quand la fenêtre est pleine.
+Questions posées dans la conversation le 2026-11-20, réponses du même jour.
+
+1. **Quand Jarvis retient-il un fait ?** Sur demande et automatiquement, avec un interrupteur pour couper
+   l'automatique (la recommandation, prise par défaut).
+2. **Quand un échange devient-il « ancien » ?** Après 2 heures de silence, « mais paramétrable dans les
+   paramètres ». La recommandation était 30 minutes.
 
 ## Options écartées
 
