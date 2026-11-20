@@ -30,6 +30,13 @@ public sealed record JarvisPaths(string Root)
     public string Logs => Path.Combine(Root, "logs");
 
     /// <summary>
+    /// Downloaded and unpacked new versions, waiting for the updater (US1.18). Created when needed; its
+    /// content is deleted at the next start. <c>Kazo.Jarvis.Updater</c> references no project and repeats
+    /// this path for its own log.
+    /// </summary>
+    public string Updates => Path.Combine(Root, "updates");
+
+    /// <summary>
     /// Data of the web views of the Windows host (WebView2 profile), kept out of the installation folder.
     /// Created by WebView2 itself, not by <see cref="EnsureCreated"/>.
     /// </summary>

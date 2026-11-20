@@ -22,12 +22,16 @@ ce qu'il décrit.
   (cacher la caméra : Windows Hello déverrouille tout seul), position après relance avec des écrans
   d'échelles différentes, ligne « ActivationRequested: Idle -> Listening » au journal après `Ctrl+Alt+J`,
   « Quitter » en moins de 10 s, taille de l'orbe après reconnexion des écrans (240 × 240 vu une fois sur
-  l'écran à 100 %, correct après relance), et pour le chantier 5 : rechargement des textes de la fenêtre des
-  paramètres au changement de langue dans `BlazorWebView`, menu de la zone de notification traduit, polices
-  affichées hors ligne ([liste](../dev/hosts.md#vérifications-sur-windows), point 8). Chantier 5
-  (`stage1/5-shared-ui-language`, style commun, polices embarquées, traductions `.resx`, réglage de langue,
-  fenêtre des paramètres, champ de secret, voir [dev/shared-ui.md](../dev/shared-ui.md)) fusionné (PR 22),
-  sans vérification Windows (Benoit a arrêté les tests le 20 novembre 2026). Benoit fusionne `main` ; un agent fusionne
+  l'écran à 100 %, correct après relance), mise à jour de bout en bout entre deux versions de test (chantier
+  16, [liste](../dev/updates.md#vérification-sur-windows)), et pour le chantier 5 : rechargement des textes de
+  la fenêtre des paramètres au changement de langue dans `BlazorWebView`, menu de la zone de notification
+  traduit, polices affichées hors ligne ([liste](../dev/hosts.md#vérifications-sur-windows), point 8). Chantier 16 (`stage1/16-updates`, mises à jour :
+  tranche `Maintenance/Updates`, lecture des versions GitHub, programme `Kazo.Jarvis.Updater`, script
+  `build/Publish-Release.ps1`, voir [dev/updates.md](../dev/updates.md)) livré dans sa PR ; sa vérification
+  sur Windows attend la prochaine séance. Chantier 5 (`stage1/5-shared-ui-language`, style commun, polices
+  embarquées, traductions `.resx`, réglage de langue, fenêtre des paramètres, champ de secret, voir
+  [dev/shared-ui.md](../dev/shared-ui.md)) fusionné (PR 22), sans vérification Windows (Benoit a arrêté les
+  tests le 20 novembre 2026). Benoit fusionne `main` ; un agent fusionne
   lui-même ses PR dans une branche `<série>/base` une fois les vérifications vertes (règle redite par Benoit
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX). L'étape 5 est réécrite le 19 novembre 2026 : appels entre Jarvis et l'application Android, dans les deux sens (US5.1 à US5.9 du document de conception), sans ADR pour l'instant ; elle dépend d'E10. En attente : E10
@@ -96,6 +100,12 @@ ce qu'il décrit.
   que l'utilisateur n'a pas choisi (la langue de Windows s'applique) ; les pages de réglages s'enregistrent
   par `SettingsPage` du noyau ; polices Rajdhani 500/600, Inter 400/600, JetBrains Mono 400/500 en `woff2`
   latin (`@fontsource` 5.3.0, licence OFL 1.1 vérifiée) ; le champ de secret ne relit jamais la valeur.
+- **Choix du chantier 16 que l'ADR 0001 ne tranche pas** (détail dans [dev/updates.md](../dev/updates.md)) :
+  vérification automatique **désactivée par défaut** (rien ne sort du PC par défaut), recherche manuelle par
+  « Mises à jour… » dans la zone de notification ; **choix provisoire posé à Benoit le 20 novembre 2026, en
+  attente de sa réponse**. Une fois activée : une minute après le démarrage puis toutes les 6 heures.
+  Pré-versions proposées tant que la version est en 0.x ; le programme de mise à jour est lancé depuis la
+  nouvelle version décompressée, sans fenêtre ; une construction de développement n'installe jamais.
 - **Choix du chantier 4 que les ADR 0003 et 0013 ne tranchent pas** (détail dans [dev/hosts.md](../dev/hosts.md)) :
   raccourci par défaut `Ctrl+Alt+J` (section `Desktop.Hotkey`) ; pas de contrat pour la zone de notification,
   ses entrées Paramètres et Conversation publient un événement et restent grisées sans tranche qui le traite ;

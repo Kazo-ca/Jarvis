@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Kazo.Jarvis.Kernel.Desktop;
 using Kazo.Jarvis.Kernel.Messages.Desktop;
+using Kazo.Jarvis.Kernel.Messages.Updates;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Windows.Desktop;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,7 @@ namespace Kazo.Jarvis.Windows.Tray;
 
 /// <summary>
 /// The tray icon (US1.2): left click shows or hides the orb; the menu offers Settings, Conversation, Mute the
-/// microphone and Quit. Settings and Conversation are greyed out until a slice handles their event; Mute the
+/// microphone, Updates (US1.18) and Quit. A notice tells about a new version; clicking it opens Updates. Settings and Conversation are greyed out until a slice handles their event; Mute the
 /// microphone until work item stage1/8-audio-devices. Created and used on the UI thread.
 /// </summary>
 internal sealed partial class TrayIcon : IDisposable
@@ -57,6 +58,7 @@ internal sealed partial class TrayIcon : IDisposable
             ContextMenuStrip = BuildMenu(),
             Visible = true,
         };
+        icon.BalloonTipClicked += (_, _) => Publish(new UpdatesWindowRequested());
         icon.MouseClick += (_, e) =>
         {
             if (e.Button == MouseButtons.Left)
@@ -77,6 +79,18 @@ internal sealed partial class TrayIcon : IDisposable
 
         var text = status is null ? HostTexts.ApplicationName : HostTexts.WithStatus(status);
         icon.Text = text.Length > MaximumTooltip ? text[..MaximumTooltip] : text;
+    }
+
+    /// <summary>Tells the user that <paramref name="version"/> can be installed. Clicking the notice opens Updates.</summary>
+    /// <param name="version">The new version.</param>
+    public void ShowUpdateNotice(string version)
+    {
+        if (icon is null)
+        {
+            return;
+        }
+
+        icon.ShowBalloonTip(10_000, HostTexts.ApplicationName, HostTexts.UpdateFound(version), ToolTipIcon.Info);
     }
 
     /// <summary>Removes the icon from the tray.</summary>
@@ -100,19 +114,22 @@ internal sealed partial class TrayIcon : IDisposable
         var settingsItem = new ToolStripMenuItem(HostTexts.Settings, null, (_, _) => Publish(new SettingsWindowRequested()));
         var conversationItem = new ToolStripMenuItem(HostTexts.Conversation, null, (_, _) => Publish(new ConversationWindowRequested()));
         var muteItem = new ToolStripMenuItem(HostTexts.MuteMicrophone) { Enabled = false };
+        var updatesItem = new ToolStripMenuItem(HostTexts.Updates, null, (_, _) => Publish(new UpdatesWindowRequested()));
         var quitItem = new ToolStripMenuItem(HostTexts.Quit, null, (_, _) => QuitRequested?.Invoke(this, EventArgs.Empty));
 
         var menu = new ContextMenuStrip();
-        menu.Items.AddRange([settingsItem, conversationItem, muteItem, new ToolStripSeparator(), quitItem]);
+        menu.Items.AddRange([settingsItem, conversationItem, muteItem, updatesItem, new ToolStripSeparator(), quitItem]);
         menu.Opening += (_, _) =>
         {
             // Read the texts again: the assistant language may have changed since the last opening (ADR 0008).
             settingsItem.Text = HostTexts.Settings;
             conversationItem.Text = HostTexts.Conversation;
             muteItem.Text = HostTexts.MuteMicrophone;
+            updatesItem.Text = HostTexts.Updates;
             quitItem.Text = HostTexts.Quit;
             settingsItem.Enabled = HasHandler<SettingsWindowRequested>();
             conversationItem.Enabled = HasHandler<ConversationWindowRequested>();
+            updatesItem.Enabled = HasHandler<UpdatesWindowRequested>();
         };
         return menu;
     }

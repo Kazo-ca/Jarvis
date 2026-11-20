@@ -19,10 +19,11 @@ so that typing in another application never triggers it by accident.
 
 The tray icon has no contract: no slice needs one (ADR 0003, section 5, "a contract is added when a slice
 needs it"). Its menu publishes `SettingsWindowRequested` and `ConversationWindowRequested`
-(`Kernel.Messages.Desktop`); an entry stays greyed out while no slice handles its event. "Settings" is
-enabled since work item 5 (slice `Settings/Window`, see [shared UI](shared-ui.md)); "Conversation" waits for
-work item 13, "Mute the microphone" for work item 8. The menu texts follow the assistant language: they are
-read again each time the menu opens.
+(`Kernel.Messages.Desktop`), and "Updates…" publishes `UpdatesWindowRequested` ([updates.md](updates.md));
+an entry stays greyed out while no slice handles its event. "Settings" is enabled since work item 5 (slice
+`Settings/Window`, see [shared UI](shared-ui.md)); "Conversation" waits for work item 13, "Mute the
+microphone" for work item 8. The menu texts follow the assistant language: they are read again each time the
+menu opens.
 
 ## Slices
 

@@ -10,5 +10,6 @@
 | [storage.md](storage.md) | Réglages (`config.json`), base SQLite, coffre de secrets |
 | [hosts.md](hosts.md) | Hôtes Windows et Web : démarrage, orbe, zone de notification, raccourci, dialogues |
 | [shared-ui.md](shared-ui.md) | Style commun, polices, traductions, réglage de langue, fenêtre des paramètres, champ de secret |
+| [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |
 | [pitfalls.md](pitfalls.md) | Pièges rencontrés et leur solution |
 | [spikes.md](spikes.md) | Synthèse des essais techniques |

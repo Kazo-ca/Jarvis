@@ -41,4 +41,10 @@ Ouvrir la page de téléchargement ?</value>
 Le détail est dans le journal :
 {0}</value>
   </data>
+  <data name="Updates" xml:space="preserve">
+    <value>Mises à jour…</value>
+  </data>
+  <data name="UpdateFound" xml:space="preserve">
+    <value>La version {0} est disponible. Cliquer ici pour l'installer.</value>
+  </data>
 </root>

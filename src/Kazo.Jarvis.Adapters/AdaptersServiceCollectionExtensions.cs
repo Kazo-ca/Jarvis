@@ -3,9 +3,11 @@ using Kazo.Jarvis.Adapters.Files;
 using Kazo.Jarvis.Adapters.Secrets;
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
+using Kazo.Jarvis.Adapters.Updates;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Storage;
+using Kazo.Jarvis.Kernel.Updates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -39,6 +41,14 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetRequiredService<JarvisPaths>(),
             provider.GetRequiredService<TimeProvider>(),
             provider.GetService<ILogger<SqliteDocumentStore>>()));
+
+        // Releases of Kazo-ca/Jarvis on GitHub (US1.18). Only called on the user's request or when the
+        // automatic check is on. Its own client: the timeout covers the API call, not the package download.
+        services.TryAddSingleton(provider => new GitHubReleaseSource(
+            new HttpClient { Timeout = TimeSpan.FromMinutes(10) },
+            provider.GetRequiredService<JarvisPaths>(),
+            provider.GetService<ILogger<GitHubReleaseSource>>()));
+        services.TryAddSingleton<IReleaseSource>(provider => provider.GetRequiredService<GitHubReleaseSource>());
 
         // Both vaults need Windows (Credential Manager, DPAPI). The Windows host is the only one to load Adapters.
         if (OperatingSystem.IsWindows())

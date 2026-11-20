@@ -31,6 +31,10 @@ internal static class HostTexts
 
     public static string MuteMicrophone => Text(nameof(MuteMicrophone));
 
+    public static string Updates => Text(nameof(Updates));
+
+    public static string UpdateFound(string version) => string.Format(CultureInfo.CurrentCulture, Text(nameof(UpdateFound)), version);
+
     public static string Quit => Text(nameof(Quit));
 
     public static string WaitingForUnlock => Text(nameof(WaitingForUnlock));

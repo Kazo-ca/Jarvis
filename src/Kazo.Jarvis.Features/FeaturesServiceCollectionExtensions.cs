@@ -1,5 +1,6 @@
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
+using Kazo.Jarvis.Features.Maintenance.Updates;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
 using Kazo.Jarvis.Features.Shared;
@@ -34,6 +35,9 @@ public static class FeaturesServiceCollectionExtensions
         // Settings slices (stage1/5-shared-ui-language): the language, and the window that shows the pages.
         services.AddLanguageSlice();
         services.AddSettingsWindowSlice();
+
+        // Updates (stage1/16-updates): release source and updater launcher come from the host.
+        services.AddUpdatesSlice();
 
         // Other slices arrive with their work items (stage1/6-orb onwards).
         return services;
