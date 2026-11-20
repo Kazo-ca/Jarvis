@@ -281,7 +281,9 @@ l'autre, et 16 (mises à jour) à tout moment après 4.
 
 - Sur le PC de Benoit, le but de l'étape en français puis en anglais : « hey jarvis », une question, la
   réponse à voix haute.
-- Vérifier qu'aucune connexion ne sort de la machine avec la configuration par défaut.
+- Vérifier qu'aucune connexion ne sort de la machine avec la configuration par défaut, sauf la vérification
+  automatique des mises à jour (lecture des versions sur GitHub, choix de Benoit le 20 novembre 2026, voir
+  [updates.md](../updates.md)).
 - Tableau des mesures finales dans la mémoire du projet : délai, processeur en veille et en phase animée
   pour les deux orbes, mémoire graphique, seuil du mot d'éveil.
 - `features.md` passe l'étape 1 dans « Disponibles », la mémoire du projet dit que la série est finie.

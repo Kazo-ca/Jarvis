@@ -10,10 +10,10 @@ public sealed record UpdateOptions
 
     /// <summary>
     /// Whether Jarvis asks GitHub for a new version on its own (a minute after start, then every 6 hours).
-    /// Off by default: with the default settings nothing leaves the PC (stage 1 plan); the user checks from
-    /// the tray menu instead. Provisional choice, to be confirmed by Benoit.
+    /// On by default (Benoit's choice, November 20, 2026): the request only asks for the list of releases, and
+    /// it is the one exception to "no connection leaves the PC by default" (stage 1 plan, work item 17).
     /// </summary>
-    public bool Automatic { get; init; }
+    public bool Automatic { get; init; } = true;
 
     /// <summary>Whether pre-releases are offered. On while Kazo.Jarvis is in 0.x and only publishes pre-releases.</summary>
     public bool IncludePreReleases { get; init; } = true;
