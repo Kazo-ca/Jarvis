@@ -1,0 +1,154 @@
+.conversation-window {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-sizing: border-box;
+    height: 100%;
+    min-height: 20rem;
+    padding: 1rem 1.2rem;
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
+}
+
+/* A reversed column starts scrolled at its end: the newest turn stays in view without script. */
+.conversation-scroll {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column-reverse;
+    min-height: 0;
+    overflow-y: auto;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-panel);
+}
+
+.conversation-turns {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1rem;
+    margin: 0;
+    padding: 1rem;
+    list-style: none;
+}
+
+.conversation-turn {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.conversation-request,
+.conversation-answer {
+    margin: 0;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+/* The line breaks of the text are kept; the markup around it adds none. */
+.conversation-body {
+    white-space: pre-wrap;
+}
+
+.conversation-answer {
+    padding-left: 0.8rem;
+    border-left: 2px solid var(--jarvis-line-strong);
+}
+
+.conversation-who {
+    margin-right: 0.5rem;
+    color: var(--jarvis-text-muted);
+    font-family: var(--jarvis-font-display);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.conversation-jarvis {
+    color: var(--jarvis-cyan);
+}
+
+.conversation-meta {
+    margin: 0;
+    padding-left: 0.8rem;
+    color: var(--jarvis-text-muted);
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.8rem;
+}
+
+.conversation-turn[data-turn-outcome="Failed"] .conversation-meta {
+    color: var(--jarvis-red);
+}
+
+.conversation-turn[data-turn-outcome="Interrupted"] .conversation-meta {
+    color: var(--jarvis-amber);
+}
+
+.conversation-empty,
+.conversation-notice,
+.conversation-hint {
+    margin: 0;
+    color: var(--jarvis-text-muted);
+}
+
+.conversation-empty {
+    padding: 1rem;
+}
+
+.conversation-notice {
+    color: var(--jarvis-amber);
+}
+
+.conversation-input {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.conversation-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.conversation-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.conversation-hint {
+    flex: 1 1 14rem;
+    font-size: 0.85rem;
+}
+
+.conversation-confirm {
+    color: var(--jarvis-amber);
+}
+
+.conversation-button {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: transparent;
+    color: var(--jarvis-cyan);
+    font: inherit;
+    cursor: pointer;
+}
+
+.conversation-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.conversation-danger {
+    border-color: var(--jarvis-red);
+    color: var(--jarvis-red);
+}
+
+.conversation-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

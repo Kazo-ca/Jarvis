@@ -15,6 +15,7 @@
 | [wake-word.md](wake-word.md) | Wake word: openWakeWord models, threshold, live score, settings page |
 | [transcription.md](transcription.md) | Transcription: end of utterance (Silero, energy threshold), Whisper, "Transcription" page, models |
 | [speech.md](speech.md) | Speech: Piper, Kokoro and cloud engines, voice of each language, "Voices" page |
+| [conversation.md](conversation.md) | Conversation: the full turn, the interruption, the conversation window, the personality |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |

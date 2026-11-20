@@ -1,0 +1,98 @@
+@implements IDisposable
+@inject ISettingsStore Settings
+@inject SystemPrompt Prompt
+@inject IAssistantLanguageReader Language
+@inject IStringLocalizer<PersonalitySettingsPage> T
+
+@* Settings page of the personality (US1.15, ADR 0008, section 4): the system message of each language, changed and
+   saved, or reset to the butler. The fixed rules (language, text made to be said, date) are added after it and are
+   not editable (ADR 0007, section 6). *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    @* The language of the assistant first: it is the one Jarvis speaks now. *@
+    @foreach (var language in AssistantLanguage.Supported.OrderByDescending(candidate => candidate == Language.Current))
+    {
+        var languageCode = language.Code;
+        <SettingsField Label="@T["Language_" + languageCode]" Hint="@(IsCustom(language) ? T["IsCustom"] : T["IsDefault"])">
+            <div class="personality" data-personality="@languageCode" data-personality-custom="@(IsCustom(language) ? "true" : "false")">
+                <textarea class="personality-text" rows="7" maxlength="@ConversationOptions.MaximumPersonalityLength"
+                          data-personality-text aria-label="@T["Language_" + languageCode]"
+                          value="@drafts[languageCode]" @oninput="change => drafts[languageCode] = change.Value as string ?? string.Empty"></textarea>
+                <div class="personality-actions">
+                    <button type="button" class="personality-button" data-personality-save
+                            disabled="@(!IsChanged(language))" @onclick="() => SaveAsync(language)">@T["Save"]</button>
+                    <button type="button" class="personality-button" data-personality-reset
+                            disabled="@(!IsCustom(language) && !IsChanged(language))" @onclick="() => ResetAsync(language)">@T["Reset"]</button>
+                </div>
+            </div>
+        </SettingsField>
+    }
+    <SettingsField Label="@T["RulesLabel"]">
+        <p class="personality-rules">@T["RulesHint"]</p>
+    </SettingsField>
+    @if (problem is { } text)
+    {
+        <p class="personality-problem" role="alert">@text</p>
+    }
+</SettingsFrame>
+
+@code {
+    private readonly Dictionary<string, string> drafts = new(StringComparer.Ordinal);
+    private ConversationOptions options = new();
+    private string? problem;
+    private IDisposable? watch;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        options = Settings.Read(ConversationOptions.Section);
+        foreach (var language in AssistantLanguage.Supported)
+        {
+            drafts[language.Code] = Prompt.Personality(language);
+        }
+
+        watch = Settings.Watch(ConversationOptions.Section, saved => _ = InvokeAsync(() =>
+        {
+            options = saved;
+            StateHasChanged();
+        }));
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => watch?.Dispose();
+
+    private bool IsCustom(AssistantLanguage language) => options.CustomPersonality(language) is not null;
+
+    private bool IsChanged(AssistantLanguage language) =>
+        !string.Equals(drafts[language.Code].Trim(), Current(language).Trim(), StringComparison.Ordinal);
+
+    private string Current(AssistantLanguage language) =>
+        options.CustomPersonality(language) ?? SystemPrompt.DefaultPersonality(language);
+
+    private Task SaveAsync(AssistantLanguage language)
+    {
+        var text = drafts[language.Code];
+
+        // Saving the butler's own text, or nothing, is a reset: the default follows later changes of the resources.
+        var isDefault = string.IsNullOrWhiteSpace(text)
+            || string.Equals(text.Trim(), SystemPrompt.DefaultPersonality(language).Trim(), StringComparison.Ordinal);
+        return WriteAsync(language, isDefault ? null : text);
+    }
+
+    private Task ResetAsync(AssistantLanguage language) => WriteAsync(language, null);
+
+    private async Task WriteAsync(AssistantLanguage language, string? text)
+    {
+        var wanted = Settings.Read(ConversationOptions.Section).WithPersonality(language, text);
+        var result = await Settings.WriteAsync(ConversationOptions.Section, wanted);
+        if (result.IsSaved)
+        {
+            problem = null;
+            options = wanted;
+            drafts[language.Code] = Current(language);
+        }
+        else
+        {
+            problem = T["SaveFailed"];
+        }
+    }
+}

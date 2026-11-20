@@ -52,7 +52,8 @@ TurnStarted (voix) ─► UtteranceListener ─► détecteur de voix (Silero ou
 - **Page des paramètres « Transcription »** (`Voice.Transcription`, après la page « Audio ») : modèle et
   appareil avec l'état du chargement, détecteur, silence de fin de phrase, attente de la parole, et la
   **dernière demande entendue** avec ses mesures (durée de l'audio, durée de la transcription, détecteur). Elle
-  sert à essayer le micro et le modèle avant le chantier 13.
+  sert à essayer le micro et le modèle sans passer par le modèle de langage. Depuis le chantier 13, la
+  [conversation](conversation.md) répond à chaque demande entendue.
 - Réglages : section `Voice.Transcription` de `config.json` (`model`, `device`, `detector`,
   `silenceMilliseconds`, `noSpeechTimeoutSeconds`, `maxUtteranceSeconds`).
 

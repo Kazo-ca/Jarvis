@@ -169,6 +169,34 @@ public sealed class SpeechPlayerTests
     }
 
     [Test]
+    public async Task A_failure_of_the_model_in_the_middle_of_the_answer_stops_the_voice()
+    {
+        playback.Hold = true;
+        var turn = await StartThinkingAsync();
+        await SayAsync(turn, "Première phrase.", "Deuxième phrase.");
+        await playback.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var running = player.LastSpeech;
+
+        // The conversation lost the model (work item 13): the turn fails, the half-said answer stops.
+        var failed = new TurnFailed(turn, new AssistantFault(FaultCause.ModelUnreachable, "Unreachable"));
+        await Bus.PublishAsync<AssistantInput>(failed);
+        await player.HandleAsync(failed, CancellationToken.None);
+        await running.WaitAsync(TimeSpan.FromSeconds(5));
+        await SayAsync(turn, "Phrase tardive.");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(playback.StopAllCount, Is.GreaterThanOrEqualTo(1));
+            Assert.That(playback.Played, Has.Count.EqualTo(1));
+            Assert.That(piper.Said.Select(said => said.Text), Does.Not.Contain("Phrase tardive."));
+            Assert.That(Published<SpeechEnded>(), Is.Empty);
+            Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Idle));
+            Assert.That(State.Current.Fault?.Cause, Is.EqualTo(FaultCause.ModelUnreachable));
+            Assert.That(player.Running, Is.Null);
+        });
+    }
+
+    [Test]
     public async Task An_answer_without_sentences_ends_without_speech()
     {
         var turn = await StartThinkingAsync();

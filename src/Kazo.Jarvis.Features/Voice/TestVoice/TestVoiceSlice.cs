@@ -18,8 +18,8 @@ public static class TestVoiceSlice
         // One trial per page: a sentence of one window never stops the one of another.
         services.TryAddTransient<VoiceTrial>();
 
-        // After the language (0), the orb (5), the language models (10) and the audio devices (20).
-        services.AddSingleton(new SettingsPage(PageKey, typeof(VoicesSettingsPage), typeof(VoicesSettingsPage), "Title", Order: 25));
+        // Last of the voice chain: after the wake word (25) and the transcription (30); the mouth after the ears.
+        services.AddSingleton(new SettingsPage(PageKey, typeof(VoicesSettingsPage), typeof(VoicesSettingsPage), "Title", Order: 35));
         return services;
     }
 }

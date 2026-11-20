@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Personnalité</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Ce qui est dit à Jarvis avant chaque demande, dans chaque langue. Par défaut, le majordome du film : poli, concis, pince-sans-rire, « Monsieur ».</value>
+  </data>
+  <data name="Language_fr" xml:space="preserve">
+    <value>Français</value>
+  </data>
+  <data name="Language_en" xml:space="preserve">
+    <value>Anglais</value>
+  </data>
+  <data name="IsDefault" xml:space="preserve">
+    <value>Le texte du majordome (par défaut).</value>
+  </data>
+  <data name="IsCustom" xml:space="preserve">
+    <value>Votre texte. « Réinitialiser » ramène le majordome.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="RulesLabel" xml:space="preserve">
+    <value>Règles fixes</value>
+  </data>
+  <data name="RulesHint" xml:space="preserve">
+    <value>Jarvis ajoute toujours, après ce texte : répondre dans la langue de l'assistant, écrire un texte fait pour être dit (pas de listes, pas de Markdown, des phrases courtes), la date et l'heure du moment.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>La personnalité n'a pas pu être enregistrée : les réglages ne peuvent pas être écrits.</value>
+  </data>
+</root>

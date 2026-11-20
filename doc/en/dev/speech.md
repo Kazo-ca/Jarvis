@@ -28,7 +28,7 @@ conversation (work item 13) ─► SentenceToSpeak, AnswerSentencesEnded ─► 
 | `SpeechException`, `SpeechFailure` | Why a voice failed: model missing, key missing or refused, service unreachable, unknown voice, other. |
 | `IVoiceSelection` | The voice of each language, given by the `Voice/Speech` slice which owns the setting; read and changed by the "Voices" page, later by the first run (work item 14). |
 | `SpeechKeys` | References of the voice keys in the vault: `voice.elevenlabs.apikey`, `voice.openai.apikey`. |
-| `SentenceToSpeak`, `AnswerSentencesEnded` | What the conversation will publish: each complete sentence in order, then the end of the answer. |
+| `SentenceToSpeak`, `AnswerSentencesEnded` | What the [conversation](conversation.md) publishes: each complete sentence in order, then the end of the answer. |
 
 ### Slice `Features/Voice/Speech`
 
@@ -75,8 +75,8 @@ conversation (work item 13) ─► SentenceToSpeak, AnswerSentencesEnded ─► 
 
 `SimulatedSpeechEngine` poses as Piper (`fr_FR-tom-medium`, `fr_FR-siwis-medium`, `en_GB-alan-medium`) and
 produces a hum whose length follows the text; `SimulatedCloudSpeechEngine` lists "Simulated Nova" when the
-OpenAI voice key is in the vault. The home page has a "Simulate a spoken answer" button, which plays a turn as
-the conversation will, and shows the last sentence said (`#voice-spoken`).
+OpenAI voice key is in the vault. The home page has a "Simulate a spoken answer" button, which plays a turn on
+the voice alone (no transcription, no model), and shows the last sentence said (`#voice-spoken`).
 
 ## Real run in the container
 

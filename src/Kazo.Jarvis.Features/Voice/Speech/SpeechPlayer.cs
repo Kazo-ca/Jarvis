@@ -15,12 +15,14 @@ namespace Kazo.Jarvis.Features.Voice.Speech;
 /// Says the answer aloud (US1.9, US1.10, ADR 0006, section 5): the sentences of a turn are synthesized and played
 /// in order, the next one being synthesized while the current one plays. Publishes
 /// <see cref="FirstSentenceReady"/> when the first sound starts and <see cref="SpeechEnded"/> after the last one.
-/// On <see cref="TurnCancelled"/> (US1.12) the sound stops at once and the waiting sentences are dropped.
+/// On <see cref="TurnCancelled"/> (US1.12) the sound stops at once and the waiting sentences are dropped; so it does
+/// on <see cref="TurnFailed"/>, when the model fails in the middle of an answer (work item 13).
 /// </summary>
 public sealed class SpeechPlayer :
     IEventHandler<SentenceToSpeak>,
     IEventHandler<AnswerSentencesEnded>,
     IEventHandler<TurnCancelled>,
+    IEventHandler<TurnFailed>,
     IDisposable
 {
     /// <summary>Sentences synthesized ahead of the one playing: one is enough to hide the synthesis time.</summary>
@@ -108,11 +110,27 @@ public sealed class SpeechPlayer :
     public ValueTask HandleAsync(TurnCancelled message, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(message);
+        StopTurn(message.Turn);
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public ValueTask HandleAsync(TurnFailed message, CancellationToken cancellationToken)
+    {
+        // The turn is over: a half-said answer must not go on after the error look. A failure published by this
+        // player finds the turn already closed.
+        ArgumentNullException.ThrowIfNull(message);
+        StopTurn(message.Turn);
+        return ValueTask.CompletedTask;
+    }
+
+    private void StopTurn(TurnId turn)
+    {
         TurnSpeech? stopped = null;
         lock (gate)
         {
-            closedUpTo = Math.Max(closedUpTo, message.Turn.Value);
-            if (current?.Turn == message.Turn)
+            closedUpTo = Math.Max(closedUpTo, turn.Value);
+            if (current?.Turn == turn)
             {
                 stopped = current;
                 current = null;
@@ -123,8 +141,6 @@ public sealed class SpeechPlayer :
         {
             Stop(stopped);
         }
-
-        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />

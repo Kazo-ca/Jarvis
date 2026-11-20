@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Conversation</value>
+  </data>
+  <data name="YouSaid" xml:space="preserve">
+    <value>Vous avez dit</value>
+  </data>
+  <data name="YouWrote" xml:space="preserve">
+    <value>Vous avez écrit</value>
+  </data>
+  <data name="Empty" xml:space="preserve">
+    <value>Rien pour l'instant. Dites « Hey Jarvis » ou écrivez une demande ci-dessous.</value>
+  </data>
+  <data name="ModelLoading" xml:space="preserve">
+    <value>Le modèle {0} se charge ; Jarvis répond dès qu'il est prêt.</value>
+  </data>
+  <data name="Placeholder" xml:space="preserve">
+    <value>Écrivez une demande…</value>
+  </data>
+  <data name="InputLabel" xml:space="preserve">
+    <value>Demande à Jarvis</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="WrittenAnswerHint" xml:space="preserve">
+    <value>Une demande écrite reçoit une réponse écrite seulement.</value>
+  </data>
+  <data name="Busy" xml:space="preserve">
+    <value>Jarvis est occupé : attendez la fin du tour, ou interrompez-le.</value>
+  </data>
+  <data name="EraseAll" xml:space="preserve">
+    <value>Tout effacer</value>
+  </data>
+  <data name="EraseConfirm" xml:space="preserve">
+    <value>Effacer toute la conversation, la mémoire et le journal ? Les réglages et les clés sont gardés.</value>
+  </data>
+  <data name="EraseYes" xml:space="preserve">
+    <value>Effacer</value>
+  </data>
+  <data name="EraseNo" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="EraseFailed" xml:space="preserve">
+    <value>La conversation n'a pas pu être effacée : la base n'est pas disponible.</value>
+  </data>
+  <data name="Seconds" xml:space="preserve">
+    <value>{0} s</value>
+  </data>
+  <data name="Tokens" xml:space="preserve">
+    <value>{0} jetons envoyés, {1} reçus</value>
+  </data>
+  <data name="FirstSound" xml:space="preserve">
+    <value>premier son après {0} s</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>réponse en cours…</value>
+  </data>
+  <data name="Interrupted" xml:space="preserve">
+    <value>interrompu</value>
+  </data>
+  <data name="Failure_NotConfigured" xml:space="preserve">
+    <value>échec : aucun modèle n'est choisi dans les paramètres</value>
+  </data>
+  <data name="Failure_InvalidAddress" xml:space="preserve">
+    <value>échec : l'adresse du serveur du modèle n'est pas valide</value>
+  </data>
+  <data name="Failure_Unreachable" xml:space="preserve">
+    <value>échec : le serveur du modèle ne répond pas ; vérifiez son adresse et son port</value>
+  </data>
+  <data name="Failure_ModelMissing" xml:space="preserve">
+    <value>échec : le modèle est absent ; téléchargez-le</value>
+  </data>
+  <data name="Failure_KeyMissing" xml:space="preserve">
+    <value>échec : le fournisseur n'a pas de clé</value>
+  </data>
+  <data name="Failure_KeyRejected" xml:space="preserve">
+    <value>échec : le fournisseur a refusé la clé</value>
+  </data>
+  <data name="Failure_TimedOut" xml:space="preserve">
+    <value>échec : le modèle a mis trop de temps</value>
+  </data>
+  <data name="Failure_ServerError" xml:space="preserve">
+    <value>échec : le serveur du modèle a renvoyé une erreur</value>
+  </data>
+  <data name="Failure_ModelUnreachable" xml:space="preserve">
+    <value>échec : le modèle ne répond pas</value>
+  </data>
+  <data name="Failure_VoiceMissing" xml:space="preserve">
+    <value>échec : la voix n'a pas pu parler</value>
+  </data>
+  <data name="Failure_Other" xml:space="preserve">
+    <value>échec</value>
+  </data>
+</root>

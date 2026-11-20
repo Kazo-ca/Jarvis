@@ -22,7 +22,7 @@ est ajouté quand une tranche en a besoin »). Son menu publie `SettingsWindowRe
 `ConversationWindowRequested` (`Kernel.Messages.Desktop`), et « Mises à jour… » publie
 `UpdatesWindowRequested` ([updates.md](updates.md)) ; une entrée reste grisée tant qu'aucune tranche ne
 traite son événement. « Paramètres » est actif depuis le chantier 5 (tranche `Settings/Window`, voir
-[interface partagée](shared-ui.md)) ; « Conversation » attend le chantier 13. « Couper le micro » est actif depuis le chantier 8 et coché tant que le micro est coupé ([audio](audio.md)).
+[interface partagée](shared-ui.md)) ; « Conversation » est actif depuis le chantier 13 ([conversation](conversation.md)). « Couper le micro » est actif depuis le chantier 8 et coché tant que le micro est coupé ([audio](audio.md)).
 Les textes du menu suivent la langue de l'assistant : ils sont relus à chaque ouverture du menu.
 
 ## Tranches

@@ -30,8 +30,8 @@ public static class TranscriptionSlice
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, UtteranceListener>(
             provider => provider.GetRequiredService<UtteranceListener>()));
 
-        // After the audio page (20).
-        services.AddSingleton(new SettingsPage(PageKey, typeof(TranscriptionSettingsPage), typeof(TranscriptionSettingsPage), "Title", Order: 25));
+        // After the wake word page (25): the order of the voice chain, ear first.
+        services.AddSingleton(new SettingsPage(PageKey, typeof(TranscriptionSettingsPage), typeof(TranscriptionSettingsPage), "Title", Order: 30));
         return services;
     }
 }

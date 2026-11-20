@@ -28,6 +28,8 @@ public static class SpeechSlice
             provider => provider.GetRequiredService<SpeechPlayer>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, SpeechPlayer>(
             provider => provider.GetRequiredService<SpeechPlayer>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnFailed>, SpeechPlayer>(
+            provider => provider.GetRequiredService<SpeechPlayer>()));
         return services;
     }
 }
