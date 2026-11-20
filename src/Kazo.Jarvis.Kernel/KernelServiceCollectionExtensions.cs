@@ -36,6 +36,11 @@ public static class KernelServiceCollectionExtensions
         services.TryAddSingleton<ISoundLevelSource>(provider => provider.GetRequiredService<SoundLevelFeed>());
         services.TryAddSingleton<ISoundLevelSink>(provider => provider.GetRequiredService<SoundLevelFeed>());
 
+        // What the microphone captures, written by the audio slice, read by the voice slices (ADR 0006).
+        services.TryAddSingleton(_ => new MicrophoneFeed());
+        services.TryAddSingleton<IMicrophoneSource>(provider => provider.GetRequiredService<MicrophoneFeed>());
+        services.TryAddSingleton<IMicrophoneSink>(provider => provider.GetRequiredService<MicrophoneFeed>());
+
         return services;
     }
 

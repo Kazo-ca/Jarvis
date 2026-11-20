@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+    <data name="Title" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>The microphone Jarvis listens to and the output it speaks through. Each choice applies at once. What the microphone hears stays in memory and is never written to disk.</value>
+  </data>
+  <data name="MicrophoneLabel" xml:space="preserve">
+    <value>Microphone</value>
+  </data>
+  <data name="WindowsDefault" xml:space="preserve">
+    <value>Windows default</value>
+  </data>
+  <data name="WindowsDefaultNamed" xml:space="preserve">
+    <value>Windows default ({0})</value>
+  </data>
+  <data name="Absent" xml:space="preserve">
+    <value>Chosen device (absent)</value>
+  </data>
+  <data name="LevelLabel" xml:space="preserve">
+    <value>Microphone level</value>
+  </data>
+  <data name="MuteLabel" xml:space="preserve">
+    <value>Mute the microphone</value>
+  </data>
+  <data name="ListeningHint" xml:space="preserve">
+    <value>Listening through {0}.</value>
+  </data>
+  <data name="MutedHint" xml:space="preserve">
+    <value>The microphone is muted: it is closed, nothing is captured, and Jarvis no longer answers "Hey Jarvis".</value>
+  </data>
+  <data name="MissingHint" xml:space="preserve">
+    <value>No microphone can be opened. Jarvis listens again as soon as one is connected.</value>
+  </data>
+  <data name="DefaultHint" xml:space="preserve">
+    <value>If the chosen microphone is missing, Jarvis listens through the Windows default until it comes back.</value>
+  </data>
+  <data name="OutputLabel" xml:space="preserve">
+    <value>Output</value>
+  </data>
+  <data name="OutputHint" xml:space="preserve">
+    <value>Where Jarvis speaks. If the chosen output is missing, the Windows default is used.</value>
+  </data>
+  <data name="TestOutput" xml:space="preserve">
+    <value>Test the output</value>
+  </data>
+  <data name="NoOutput" xml:space="preserve">
+    <value>No audio output can be opened.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The choice could not be saved: the settings file cannot be written. The cause is in the log.</value>
+  </data>
+</root>

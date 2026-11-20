@@ -38,6 +38,14 @@ detect that message and ask to run `/login` again, instead of failing silently.
 
 `ISampleProvider.Read` takes a `Span<float>`. Samples written for NAudio 2 no longer compile.
 
+## NAudio 3: `WasapiCapture` and `WasapiOut` are obsolete (work item stage1/8-audio-devices)
+
+They raise warning CS0618, and the build must stay free of warnings. Use `WasapiRecorderBuilder` and
+`WasapiPlayerBuilder`. `DataAvailable` then receives a `ReadOnlySpan<byte>` directly (no more
+`WaveInEventArgs`); `MMDevice.AudioClient` is obsolete too (`WasapiPlayer.DeviceMixFormat` gives the mix
+format). The events of a recorder or player go through the synchronization context of the thread that
+creates it: create it on a pool thread, never on the UI thread.
+
 ## An NUnit `[SetUpFixture]` only covers its own namespace (work item stage1/1-solution)
 
 Placed in `Kazo.Jarvis.Tests.E2E.Drivers`, the Web host start-up did not run for the tests of

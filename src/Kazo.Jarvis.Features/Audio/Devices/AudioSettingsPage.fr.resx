@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+    <data name="Title" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Le micro qu'écoute Jarvis et la sortie par laquelle il parle. Chaque choix s'applique tout de suite. Ce que capte le micro reste en mémoire et n'est jamais écrit sur le disque.</value>
+  </data>
+  <data name="MicrophoneLabel" xml:space="preserve">
+    <value>Micro</value>
+  </data>
+  <data name="WindowsDefault" xml:space="preserve">
+    <value>Par défaut de Windows</value>
+  </data>
+  <data name="WindowsDefaultNamed" xml:space="preserve">
+    <value>Par défaut de Windows ({0})</value>
+  </data>
+  <data name="Absent" xml:space="preserve">
+    <value>Appareil choisi (absent)</value>
+  </data>
+  <data name="LevelLabel" xml:space="preserve">
+    <value>Niveau du micro</value>
+  </data>
+  <data name="MuteLabel" xml:space="preserve">
+    <value>Couper le micro</value>
+  </data>
+  <data name="ListeningHint" xml:space="preserve">
+    <value>Écoute par {0}.</value>
+  </data>
+  <data name="MutedHint" xml:space="preserve">
+    <value>Le micro est coupé : il est fermé, rien n'est capté, et Jarvis ne répond plus à « Hey Jarvis ».</value>
+  </data>
+  <data name="MissingHint" xml:space="preserve">
+    <value>Aucun micro ne peut être ouvert. Jarvis écoute de nouveau dès qu'un micro est branché.</value>
+  </data>
+  <data name="DefaultHint" xml:space="preserve">
+    <value>Si le micro choisi est absent, Jarvis écoute par celui de Windows jusqu'à son retour.</value>
+  </data>
+  <data name="OutputLabel" xml:space="preserve">
+    <value>Sortie</value>
+  </data>
+  <data name="OutputHint" xml:space="preserve">
+    <value>Là où Jarvis parle. Si la sortie choisie est absente, celle de Windows est utilisée.</value>
+  </data>
+  <data name="TestOutput" xml:space="preserve">
+    <value>Tester la sortie</value>
+  </data>
+  <data name="NoOutput" xml:space="preserve">
+    <value>Aucune sortie audio ne peut être ouverte.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le choix n'a pas pu être enregistré : le fichier des réglages ne peut pas être écrit. La cause est dans le journal.</value>
+  </data>
+</root>

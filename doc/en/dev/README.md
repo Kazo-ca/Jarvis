@@ -11,6 +11,7 @@
 | [hosts.md](hosts.md) | Windows and Web hosts: start-up, orb, tray icon, hotkey, dialogs |
 | [orb.md](orb.md) | The orb, high-quality and light versions: component, quality setting, looks, motion, cost, demonstration page |
 | [shared-ui.md](shared-ui.md) | Shared style, fonts, translations, language setting, settings window, secret field |
+| [audio.md](audio.md) | Audio devices: microphone, output, mute, listening buffer |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |

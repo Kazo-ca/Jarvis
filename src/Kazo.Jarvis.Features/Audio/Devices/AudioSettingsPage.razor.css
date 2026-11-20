@@ -1,0 +1,53 @@
+.audio-select {
+    min-width: 18rem;
+    max-width: 100%;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.audio-select:disabled {
+    opacity: 0.5;
+}
+
+.audio-level {
+    display: block;
+    width: 18rem;
+    max-width: 100%;
+    height: 0.6rem;
+    margin-top: 0.6rem;
+}
+
+.audio-mute {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.6rem;
+    cursor: pointer;
+}
+
+.audio-mute input {
+    accent-color: var(--jarvis-cyan);
+}
+
+.audio-test {
+    margin-left: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: transparent;
+    color: var(--jarvis-cyan);
+    font: inherit;
+    cursor: pointer;
+}
+
+.audio-test:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.audio-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

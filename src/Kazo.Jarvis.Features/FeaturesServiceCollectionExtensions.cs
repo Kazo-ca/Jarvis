@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Features.Assistant.Orb;
+using Kazo.Jarvis.Features.Audio.Devices;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Llm.Providers;
@@ -47,6 +48,9 @@ public static class FeaturesServiceCollectionExtensions
         // Language models (stage1/11-llm-providers): the connector comes from the host; the default model is
         // preloaded in the background and read by the conversation (work item 13).
         services.AddLlmProvidersSlice();
+
+        // Audio devices (stage1/8-audio-devices): capture and playback come from the host.
+        services.AddAudioDevicesSlice();
 
         // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
         return services;

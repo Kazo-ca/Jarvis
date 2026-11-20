@@ -25,7 +25,10 @@ Resume point for any agent. Update it in the same change as what it describes.
   item 8), and for work item 6: cost of the light orb when idle, muted and in error under 2 % of a core
   (mandatory), cost of the animated phases and of the long task, click and drag, animations turned off in
   Windows, and for work item 7: the same measures for the high-quality version (ADR 0011, section 8),
-  quality change without a restart, look at 160 pixels ([list](../dev/orb.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
+  quality change without a restart, look at 160 pixels ([list](../dev/orb.md#windows-checks)), and for work item 8: real microphone
+  and level, muted microphone (Windows no longer shows an application listening, mute kept after a restart),
+  microphone unplugged while Jarvis runs, test sound on speakers and headset, cost of the open microphone
+  while idle ([list](../dev/audio.md#windows-checks)). Work item 16 (`stage1/16-updates`, updates: slice
   `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
   script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
   session. Work item 5 (`stage1/5-shared-ui-language`, shared style, embedded fonts, `.resx` translations,
@@ -79,8 +82,17 @@ Resume point for any agent. Update it in the same change as what it describes.
   fallback model. **Provisional choices** ([detail](../dev/llm.md#provisional-choices-of-this-work-item)):
   default port 11434 (Benoit sets 11435 once), `claude-opus-5-5` for a new Anthropic provider, Anthropic
   adapter on `HttpClient` rather than the SDK, answers of 16,000 tokens at most, 20 s connection test.
-- **Next step:** work item `stage1/8-audio-devices`, which depends on work item 5 only. The pending Windows
-  tests (work items 4, 5, 6, 7 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item 8** (`stage1/8-audio-devices`, audio devices: contracts `IAudioCapture` and `IAudioPlayback`,
+  kernel `MicrophoneFeed` (microphone stream and 30 s in-memory buffer, for the wake word and transcription),
+  slice `Audio/Devices` (microphone, mute US1.13, "microphone missing" fault, output, "Audio" page), WASAPI
+  through NAudio 3.3 in the Windows host, see [dev/audio.md](../dev/audio.md)) delivered in its PR on
+  November 20, 2026, without a Windows check. **Provisional choices** (details in
+  [dev/audio.md](../dev/audio.md#provisional-choices-of-this-work-item), to be confirmed by Benoit): mute
+  survives a restart; chosen microphone missing = the Windows default, with no fault; muting clears the
+  "microphone missing" fault; 30 s buffer; level in decibels from −60 to 0; conversion to 16 kHz done by
+  Jarvis.
+- **Next step:** work items `stage1/9-wake-word`, `stage1/10-transcription` and `stage1/12-speech`, which
+  depend on work item 8. The pending Windows tests (work items 4, 5, 6, 7, 8 and 11, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux
