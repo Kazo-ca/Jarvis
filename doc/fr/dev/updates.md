@@ -45,11 +45,11 @@ qui tournent sous Linux.
 
 ## Choix que l'ADR 0001 ne tranche pas
 
-- **Vérification automatique désactivée par défaut** (réglage `Maintenance.Updates`, `Automatic`) : avec les
-  réglages par défaut, rien ne sort du PC (plan de l'étape 1, chantier 17). Une fois activée, elle a lieu une
-  minute après le démarrage puis toutes les 6 heures, et un avis de la zone de notification annonce chaque
-  nouvelle version une fois. **Choix provisoire, posé à Benoit le 20 novembre 2026** ; changer le défaut tient
-  en une ligne (`UpdateOptions.Automatic`).
+- **Vérification automatique activée par défaut** (réglage `Maintenance.Updates`, `Automatic`) : **choix de
+  Benoit le 20 novembre 2026**. Elle a lieu une minute après le démarrage puis toutes les 6 heures, et un avis
+  de la zone de notification annonce chaque nouvelle version une fois. La demande ne contient que la lecture
+  de la liste des versions publiques ; c'est la seule exception à « aucune connexion ne sort par défaut »
+  (plan de l'étape 1, chantier 17). Une case de la fenêtre des mises à jour la désactive.
 - **Pré-versions proposées** (`IncludePreReleases`, activé) tant que Kazo.Jarvis est en 0.x et ne publie que
   des pré-versions.
 - **Le programme de mise à jour part de la nouvelle version**, pas du dossier installé : il ne remplace jamais

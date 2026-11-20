@@ -25,7 +25,7 @@ public sealed class UpdatesTests : PageTest
         await Page.ClickAsync("#open-updates");
         await Expect(Page.GetByRole(AriaRole.Dialog, new() { Name = "Updates" })).ToBeVisibleAsync();
         await Expect(Page.Locator("#updates-current")).ToContainTextAsync("Installed version: 0.0.1");
-        await Expect(Page.Locator("#updates-automatic")).Not.ToBeCheckedAsync();
+        await Expect(Page.Locator("#updates-automatic")).ToBeCheckedAsync();
 
         // No network: the failure is named, nothing to install.
         await Page.ClickAsync("#simulate-offline");
@@ -58,13 +58,13 @@ public sealed class UpdatesTests : PageTest
     public async Task The_automatic_check_is_a_setting_kept_across_windows()
     {
         await Page.ClickAsync("#open-updates");
-        await Page.Locator("#updates-automatic").CheckAsync();
+        await Page.Locator("#updates-automatic").UncheckAsync();
         await Page.Locator("[data-dialog-key='Updates.Panel'] .dialog-close").ClickAsync();
 
         await Page.ClickAsync("#open-updates");
-        await Expect(Page.Locator("#updates-automatic")).ToBeCheckedAsync();
+        await Expect(Page.Locator("#updates-automatic")).Not.ToBeCheckedAsync();
 
         // Leave the shared host as found.
-        await Page.Locator("#updates-automatic").UncheckAsync();
+        await Page.Locator("#updates-automatic").CheckAsync();
     }
 }
