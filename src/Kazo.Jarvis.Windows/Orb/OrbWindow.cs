@@ -58,6 +58,18 @@ internal sealed class OrbWindow : Window
             new WindowInteropHelper(this).Handle, NativeMethods.WsExNoActivate | NativeMethods.WsExToolWindow);
     }
 
+    /// <summary>The top-left corner in physical screen pixels.</summary>
+    public (int X, int Y) ScreenPosition => NativeMethods.WindowPosition(new WindowInteropHelper(this).Handle);
+
+    /// <summary>
+    /// Places the window at physical screen pixels as soon as its handle exists, before it is shown. Windows
+    /// then sends the scale change of the target screen, and WPF resizes the window for it.
+    /// </summary>
+    /// <param name="x">Left edge in physical pixels.</param>
+    /// <param name="y">Top edge in physical pixels.</param>
+    public void PlaceAtScreenPosition(int x, int y) =>
+        SourceInitialized += (_, _) => NativeMethods.MoveWindow(new WindowInteropHelper(this).Handle, x, y);
+
     /// <summary>Raised on a press released without moving the window.</summary>
     public event EventHandler? Clicked;
 

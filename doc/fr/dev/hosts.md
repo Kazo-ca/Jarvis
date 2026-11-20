@@ -57,8 +57,11 @@ plus, puis termine l'application.
 ### Session verrouillée
 
 Sur une session verrouillée, Direct3D 9 n'est pas disponible et `WebView2CompositionControl` ne peut pas créer
-son périphérique ([pièges](pitfalls.md)). L'hôte ne crée donc pas l'orbe tant que le bureau qui reçoit les
-entrées n'est pas `Default` (sur l'écran de verrouillage, c'est `Winlogon`). Il le vérifie chaque seconde,
+son périphérique ([pièges](pitfalls.md)). L'hôte ne crée donc pas l'orbe tant que la session est verrouillée
+(`WTSQuerySessionInformation`, `WTSSessionInfoEx`) ou que le bureau qui reçoit les entrées n'est pas `Default`
+(bureau sécurisé d'une demande d'identification, session à distance déconnectée). Le nom du bureau seul ne
+suffit pas : sous Windows 10 et 11, l'écran de verrouillage tourne sur le bureau `Default` (constaté sur le PC
+de Benoit). Il le vérifie chaque seconde,
 attend que le bureau soit prêt depuis 2 secondes, puis ouvre l'orbe. Pendant l'attente :
 
 - une ligne d'avertissement dans le journal dit pourquoi l'orbe n'est pas là ;
@@ -76,8 +79,11 @@ journalisée, puis une boîte de dialogue donne le chemin du journal avant l'arr
 - 160 × 160 pixels indépendants ; l'orbe provisoire est un disque de 96 pixels au centre. Les pixels
   transparents autour laissent passer les clics.
 - Un appui suivi d'un glissement déplace la fenêtre (`DragMove`) ; la position est enregistrée dans la
-  section `Desktop.OrbWindow` de `config.json`, propre à l'hôte. Au démarrage, une position hors de tous les
-  écrans est remplacée par le coin inférieur droit de la zone de travail.
+  section `Desktop.OrbWindow` de `config.json` (`screenX`, `screenY`), propre à l'hôte, **en pixels physiques
+  de l'écran** : en pixels indépendants, WPF la convertit avec l'échelle de l'écran où la fenêtre est créée,
+  et l'orbe dérivait à chaque relance avec des écrans d'échelles différentes ([pièges](pitfalls.md)). Au
+  démarrage, la fenêtre est placée par `SetWindowPos` avant d'être affichée ; une position hors de toutes
+  les zones de travail est remplacée par le coin inférieur droit de l'écran principal.
 - Un appui sans déplacement (moins de 4 pixels) est un clic : il publie `ActivationRequested(Click)`. C'est
   provisoire : la tranche de l'orbe (chantier 6) reprend le clic dans son composant.
 - La vue web a un fond transparent (`DefaultBackgroundColor` et `WEBVIEW2_DEFAULT_BACKGROUND_COLOR`).

@@ -12,8 +12,17 @@ ce qu'il décrit.
   (`stage1/3-settings-storage-vault`, réglages `config.json`, base SQLite, coffre de secrets, voir
   [dev/storage.md](../dev/storage.md)) fusionné (PR 18). Chantier 4 (`stage1/4-hosts`, hôte Windows sur
   l'hôte générique .NET, orbe provisoire, zone de notification, raccourci global, démarrage avec Windows,
-  dialogues, attente du déverrouillage, voir [dev/hosts.md](../dev/hosts.md)) livré dans sa PR ; vérification
-  sur Windows à faire. Benoit fusionne `main` ; un agent fusionne
+  dialogues, attente du déverrouillage, voir [dev/hosts.md](../dev/hosts.md)) fusionné (PR 20). Vérification
+  sur Windows faite le 20 novembre 2026 (construction sans avertissement, tests 286/286 et E2E 11/11, clics
+  à travers l'orbe, second lancement, raccourci sans perte de focus, coût immobile 0,8 % d'un cœur). Trois
+  défauts trouvés, corrigés par `stage1/4b-hosts-fixes` : verrouillage non détecté sous Windows 11 (l'écran de
+  verrouillage est sur le bureau `Default`), dérive × 1,5 de la position avec des écrans d'échelles
+  différentes, aucun changement d'état dans le journal. Benoit a arrêté les tests le 20 novembre 2026 : **tests
+  Windows en attente** (à regrouper pour une prochaine séance avec lui) : démarrage sur session verrouillée
+  (cacher la caméra : Windows Hello déverrouille tout seul), position après relance avec des écrans
+  d'échelles différentes, ligne « ActivationRequested: Idle -> Listening » au journal après `Ctrl+Alt+J`,
+  « Quitter » en moins de 10 s, taille de l'orbe après reconnexion des écrans (240 × 240 vu une fois sur
+  l'écran à 100 %, correct après relance). Benoit fusionne `main` ; un agent fusionne
   lui-même ses PR dans une branche `<série>/base` une fois les vérifications vertes (règle redite par Benoit
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX). L'étape 5 est réécrite le 19 novembre 2026 : appels entre Jarvis et l'application Android, dans les deux sens (US5.1 à US5.9 du document de conception), sans ADR pour l'instant ; elle dépend d'E10. En attente : E10
