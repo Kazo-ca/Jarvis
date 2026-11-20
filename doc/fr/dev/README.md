@@ -12,6 +12,7 @@
 | [orb.md](orb.md) | L'orbe, versions haute qualité et légère : composant, réglage de qualité, aspects, mouvement, coût, page de démonstration |
 | [shared-ui.md](shared-ui.md) | Style commun, polices, traductions, réglage de langue, fenêtre des paramètres, champ de secret |
 | [audio.md](audio.md) | Périphériques audio : micro, sortie, coupure du micro, tampon d'écoute |
+| [transcription.md](transcription.md) | Transcription : fin de phrase (Silero, seuil d'énergie), Whisper, page « Transcription », modèles |
 | [speech.md](speech.md) | Synthèse vocale : moteurs Piper, Kokoro et dans le nuage, voix de chaque langue, page « Voix » |
 | [llm.md](llm.md) | Modèles de langage : fournisseurs, adaptateurs, modèle par défaut, test de la connexion |
 | [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |

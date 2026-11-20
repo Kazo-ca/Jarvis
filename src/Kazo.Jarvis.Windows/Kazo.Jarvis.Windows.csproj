@@ -36,6 +36,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <!-- Audio devices (ADR 0003, section 5): WASAPI capture and playback. -->
     <PackageReference Include="NAudio" />
+    <!-- Whisper on the graphics card (ADR 0006, section 4); Adapters brings the processor runtime. -->
+    <PackageReference Include="Whisper.net.Runtime.Cuda" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,12 +6,14 @@ using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Speech;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Adapters.Updates;
+using Kazo.Jarvis.Adapters.Voice;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Speech;
 using Kazo.Jarvis.Kernel.Storage;
 using Kazo.Jarvis.Kernel.Updates;
+using Kazo.Jarvis.Kernel.Voice;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -61,6 +63,12 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetService<ISecretVault>(),
             provider.GetService<ILogger<HttpLlmConnector>>()));
 
+        // Transcription (ADR 0006, sections 3 and 4): Whisper.net and Silero, models read from the models folder.
+        services.TryAddSingleton<ISpeechRecognition>(provider => new WhisperSpeechRecognition(
+            provider.GetRequiredService<JarvisPaths>(),
+            provider.GetService<ILogger<WhisperSpeechRecognition>>()));
+        services.TryAddSingleton<IVoiceActivityDetection>(provider => new SileroVoiceActivityDetection(
+            provider.GetRequiredService<JarvisPaths>()));
         // Voices (ADR 0006, section 5): Piper and Kokoro read the models folder; the cloud voices are listed only
         // when their key is in the vault. One client for both cloud services: 30 s bounds one sentence.
         services.TryAddSingleton(provider => new PiperSpeechEngine(provider.GetRequiredService<JarvisPaths>().Models));
