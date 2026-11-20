@@ -1,0 +1,65 @@
+.updates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    min-width: 22rem;
+    color: #d8f6ff;
+    font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.updates-current {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.75;
+}
+
+.updates-message {
+    margin: 0;
+}
+
+.updates-message-failed {
+    color: #ffb4a8;
+}
+
+.updates-progress {
+    width: 100%;
+    accent-color: #4fd8ff;
+}
+
+.updates-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.updates-actions button {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid #4fd8ff;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.updates-actions button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.updates-actions .updates-install {
+    background: #4fd8ff;
+    color: #04121a;
+}
+
+.updates-actions a {
+    color: #4fd8ff;
+}
+
+.updates-automatic {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}

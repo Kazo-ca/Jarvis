@@ -2,6 +2,7 @@ using Kazo.Jarvis.Kernel.Desktop;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Storage;
+using Kazo.Jarvis.Kernel.Updates;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Kazo.Jarvis.Web.Simulated;
@@ -11,7 +12,7 @@ public static class SimulatedServiceCollectionExtensions
 {
     /// <summary>
     /// Adds the in-memory settings, document store and vault, and the simulated desktop services (orb, dialogs,
-    /// hotkey, start with Windows). Called before <c>AddJarvisFeatures</c>.
+    /// hotkey, start with Windows) and the simulated release source and updater launcher. Called before <c>AddJarvisFeatures</c>.
     /// </summary>
     /// <param name="services">The host's service collection.</param>
     /// <returns>The same collection, for chaining.</returns>
@@ -33,6 +34,11 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<SimulatedGlobalHotkey>();
         services.TryAddSingleton<IGlobalHotkey>(provider => provider.GetRequiredService<SimulatedGlobalHotkey>());
         services.TryAddSingleton<ILaunchAtLogin, InMemoryLaunchAtLogin>();
+
+        services.TryAddSingleton<SimulatedReleaseSource>();
+        services.TryAddSingleton<IReleaseSource>(provider => provider.GetRequiredService<SimulatedReleaseSource>());
+        services.TryAddSingleton<SimulatedUpdateLauncher>();
+        services.TryAddSingleton<IUpdateLauncher>(provider => provider.GetRequiredService<SimulatedUpdateLauncher>());
         return services;
     }
 }

@@ -92,6 +92,13 @@ whose `Application`, `MessageBox` and `Color` clash with WPF's. Remove them in t
 (`<Using Remove="System.Windows.Forms" />`, same for `System.Drawing`) and write the usings by hand in the few
 files that need them.
 
+## `BackgroundService` starts `ExecuteAsync` on another thread since .NET 10 (work item stage1/16-updates)
+
+Since .NET 10, `BackgroundService.StartAsync` starts `ExecuteAsync` on a pool thread instead of running it up
+to its first `await`. With `FakeTimeProvider`, the first `Task.Delay` may not exist yet when the test moves
+the clock, and the wait is shifted. After `StartAsync`, let the loop reach its wait (a few real
+milliseconds) before calling `Advance`.
+
 ## WPF position and screens of different scales (work item stage1/4-hosts)
 
 On Benoit's PC (screens at 150 % and 100 %), the orb position saved from `Window.Left`/`Top` (-639, 387) came

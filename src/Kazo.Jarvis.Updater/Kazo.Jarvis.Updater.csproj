@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Kazo.Jarvis.Updater (ADR 0001, section 3; US1.18): waits for the application to end, replaces the files
+    of its installation folder with those of the new version, then starts it again. Checking the versions
+    and downloading happen in the application (the updates slice and its adapter), so this program
+    references no other project and stays small. Shipped next to Kazo.Jarvis.Windows.exe in the release zip
+    (build/Publish-Release.ps1); the application starts it from the unpacked new version, never from the
+    folder it replaces.
+    Installing/ holds plain .NET code, compiled into the unit tests as well so they run on Linux.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RootNamespace>Kazo.Jarvis.Updater</RootNamespace>
+    <AssemblyName>Kazo.Jarvis.Updater</AssemblyName>
+    <StartupObject>Kazo.Jarvis.Updater.Program</StartupObject>
+    <!-- Lets the Linux CI compile it; running it still needs Windows. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+</Project>

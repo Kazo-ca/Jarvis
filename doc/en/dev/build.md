@@ -21,12 +21,14 @@ src/Kazo.Jarvis.Features     vertical slices: Features/<Domain>/<Slice>/
 src/Kazo.Jarvis.Adapters     real implementations of the contracts (Windows host only)
 src/Kazo.Jarvis.Windows      WPF + BlazorWebView host
 src/Kazo.Jarvis.Web          Web test host, simulated services, Playwright target
+src/Kazo.Jarvis.Updater      updater (no project reference)
+build/Publish-Release.ps1    publishing a version (see dev/updates.md)
 tests/Kazo.Jarvis.Tests.Unit unit tests and architecture tests
 tests/Kazo.Jarvis.Tests.E2E  Playwright tests against the Web host
 .github/workflows/ci.yml     continuous integration on Linux
 ```
 
-`Updater` comes with work item 16, `Mobile` at stage 4. The spikes under `spikes/` stay out of the solution
+`Mobile` comes at stage 4. The spikes under `spikes/` stay out of the solution
 and keep their own package versions (`spikes/Directory.Packages.props`).
 
 ## Commands

@@ -15,10 +15,11 @@ public sealed partial class ProjectReferenceTests
     private const string Adapters = "Kazo.Jarvis.Adapters";
     private const string Windows = "Kazo.Jarvis.Windows";
     private const string Web = "Kazo.Jarvis.Web";
+    private const string Updater = "Kazo.Jarvis.Updater";
 
     /// <summary>
     /// The only project references allowed for each product project. Hosts sit at the top; Features and
-    /// Adapters only see the kernel; the kernel sees nothing. The Web host never loads Adapters.
+    /// Adapters only see the kernel; the kernel and the updater see nothing. The Web host never loads Adapters.
     /// </summary>
     private static readonly Dictionary<string, string[]> AllowedReferences = new()
     {
@@ -27,6 +28,9 @@ public sealed partial class ProjectReferenceTests
         [Adapters] = [Kernel],
         [Windows] = [Kernel, Features, Adapters],
         [Web] = [Kernel, Features],
+
+        // Replaces files and starts the application again; nothing else (ADR 0001, section 3).
+        [Updater] = [],
     };
 
     [TestCaseSource(nameof(ProductProjects))]

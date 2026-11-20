@@ -94,6 +94,13 @@ et `System.Drawing`, dont `Application`, `MessageBox` et `Color` entrent en conf
 retirer dans le `.csproj` (`<Using Remove="System.Windows.Forms" />`, idem pour `System.Drawing`) et écrire
 les `using` à la main dans les seuls fichiers qui en ont besoin.
 
+## `BackgroundService` démarre `ExecuteAsync` sur un autre fil depuis .NET 10 (chantier stage1/16-updates)
+
+Depuis .NET 10, `BackgroundService.StartAsync` lance `ExecuteAsync` sur un fil du pool au lieu de l'exécuter
+jusqu'au premier `await`. Avec `FakeTimeProvider`, le premier `Task.Delay` peut donc ne pas exister encore
+quand le test avance l'horloge, et l'attente est décalée. Après `StartAsync`, laisser la boucle atteindre son
+attente (quelques millisecondes réelles) avant d'appeler `Advance`.
+
 ## Position WPF et écrans d'échelles différentes (chantier stage1/4-hosts)
 
 Sur le PC de Benoit (écrans à 150 % et à 100 %), la position de l'orbe enregistrée par `Window.Left`/`Top`

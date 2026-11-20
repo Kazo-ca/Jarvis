@@ -19,7 +19,8 @@ so that typing in another application never triggers it by accident.
 
 The tray icon has no contract: no slice needs one (ADR 0003, section 5, "a contract is added when a slice
 needs it"). Its menu publishes `SettingsWindowRequested` and `ConversationWindowRequested`
-(`Kernel.Messages.Desktop`); an entry stays greyed out while no slice handles its event. "Mute the
+(`Kernel.Messages.Desktop`), and "Updates…" publishes `UpdatesWindowRequested` ([updates.md](updates.md));
+an entry stays greyed out while no slice handles its event. "Mute the
 microphone" stays greyed out until work item 8.
 
 ## Slices

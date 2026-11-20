@@ -9,5 +9,6 @@
 | [kernel.md](kernel.md) | Le noyau : bus de messages, machine à états, niveau sonore |
 | [storage.md](storage.md) | Réglages (`config.json`), base SQLite, coffre de secrets |
 | [hosts.md](hosts.md) | Hôtes Windows et Web : démarrage, orbe, zone de notification, raccourci, dialogues |
+| [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |
 | [pitfalls.md](pitfalls.md) | Pièges rencontrés et leur solution |
 | [spikes.md](spikes.md) | Synthèse des essais techniques |

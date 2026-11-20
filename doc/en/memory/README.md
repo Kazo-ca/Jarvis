@@ -19,7 +19,11 @@ Resume point for any agent. Update it in the same change as what it describes.
   Windows tests** (to group for a next session with him): start on a locked session (hide the camera:
   Windows Hello unlocks by itself), position after a restart with screens of different scales, line
   "ActivationRequested: Idle -> Listening" in the log after `Ctrl+Alt+J`, Quit within 10 s, orb size after
-  the screens reconnect (240 × 240 seen once on the 100 % screen, right after a restart). Benoit merges `main`; an agent merges its own PRs
+  the screens reconnect (240 × 240 seen once on the 100 % screen, right after a restart), and an end-to-end update between two test versions (work item 16,
+  [list](../dev/updates.md#windows-check)). Work item 16 (`stage1/16-updates`, updates: slice
+  `Maintenance/Updates`, reading GitHub releases, `Kazo.Jarvis.Updater` program, `build/Publish-Release.ps1`
+  script, see [dev/updates.md](../dev/updates.md)) delivered in its PR; its Windows check waits for the next
+  session. Benoit merges `main`; an agent merges its own PRs
   into a `<series>/base` branch once checks are green (rule restated by Benoit on November 19, 2026).
 - **Series `spikes` (finished, merged into `main`):** spikes E1 to E10. Done on November 18, 2026: E2 to E9. E1 dropped (no 3CX). Stage 5 was rewritten on November 19, 2026: calls between Jarvis and the Android app, both ways (US5.1 to US5.9 of the design document), no ADR for now; it depends on E10. Waiting: E10
   (Benoit's Android phone). Summary: [dev/spikes.md](../dev/spikes.md).
@@ -78,6 +82,11 @@ Resume point for any agent. Update it in the same change as what it describes.
   build without warnings, unit tests 29/29, Playwright 1/1, Web host HTTP 200, Windows host opened,
   responsive and closed without error. Started on a locked session, the Windows host died: fixed in work
   item 4 (see [pitfalls](../dev/pitfalls.md)).
+- **Choices of work item 16 that ADR 0001 does not settle** (details in [dev/updates.md](../dev/updates.md)):
+  automatic check **off by default** (nothing leaves the PC by default), manual check through "Updates…" in
+  the tray; **provisional choice asked to Benoit on November 20, 2026, waiting for his answer**. Once on: a
+  minute after start, then every 6 hours. Pre-releases offered while the version is 0.x; the updater starts
+  from the unpacked new version, without a window; a development build never installs.
 - **Choices of work item 4 that ADRs 0003 and 0013 do not settle** (details in [dev/hosts.md](../dev/hosts.md)):
   default hotkey `Ctrl+Alt+J` (section `Desktop.Hotkey`); no contract for the tray icon, its Settings and
   Conversation entries publish an event and stay greyed out without a slice handling it; the click on the orb
