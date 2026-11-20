@@ -14,7 +14,10 @@
     <PackageVersion Include="Whisper.net.Runtime.Cuda" Version="1.9.1" />
     <!-- Do not move to 2.x without a new ADR: 2.0 removed espeak-ng (see doc/en/dev/pitfalls.md). -->
     <PackageVersion Include="org.k2fsa.sherpa.onnx" Version="1.13.8" />
-    <PackageVersion Include="Microsoft.ML.OnnxRuntime" Version="1.32.0" />
+    <!-- Managed part only, on the native onnxruntime 1.28.2 that sherpa-onnx ships: Microsoft.ML.OnnxRuntime 1.32.0
+         (ADR 0001) brought a second native library of the same name that broke sherpa-onnx (doc/en/dev/pitfalls.md).
+         Keep it at or below the native version: a newer managed part cannot use an older engine. -->
+    <PackageVersion Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.28.0" />
     <!-- NAudio 3: ISampleProvider.Read takes a Span<float>. -->
     <PackageVersion Include="NAudio" Version="3.3.0" />
   </ItemGroup>

@@ -16,7 +16,13 @@
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" />
     <!-- Wake word (ADR 0006, section 2): the three openWakeWord models on the processor. -->
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" />
+    <!-- Transcription (ADR 0006, sections 3 and 4): Whisper.net with its CPU runtime, Silero by sherpa-onnx.
+         The CUDA runtime is added by the Windows host only. -->
+    <PackageReference Include="Whisper.net" />
+    <PackageReference Include="Whisper.net.Runtime" />
+    <!-- Local voices (ADR 0006, section 5): Piper and Kokoro through sherpa-onnx, pinned to 1.13.8. -->
+    <PackageReference Include="org.k2fsa.sherpa.onnx" />
   </ItemGroup>
 
   <ItemGroup>

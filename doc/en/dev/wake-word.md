@@ -22,7 +22,9 @@ microphone ─► MicrophoneFeed (kernel) ─► WakeWordListener (slice) ─►
 ### Adapter (`Adapters/Voice`)
 
 - **`OnnxWakeWordEngine`**: the three openWakeWord 0.5.1 models (`melspectrogram.onnx`,
-  `embedding_model.onnx`, `hey_jarvis_v0.1.onnx`) on ONNX Runtime 1.32 on the processor, one thread each.
+  `embedding_model.onnx`, `hey_jarvis_v0.1.onnx`) on ONNX Runtime on the processor, one thread each:
+  `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 on the 1.28.2 native engine shipped by sherpa-onnx 1.13.8, so that
+  the process has one `onnxruntime` only ([pitfalls](pitfalls.md)).
   Folder: `%USERPROFILE%\.kazo\jarvis\models\wake-word` (ADR 0004, section 5).
 - **`OnnxWakeWordDetector`**: streaming port of the openWakeWord behavior (not its code), taken from spike
   E4: each 80 ms frame adds its mel frames (with 480 samples of context), one 96-value embedding of the last
@@ -73,6 +75,10 @@ ADR 0006 does not settle them; to be confirmed by Benoit:
    failing every 80 ms.
 8. Queue of about 6 s: if the models fall behind, the oldest sound is dropped (a late wake word is worse than
    a missed one).
+9. **`Microsoft.ML.OnnxRuntime.Managed` 1.28.0 instead of `Microsoft.ML.OnnxRuntime` 1.32.0** (version of
+   ADR 0001): the two native packages overwrote each other and Piper no longer loaded on Linux
+   ([pitfalls](pitfalls.md)). Piper then the wake word in the same process: "Hey Jarvis." at 0.993. An ADR
+   replacing that line of ADR 0001 is to be proposed to Benoit.
 
 ## Tests
 

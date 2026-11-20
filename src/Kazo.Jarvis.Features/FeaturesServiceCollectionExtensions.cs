@@ -8,6 +8,9 @@ using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
+using Kazo.Jarvis.Features.Voice.Speech;
+using Kazo.Jarvis.Features.Voice.TestVoice;
+using Kazo.Jarvis.Features.Voice.Transcription;
 using Kazo.Jarvis.Kernel;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -55,6 +58,13 @@ public static class FeaturesServiceCollectionExtensions
 
         // Wake word (stage1/9-wake-word): the engine comes from the host, the microphone stream from the kernel.
         services.AddWakeWordSlice();
+        // Transcription (stage1/10-transcription): end of speech and Whisper; the recognition and Silero come
+        // from the host.
+        services.AddTranscriptionSlice();
+
+        // Speech (stage1/12-speech): the engines come from the host; the voices page uses the same engines.
+        services.AddSpeechSlice();
+        services.AddTestVoiceSlice();
 
         // Other slices arrive with their work items (stage1/7-orb-high-quality onwards).
         return services;

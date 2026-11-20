@@ -22,7 +22,9 @@ micro ─► MicrophoneFeed (noyau) ─► WakeWordListener (tranche) ─► IWa
 ### Adaptateur (`Adapters/Voice`)
 
 - **`OnnxWakeWordEngine`** : les trois modèles d'openWakeWord 0.5.1 (`melspectrogram.onnx`,
-  `embedding_model.onnx`, `hey_jarvis_v0.1.onnx`) par ONNX Runtime 1.32 sur le processeur, un fil chacun.
+  `embedding_model.onnx`, `hey_jarvis_v0.1.onnx`) par ONNX Runtime sur le processeur, un fil chacun :
+  `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 sur le moteur natif 1.28.2 livré par sherpa-onnx 1.13.8, pour
+  n'avoir qu'un `onnxruntime` dans le processus ([pièges](pitfalls.md)).
   Dossier : `%USERPROFILE%\.kazo\jarvis\models\wake-word` (ADR 0004, section 5).
 - **`OnnxWakeWordDetector`** : portage en flux du comportement d'openWakeWord (pas de son code) repris de
   l'essai E4 : chaque trame de 80 ms ajoute ses trames de spectrogramme (avec 480 échantillons de contexte),
@@ -74,6 +76,10 @@ L'ADR 0006 ne les tranche pas ; à confirmer par Benoit :
    plutôt que d'échouer toutes les 80 ms.
 8. File d'environ 6 s : si les modèles prennent du retard, le son le plus ancien est jeté (un mot d'éveil en
    retard est pire qu'un mot d'éveil manqué).
+9. **`Microsoft.ML.OnnxRuntime.Managed` 1.28.0 au lieu de `Microsoft.ML.OnnxRuntime` 1.32.0** (version de
+   l'ADR 0001) : les deux paquets natifs se marchaient dessus et Piper ne se chargeait plus sous Linux
+   ([pièges](pitfalls.md)). Piper puis le mot d'éveil dans le même processus : « Hey Jarvis. » à 0,993. Un
+   ADR qui remplace la ligne de l'ADR 0001 est à proposer à Benoit.
 
 ## Tests
 

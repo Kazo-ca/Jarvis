@@ -125,3 +125,13 @@ directive (errors RZ2005 and RZ9979). Name the variable otherwise (`item`).
 `dotnet run --no-launch-profile` starts in `Production`, where `MapStaticAssets` looks for the published files
 (`blazor.web.js`, `_content/...`) in `wwwroot` and does not find them: the page never becomes interactive.
 Add `ASPNETCORE_ENVIRONMENT=Development` and start from the project folder (content root).
+
+## Two native `onnxruntime`: sherpa-onnx's and `Microsoft.ML.OnnxRuntime`'s (work item stage1/9-wake-word)
+
+`org.k2fsa.sherpa.onnx` 1.13.8 ships its own `onnxruntime.dll` / `libonnxruntime.so` (version 1.28.2), and
+`Microsoft.ML.OnnxRuntime` 1.32.0 another one, under the same name. In one output folder, the second
+overwrites the first. On Linux, `libsherpa-onnx-c-api.so` then needs the `OrtGetApiBase@VERS_1.28.2` symbol
+that 1.32 lacks: Piper and Silero no longer load ("Unable to load shared library 'sherpa-onnx-c-api'").
+Fix of work item 9: the wake word takes `Microsoft.ML.OnnxRuntime.Managed` **1.28.0** (the .NET part only)
+and runs on sherpa-onnx's 1.28.2 native engine; one `onnxruntime` in the process. A managed version newer
+than the native one fails (`GetApi` returns null): raising one means raising the other.

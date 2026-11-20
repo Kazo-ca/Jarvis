@@ -11,10 +11,13 @@
 @inject SimulatedAudioCapture Microphones
 @inject SimulatedAudioPlayback Speakers
 @inject SimulatedWakeWordEngine WakeWord
+@inject SimulatedVoiceActivity Voice
+@inject SimulatedSpeechEngine Speech
 
 @* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
    (stage1/4-hosts), simulated releases and updater (stage1/16-updates), simulated microphones and outputs
-   (stage1/8-audio-devices), simulated wake word (stage1/9-wake-word). The orb demonstration page, which
+   (stage1/8-audio-devices), simulated wake word (stage1/9-wake-word), a simulated phrase and its transcription
+   (stage1/10-transcription), a spoken answer said by the simulated voice (stage1/12-speech). The orb demonstration page, which
    drives the component directly, is /orb (US1.3). *@
 <main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
     <div class="orb-frame" hidden="@(!Orb.IsVisible)">
@@ -32,9 +35,13 @@
         <button type="button" id="unplug-microphones" @onclick="Microphones.UnplugAll">Unplug the microphones</button>
         <button type="button" id="plug-microphones" @onclick="Microphones.PlugAll">Plug the microphones back</button>
         <button type="button" id="simulate-wake-word" @onclick="WakeWord.Say">Say “Hey Jarvis”</button>
+        <button type="button" id="say-phrase" @onclick="Voice.SayPhrase">Say a phrase</button>
+        <button type="button" id="simulate-answer" @onclick="SimulateAnswerAsync">Simulate a spoken answer</button>
         <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="microphone-open" data-device="@(Microphones.OpenDevice?.Id ?? "")">@(Microphones.OpenDevice?.Name ?? "No microphone open")</output>
         <output id="output-played" data-count="@Speakers.PlayedCount" data-device="@(Speakers.LastOutput?.Id ?? "")">@Speakers.PlayedCount sound(s) played</output>
+        <output id="last-transcription" data-turn="@(transcribed?.Turn.Value ?? 0)">@(transcribed?.Text ?? "Nothing transcribed")</output>
+        <output id="voice-spoken" data-count="@Speech.Spoken.Count">@(Speech.Spoken.LastOrDefault() ?? "Nothing said yet")</output>
         <output id="updater-launched" data-folder="@(Launcher.LaunchedFolder ?? "")">@(Launcher.LaunchedFolder is null ? "Updater not started" : "Updater started")</output>
     </nav>
     @* Like a window of the Windows host, the dialogs rebuild their texts when the language changes. *@
@@ -45,6 +52,8 @@
 
 @code {
     private IDisposable? stateSubscription;
+    private IDisposable? transcriptionSubscription;
+    private UtteranceTranscribed? transcribed;
 
     protected override void OnInitialized()
     {
@@ -52,7 +61,13 @@
         Launcher.Launched += OnChanged;
         Microphones.Changed += OnChanged;
         Speakers.Played += OnChanged;
+        Speech.Spoke += OnChanged;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
+        transcriptionSubscription = Bus.Subscribe<UtteranceTranscribed>((message, _) => new ValueTask(InvokeAsync(() =>
+        {
+            transcribed = message;
+            StateHasChanged();
+        })));
     }
 
     public void Dispose()
@@ -61,7 +76,9 @@
         Launcher.Launched -= OnChanged;
         Microphones.Changed -= OnChanged;
         Speakers.Played -= OnChanged;
+        Speech.Spoke -= OnChanged;
         stateSubscription?.Dispose();
+        transcriptionSubscription?.Dispose();
     }
 
     private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
@@ -71,6 +88,22 @@
     private void PublishRelease() => Releases.Publish("9.9.0");
 
     private void ToggleNetwork() => Releases.Reachable = !Releases.Reachable;
+
+    // What the conversation (work item 13) will do: a spoken turn, then its answer sentence by sentence.
+    private async Task SimulateAnswerAsync()
+    {
+        await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Click));
+        var turn = State.Current.CurrentTurn;
+        if (State.Current.Phase != AssistantPhase.Listening)
+        {
+            return;
+        }
+
+        await Bus.PublishAsync<AssistantInput>(new UtteranceEnded(turn));
+        await Bus.PublishAsync(new SentenceToSpeak(turn, "Certainly, sir."));
+        await Bus.PublishAsync(new SentenceToSpeak(turn, "The simulated voice says a second, longer sentence so there is time to interrupt it."));
+        await Bus.PublishAsync(new AnswerSentencesEnded(turn));
+    }
 
     private void PressHotkey() => Hotkey.Press();
 
