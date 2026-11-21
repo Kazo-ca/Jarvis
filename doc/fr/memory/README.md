@@ -230,7 +230,19 @@ ce qu'il décrit.
   section `Mcp.HomeAssistant` et page à part, entité marquée par son nom, liste commune à tous les serveurs,
   étage traité comme cible introuvable, liste gardée 5 s, thermostat non classé de sécurité. **Tests Windows en
   attente** ([liste](../dev/home-assistant.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/8-memory` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client` et `stage2/7-home-assistant` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/8-memory`** (voir [dev/conversation-memory.md](../dev/conversation-memory.md)), selon
+  l'ADR 0019 : contrat du noyau `IConversationMemory`, messages `TurnRecorded` et `ExchangesLeftHistory`,
+  propriétés `ITool.ReadsOutsideContent` et `RefusedAfterOutsideContent` ; tranche `Conversation/Memory`
+  (`MemoryBook`, `MemoryRecaller`, `MemoryWorker`, outils `remember_fact`, `forget_fact`, `search_memory`,
+  section `Conversation.Memory`, page « Mémoire »). Faits de 200 caractères et un résumé de 1 200, bloc d'un
+  huitième du contexte après les règles fixes, extraction par le modèle local à partir des seuls mots de
+  l'utilisateur, au repos seulement, silence de 2 heures réglable. **Aucun vrai modèle n'a extrait un fait ni
+  écrit un résumé.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/conversation-memory.md#choix-provisoires-de-ce-chantier)) : collections
+  `Conversation.MemoryFacts` et `Conversation.MemorySummary`, résumé limité à la moitié du budget, pas de
+  limite d'âge quand la mémoire est coupée, `forget_fact` n'efface rien en cas d'ambiguïté, 500 faits au plus.
+  **Tests Windows en attente** ([liste](../dev/conversation-memory.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/9-hand-off` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant` et `stage2/8-memory` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

@@ -1,0 +1,197 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject MemoryBook Book
+@inject IAssistantModel Model
+@inject IStringLocalizer<MemoryPage> T
+@implements IDisposable
+
+@* The « Mémoire » page (ADR 0019, section 8): what Jarvis keeps about the user, shown whole, erased one fact at a
+   time or all at once; the summary of the old exchanges; the two switches and the silence after which an exchange
+   is old. A change is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["SwitchesLabel"]">
+        <label class="memory-switch">
+            <input type="checkbox" data-memory-enabled checked="@options.Enabled" @onchange="e => SaveAsync(options with { Enabled = e.Value is true })" />
+            <span>@T["Enabled"]</span>
+        </label>
+        <p class="memory-note">@T["EnabledHint"]</p>
+        <label class="memory-switch">
+            <input type="checkbox" data-memory-automatic checked="@options.Automatic" disabled="@(!options.Enabled)" @onchange="e => SaveAsync(options with { Automatic = e.Value is true })" />
+            <span>@T["Automatic"]</span>
+        </label>
+        <p class="memory-note">@T["AutomaticHint"]</p>
+    </SettingsField>
+
+    <SettingsField Label="@T["FactsLabel"]" Hint="@T["FactsHint", budget]">
+        @if (facts.Count == 0)
+        {
+            <p class="memory-note" data-memory-none>@T["None"]</p>
+        }
+        else
+        {
+            <ul class="memory-facts" data-memory-facts data-memory-count="@facts.Count">
+                @foreach (var fact in facts)
+                {
+                    var isSent = options.Enabled && sent.Contains(fact.Key);
+                    <li class="memory-fact" data-memory-fact="@fact.Key" data-memory-source="@fact.Source" data-memory-pinned="@(fact.Pinned ? "true" : "false")"
+                        data-memory-sent="@(isSent ? "true" : "false")" @key="fact.Key">
+                        <span class="memory-fact-text">@fact.Text</span>
+                        <span class="memory-note">@fact.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @T["Source_" + fact.Source] · @T[isSent ? "Sent" : "NotSent"]</span>
+                        <label class="memory-switch">
+                            <input type="checkbox" data-memory-pin checked="@fact.Pinned" @onchange="e => PinAsync(fact, e.Value is true)" />
+                            <span>@T["Pinned"]</span>
+                        </label>
+                        <button type="button" class="memory-button" data-memory-remove @onclick="() => RemoveAsync(fact)">@T["Remove"]</button>
+                    </li>
+                }
+            </ul>
+        }
+        <div class="memory-add">
+            <input type="text" class="memory-input" data-memory-add-text maxlength="@MemoryFact.MostCharacters" aria-label="@T["AddLabel"]"
+                   placeholder="@T["AddPlaceholder"]" @bind="draft" @bind:event="oninput" @onkeydown="OnKeyAsync" />
+            <button type="button" class="memory-button" data-memory-add disabled="@string.IsNullOrWhiteSpace(draft)" @onclick="AddAsync">@T["Add"]</button>
+        </div>
+        @if (problem is not null)
+        {
+            <p class="memory-problem" role="alert" data-memory-problem>@problem</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["SummaryLabel"]" Hint="@T["SummaryHint"]">
+        @if (string.IsNullOrWhiteSpace(summary?.Text))
+        {
+            <p class="memory-note" data-memory-no-summary>@T["NoSummary"]</p>
+        }
+        else
+        {
+            <p class="memory-summary" data-memory-summary>@summary.Text</p>
+            <button type="button" class="memory-button" data-memory-erase-summary @onclick="EraseSummaryAsync">@T["EraseSummary"]</button>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["SilenceLabel"]" Hint="@T["SilenceHint", MemoryOptions.LeastSilenceMinutes, MemoryOptions.MostSilenceMinutes]">
+        <input type="number" class="memory-number" data-memory-silence aria-label="@T["SilenceLabel"]"
+               min="@MemoryOptions.LeastSilenceMinutes" max="@MemoryOptions.MostSilenceMinutes" step="5"
+               value="@options.SilenceMinutes.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeSilenceAsync" />
+    </SettingsField>
+
+    <SettingsField Label="@T["EraseLabel"]" Hint="@T["EraseHint"]">
+        @if (confirmingErase)
+        {
+            <span class="memory-note" role="alert">@T["EraseConfirm"]</span>
+            <button type="button" class="memory-button memory-danger" data-memory-erase-confirm @onclick="EraseAllAsync">@T["EraseYes"]</button>
+            <button type="button" class="memory-button" data-memory-erase-cancel @onclick="() => confirmingErase = false">@T["EraseNo"]</button>
+        }
+        else
+        {
+            <button type="button" class="memory-button" data-memory-erase disabled="@(facts.Count == 0 && string.IsNullOrWhiteSpace(summary?.Text))" @onclick="() => confirmingErase = true">@T["EraseAll"]</button>
+        }
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private MemoryOptions options = new();
+    private IReadOnlyList<MemoryFact> facts = [];
+    private HashSet<Guid> sent = [];
+    private MemorySummary? summary;
+    private int budget;
+    private string? draft;
+    private string? problem;
+    private bool confirmingErase;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        options = Settings.Read(MemoryOptions.Section);
+        Book.Changed += OnBookChanged;
+        await ReadAsync();
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Book.Changed -= OnBookChanged;
+
+    // A fact kept during a conversation shows without leaving the page.
+    private void OnBookChanged() => _ = InvokeAsync(async () =>
+    {
+        await ReadAsync();
+        StateHasChanged();
+    });
+
+    private async Task ReadAsync()
+    {
+        facts = await Book.FactsAsync();
+        summary = await Book.SummaryAsync();
+        budget = MemoryRecaller.Budget(Model.Provider?.Tuning.ContextLength ?? new LlmTuning().ContextLength);
+        sent = [.. MemoryRecaller.Select(facts, summary?.Text, budget).Facts.Select(fact => fact.Key)];
+    }
+
+    private async Task OnKeyAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AddAsync();
+        }
+    }
+
+    private async Task AddAsync()
+    {
+        if (string.IsNullOrWhiteSpace(draft))
+        {
+            return;
+        }
+
+        var outcome = await Book.AddAsync(draft, FactSource.Manual);
+        problem = outcome == FactOutcome.Added ? null : T["Add_" + outcome].Value;
+        if (outcome is FactOutcome.Added or FactOutcome.AlreadyKnown)
+        {
+            draft = null;
+        }
+
+        await ReadAsync();
+    }
+
+    private async Task RemoveAsync(MemoryFact fact)
+    {
+        await Book.RemoveAsync(fact.Key);
+        await ReadAsync();
+    }
+
+    private async Task PinAsync(MemoryFact fact, bool pinned)
+    {
+        await Book.PinAsync(fact.Key, pinned);
+        await ReadAsync();
+    }
+
+    private async Task EraseSummaryAsync()
+    {
+        await Book.EraseSummaryAsync();
+        await ReadAsync();
+    }
+
+    private async Task EraseAllAsync()
+    {
+        confirmingErase = false;
+        await Book.EraseAllAsync();
+        await ReadAsync();
+    }
+
+    private async Task ChangeSilenceAsync(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var minutes))
+        {
+            await SaveAsync(options with { SilenceMinutes = Math.Clamp(minutes, MemoryOptions.LeastSilenceMinutes, MemoryOptions.MostSilenceMinutes) });
+        }
+    }
+
+    private async Task SaveAsync(MemoryOptions changed)
+    {
+        var result = await Settings.WriteAsync(MemoryOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        options = Settings.Read(MemoryOptions.Section);
+    }
+}

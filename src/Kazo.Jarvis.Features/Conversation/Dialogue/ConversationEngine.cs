@@ -1,8 +1,10 @@
 using System.Text;
 using Kazo.Jarvis.Kernel.Assistant;
+using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Conversation;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
@@ -29,6 +31,11 @@ namespace Kazo.Jarvis.Features.Conversation.Dialogue;
 /// decision point of the permissions, runs, and its result goes back as data; the model then continues
 /// (ADR 0017, section 4). No call runs automatically: this slice keeps the loop (ADR 0007, section 2).
 /// </para>
+/// <para>
+/// The memory (ADR 0019) is another slice. This one asks it, through <see cref="IConversationMemory"/>, what to
+/// recall to the model and after which silence an exchange is old, and tells it by messages which exchanges left
+/// the history (<see cref="ExchangesLeftHistory"/>) and what the user said in a stored turn (<see cref="TurnRecorded"/>).
+/// </para>
 /// </summary>
 public sealed partial class ConversationEngine :
     IEventHandler<TurnStarted>,
@@ -44,6 +51,9 @@ public sealed partial class ConversationEngine :
     /// <summary>Most past turns sent to the model, however short they are.</summary>
     public const int MostHistoryTurns = 20;
 
+    /// <summary>Most exchanges announced as out of the history at the start of a turn.</summary>
+    public const int MostExchangesAnnounced = 40;
+
     private readonly IAssistantModel model;
     private readonly SystemPrompt prompt;
     private readonly ConversationJournal journal;
@@ -53,6 +63,7 @@ public sealed partial class ConversationEngine :
     private readonly IMessageBus bus;
     private readonly TimeProvider time;
     private readonly ILogger<ConversationEngine> logger;
+    private readonly IConversationMemory? memory;
     private readonly Lock gate = new();
     private Answering? current;
 
@@ -69,6 +80,7 @@ public sealed partial class ConversationEngine :
     /// <param name="bus">The bus, for the sentences and the messages of the state machine.</param>
     /// <param name="time">Clock of the durations.</param>
     /// <param name="logger">Logs the timings and the failures, never the text (ADR 0004, section 6).</param>
+    /// <param name="memory">What to recall to the model, when a memory slice is there.</param>
     public ConversationEngine(
         IAssistantModel model,
         SystemPrompt prompt,
@@ -78,8 +90,10 @@ public sealed partial class ConversationEngine :
         IPermissionDecision permissions,
         IMessageBus bus,
         TimeProvider time,
-        ILogger<ConversationEngine> logger)
+        ILogger<ConversationEngine> logger,
+        IConversationMemory? memory = null)
     {
+        this.memory = memory;
         this.model = model;
         this.prompt = prompt;
         this.journal = journal;
@@ -210,13 +224,42 @@ public sealed partial class ConversationEngine :
     /// <param name="turns">The turns of the journal, oldest first.</param>
     /// <param name="contextLength">The context of the model, in tokens.</param>
     /// <returns>The messages, oldest first: a request then its answer.</returns>
-    internal static IReadOnlyList<ChatMessage> History(IReadOnlyList<ConversationTurn> turns, int contextLength)
+    internal static IReadOnlyList<ChatMessage> History(IReadOnlyList<ConversationTurn> turns, int contextLength) =>
+        Messages(Recent(turns, contextLength, DateTimeOffset.MaxValue, null));
+
+    /// <summary>The messages of <paramref name="turns"/>: a request then its answer.</summary>
+    internal static IReadOnlyList<ChatMessage> Messages(IReadOnlyList<ConversationTurn> turns) =>
+        [.. turns.SelectMany(turn => new[]
+        {
+            new ChatMessage(ChatRole.User, turn.Request),
+            new ChatMessage(ChatRole.Assistant, turn.Answer),
+        })];
+
+    /// <summary>
+    /// The answered turns sent to the model word for word: the most recent ones that fit in about half of its
+    /// context, <see cref="MostHistoryTurns"/> at most and, when age counts, none from before a silence of
+    /// <paramref name="oldAfter"/> (ADR 0019, section 5).
+    /// </summary>
+    /// <param name="turns">The turns of the journal, oldest first.</param>
+    /// <param name="contextLength">The context of the model, in tokens.</param>
+    /// <param name="now">The moment of the new request.</param>
+    /// <param name="oldAfter">The silence after which what came before is old, or <see langword="null"/>.</param>
+    /// <returns>The turns kept, oldest first.</returns>
+    internal static IReadOnlyList<ConversationTurn> Recent(IReadOnlyList<ConversationTurn> turns, int contextLength, DateTimeOffset now, TimeSpan? oldAfter)
     {
         // About 3 characters per token in French; the other half is for the system message, the request and the answer.
         var budget = Math.Max(0, contextLength) * 3 / 2;
         var kept = new List<ConversationTurn>();
+        var next = now;
         foreach (var turn in turns.Reverse())
         {
+            // A silence is measured between two requests, answered or not: a failed turn is still an activity.
+            if (oldAfter is { } silence && next - turn.At >= silence)
+            {
+                break;
+            }
+
+            next = turn.At;
             if (turn.Outcome != TurnOutcome.Answered || string.IsNullOrWhiteSpace(turn.Answer))
             {
                 continue;
@@ -233,11 +276,19 @@ public sealed partial class ConversationEngine :
         }
 
         kept.Reverse();
-        return [.. kept.SelectMany(turn => new[]
-        {
-            new ChatMessage(ChatRole.User, turn.Request),
-            new ChatMessage(ChatRole.Assistant, turn.Answer),
-        })];
+        return kept;
+    }
+
+    /// <summary>The answered exchanges of <paramref name="turns"/> older than the ones <paramref name="kept"/>, the most recent <see cref="MostExchangesAnnounced"/>.</summary>
+    internal static IReadOnlyList<PastExchange> Left(IReadOnlyList<ConversationTurn> turns, IReadOnlyList<ConversationTurn> kept)
+    {
+        var keys = kept.Select(turn => turn.Key).ToHashSet();
+        var from = kept.Count > 0 ? kept[0].At : DateTimeOffset.MaxValue;
+        var left = turns
+            .Where(turn => turn.Outcome == TurnOutcome.Answered && !string.IsNullOrWhiteSpace(turn.Answer) && !keys.Contains(turn.Key) && turn.At <= from)
+            .Select(turn => new PastExchange(turn.Key, turn.At, turn.Request, turn.Answer))
+            .ToList();
+        return left.Count > MostExchangesAnnounced ? left.GetRange(left.Count - MostExchangesAnnounced, MostExchangesAnnounced) : left;
     }
 
     private void Start(TurnId turn, TurnInput input, string request, AssistantLanguage turnLanguage)
@@ -285,7 +336,10 @@ public sealed partial class ConversationEngine :
             var provider = model.Provider;
             journal.Show(answering.Update(turn => turn with { Provider = provider?.Name, Model = provider?.Model }));
 
-            var messages = History(history, provider?.Tuning.ContextLength ?? new LlmTuning().ContextLength).ToList();
+            var contextLength = provider?.Tuning.ContextLength ?? new LlmTuning().ContextLength;
+            var recall = await RecallAsync(answering.Turn, turnLanguage, contextLength, token).ConfigureAwait(false);
+            var recent = Recent(history, contextLength, answering.Snapshot.At, recall.OldAfter);
+            var messages = Messages(recent).ToList();
             messages.Add(new ChatMessage(ChatRole.User, answering.Snapshot.Request));
 
             // Only the enabled tools are offered (ADR 0017, section 4), described in the language of the turn.
@@ -293,6 +347,13 @@ public sealed partial class ConversationEngine :
             var requester = new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model");
             var denied = new HashSet<string>(StringComparer.Ordinal);
             var callsMade = 0;
+            var outside = new OutsideContent();
+
+            // What left the history is told to whoever keeps a summary of it; never a reason to hold the answer.
+            if (memory is not null && Left(history, recent) is { Count: > 0 } left)
+            {
+                await bus.PublishAsync(new ExchangesLeftHistory(left, turnLanguage), CancellationToken.None).ConfigureAwait(false);
+            }
 
             var splitter = new SentenceSplitter();
             var answer = new StringBuilder();
@@ -306,7 +367,7 @@ public sealed partial class ConversationEngine :
                 var withTools = offered.Count > 0 && callsMade < MostToolCalls && round <= MostToolCalls;
                 var options = new ChatOptions
                 {
-                    Instructions = prompt.Build(turnLanguage, offered.Count > 0),
+                    Instructions = prompt.Build(turnLanguage, offered.Count > 0, recall.Block),
                     Tools = withTools ? offered : null,
                 };
                 var calls = new List<FunctionCallContent>();
@@ -367,7 +428,7 @@ public sealed partial class ConversationEngine :
                 messages.Add(new ChatMessage(ChatRole.Assistant, [.. Preface(roundText), .. calls]));
                 foreach (var call in calls)
                 {
-                    var result = await CallAsync(answering, call, requester, turnLanguage, denied, callsMade++, token).ConfigureAwait(false);
+                    var result = await CallAsync(answering, call, requester, turnLanguage, denied, outside, callsMade++, token).ConfigureAwait(false);
                     messages.Add(new ChatMessage(ChatRole.Tool, [new FunctionResultContent(call.CallId, result)]));
                 }
             }
@@ -415,6 +476,25 @@ public sealed partial class ConversationEngine :
             await bus.PublishAsync<AssistantInput>(
                 new TurnFailed(answering.Turn, new AssistantFault(FaultCause.ModelUnreachable, exception.GetType().Name, FaultOrigin.LanguageModel)),
                 CancellationToken.None).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>What the memory recalls; a memory that fails never holds the answer.</summary>
+    private async ValueTask<MemoryRecall> RecallAsync(TurnId turn, AssistantLanguage turnLanguage, int contextLength, CancellationToken token)
+    {
+        if (memory is null)
+        {
+            return MemoryRecall.Nothing;
+        }
+
+        try
+        {
+            return await memory.RecallAsync(turnLanguage, contextLength, token).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            LogRecallFailed(exception, turn);
+            return MemoryRecall.Nothing;
         }
     }
 
@@ -481,6 +561,11 @@ public sealed partial class ConversationEngine :
         });
         await journal.SaveAsync(stored).ConfigureAwait(false);
         answering.Cancel.Dispose();
+        if (AssistantLanguage.TryParse(stored.Language, out var spoken) && stored.Request.Length > 0)
+        {
+            // Only the words of the user leave this slice (ADR 0019, section 3).
+            await bus.PublishAsync(new TurnRecorded(answering.Turn, stored.Key, stored.At, stored.Request, spoken), CancellationToken.None).ConfigureAwait(false);
+        }
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "{Turn}: Whisper heard no words; nothing to answer.")]
@@ -495,8 +580,17 @@ public sealed partial class ConversationEngine :
     [LoggerMessage(Level = LogLevel.Warning, Message = "{Turn}: the model did not answer ({Failure}).")]
     private partial void LogModelFailed(Exception exception, TurnId turn, LlmFailure failure);
 
+    [LoggerMessage(Level = LogLevel.Warning, Message = "{Turn}: the memory could not be read; the turn goes on without it.")]
+    private partial void LogRecallFailed(Exception exception, TurnId turn);
+
     [LoggerMessage(Level = LogLevel.Error, Message = "{Turn}: the answer failed.")]
     private partial void LogAnswerFailed(Exception exception, TurnId turn);
+
+    /// <summary>Whether the turn already holds the result of a tool that reads a content from outside.</summary>
+    private sealed class OutsideContent
+    {
+        public bool Read { get; set; }
+    }
 
     /// <summary>A turn being answered: its entry in the journal, its generation and its cancellation.</summary>
     private sealed class Answering(TurnId turn, TurnInput input, ConversationTurn entry)

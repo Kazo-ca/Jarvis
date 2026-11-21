@@ -24,6 +24,8 @@ src/Kazo.Jarvis.Kernel/
   Storage/                               document store contract (see storage.md)
   Secrets/                               secret vault contract (see storage.md)
   Tools/                                 tool, tool registry, switches (see tools.md)
+  Conversation/                          what the memory recalls to the model (see conversation-memory.md)
+  Messages/Conversation/                 TurnRecorded, ExchangesLeftHistory
   Tools/Servers/                         tool server: connection, tools, call (see mcp.md), classification per type of server (see home-assistant.md)
   Files/                                 local files, read only (see basic-tools.md)
   Web/                                   reading browser, search by API, allowed addresses (see basic-tools.md)

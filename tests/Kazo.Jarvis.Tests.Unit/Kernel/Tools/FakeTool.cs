@@ -16,6 +16,10 @@ internal sealed class FakeTool(string name) : ITool
 
     public ActionClass DeclaredClass { get; init; } = ActionClass.Read;
 
+    public bool ReadsOutsideContent { get; init; }
+
+    public bool RefusedAfterOutsideContent { get; init; }
+
     public JsonElement Schema { get; } = JsonSerializer.SerializeToElement(new { type = "object", properties = new { text = new { type = "string" } } });
 
     /// <summary>The class of a call; the declared one when not set.</summary>

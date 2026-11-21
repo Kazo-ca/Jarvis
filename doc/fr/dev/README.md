@@ -23,6 +23,7 @@
 | [tools.md](tools.md) | Outils : contrats du noyau, point de décision des permissions et son journal, boucle d'outils, heure et calcul |
 | [llm.md](llm.md) | Modèles de langage : fournisseurs, adaptateurs, modèle par défaut, test de la connexion |
 | [first-run.md](first-run.md) | Premier lancement : assistant de configuration, page « Modèles vocaux » (téléchargement vérifié), recherche d'Ollama |
+| [conversation-memory.md](conversation-memory.md) | Mémoire de conversation : faits et résumé, extraction par le modèle local à partir des seuls mots de l'utilisateur, bloc envoyé au modèle, outils `remember_fact`, `forget_fact`, `search_memory`, page « Mémoire » |
 | [faults.md](faults.md) | Pannes : causes nommées, action corrective, lien vers le bon réglage, fenêtre « Problème de Jarvis » |
 | [updates.md](updates.md) | Mises à jour : vérification, téléchargement, programme de mise à jour, publication |
 | [pitfalls.md](pitfalls.md) | Pièges rencontrés et leur solution |

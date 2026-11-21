@@ -55,6 +55,9 @@ public sealed class WebSearchTool : ITool
     /// <inheritdoc />
     public bool EnabledByDefault => false;
 
+    /// <summary>What it returns comes from outside the conversation (ADR 0019, section 3).</summary>
+    public bool ReadsOutsideContent => true;
+
     /// <inheritdoc />
     public ActionClass DeclaredClass => ActionClass.Read;
 

@@ -42,6 +42,7 @@ public sealed partial class ConversationEngineTests
     private ToolRegistry registry = null!;
     private PermissionDecisionPoint permissions = null!;
     private ConversationEngine engine = null!;
+    private FakeMemory memory = null!;
     private List<IEvent> published = null!;
     private IDisposable[] subscriptions = [];
 
@@ -72,7 +73,8 @@ public sealed partial class ConversationEngineTests
             permissions,
             Bus,
             TimeProvider.System,
-            NullLogger<ConversationEngine>.Instance);
+            NullLogger<ConversationEngine>.Instance,
+            memory = new FakeMemory());
         published = [];
         subscriptions =
         [

@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
+using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Llm;
+using Kazo.Jarvis.Kernel.Localization;
 using Microsoft.Extensions.AI;
 
 namespace Kazo.Jarvis.Tests.Unit.Features.Conversation;
@@ -114,5 +116,22 @@ internal sealed class ScriptedChatClient : IChatClient
 
     public void Dispose()
     {
+    }
+}
+
+/// <summary>A memory the test steers: what it recalls, and what it was asked.</summary>
+internal sealed class FakeMemory : IConversationMemory
+{
+    public MemoryRecall Recall { get; set; } = MemoryRecall.Nothing;
+
+    /// <summary>When set, <see cref="RecallAsync"/> throws it.</summary>
+    public Exception? Failure { get; set; }
+
+    public List<(AssistantLanguage Language, int ContextLength)> Asked { get; } = [];
+
+    public ValueTask<MemoryRecall> RecallAsync(AssistantLanguage language, int contextLength, CancellationToken cancellationToken = default)
+    {
+        Asked.Add((language, contextLength));
+        return Failure is null ? ValueTask.FromResult(Recall) : ValueTask.FromException<MemoryRecall>(Failure);
     }
 }

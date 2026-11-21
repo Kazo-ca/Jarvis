@@ -48,6 +48,9 @@ internal sealed class McpTool : ITool
     /// <summary>Never on at its discovery (ADR 0018, section 3).</summary>
     public bool EnabledByDefault => false;
 
+    /// <summary>What it returns comes from outside the conversation (ADR 0019, section 3).</summary>
+    public bool ReadsOutsideContent => true;
+
     /// <summary>The lowest class a call may have, raised by the user's choice if there is one.</summary>
     public ActionClass DeclaredClass => Higher(ServerClass, Raised);
 

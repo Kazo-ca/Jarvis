@@ -27,7 +27,7 @@ The model proposes, the code decides. No call runs automatically: the conversati
 
 | Type | Role |
 | --- | --- |
-| `ITool` | Stable English name, origin (`builtin`, `mcp:<server>`, `hand-off`), description per language, JSON schema, declared class, classification of a call (`Classify`, and `ClassifyAsync` when a server must be asked: see [home-assistant.md](home-assistant.md)), execution |
+| `ITool` | Stable English name, origin (`builtin`, `mcp:<server>`, `hand-off`), description per language, JSON schema, declared class, classification of a call (`Classify`, and `ClassifyAsync` when a server must be asked: see [home-assistant.md](home-assistant.md)), execution; `ReadsOutsideContent` and `RefusedAfterOutsideContent` close the memory to what is read outside ([conversation-memory.md](conversation-memory.md)) |
 | `ToolException` | A call that cannot be done for a reason the model can tell; its message comes back as the result |
 | `IToolRegistry`, `ToolRegistry` | The known tools and the enabled tools; a tool can also be added while Jarvis runs (MCP server) |
 | `ToolActivation` | Settings section `Tools.Activation`: one switch per tool; without a choice, the tool follows `EnabledByDefault` |
