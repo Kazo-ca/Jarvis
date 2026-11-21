@@ -236,6 +236,28 @@ public sealed class PermissionDecisionPointTests
     }
 
     [Test]
+    public async Task A_class_found_after_a_question_to_a_server_decides()
+    {
+        registry.Register(new FakeTool("turn_on")
+        {
+            DeclaredClass = ActionClass.EverydayEffect,
+            AsyncClassifier = async (arguments, cancellation) =>
+            {
+                await Task.Delay(5, cancellation);
+                return arguments.GetProperty("name").GetString() == "serrure" ? ActionClass.Critical : ActionClass.EverydayEffect;
+            },
+        });
+        registry.Register(new FakeTool("lost") { AsyncClassifier = (_, _) => throw new InvalidOperationException("no answer") });
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await AskAsync("turn_on", """{"name":"lampe"}"""), Is.EqualTo(PermissionDecision.Allow(ActionClass.EverydayEffect)));
+            Assert.That(await AskAsync("turn_on", """{"name":"serrure"}"""), Is.EqualTo(PermissionDecision.Deny(DenialCause.ConfirmationUnavailable, ActionClass.Critical)));
+            Assert.That(await AskAsync("lost"), Is.EqualTo(PermissionDecision.Deny(DenialCause.ClassifierFailed)), "Without a class, nothing is allowed.");
+        });
+    }
+
+    [Test]
     public async Task A_classifier_cannot_go_below_the_class_the_tool_declares()
     {
         registry.Register(new FakeTool("write_file") { DeclaredClass = ActionClass.Sensitive, Classifier = _ => ActionClass.Read });

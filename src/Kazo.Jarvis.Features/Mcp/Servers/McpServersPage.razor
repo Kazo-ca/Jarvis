@@ -96,6 +96,10 @@
                             {
                                 <p class="mcp-tool-changed" role="alert">@T["ChangedSinceApproval"]</p>
                             }
+                            @if (server.Kind == McpServerKind.HomeAssistant && (tool.ServerName.StartsWith("script__", StringComparison.Ordinal) || tool.ServerName.StartsWith("intent_script__", StringComparison.Ordinal)))
+                            {
+                                <p class="mcp-note" data-mcp-script-warning>@T["ScriptWarning"]</p>
+                            }
                             <p class="mcp-tool-description">@tool.Description</p>
                         </li>
                     }

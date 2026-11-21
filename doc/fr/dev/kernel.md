@@ -24,7 +24,7 @@ src/Kazo.Jarvis.Kernel/
   Storage/                               contrat de la base de documents (voir storage.md)
   Secrets/                               contrat du coffre de secrets (voir storage.md)
   Tools/                                 outil, registre des outils, interrupteurs (voir tools.md)
-  Tools/Servers/                         serveur d'outils : connexion, outils, appel (voir mcp.md)
+  Tools/Servers/                         serveur d'outils : connexion, outils, appel (voir mcp.md), classement par type de serveur (voir home-assistant.md)
   Files/                                 fichiers locaux en lecture (voir basic-tools.md)
   Web/                                   navigateur de lecture, recherche par API, adresses permises (voir basic-tools.md)
   Permissions/                           classes d'actions, point de décision des permissions (voir tools.md)

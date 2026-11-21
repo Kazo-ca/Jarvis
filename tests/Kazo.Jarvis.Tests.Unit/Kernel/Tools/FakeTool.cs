@@ -35,6 +35,12 @@ internal sealed class FakeTool(string name) : ITool
 
     public ActionClass Classify(JsonElement arguments) => Classifier?.Invoke(arguments) ?? DeclaredClass;
 
+    /// <summary>The class of a call found after a wait; <see cref="Classify"/> when not set.</summary>
+    public Func<JsonElement, CancellationToken, ValueTask<ActionClass>>? AsyncClassifier { get; init; }
+
+    public ValueTask<ActionClass> ClassifyAsync(JsonElement arguments, CancellationToken cancellationToken) =>
+        AsyncClassifier?.Invoke(arguments, cancellationToken) ?? new ValueTask<ActionClass>(Classify(arguments));
+
     public ValueTask<string> InvokeAsync(JsonElement arguments, CancellationToken cancellationToken)
     {
         lock (Invoked)

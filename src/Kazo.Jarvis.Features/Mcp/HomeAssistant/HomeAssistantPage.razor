@@ -1,0 +1,119 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject IToolRegistry Registry
+@inject IStringLocalizer<HomeAssistantPage> T
+@implements IDisposable
+
+@* The « Home Assistant » page (ADR 0018, section 5): what Jarvis treats as security home automation, which asks
+   for a click on this computer whatever the voice says. Locks, alarms, valves, sirens, garage doors, doors and
+   gates are always in; the user adds entities and scripts. A change is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["AlwaysLabel"]">
+        <p class="home-assistant-note" data-ha-always>@T["Always"]</p>
+    </SettingsField>
+
+    <SettingsField Label="@T["EntitiesLabel"]" Hint="@T["EntitiesHint"]">
+        <textarea class="home-assistant-entities" data-ha-security-entities rows="4" spellcheck="false" aria-label="@T["EntitiesLabel"]"
+                  value="@string.Join("\n", options.SecurityEntities)" @onchange="ChangeEntitiesAsync"></textarea>
+    </SettingsField>
+
+    <SettingsField Label="@T["ScriptsLabel"]" Hint="@T["ScriptsHint"]">
+        @if (scripts.Count == 0)
+        {
+            <p class="home-assistant-note" data-ha-no-script>@T["NoScript"]</p>
+        }
+        else
+        {
+            <ul class="home-assistant-scripts" data-ha-scripts>
+                @foreach (var script in scripts)
+                {
+                    var marked = options.SecurityScripts.Contains(script.Name, StringComparer.Ordinal);
+                    <li class="home-assistant-script" data-ha-script="@script.Name" data-ha-script-security="@(marked ? "true" : "false")" @key="script.Name">
+                        <label class="home-assistant-switch">
+                            <input type="checkbox" data-ha-script-mark checked="@marked" @onchange="e => MarkAsync(script.Name, e.Value is true)" />
+                            <span class="home-assistant-script-name">@script.Name</span>
+                        </label>
+                        <span class="home-assistant-note">@script.Describe(Kazo.Jarvis.Kernel.Localization.AssistantLanguage.English)</span>
+                    </li>
+                }
+            </ul>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["ContextLabel"]" Hint="@T["ContextHint", HomeAssistantOptions.MostContextSeconds]">
+        <input type="number" class="home-assistant-number" data-ha-context-seconds aria-label="@T["ContextLabel"]" min="0" max="@HomeAssistantOptions.MostContextSeconds"
+               value="@options.ContextSeconds.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeSecondsAsync" />
+    </SettingsField>
+
+    @if (problem is not null)
+    {
+        <p class="home-assistant-problem" role="alert" data-ha-problem>@problem</p>
+    }
+</SettingsFrame>
+
+@code {
+    private HomeAssistantOptions options = new();
+    private IReadOnlyList<ITool> scripts = [];
+    private string? problem;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        options = Settings.Read(HomeAssistantOptions.Section);
+        Registry.Changed += OnRegistryChanged;
+        ReadScripts();
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Registry.Changed -= OnRegistryChanged;
+
+    private void OnRegistryChanged() => _ = InvokeAsync(() =>
+    {
+        ReadScripts();
+        StateHasChanged();
+    });
+
+    // The scripts of the servers that are connected now. A script of a server that is down keeps its mark.
+    private void ReadScripts() =>
+        scripts = [.. Registry.Tools.Where(tool => tool.Origin.StartsWith("mcp:", StringComparison.Ordinal) && HomeAssistantClassifier.IsScript(tool.Name))];
+
+    private Task ChangeEntitiesAsync(ChangeEventArgs e)
+    {
+        var names = (e.Value?.ToString() ?? string.Empty)
+            .Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        return SaveAsync(options with { SecurityEntities = names });
+    }
+
+    private Task MarkAsync(string script, bool marked)
+    {
+        var all = options.SecurityScripts.Where(existing => !string.Equals(existing, script, StringComparison.Ordinal)).ToList();
+        if (marked)
+        {
+            all.Add(script);
+        }
+
+        return SaveAsync(options with { SecurityScripts = all });
+    }
+
+    private Task ChangeSecondsAsync(ChangeEventArgs e) =>
+        SaveAsync(options with
+        {
+            ContextSeconds = int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds)
+                ? Math.Clamp(seconds, 0, HomeAssistantOptions.MostContextSeconds)
+                : options.ContextSeconds,
+        });
+
+    private async Task SaveAsync(HomeAssistantOptions changed)
+    {
+        var result = await Settings.WriteAsync(HomeAssistantOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        options = Settings.Read(HomeAssistantOptions.Section);
+    }
+}

@@ -18,6 +18,7 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// « liste le dossier … » for <c>list_directory</c>, « lis le fichier … » for <c>read_file</c>, « cherche sur le web … »
 /// for <c>web_search</c>, « lis la page … » for <c>fetch_url</c>, « cours de l'action … », « envoie le message … » and
 /// « lance le dé » for the tools of the simulated tool servers (<c>lookup_stock</c>, <c>send_message</c>, <c>roll_dice</c>),
+/// « allume … », « éteins … » (« tout dans la pièce … » for a room) and « lance le script … » for the simulated Home Assistant,
 /// and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
@@ -253,10 +254,36 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_dice", dice, new Dictionary<string, object?>());
             }
 
+            // Tools of the simulated Home Assistant (stage2/7-home-assistant).
+            if (ScriptRequest().Match(request) is { Success: true } script && OfferedAs("script__" + script.Groups[1].Value) is { } run)
+            {
+                return new FunctionCallContent("call_script", run, new Dictionary<string, object?>());
+            }
+
+            // « déverrouille » holds « verrouille »: turning off is looked for first.
+            if (TurnOffRequest().Match(request) is { Success: true } turnOff && OfferedAs("HassTurnOff") is { } off)
+            {
+                return new FunctionCallContent("call_turn_off", off, HomeTarget(turnOff.Groups[1].Value));
+            }
+
+            if (TurnOnRequest().Match(request) is { Success: true } turnOn && OfferedAs("HassTurnOn") is { } on)
+            {
+                return new FunctionCallContent("call_turn_on", on, HomeTarget(turnOn.Groups[1].Value));
+            }
+
             // A tool the registry does not know: only when tools are offered, as a real model could invent one.
             return options?.Tools is { Count: > 0 } && request.Contains("outil inconnu", StringComparison.OrdinalIgnoreCase)
                 ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
                 : null;
+        }
+
+        /// <summary>« tout dans la pièce X » aims at a room, anything else names a device.</summary>
+        private static Dictionary<string, object?> HomeTarget(string words)
+        {
+            var target = words.Trim().TrimEnd('.', '!', '?').Trim();
+            return RoomRequest().Match(target) is { Success: true } room
+                ? new Dictionary<string, object?> { ["area"] = room.Groups[1].Value.Trim() }
+                : new Dictionary<string, object?> { ["name"] = target };
         }
 
         public void Dispose()
@@ -287,6 +314,18 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
 
     [GeneratedRegex(@"(?:envoie le message|send the message)\s+(.+)$", RegexOptions.IgnoreCase)]
     private static partial Regex MessageRequest();
+
+    [GeneratedRegex(@"(?:lance le script|run the script)\s+(\w+)", RegexOptions.IgnoreCase)]
+    private static partial Regex ScriptRequest();
+
+    [GeneratedRegex(@"(?:allume|ouvre|verrouille|turn on)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex TurnOnRequest();
+
+    [GeneratedRegex(@"(?:éteins|ferme|déverrouille|turn off)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex TurnOffRequest();
+
+    [GeneratedRegex(@"^(?:tout dans la pièce|everything in the room)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex RoomRequest();
 
     [GeneratedRegex(@"lance le dé|roll the die", RegexOptions.IgnoreCase)]
     private static partial Regex DiceRequest();

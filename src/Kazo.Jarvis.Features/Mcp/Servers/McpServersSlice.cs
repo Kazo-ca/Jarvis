@@ -29,7 +29,8 @@ public static class McpServersSlice
             provider.GetService<ISecretVault>(),
             provider.GetService<IToolServerConnector>(),
             provider.GetService<TimeProvider>(),
-            provider.GetService<ILogger<McpServerHub>>()));
+            provider.GetService<ILogger<McpServerHub>>(),
+            provider.GetServices<IToolServerClassifier>()));
         services.AddHostedService(provider => provider.GetRequiredService<McpServerHub>());
 
         // After the web tools (48): where more tools come from.

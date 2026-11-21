@@ -2,7 +2,7 @@
 
 Work item `stage2/6-mcp-client` (US2.2). Decision:
 [ADR 0018](adr/0018-mcp-client-home-assistant-and-security-devices.md), sections 1 to 4, 6 and 7. The
-classification specific to Home Assistant (section 5) comes with work item `stage2/7-home-assistant`. The
+classification specific to Home Assistant (section 5) is described in [home-assistant.md](home-assistant.md). The
 tool registry and the decision point are described in [tools.md](tools.md).
 
 ## What is built
@@ -84,7 +84,8 @@ turns the switches of its tools off.
   switch left on without a kept fingerprint is turned off the same way.
 - Class: "Read" if the server declares the tool read-only, otherwise "Sensitive" (confirmation at each
   call). The user can raise it to "Sensitive" or "Critical", never lower it: the settings refuse any other
-  value.
+  value. A server of type `HomeAssistant` has its own classification, per call
+  ([home-assistant.md](home-assistant.md)).
 - A failure reported by the tool returns to the model with its text. A connection cause returns in one
   sentence that names the server.
 - `Discloses` says where the arguments go: the address, or the started program.
@@ -109,8 +110,8 @@ message …" and "lance le dé". The `#tool-servers` element shows the calls rec
 
 The ADR does not settle them; to be confirmed by Benoit:
 
-1. **The `HomeAssistant` type can already be chosen, but is classed like `Generic`** until work item 7: any
-   command that is not a read asks for a confirmation.
+1. *(Lifted by work item 7.)* The `HomeAssistant` type now has its classification:
+   [home-assistant.md](home-assistant.md).
 2. **A single "Token" field in the add form** (`Authorization: Bearer …`). The other headers are written in
    `config.json` (their names); their value is then typed on the page.
 3. **No editing of a server** on the page: remove it and add it again.
@@ -148,8 +149,8 @@ To do with Benoit:
 
 1. Add the server of Home Assistant by its address (`…/api/mcp`) with a token: "Connected", about 47 tools,
    all off. The token is not in `config.json`.
-2. Turn on `GetLiveContext` and `HassTurnOn`; "allume le salon" asks for a confirmation (generic
-   classification, until work item 7). **Turn nothing on that touches a lock, the alarm, the garage door,
+2. With the type "Generic", turn on `GetLiveContext` and `HassTurnOn`; "allume le salon" asks for a
+   confirmation. With the type "Home Assistant", see [home-assistant.md](home-assistant.md#windows-checks). **Turn nothing on that touches a lock, the alarm, the garage door,
    the thermostat or a script.**
 3. Cut the network: the server becomes "Not reachable", its tools disappear from the "Tools" page, Jarvis
    stays idle with no fault. Restore it: it comes back by itself.

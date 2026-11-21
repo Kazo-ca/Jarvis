@@ -18,9 +18,11 @@ internal sealed class McpTool : ITool
 
     private readonly McpServerSession session;
     private readonly ISettingsStore settings;
+    private readonly IToolServerClassifier? classifier;
 
-    public McpTool(McpServerSession session, ISettingsStore settings, ToolServerTool tool, string name)
+    public McpTool(McpServerSession session, ISettingsStore settings, ToolServerTool tool, string name, IToolServerClassifier? classifier = null)
     {
+        this.classifier = classifier;
         this.session = session;
         this.settings = settings;
         ServerTool = tool;
@@ -46,19 +48,20 @@ internal sealed class McpTool : ITool
     /// <summary>Never on at its discovery (ADR 0018, section 3).</summary>
     public bool EnabledByDefault => false;
 
-    /// <summary>The class from the declaration of the server, raised by the user's choice if there is one.</summary>
-    public ActionClass DeclaredClass
-    {
-        get
-        {
-            var fromServer = ServerClass;
-            var raised = settings.Read(McpServersOptions.Section).Find(session.Name)?.Classes?.GetValueOrDefault(ServerTool.Name, fromServer) ?? fromServer;
-            return raised > fromServer ? raised : fromServer;
-        }
-    }
+    /// <summary>The lowest class a call may have, raised by the user's choice if there is one.</summary>
+    public ActionClass DeclaredClass => Higher(ServerClass, Raised);
 
-    /// <summary>The class before any choice of the user: a declared read is a read, the rest is sensitive.</summary>
-    public ActionClass ServerClass => ServerTool.ReadOnly ? ActionClass.Read : ActionClass.Sensitive;
+    /// <summary>
+    /// The class before any choice of the user. By the general rule, a declared read is a read and the rest is
+    /// sensitive. A server whose kind has its own classification gives the lowest class of the tool.
+    /// </summary>
+    public ActionClass ServerClass => classifier?.LowestClass(ServerTool) ?? GeneralClass;
+
+    private ActionClass GeneralClass => ServerTool.ReadOnly ? ActionClass.Read : ActionClass.Sensitive;
+
+    /// <summary>The class the user raised the tool to, or « Lecture » when there is no such choice.</summary>
+    private ActionClass Raised =>
+        settings.Read(McpServersOptions.Section).Find(session.Name)?.Classes?.GetValueOrDefault(ServerTool.Name, ActionClass.Read) ?? ActionClass.Read;
 
     /// <inheritdoc />
     public JsonElement Schema => ServerTool.Schema;
@@ -67,7 +70,25 @@ internal sealed class McpTool : ITool
     public string Describe(AssistantLanguage language) => ServerTool.Description;
 
     /// <inheritdoc />
-    public ActionClass Classify(JsonElement arguments) => DeclaredClass;
+    /// <summary>Without a question to the server, only the general rule is sure.</summary>
+    public ActionClass Classify(JsonElement arguments) => Higher(GeneralClass, Raised);
+
+    /// <summary>
+    /// The class of one call: by the classification of the kind of the server when it has one (ADR 0018, section 5),
+    /// never under what the user chose.
+    /// </summary>
+    public async ValueTask<ActionClass> ClassifyAsync(JsonElement arguments, CancellationToken cancellationToken)
+    {
+        if (classifier is null)
+        {
+            return Classify(arguments);
+        }
+
+        var call = new ToolServerCall(session.Name, ServerTool, arguments, (tool, asked, cancellation) => session.CallAsync(tool, asked, cancellation));
+        return Higher(await classifier.ClassifyAsync(call, cancellationToken).ConfigureAwait(false), Raised);
+    }
+
+    private static ActionClass Higher(ActionClass first, ActionClass second) => first > second ? first : second;
 
     /// <inheritdoc />
     public string? Discloses(AssistantLanguage language)
