@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-20 (chantier `stage2/2-adrs`). Les décisions prises par Benoit sont dans la section
-« Réponses de Benoit ». Il n'y a plus de question ouverte dans cet ADR ; il s'accepte avec les ADR 0017 et 0018.
+Accepté par Benoit le 2026-11-20 (chantier `stage2/2-adrs`). Les décisions prises par Benoit sont dans la section
+« Réponses de Benoit ».
 
 - **Tranche les points laissés par :** [ADR 0009](0009-permission-and-confirmation-model.md) (section 7 : la
   ligne de commande exacte, et si les réglages du projet sont chargés),

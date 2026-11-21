@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-20 (chantier `stage2/2-adrs`). Les décisions prises par Benoit après l'essai E14 sont dans
+Accepté par Benoit le 2026-11-20 (chantier `stage2/2-adrs`). Les décisions prises par Benoit après l'essai E14 sont dans
 la section « Réponses de Benoit ».
 
 - **Tranche les points laissés par :** [ADR 0009](0009-permission-and-confirmation-model.md) (section 2 :

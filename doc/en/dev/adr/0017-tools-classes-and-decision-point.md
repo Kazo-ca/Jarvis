@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-20 (work item `stage2/2-adrs`). The open questions are in the "Questions for Benoit"
-section.
+Accepted by Benoit on 2026-11-20 (work item `stage2/2-adrs`). His answers are in the "Benoit's answers"
+section. The driven browser of section 3 remains to be proven by spike E15.
 
 - **Settles the points left by:** [ADR 0007](0007-llm-providers-and-tool-format.md) (section 3: "the risk
   class of each tool is set by the tools ADR, at stage 2"),
@@ -77,7 +77,7 @@ section.
 | `calculate` | Computes an arithmetic expression, in code (no script execution) | Read | Yes | 3 |
 | `list_directory` | Lists an allowed folder | Read | Yes (with no allowed folder, it sees nothing) | 5 |
 | `read_file` | Text of a file in an allowed folder | Read | Yes (same) | 5 |
-| `web_search` | Web search through the chosen provider | Read | **No**: the query leaves the machine | 5 |
+| `web_search` | Web search: driven browser, or Brave Search if a key is supplied | Read | **No**: the query leaves the machine | 5 |
 | `fetch_url` | Reads a page with `GET` | Read | **No**: the address leaves the machine | 5 |
 | `hand_off_to_claude` | Hands off (ADR 0020) | By `kind` (ADRs 0020 and 0021) | Only if a target is set | 9 |
 
@@ -90,8 +90,26 @@ section.
   followed under the same rule. **Addresses of the machine and of the local network are refused** (loopback,
   private ranges, link-local), so that a booby-trapped page cannot make the model read Home Assistant,
   Jarvis's local server or a router. A list of exceptions is set by hand.
-- `web_search`: behind a kernel contract, so other providers can be added. The first one is that of
-  question 1. Its key goes to the vault ([ADR 0004](0004-configuration-storage-and-secret-vault.md)).
+- `web_search`: behind a kernel contract, with two providers (answer 1):
+  - **driven browser**, with no key and no cost, the default one;
+  - **Brave Search**, through its API, used as soon as the user has put their key in the vault
+    ([ADR 0004](0004-configuration-storage-and-secret-vault.md)).
+- **Driven browser** (answer 2):
+  - Jarvis drives the already installed Edge or Chrome, with Playwright for .NET, without downloading a
+    browser; the service is native, behind a kernel contract, in `Kazo.Jarvis.Adapters`;
+  - the window is **visible**, in a **separate profile reserved for Jarvis**: none of the user's accounts is
+    signed in there;
+  - **read only**: open a search engine's results page, read the text of a page. Jarvis fills in no form
+    other than the search, signs in to nothing and downloads nothing. `fetch_url` may go through this
+    browser, with the same address refusals;
+  - a setting allows using **the user's usual profile**. It is off by default and comes with a warning:
+    Jarvis then sees the open accounts (mail, bank), and a booby-trapped page can mislead the model while it
+    reads. Read-only holds in this mode too;
+  - the text read is data, truncated like any result (section 4).
+- **Spike E15, before work item 5:** on Benoit's PC, prove that searching through the browser holds: blocks
+  (CAPTCHA) on several engines, delay, reading the results when the page changes, a window that does not take
+  the focus. **If the spike fails, a new ADR says what to change**; Brave Search then remains the only
+  provider.
 - The screen that enables `web_search` or `fetch_url` says what leaves the machine (ADR 0009, section 9), and
   both go into the acceptance list of outbound connections.
 
@@ -134,18 +152,18 @@ section.
 - The kernel carries the contracts: tool and registry, decision point, classes, web search. It carries no
   classification logic.
 
-## Questions for Benoit
+## Benoit's answers
 
-Asked in the conversation on 2026-11-20.
+Questions asked in the conversation on 2026-11-20, answers of the same day.
 
 1. **Web search provider.** The plan kept Brave Search "with a free offer to check". Checked on 2026-11-20 on
    Brave's pricing page: there is no separate free offer any more; the "Search" plan is prepaid, US$5 per
-   1,000 requests, with US$5 of credit given every month (about 1,000 searches). According to an article of
-   2026-06-08, a credit card is asked at sign-up. Recommendation: keep Brave Search, disabled by default, the
-   key supplied by the user.
-   **Benoit asks in return** (2026-11-20) whether the search can be done in a browser visible to the user,
-   driven by something like Playwright. The question stays open; this ADR is only accepted once it is
-   settled.
+   1,000 requests, with US$5 of credit given every month (about 1,000 searches). Benoit asked whether the
+   search could be done in a visible browser, driven by something like Playwright, then settled it: "we
+   should have the free version, and if the user adds their key we can use the Brave option". The driven
+   browser first goes through spike E15 (section 3).
+2. **Which browser does Jarvis drive?** Installed Edge or Chrome, visible window, in a separate profile,
+   read-only. Benoit adds: it must be possible to choose the usual profile, "with a warning to the user".
 
 ## Options set aside
 
@@ -153,6 +171,9 @@ Asked in the conversation on 2026-11-20.
 - **Letting the model ask for the confirmation itself.** Against principle 1 of ADR 0009.
 - **A file-writing tool as early as stage 2.** Claude Code does it better, with the exact differences to
   confirm.
+- **Brave Search alone.** Set aside by Benoit: there is no free offer any more, and he wants a search without
+  a key.
+- **A hidden browser, without a window.** The user would not see what Jarvis opens.
 - **`fetch_url` open to the local network.** A web page could make the model read an internal service.
 
 ## Consequences
@@ -164,3 +185,7 @@ Asked in the conversation on 2026-11-20.
 - 2,000 characters per result is little for a web page: `fetch_url` returns the start of the useful text. A
   summary of a whole page by the local model would need another ADR.
 - With the default configuration, no tool makes anything leave the machine.
+- Searching through the browser depends on a search engine's page, which changes without notice and may block
+  a driven browser. When it fails, the tool returns the cause to the model; the tools page then offers Brave
+  Search.
+- **Accepted risk** with the usual profile: it is an explicit choice of the user, behind a warning.

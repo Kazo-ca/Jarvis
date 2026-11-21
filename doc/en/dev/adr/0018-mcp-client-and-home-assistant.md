@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-20 (work item `stage2/2-adrs`). The decisions Benoit took after spike E14 are in the
+Accepted by Benoit on 2026-11-20 (work item `stage2/2-adrs`). The decisions Benoit took after spike E14 are in the
 "Benoit's answers" section.
 
 - **Settles the points left by:** [ADR 0009](0009-permission-and-confirmation-model.md) (section 2: "how to

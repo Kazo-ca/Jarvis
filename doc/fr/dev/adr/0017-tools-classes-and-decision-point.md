@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-20 (chantier `stage2/2-adrs`). Les questions ouvertes sont dans la section « Questions
-pour Benoit ».
+Accepté par Benoit le 2026-11-20 (chantier `stage2/2-adrs`). Ses réponses sont dans la section « Réponses de
+Benoit ». Le navigateur piloté de la section 3 reste à prouver par l'essai E15.
 
 - **Tranche les points laissés par :** [ADR 0007](0007-llm-providers-and-tool-format.md) (section 3 : « la
   classe de risque de chaque outil est fixée par l'ADR des outils, à l'étape 2 »),
@@ -76,7 +76,7 @@ pour Benoit ».
 | `calculate` | Calcul d'une expression arithmétique, par du code (pas d'exécution de script) | Lecture | Oui | 3 |
 | `list_directory` | Liste d'un dossier autorisé | Lecture | Oui (sans dossier autorisé, il ne voit rien) | 5 |
 | `read_file` | Texte d'un fichier d'un dossier autorisé | Lecture | Oui (idem) | 5 |
-| `web_search` | Recherche sur le web par le fournisseur choisi | Lecture | **Non** : la requête sort de la machine | 5 |
+| `web_search` | Recherche sur le web : navigateur piloté, ou Brave Search si une clé est fournie | Lecture | **Non** : la requête sort de la machine | 5 |
 | `fetch_url` | Lit une page par `GET` | Lecture | **Non** : l'adresse sort de la machine | 5 |
 | `hand_off_to_claude` | Passe la main (ADR 0020) | Selon `kind` (ADR 0020 et 0021) | Seulement si une cible est réglée | 9 |
 
@@ -89,8 +89,26 @@ pour Benoit ».
   modèle, redirections suivies avec la même règle. **Les adresses de la machine et du réseau local sont
   refusées** (boucle locale, plages privées, lien local), pour qu'une page piégée ne puisse pas faire lire au
   modèle Home Assistant, le serveur local de Jarvis ou un routeur. Une liste d'exceptions se règle à la main.
-- `web_search` : derrière un contrat du noyau, pour ajouter d'autres fournisseurs. Le premier est celui de la
-  question n° 1. Sa clé va dans le coffre ([ADR 0004](0004-configuration-storage-and-secret-vault.md)).
+- `web_search` : derrière un contrat du noyau, avec deux fournisseurs (réponse n° 1) :
+  - **navigateur piloté**, sans clé ni coût, celui par défaut ;
+  - **Brave Search**, par son API, utilisé dès que l'utilisateur a mis sa clé dans le coffre
+    ([ADR 0004](0004-configuration-storage-and-secret-vault.md)).
+- **Navigateur piloté** (réponse n° 2) :
+  - Jarvis pilote Edge ou Chrome déjà installé, par Playwright pour .NET, sans télécharger de navigateur ;
+    le service est natif, derrière un contrat du noyau, dans `Kazo.Jarvis.Adapters` ;
+  - la fenêtre est **visible**, dans un **profil à part réservé à Jarvis** : aucun compte de l'utilisateur
+    n'y est connecté ;
+  - **lecture seulement** : ouvrir la page de résultats d'un moteur de recherche, lire le texte d'une page.
+    Jarvis n'y remplit aucun formulaire autre que la recherche, ne s'y connecte à rien et ne télécharge
+    rien. `fetch_url` peut passer par ce navigateur, avec les mêmes refus d'adresses ;
+  - un réglage permet d'utiliser **le profil habituel de l'utilisateur**. Il est coupé par défaut et
+    s'accompagne d'un avertissement : Jarvis voit alors les comptes ouverts (courriel, banque), et une page
+    piégée peut tromper le modèle pendant qu'il lit. La lecture seule vaut aussi dans ce mode ;
+  - le texte lu est une donnée, tronquée comme tout résultat (section 4).
+- **Essai E15, avant le chantier 5 :** sur le PC de Benoit, prouver que la recherche par navigateur tient :
+  blocages (CAPTCHA) sur plusieurs moteurs, délai, lecture des résultats quand la page change, fenêtre qui ne
+  prend pas le focus. **Si l'essai échoue, un nouvel ADR dit quoi changer** ; Brave Search reste alors le seul
+  fournisseur.
 - L'écran qui active `web_search` ou `fetch_url` dit ce qui sort de la machine (ADR 0009, section 9), et les
   deux entrent dans la liste des connexions sortantes de la recette.
 
@@ -134,18 +152,20 @@ pour Benoit ».
 - Le noyau porte les contrats : outil et registre, point de décision, classes, recherche web. Il ne porte
   aucune logique de classement.
 
-## Questions pour Benoit
+## Réponses de Benoit
 
-Posées dans la conversation le 2026-11-20.
+Questions posées dans la conversation le 2026-11-20, réponses du même jour.
 
 1. **Fournisseur de la recherche web.** Le plan retenait Brave Search « avec une offre gratuite à vérifier ».
    Vérifié le 2026-11-20 sur la page de prix de Brave : il n'y a plus d'offre gratuite séparée ; le forfait
    « Search » est prépayé, 5 $ US par 1 000 requêtes, avec 5 $ de crédit offerts chaque mois (environ
-   1 000 recherches). D'après un article du 2026-06-08, une carte de crédit est demandée à l'inscription.
-   Recommandation : garder Brave Search, désactivé par défaut, la clé fournie par l'utilisateur.
-   **Benoit demande en retour** (2026-11-20) si la recherche peut se faire dans un navigateur visible par
-   l'utilisateur, piloté par quelque chose comme Playwright. La question reste ouverte ; cet ADR ne s'accepte
-   qu'une fois tranchée.
+   1 000 recherches). Benoit a demandé si la recherche pouvait se faire dans un navigateur visible, piloté
+   par quelque chose comme Playwright, puis a tranché : « on devrait avoir la version gratuite et si
+   l'utilisateur ajoute sa clé on peut utiliser l'option Brave ». Le navigateur piloté passe d'abord par
+   l'essai E15 (section 3).
+2. **Quel navigateur Jarvis pilote-t-il ?** Edge ou Chrome installé, fenêtre visible, dans un profil à part,
+   en lecture seule. Benoit ajoute : on doit pouvoir choisir le profil habituel, « avec un avertissement à
+   l'utilisateur ».
 
 ## Options écartées
 
@@ -153,6 +173,8 @@ Posées dans la conversation le 2026-11-20.
 - **Laisser le modèle demander la confirmation lui-même.** Contraire au principe n° 1 de l'ADR 0009.
 - **Un outil d'écriture de fichier dès l'étape 2.** Claude Code le fait mieux, avec le détail exact des
   différences à confirmer.
+- **Brave Search seul.** Écarté par Benoit : il n'y a plus d'offre gratuite, et il veut une recherche sans clé.
+- **Un navigateur caché, sans fenêtre.** L'utilisateur ne verrait pas ce que Jarvis ouvre.
 - **`fetch_url` ouvert au réseau local.** Une page web pourrait faire lire au modèle un service interne.
 
 ## Conséquences
@@ -164,3 +186,8 @@ Posées dans la conversation le 2026-11-20.
 - 2 000 caractères par résultat est peu pour une page web : `fetch_url` rend le début du texte utile. Un
   résumé par le modèle local d'une page entière demanderait un autre ADR.
 - Avec la configuration par défaut, aucun outil ne fait sortir quoi que ce soit de la machine.
+- La recherche par navigateur dépend de la page d'un moteur de recherche, qui change sans prévenir et peut
+  bloquer un navigateur piloté. Quand elle échoue, l'outil rend la cause au modèle ; la page des outils
+  propose alors Brave Search.
+- **Risque accepté** avec le profil habituel : c'est un choix explicite de l'utilisateur, derrière un
+  avertissement.
