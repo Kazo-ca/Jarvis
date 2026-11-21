@@ -26,7 +26,8 @@ public sealed class ClaudeTasksTests : PageTest
 
     private ILocator Window => Page.Locator("[data-dialog-key='Permissions.Confirmation']");
 
-    private ILocator Newest => Conversation.Locator("[data-conversation-turn]").First;
+    // The announcements of the sessions (stage2/13) are lines of the conversation too: the newest request is not one.
+    private ILocator Newest => Conversation.Locator("[data-conversation-turn]:not([data-turn-input='Announcement'])").First;
 
     private ILocator ClaudeCode => Page.Locator("#claude-code");
 
@@ -264,6 +265,9 @@ public sealed class ClaudeTasksTests : PageTest
     private async Task TypeAsync(string request)
     {
         await CloseDialogsAsync(keepConfirmation: true);
+
+        // A request is only taken at rest: an announcement of a session may be being said.
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 15_000 });
         await Page.ClickAsync("#open-conversation");
         await Expect(Conversation.Locator("[data-conversation-window]")).ToBeVisibleAsync();
         await Conversation.Locator("[data-conversation-text]").FillAsync(request);

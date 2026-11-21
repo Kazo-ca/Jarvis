@@ -35,6 +35,10 @@ appels par le point de décision des permissions : voir [tools.md](tools.md).
     `AnswerFinishedWithoutSpeech`. **Jarvis ne parle que si on lui a parlé** (réponse n° 3 du plan).
   - **Demande dite** (`UtteranceTranscribed`) : chaque phrase complète est publiée en `SentenceToSpeak` dès
     qu'elle est écrite, puis `AnswerSentencesEnded`. La voix publie `FirstSentenceReady` et `SpeechEnded`.
+  - **Annonce** (`TurnStarted` avec `TurnInput.Announcement`, ADR 0024) : le moteur ne fait rien, le modèle
+    n'est pas appelé. `AnnouncementDesk` écrit l'annonce dans le journal dès qu'elle arrive et donne ses
+    phrases à la voix quand son tour commence : voir [session-announcements.md](session-announcements.md).
+    Une annonce n'entre jamais dans l'historique envoyé au modèle.
   - **Rien entendu** (texte vide de Whisper) : `AnswerFinishedWithoutSpeech`, sans appeler le modèle.
   - **Interruption** (`TurnCancelled`, US1.12) : la génération s'arrête (le jeton du flux est annulé) ; la voix
     se coupe d'elle-même. Le mot d'éveil reste actif pendant la réflexion et la parole (chantier 9).

@@ -36,6 +36,11 @@ calls through the permission decision point: see [tools.md](tools.md).
   - **Spoken request** (`UtteranceTranscribed`): each complete sentence is published as `SentenceToSpeak` as
     soon as it is written, then `AnswerSentencesEnded`. The voice publishes `FirstSentenceReady` and
     `SpeechEnded`.
+  - **Announcement** (`TurnStarted` with `TurnInput.Announcement`, ADR 0024): the engine does nothing, the
+    model is not called. `AnnouncementDesk` writes the announcement in the journal as soon as it arrives and
+    gives its sentences to the voice when its turn starts: see
+    [session-announcements.md](session-announcements.md). An announcement never enters the history sent to
+    the model.
   - **Nothing heard** (empty Whisper text): `AnswerFinishedWithoutSpeech`, without calling the model.
   - **Interruption** (`TurnCancelled`, US1.12): the generation stops (the stream token is cancelled); the
     voice cuts itself. The wake word stays active while thinking and speaking (work item 9).

@@ -85,6 +85,7 @@ public static class SimulatedServiceCollectionExtensions
         // Sessions started by Jarvis (stage2/12-claude-code-tasks): a scripted Claude Code that asks its
         // permissions through the same contract as the real approve tool.
         services.TryAddSingleton<SimulatedClaudeCode>();
+        services.TryAddSingleton<SimulatedHandSession>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode>(provider => provider.GetRequiredService<SimulatedClaudeCode>());
 
         services.TryAddSingleton<SimulatedLocalFiles>();

@@ -20,12 +20,15 @@ public enum TurnInput
 
     /// <summary>Typed in the conversation window: no microphone, written answer only.</summary>
     Text,
+
+    /// <summary>An announcement nobody asked for (ADR 0024): no microphone, no model, the text is said as it is.</summary>
+    Announcement,
 }
 
 /// <summary>A new turn started. Every message of the turn carries <paramref name="Turn"/>.</summary>
 /// <param name="Turn">The new turn.</param>
 /// <param name="Input">Spoken or typed.</param>
-/// <param name="Text">The typed text for a <see cref="TurnInput.Text"/> turn, otherwise <see langword="null"/>.</param>
+/// <param name="Text">The typed text for a <see cref="TurnInput.Text"/> turn, the text to say for a <see cref="TurnInput.Announcement"/> turn, otherwise <see langword="null"/>.</param>
 public sealed record TurnStarted(TurnId Turn, TurnInput Input, string? Text) : IEvent;
 
 /// <summary>Why a turn was cancelled.</summary>

@@ -30,6 +30,13 @@ public sealed record ActivationRequested(ActivationSource Source) : AssistantInp
 /// <param name="Text">The request as typed.</param>
 public sealed record TextSubmitted(string Text) : AssistantInput;
 
+/// <summary>
+/// An announcement asks to be said (ADR 0024, section 1): a new turn when idle, ignored otherwise. Whoever submits
+/// it waits for the rest and submits it again.
+/// </summary>
+/// <param name="Text">The text to say.</param>
+public sealed record AnnouncementSubmitted(string Text) : AssistantInput;
+
 /// <summary>The end of the utterance was detected; transcription and the model follow.</summary>
 /// <param name="Turn">The turn listened to.</param>
 public sealed record UtteranceEnded(TurnId Turn) : AssistantInput;

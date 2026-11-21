@@ -3,6 +3,7 @@ using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
 using Kazo.Jarvis.Features.Conversation.Memory;
 using Kazo.Jarvis.Features.Audio.Devices;
+using Kazo.Jarvis.Features.ClaudeCode.Announcements;
 using Kazo.Jarvis.Features.ClaudeCode.Hooks;
 using Kazo.Jarvis.Features.ClaudeCode.Launch;
 using Kazo.Jarvis.Features.ClaudeCode.Sessions;
@@ -143,6 +144,10 @@ public static class FeaturesServiceCollectionExtensions
         // Sessions started by Jarvis (stage2/12-claude-code-tasks, ADR 0021 sections 1, 4, 5 and 8): « Demande à
         // Claude Code de… » starts one on an allowed folder; its writes and commands go to the decision point.
         services.AddClaudeLaunchSlice();
+
+        // Announcements of the sessions (stage2/13-session-announcements, ADR 0021 section 9, ADR 0024): Jarvis
+        // says when a session ends or waits, except during the quiet time; « Où en est Claude sur… ? ».
+        services.AddClaudeAnnouncementsSlice();
 
         // Other slices arrive with the next work items.
         return services;

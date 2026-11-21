@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Announcements</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Jarvis says aloud when a Claude Code session ends or waits for you. Choose when it stays silent and what it announces for each folder.</value>
+  </data>
+  <data name="NowLabel" xml:space="preserve">
+    <value>Right now</value>
+  </data>
+  <data name="NowHint" xml:space="preserve">
+    <value>A quiet period changes no setting and ends by itself. Jarvis offers one when you tell it you are going to sleep.</value>
+  </data>
+  <data name="Now_Aloud" xml:space="preserve">
+    <value>Announcements are said aloud.</value>
+  </data>
+  <data name="Now_Hours" xml:space="preserve">
+    <value>Quiet hours: announcements are only written in the conversation.</value>
+  </data>
+  <data name="Now_Period" xml:space="preserve">
+    <value>Quiet period until {0}: announcements are only written in the conversation.</value>
+  </data>
+  <data name="PeriodStart" xml:space="preserve">
+    <value>Stay silent for {0} hours</value>
+  </data>
+  <data name="PeriodEnd" xml:space="preserve">
+    <value>End the silence now</value>
+  </data>
+  <data name="HoursLabel" xml:space="preserve">
+    <value>Quiet hours</value>
+  </data>
+  <data name="HoursHint" xml:space="preserve">
+    <value>Every day, between these hours, nothing is said: the announcement stays written in the conversation. None by default.</value>
+  </data>
+  <data name="NoRange" xml:space="preserve">
+    <value>No quiet hours are set.</value>
+  </data>
+  <data name="Range" xml:space="preserve">
+    <value>From {0} to {1}</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="FoldersLabel" xml:space="preserve">
+    <value>By folder</value>
+  </data>
+  <data name="FoldersHint" xml:space="preserve">
+    <value>What Jarvis announces for the sessions of each folder. Everything by default.</value>
+  </data>
+  <data name="NoFolder" xml:space="preserve">
+    <value>No folder yet: allow a folder, or let a session be seen through its hooks.</value>
+  </data>
+  <data name="Level_All" xml:space="preserve">
+    <value>Everything</value>
+  </data>
+  <data name="Level_WaitsOnly" xml:space="preserve">
+    <value>Only when it waits for me</value>
+  </data>
+  <data name="Level_None" xml:space="preserve">
+    <value>Nothing</value>
+  </data>
+  <data name="LimitsLabel" xml:space="preserve">
+    <value>Good to know</value>
+  </data>
+  <data name="Limit_Rest" xml:space="preserve">
+    <value>An announcement never interrupts you nor an answer: it waits until Jarvis is at rest. After ten minutes of waiting it is no longer said.</value>
+  </data>
+  <data name="Limit_Written" xml:space="preserve">
+    <value>Every announcement is written in the conversation, said or not. It is never sent to a model.</value>
+  </data>
+  <data name="Limit_Hooks" xml:space="preserve">
+    <value>A session you start yourself is announced only once its hooks are installed (page "Claude Code hooks").</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The setting could not be saved.</value>
+  </data>
+</root>

@@ -301,7 +301,19 @@ Resume point for any agent. Update it in the same change as what it describes.
   be confirmed by Benoit ([details](../dev/claude-code-tasks.md#provisional-choices-of-this-work-item)).
   **No real session started; Windows tests pending**
   ([list](../dev/claude-code-tasks.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item 13 (`stage2/13-session-announcements`) of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap`, `stage2/11` (its two parts, `stage2/11-tasks-and-sessions` and `stage2/11-hook-server`) and `stage2/12` (its two parts, `stage2/12-claude-code-launch` and `stage2/12-claude-code-tasks`) are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/13-session-announcements`** (see
+  [dev/session-announcements.md](../dev/session-announcements.md)): the announcement turn of ADR 0024 in the
+  kernel (`AnnouncementSubmitted`, `TurnInput.Announcement`, `AnnouncementToSay`) and in the conversation
+  (`AnnouncementDesk`: written at once, said at rest, one at a time, never sent to the model); slice
+  `ClaudeCode/Announcements` (`SessionAnnouncer` watches the board of the tasks, hence the same announcements
+  for a session started by Jarvis or seen through its hooks; choice per folder; quiet hours, none by default;
+  quiet period kept in memory only; tools `start_quiet_period` and `get_claude_sessions`; "Announcements"
+  page, order 55). The end summary left aside in work item 12 is said here. **Deviations: the amber badge of
+  the orb during the silence waits for work item 14; "I am going to sleep" rests on the description of the
+  tool, hence on the local model.** Provisional choices to be confirmed by Benoit
+  ([details](../dev/session-announcements.md#provisional-choices-of-this-work-item)). **No announcement said
+  by a real voice; Windows tests pending** ([list](../dev/session-announcements.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item 14 (`stage2/14-task-fan`) of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap`, `stage2/11` (its two parts, `stage2/11-tasks-and-sessions` and `stage2/11-hook-server`) and `stage2/12` (its two parts, `stage2/12-claude-code-launch` and `stage2/12-claude-code-tasks`) and `stage2/13-session-announcements` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

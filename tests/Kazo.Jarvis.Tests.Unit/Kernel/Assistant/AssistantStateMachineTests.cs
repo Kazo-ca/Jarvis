@@ -200,6 +200,67 @@ public sealed class AssistantStateMachineTests
         Assert.That(transition.State.Fault, Is.Null);
     }
 
+    // ADR 0024, section 1. Row: Idle + announcement submitted -> Thinking, new turn without microphone nor model.
+    [Test]
+    public void Idle_announcement_starts_a_turn_of_its_own()
+    {
+        var transition = Apply(AssistantState.Initial with { MicrophoneMuted = true }, new AnnouncementSubmitted("Claude Code a terminé."));
+
+        Assert.That(transition.State.Phase, Is.EqualTo(AssistantPhase.Thinking));
+        Assert.That(transition.State.Announcing, Is.True);
+        Assert.That(transition.Effects, Is.EqualTo(new IEvent[] { new TurnStarted(Turn1, TurnInput.Announcement, "Claude Code a terminé.") }));
+    }
+
+    [Test]
+    public void An_announcement_never_interrupts(
+        [Values(AssistantPhase.Listening, AssistantPhase.Thinking, AssistantPhase.Speaking)] AssistantPhase phase)
+    {
+        var busy = In(phase);
+
+        AssertIgnored(Apply(busy, new AnnouncementSubmitted("Claude Code a terminé.")), busy);
+    }
+
+    [Test]
+    public void An_announcement_without_a_text_is_ignored()
+    {
+        AssertIgnored(Apply(AssistantState.Initial, new AnnouncementSubmitted("  ")), AssistantState.Initial);
+    }
+
+    [Test]
+    public void The_end_of_an_announcement_goes_back_to_idle_and_keeps_the_fault()
+    {
+        var state = AssistantState.Initial with { Fault = ModelUnreachable };
+        state = Apply(state, new AnnouncementSubmitted("Claude Code a terminé.")).State;
+        state = Apply(state, new FirstSentenceReady(Turn1)).State;
+        Assert.That(state.Phase, Is.EqualTo(AssistantPhase.Speaking));
+
+        var transition = Apply(state, new SpeechEnded(Turn1));
+
+        AssertIdleWithoutTurn(transition.State);
+        Assert.That(transition.State.Fault, Is.EqualTo(ModelUnreachable), "An announcement said proves neither the microphone nor the model.");
+        Assert.That(transition.State.Announcing, Is.False);
+    }
+
+    [Test]
+    public void An_activation_cuts_an_announcement_and_the_next_turn_clears_the_fault_again()
+    {
+        var state = AssistantState.Initial with { Fault = ModelUnreachable };
+        state = Apply(state, new AnnouncementSubmitted("Claude Code a terminé.")).State;
+        state = Apply(state, new FirstSentenceReady(Turn1)).State;
+
+        var cut = Apply(state, new ActivationRequested(ActivationSource.WakeWord));
+
+        Assert.That(cut.State.Phase, Is.EqualTo(AssistantPhase.Listening));
+        Assert.That(cut.State.Announcing, Is.False);
+        Assert.That(cut.Effects, Is.EqualTo(new IEvent[]
+        {
+            new TurnCancelled(Turn1, TurnCancelReason.Interrupted),
+            new TurnStarted(Turn2, TurnInput.Voice, null),
+        }));
+        state = Apply(cut.State, new UtteranceEnded(Turn2)).State;
+        Assert.That(Apply(state, new AnswerFinishedWithoutSpeech(Turn2)).State.Fault, Is.Null);
+    }
+
     // Row: Listening, Thinking, Speaking + turn failed -> Idle with the fault.
     [Test]
     public void A_failed_turn_goes_back_to_idle_with_the_fault(

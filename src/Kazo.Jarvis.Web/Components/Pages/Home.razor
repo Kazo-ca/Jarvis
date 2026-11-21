@@ -22,6 +22,7 @@
 @inject SimulatedClaudeSessions ClaudeSessions
 @inject SimulatedClaudeUserSettings ClaudeSettings
 @inject SimulatedClaudeCode ClaudeCode
+@inject SimulatedHandSession HandSession
 @inject Kazo.Jarvis.Kernel.Tasks.ITaskBoard Board
 @inject ConfigurationFaultReporter ConfigurationCheck
 
@@ -67,6 +68,9 @@
         <button type="button" id="reset-claude-sessions" @onclick="ClaudeSessions.Reset">Put the Claude Code sessions back</button>
         <button type="button" id="break-claude-settings" @onclick="ClaudeSettings.Break">Make the Claude Code settings unreadable</button>
         <button type="button" id="reset-claude-settings" @onclick="ClaudeSettings.Reset">Put the Claude Code settings back</button>
+        <button type="button" id="hand-session-work" @onclick="HandSession.WorkAsync">Make a session started by hand work</button>
+        <button type="button" id="hand-session-wait" @onclick="HandSession.WaitAsync">Make it wait for a permission</button>
+        <button type="button" id="hand-session-stop" @onclick="HandSession.StopAsync">Make it end its turn</button>
         <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="fault" data-cause="@(State.Current.Fault?.Cause.ToString() ?? "")" data-origin="@(State.Current.Fault?.Origin?.ToString() ?? "")">@(State.Current.Fault is { } fault ? $"{fault.Cause} ({fault.Origin})" : "No fault")</output>
         <output id="microphone-open" data-device="@(Microphones.OpenDevice?.Id ?? "")">@(Microphones.OpenDevice?.Name ?? "No microphone open")</output>

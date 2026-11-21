@@ -71,6 +71,7 @@ A host does not call `AddJarvisKernel()` itself: `AddJarvisFeatures()` does. Cal
 | --- | --- |
 | `ActivationRequested(source)` | Wake word, hotkey or click |
 | `TextSubmitted(text)` | Text sent from the conversation window |
+| `AnnouncementSubmitted(text)` | An announcement asks to be said (ADR 0024): new turn at rest, ignored otherwise |
 | `UtteranceEnded(turn)` / `NothingHeard(turn)` | End of the utterance / nothing heard before the timeout |
 | `FirstSentenceReady(turn)` / `AnswerFinishedWithoutSpeech(turn)` / `SpeechEnded(turn)` | Steps of the answer |
 | `TurnFailed(turn, fault)` | The turn cannot finish |

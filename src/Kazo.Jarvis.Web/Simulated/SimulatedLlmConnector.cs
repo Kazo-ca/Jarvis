@@ -23,6 +23,7 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// « allume … », « éteins … » (« tout dans la pièce … » for a room) and « lance le script … » for the simulated Home Assistant,
 /// « souviens-toi que … », « oublie que … » and « que sais-tu sur … » for the tools of the memory, « question difficile »
 /// for <c>hand_off_to_claude</c> (a simulated cloud provider then says back what it received), « que retiens-tu »
+/// « où en est Claude sur … » for <c>get_claude_sessions</c> and « silence pendant N heures » for <c>start_quiet_period</c>,
 /// to hear back the memory block the model received, and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
@@ -171,6 +172,14 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 // The two background requests of the memory (stage2/8-memory): no tool, no personality.
                 await Task.Delay(40, cancellationToken).ConfigureAwait(false);
                 yield return new ChatResponseUpdate(ChatRole.Assistant, work) { ModelId = provider.Model, FinishReason = ChatFinishReason.Stop };
+                yield break;
+            }
+
+            if (options?.Instructions is { } shorten && (shorten.Contains("to be read aloud", StringComparison.Ordinal) || shorten.Contains("à lire à voix haute", StringComparison.Ordinal)))
+            {
+                // The last message of a session shortened for its announcement (stage2/13-session-announcements).
+                await Task.Delay(40, cancellationToken).ConfigureAwait(false);
+                yield return new ChatResponseUpdate(ChatRole.Assistant, $"Résumé simulé de {(last?.Text ?? string.Empty).Length} caractères.") { ModelId = provider.Model, FinishReason = ChatFinishReason.Stop };
                 yield break;
             }
 
@@ -367,6 +376,23 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_turn_on", on, HomeTarget(turnOn.Groups[1].Value));
             }
 
+            // The announcements of the sessions (stage2/13-session-announcements).
+            if (SessionsRequest().Match(request) is { Success: true } sessions && Offered("get_claude_sessions"))
+            {
+                var arguments = new Dictionary<string, object?>();
+                if (Sentence(sessions.Groups[1].Value) is { Length: > 0 } folder)
+                {
+                    arguments["folder"] = folder;
+                }
+
+                return new FunctionCallContent("call_sessions", "get_claude_sessions", arguments);
+            }
+
+            if (QuietRequest().Match(request) is { Success: true } silence && Offered("start_quiet_period"))
+            {
+                return new FunctionCallContent("call_quiet", "start_quiet_period", new Dictionary<string, object?> { ["hours"] = int.Parse(silence.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) });
+            }
+
             // The hand-off (stage2/9-hand-off): offered only while a target is set.
             if (HardRequest().IsMatch(request) && Offered("hand_off_to_claude"))
             {
@@ -394,6 +420,12 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         {
         }
     }
+
+    [GeneratedRegex(@"(?:où en est claude|where is claude)(?:\s+(?:sur|on)\s+(.+))?$", RegexOptions.IgnoreCase)]
+    private static partial Regex SessionsRequest();
+
+    [GeneratedRegex(@"(?:silence pendant|stay silent for)\s+(\d+)\s+(?:heures?|hours?)", RegexOptions.IgnoreCase)]
+    private static partial Regex QuietRequest();
 
     [GeneratedRegex(@"(?:écris une note|write a note)\s+(.+)$", RegexOptions.IgnoreCase)]
     private static partial Regex NoteRequest();

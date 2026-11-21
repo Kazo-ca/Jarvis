@@ -274,6 +274,12 @@ public sealed partial class ConversationEngine :
                 break;
             }
 
+            // An announcement is not an exchange: it is neither an activity of the user nor sent to a model (ADR 0024).
+            if (turn.Input == TurnInput.Announcement)
+            {
+                continue;
+            }
+
             next = turn.At;
             if (turn.Outcome != TurnOutcome.Answered || string.IsNullOrWhiteSpace(turn.Answer))
             {
@@ -300,7 +306,7 @@ public sealed partial class ConversationEngine :
         var keys = kept.Select(turn => turn.Key).ToHashSet();
         var from = kept.Count > 0 ? kept[0].At : DateTimeOffset.MaxValue;
         var left = turns
-            .Where(turn => turn.Outcome == TurnOutcome.Answered && !string.IsNullOrWhiteSpace(turn.Answer) && !keys.Contains(turn.Key) && turn.At <= from)
+            .Where(turn => turn.Input != TurnInput.Announcement && turn.Outcome == TurnOutcome.Answered && !string.IsNullOrWhiteSpace(turn.Answer) && !keys.Contains(turn.Key) && turn.At <= from)
             .Select(turn => new PastExchange(turn.Key, turn.At, turn.Request, turn.Answer))
             .ToList();
         return left.Count > MostExchangesAnnounced ? left.GetRange(left.Count - MostExchangesAnnounced, MostExchangesAnnounced) : left;

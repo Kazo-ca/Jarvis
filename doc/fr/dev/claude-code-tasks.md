@@ -170,6 +170,7 @@ dans `#claude-code`.
 1. **Le résumé de fin n'est pas dit à voix haute dans ce chantier.** Il est gardé sur la tâche et publié
    (`ClaudeTaskEnded`). Le dire sans couper l'utilisateur, hors d'un tour et en respectant les heures de
    silence, est le travail du chantier `stage2/13-session-announcements`, qui construit ce mécanisme.
+   **Fait au chantier 13** : voir [session-announcements.md](session-announcements.md).
 2. **Une session a un seul dossier** : `--add-dir` n'est pas utilisé.
 3. **Seule la formule lance une session.** L'outil `hand_off_to_claude` ne propose toujours que
    `kind: question` au modèle local : la conversation sait traiter un appel `kind: task` (testé), mais l'offrir
