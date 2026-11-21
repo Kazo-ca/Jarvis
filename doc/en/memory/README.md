@@ -172,7 +172,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   collection `Permissions.Decisions`); slices `Tools/Clock` (`get_datetime`) and `Tools/Calculator`
   (`calculate`); the three adapters send the tools and read the calls, with the tolerant parser for the
   local adapters; the conversation runs the loop (8 calls per turn, 30 s per call, result cut at 2,000
-  characters) and shows each call in the turn. "Sensitive" and "Critical" go through the confirmation request of work item 4. No "Tools" page yet. **Not verified with a real model** nor
+  characters) and shows each call in the turn. "Sensitive" and "Critical" go through the confirmation request of work item 4. The "Tools" page is done in work item 5. **Not verified with a real model** nor
   against the real OpenAI and Anthropic APIs. **Pending Windows tests**
   ([list](../dev/tools.md#checks-on-windows)).
 - **Work item `stage2/4-confirmation`** (confirmation request, see
@@ -189,7 +189,19 @@ Resume point for any agent. Update it in the same change as what it describes.
   request needs your interaction", the form "task X of project Y" waits for the sessions and the tasks; the
   word list follows the language; the window is not placed near the orb yet. **Windows checks pending**
   ([list](../dev/confirmation.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/5-basic-tools` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop` and `stage2/4-confirmation` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/5-basic-tools`** (basic tools, see [dev/basic-tools.md](../dev/basic-tools.md)),
+  following ADRs 0017 and 0022: kernel contracts `ILocalFiles`, `IReadingBrowser`, `IWebSearchApi`,
+  `IWebAddressPolicy` and `ITool.Discloses`; slice `Tools/Files` (`list_directory`, `read_file`, "Allowed
+  folders" page, no folder allowed at the start, links and junctions resolved before the comparison); slice
+  `Tools/Web` (`web_search` and `fetch_url`, **off at the start**, local addresses refused, Brave Search when
+  a key is in the vault, "Web search" page); slice `Tools/Catalog` ("Tools" page, one switch per tool);
+  browser of Jarvis on WebView2 in the Windows host (`Browser/`), "See the page" button in the conversation
+  window. **Nothing has run on Windows**: the browser compiles, its scripts are tried in Chromium.
+  Provisional choices to be confirmed by Benoit
+  ([details](../dev/basic-tools.md#provisional-choices-of-this-work-item)): typed path with no folder
+  picker, no "stricter" setting per tool, browser closed after 5 minutes, a single tab. **Windows checks
+  pending** ([list](../dev/basic-tools.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/6-mcp-client` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation` and `stage2/5-basic-tools` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

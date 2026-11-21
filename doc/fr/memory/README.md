@@ -181,8 +181,7 @@ ce qu'il décrit.
   la collection `Permissions.Decisions`) ; tranches `Tools/Clock` (`get_datetime`) et `Tools/Calculator`
   (`calculate`) ; les trois adaptateurs envoient les outils et lisent les appels, avec l'analyseur tolérant
   pour les adaptateurs locaux ; la conversation fait la boucle (8 appels par tour, 30 s par appel, résultat
-  coupé à 2 000 caractères) et montre chaque appel dans le tour. « Sensible » et « Critique » passent par la demande de confirmation du chantier 4. Pas encore de page
-  « Outils ». **Non vérifié avec un vrai modèle** ni contre les vraies API d'OpenAI et d'Anthropic. **Tests
+  coupé à 2 000 caractères) et montre chaque appel dans le tour. « Sensible » et « Critique » passent par la demande de confirmation du chantier 4. La page « Outils » est faite au chantier 5. **Non vérifié avec un vrai modèle** ni contre les vraies API d'OpenAI et d'Anthropic. **Tests
   Windows en attente** ([liste](../dev/tools.md#vérifications-sur-windows)).
 - **Chantier `stage2/4-confirmation`** (demande de confirmation, voir
   [dev/confirmation.md](../dev/confirmation.md)), selon l'ADR 0023 accepté : condition
@@ -198,7 +197,19 @@ ce qu'il décrit.
   conversation dit « Votre demande a besoin de votre interaction », la forme « la tâche X du projet Y »
   attend les sessions et les tâches ; la liste de mots suit la langue ; la fenêtre n'est pas encore placée
   près de l'orbe. **Tests Windows en attente** ([liste](../dev/confirmation.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/5-basic-tools` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop` et `stage2/4-confirmation` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/5-basic-tools`** (outils de base, voir [dev/basic-tools.md](../dev/basic-tools.md)),
+  selon les ADR 0017 et 0022 : contrats du noyau `ILocalFiles`, `IReadingBrowser`, `IWebSearchApi`,
+  `IWebAddressPolicy` et `ITool.Discloses` ; tranche `Tools/Files` (`list_directory`, `read_file`, page
+  « Dossiers autorisés », aucun dossier autorisé au départ, liens et jonctions résolus avant la comparaison) ;
+  tranche `Tools/Web` (`web_search` et `fetch_url`, **désactivés au départ**, adresses locales refusées, Brave
+  Search quand une clé est au coffre, page « Recherche web ») ; tranche `Tools/Catalog` (page « Outils », un
+  interrupteur par outil) ; navigateur de Jarvis en WebView2 dans l'hôte Windows (`Browser/`), bouton « Voir
+  la page » dans la fenêtre de conversation. **Rien n'a tourné sur Windows** : le navigateur compile, ses
+  scripts sont essayés dans Chromium. Choix provisoires à confirmer par Benoit
+  ([détail](../dev/basic-tools.md#choix-provisoires-de-ce-chantier)) : chemin tapé sans sélecteur de dossier,
+  pas de réglage « plus strict » par outil, fermeture du navigateur après 5 minutes, un seul onglet. **Tests
+  Windows en attente** ([liste](../dev/basic-tools.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/6-mcp-client` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation` et `stage2/5-basic-tools` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

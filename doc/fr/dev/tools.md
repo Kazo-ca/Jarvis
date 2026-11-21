@@ -63,6 +63,8 @@ décision. « Tout effacer » efface aussi ce journal. Une interruption est jour
 | `get_datetime` | `Tools/Clock` | Lecture | JSON : `date`, `time`, `weekday`, `time_zone`, `utc_offset` du PC |
 | `calculate` | `Tools/Calculator` | Lecture | La valeur de `expression`, écrite avec un point décimal |
 
+Les outils de fichiers et du web sont dans [basic-tools.md](basic-tools.md).
+
 `calculate` lit lui-même l'expression (aucune exécution de script) : nombres, `+ - * / % ^`, parenthèses,
 `pi`, `e`, `sqrt`, `abs`, `round`, `floor`, `ceil`. Il accepte `×`, `÷`, `**` et la virgule décimale. Le
 calcul se fait en `decimal` : 0,1 + 0,2 donne 0,3. Expression de 500 caractères au plus ; une erreur
@@ -103,8 +105,7 @@ réponse le cite.
 
 Les ADR ne les tranchent pas ; à confirmer par Benoit :
 
-1. **Pas encore de page « Outils »** (`Tools/Catalog`) : les deux outils sont activés par défaut, et un
-   interrupteur ne se change que dans `config.json` (`Tools.Activation`). La page vient avec le chantier 5.
+1. ~~Pas encore de page « Outils »~~ : faite au chantier 5 ([basic-tools.md](basic-tools.md)).
 2. **Les appels d'outils des tours passés ne sont pas renvoyés au modèle** : l'historique garde la demande
    et la réponse.
 3. **Description du paramètre `expression`** en anglais dans les deux langues ; la description de l'outil
