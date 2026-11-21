@@ -107,6 +107,10 @@ public static class AdaptersServiceCollectionExtensions
         // Basic tools (ADR 0017, section 3): the disk, read only, for the file tools; Brave Search for the web search,
         // called only when the tool is on and a key is in the vault. 20 s bound one search.
         services.TryAddSingleton<ILocalFiles, LocalFiles>();
+
+        // Claude Code sessions (ADR 0021, section 6): the registry of the running sessions, read only.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeSessionRegistry>(provider =>
+            new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry(provider.GetService<ILogger<Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry>>()));
         // Tool servers (ADR 0018): the MCP client.
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Tools.Servers.IToolServerConnector, Kazo.Jarvis.Adapters.Mcp.McpToolServerConnector>();
         services.TryAddSingleton<IWebSearchApi>(provider => new BraveSearchApi(

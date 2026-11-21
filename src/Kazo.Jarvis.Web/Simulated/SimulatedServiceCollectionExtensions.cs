@@ -71,6 +71,10 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Kazo.Jarvis.Kernel.Tools.ITool, SimulatedEraseTool>());
         // Basic tools (stage2/5-basic-tools): a few files in memory and a browser with fixed pages; the address
         // policy comes from the web tools slice.
+        // Claude Code sessions (stage2/11-tasks-and-sessions): a few sessions in memory, moved by the test page.
+        services.TryAddSingleton<SimulatedClaudeSessions>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeSessionRegistry>(provider => provider.GetRequiredService<SimulatedClaudeSessions>());
+
         services.TryAddSingleton<SimulatedLocalFiles>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Files.ILocalFiles>(provider => provider.GetRequiredService<SimulatedLocalFiles>());
         services.TryAddSingleton<SimulatedReadingBrowser>();

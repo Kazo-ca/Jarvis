@@ -3,6 +3,7 @@ using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
 using Kazo.Jarvis.Features.Conversation.Memory;
 using Kazo.Jarvis.Features.Audio.Devices;
+using Kazo.Jarvis.Features.ClaudeCode.Sessions;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Llm.HandOff;
@@ -19,6 +20,7 @@ using Kazo.Jarvis.Features.Setup.FirstRun;
 using Kazo.Jarvis.Features.Setup.Models;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
+using Kazo.Jarvis.Features.Tasks.Board;
 using Kazo.Jarvis.Features.Tools.Calculator;
 using Kazo.Jarvis.Features.Tools.Catalog;
 using Kazo.Jarvis.Features.Tools.Clock;
@@ -126,6 +128,11 @@ public static class FeaturesServiceCollectionExtensions
         // Before the servers: the classification of Home Assistant (stage2/7-home-assistant) is given to their hub.
         services.AddHomeAssistantSlice();
         services.AddMcpServersSlice();
+
+        // Tasks and Claude Code sessions (stage2/11-tasks-and-sessions, ADR 0013 section 6, ADR 0021): the board
+        // of the tasks, in the shape of Relais, and the list of the sessions running on the computer.
+        services.AddTaskBoardSlice();
+        services.AddClaudeSessionsSlice();
 
         // Other slices arrive with the next work items.
         return services;

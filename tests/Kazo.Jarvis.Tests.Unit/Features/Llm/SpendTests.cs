@@ -39,6 +39,7 @@ public sealed class SpendTests
 
         // 4 USD per million tokens sent, 20 per million written: a million of each costs 24 USD.
         await settings.WriteAsync(SpendOptions.Section, new SpendOptions().WithPrice(Cloud.Id, new ProviderPrice(4m, 20m)));
+        changes = 0;
         ledger = Ledger();
     }
 
