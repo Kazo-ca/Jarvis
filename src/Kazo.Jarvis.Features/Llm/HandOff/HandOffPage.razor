@@ -1,5 +1,7 @@
+@using System.Globalization
 @inject ISettingsStore Settings
 @inject ILlmProviderList Providers
+@inject IServiceProvider Services
 @inject IAssistantLanguageReader Language
 @inject IStringLocalizer<HandOffPage> T
 @implements IDisposable
@@ -16,6 +18,13 @@
             <li>@T["Leaves_Never"]</li>
         </ul>
         <p class="handoff-warning" data-handoff-cost>@T["Cost"]</p>
+        @if (spend?.Status is { } status)
+        {
+            @* The count of the month (ADR 0020, section 6); the cap and the prices are on the « Dépense » page. *@
+            <p class="@(status.Reached ? "handoff-warning" : "handoff-note")" data-handoff-spend="@status.SpentUsd.ToString(CultureInfo.InvariantCulture)" data-handoff-cap-reached="@(status.Reached ? "true" : "false")">
+                @T[status.Reached ? "SpendReached" : "Spend", Money(status.SpentUsd), Money(status.CapUsd)]
+            </p>
+        }
     </SettingsField>
 
     <SettingsField Label="@T["QuestionsLabel"]" Hint="@T["QuestionsHint"]">
@@ -23,12 +32,17 @@
             <option value="">@T["None"]</option>
             @foreach (var candidate in candidates)
             {
-                <option value="@candidate.Id">@candidate.Name · @candidate.Model</option>
+                var unpriced = Unpriced(candidate);
+                <option value="@candidate.Id" disabled="@(unpriced && candidate.Id != chosen?.Id)" data-handoff-unpriced="@(unpriced ? "true" : "false")">@candidate.Name · @candidate.Model@(unpriced ? " · " + T["NoPrice"] : "")</option>
             }
         </select>
         @if (candidates.Count == 0)
         {
             <p class="handoff-note" data-handoff-no-provider>@T["NoProvider"]</p>
+        }
+        else if (chosen is not null && Unpriced(chosen))
+        {
+            <p class="handoff-warning" data-handoff-target-unpriced>@T["ChosenNoPrice"]</p>
         }
         else if (chosen is not null)
         {
@@ -37,6 +51,10 @@
         else
         {
             <p class="handoff-note" data-handoff-no-target>@T["NoTarget"]</p>
+        }
+        @if (candidates.Any(Unpriced))
+        {
+            <p class="handoff-note" data-handoff-price-note>@T["PriceNote"]</p>
         }
         @if (problem is not null)
         {
@@ -71,18 +89,37 @@
     private IReadOnlyList<LlmProvider> candidates = [];
     private LlmProvider? chosen;
     private string? problem;
+    private ISpendCap? spend;
 
     /// <inheritdoc />
     protected override void OnInitialized()
     {
         Providers.Changed += OnProvidersChanged;
+        spend = Services.GetService(typeof(ISpendCap)) as ISpendCap;
+        if (spend is not null)
+        {
+            spend.Changed += OnProvidersChanged;
+        }
+
         Read();
     }
 
     /// <inheritdoc />
-    public void Dispose() => Providers.Changed -= OnProvidersChanged;
+    public void Dispose()
+    {
+        Providers.Changed -= OnProvidersChanged;
+        if (spend is not null)
+        {
+            spend.Changed -= OnProvidersChanged;
+        }
+    }
 
-    // A provider added on the other page shows here without leaving the window.
+    // A cloud provider without a price cannot be a target: its cost could not be counted (ADR 0020, section 6).
+    private bool Unpriced(LlmProvider candidate) => spend?.Check(candidate) == SpendVerdict.NoPrice;
+
+    private static string Money(decimal value) => value.ToString(value is > 0 and < 0.01m ? "0.0000" : "0.00", CultureInfo.CurrentCulture);
+
+    // A provider added on the other page, a price typed or an answer counted shows here without leaving the window.
     private void OnProvidersChanged() => _ = InvokeAsync(() =>
     {
         Read();

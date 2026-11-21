@@ -102,4 +102,10 @@
   <data name="HandOff_ServerError" xml:space="preserve">
     <value>The hand-off did not happen: {0} answered with an error.</value>
   </data>
+  <data name="HandOff_NoPrice" xml:space="preserve">
+    <value>The hand-off did not happen: the target has no price, so its cost could not be counted against the spending cap. The price is typed in the settings, on the Spending page.</value>
+  </data>
+  <data name="HandOff_CapReached" xml:space="preserve">
+    <value>The hand-off did not happen: this month's cloud spending cap is reached. Jarvis stays local until next month, or until the cap is raised on the Spending page.</value>
+  </data>
 </root>

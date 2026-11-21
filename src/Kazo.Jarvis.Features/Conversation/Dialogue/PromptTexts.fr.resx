@@ -102,4 +102,10 @@
   <data name="HandOff_ServerError" xml:space="preserve">
     <value>Le passage de main n'a pas eu lieu : {0} a répondu par une erreur.</value>
   </data>
+  <data name="HandOff_NoPrice" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : la cible n'a pas de prix, son coût ne pourrait donc pas être compté dans le plafond de dépense. Le prix se règle dans les paramètres, à la page Dépense.</value>
+  </data>
+  <data name="HandOff_CapReached" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : le plafond de dépense cloud de ce mois est atteint. Jarvis reste en local jusqu'au mois prochain, ou jusqu'à ce que le plafond soit relevé à la page Dépense.</value>
+  </data>
 </root>

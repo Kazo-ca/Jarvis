@@ -79,6 +79,13 @@
     {
         <p class="conversation-notice" role="status" data-conversation-loading>@T["ModelLoading", loading]</p>
     }
+    @if (spend?.Status is { SpentUsd: > 0 } spent)
+    {
+        @* The count of the cloud spending of the month (ADR 0020, section 6): shown once something was spent. *@
+        <p class="conversation-spend" role="status" data-conversation-spend="@spent.SpentUsd.ToString(CultureInfo.InvariantCulture)" data-spend-reached="@(spent.Reached ? "true" : "false")">
+            @T[spent.Reached ? "Spend_Reached" : "Spend", Money(spent.SpentUsd), Money(spent.CapUsd)]
+        </p>
+    }
     <form class="conversation-input" @onsubmit="SendAsync">
         <input type="text" class="conversation-text" data-conversation-text maxlength="4000" autocomplete="off"
                placeholder="@T["Placeholder"]" aria-label="@T["InputLabel"]" @bind="draft" @bind:event="oninput" />
@@ -107,6 +114,7 @@
     private IReadOnlyList<ConversationTurn> turns = [];
     private string draft = string.Empty;
     private bool confirmingErase;
+    private Kazo.Jarvis.Kernel.Llm.ISpendCap? spend;
     private string? modelLoading;
     private string? problem;
     private IDisposable? stateSubscription;
@@ -123,6 +131,12 @@
     {
         Journal.Changed += OnChanged;
         browser = Services.GetService(typeof(Kazo.Jarvis.Kernel.Web.IReadingBrowser)) as Kazo.Jarvis.Kernel.Web.IReadingBrowser;
+        spend = Services.GetService(typeof(Kazo.Jarvis.Kernel.Llm.ISpendCap)) as Kazo.Jarvis.Kernel.Llm.ISpendCap;
+        if (spend is not null)
+        {
+            spend.Changed += OnSpendChanged;
+        }
+
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
         loadSubscription = Bus.Subscribe<AssistantModelLoadChanged>((message, _) => new ValueTask(InvokeAsync(() =>
         {
@@ -137,9 +151,19 @@
     public void Dispose()
     {
         Journal.Changed -= OnChanged;
+        if (spend is not null)
+        {
+            spend.Changed -= OnSpendChanged;
+        }
+
         stateSubscription?.Dispose();
         loadSubscription?.Dispose();
     }
+
+    private void OnSpendChanged() => _ = InvokeAsync(StateHasChanged);
+
+    // Cents, and more digits for an answer that costs less than one.
+    private static string Money(decimal value) => value.ToString(value is > 0 and < 0.01m ? "0.0000" : "0.00", CultureInfo.CurrentCulture);
 
     private async Task SeePageAsync(Uri page)
     {
@@ -232,7 +256,7 @@
     private static readonly HashSet<string> HandOffCauses = new(StringComparer.Ordinal)
     {
         "NoQuestionsTarget", "NoTasksTarget", "NotConfigured", "InvalidAddress", "Unreachable", "ModelMissing", "KeyMissing",
-        "KeyRejected", "TimedOut", "ServerError",
+        "KeyRejected", "TimedOut", "ServerError", "NoPrice", "CapReached",
     };
 
     private string HandOffText(HandOffEntry handOff)

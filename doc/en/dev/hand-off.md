@@ -2,7 +2,7 @@
 
 Work item `stage2/9-hand-off` (US2.5, US2.6, US2.7). Decision:
 [ADR 0020](adr/0020-hand-off-targets-and-spend-cap.md), sections 1 to 5 and 7. The spending cap (section 6) is
-work item `stage2/10-spend-cap`. The full turn is described in [conversation.md](conversation.md), the tool loop
+described in [spend-cap.md](spend-cap.md). The full turn is described in [conversation.md](conversation.md), the tool loop
 in [tools.md](tools.md), the providers in [llm.md](llm.md).
 
 ## What is built
@@ -144,8 +144,8 @@ The ADR does not settle them; to be confirmed by Benoit:
 
 ## Known limits
 
-- **No spending cap bounds the calls yet**: that is the next work item. The page says so. A provider without
-  a price can be chosen as a target as long as prices do not exist.
+- Since work item `stage2/10-spend-cap`, a monthly cap bounds the calls and a provider without a price can
+  no longer be a target: see [spend-cap.md](spend-cap.md).
 - The history sent to the target is sized on the context of the local model, not on that of the target.
 
 ## Not verified

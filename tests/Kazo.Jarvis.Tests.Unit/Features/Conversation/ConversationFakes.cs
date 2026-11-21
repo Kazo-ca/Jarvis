@@ -161,11 +161,23 @@ internal sealed class FakeHandOff : IHandOff
 
     public HandOffCall? Read(System.Text.Json.JsonElement arguments) => Kazo.Jarvis.Features.Llm.HandOff.HandOffTool.Read(arguments);
 
+    /// <summary>When set, the hand-off of a question is refused with it once <see cref="AllowedOpenings"/> were given.</summary>
+    public HandOffRefusal? Refusal { get; set; }
+
+    /// <summary>How many times <see cref="Open"/> gives the target before <see cref="Refusal"/> applies.</summary>
+    public int AllowedOpenings { get; set; }
+
+    /// <summary>What <see cref="Notice"/> gives, once each.</summary>
+    public Queue<string> Notices { get; } = new();
+
     public HandOffOpening Open(HandOffKind kind)
     {
         Opened.Add(kind);
         return kind == HandOffKind.Task ? HandOffOpening.Refused(HandOffRefusal.NoTasksTarget)
             : Target is null ? HandOffOpening.Refused(HandOffRefusal.NoQuestionsTarget)
+            : Refusal is { } refusal && Opened.Count > AllowedOpenings ? HandOffOpening.Refused(refusal)
             : HandOffOpening.To(Target);
     }
+
+    public string? Notice(Kazo.Jarvis.Kernel.Localization.AssistantLanguage language) => Notices.TryDequeue(out var notice) ? notice : null;
 }

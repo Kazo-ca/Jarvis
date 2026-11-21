@@ -7,6 +7,7 @@ using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Llm.HandOff;
 using Kazo.Jarvis.Features.Llm.Providers;
+using Kazo.Jarvis.Features.Llm.Spend;
 using Kazo.Jarvis.Features.Maintenance.Updates;
 using Kazo.Jarvis.Features.Mcp.HomeAssistant;
 using Kazo.Jarvis.Features.Mcp.Servers;
@@ -71,6 +72,10 @@ public static class FeaturesServiceCollectionExtensions
         // Hand-off (stage2/9-hand-off): the targets among the cloud providers, the tool and the forcing formulas;
         // the conversation reads them through the kernel contract.
         services.AddHandOffSlice();
+
+        // Spending cap (stage2/10-spend-cap): the prices, the count of the month and the cap asked before each
+        // cloud call; the hand-off and the conversation reach it through the kernel contract.
+        services.AddSpendSlice();
 
         // Audio devices (stage1/8-audio-devices): capture and playback come from the host.
         services.AddAudioDevicesSlice();

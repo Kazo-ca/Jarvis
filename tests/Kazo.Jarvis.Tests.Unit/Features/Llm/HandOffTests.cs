@@ -216,4 +216,82 @@ public sealed class HandOffTests
     {
         Assert.That(HandOffOptions.Section.Validate(new HandOffOptions { QuestionsProviderId = "not an id" }), Is.Not.Empty);
     }
+
+    [Test]
+    public async Task With_a_cap_the_tool_is_offered_only_while_the_target_has_a_price_and_the_cap_is_not_reached()
+    {
+        var spend = new FakeSpendCap { Verdict = SpendVerdict.NoPrice };
+        using var capped = new HandOffTargets(settings, providers, connector, registry, spend);
+        targets.Dispose();
+        await settings.WriteAsync(HandOffOptions.Section, new HandOffOptions { QuestionsProviderId = "anthropic" });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(registry.Find(HandOffTool.ToolName), Is.Null, "A cloud provider without a price is never called.");
+            Assert.That(capped.Open(HandOffKind.Question), Is.EqualTo(HandOffOpening.Refused(HandOffRefusal.NoPrice)));
+            Assert.That(spend.Checked.Select(provider => provider.Id), Is.All.EqualTo("anthropic"));
+        });
+
+        spend.Change(SpendVerdict.Allowed);
+        Assert.Multiple(() =>
+        {
+            Assert.That(registry.Find(HandOffTool.ToolName), Is.Not.Null, "The price typed puts the tool back.");
+            Assert.That(capped.Open(HandOffKind.Question).Target!.Provider.Id, Is.EqualTo("anthropic"));
+        });
+
+        spend.Change(SpendVerdict.CapReached);
+        Assert.Multiple(() =>
+        {
+            Assert.That(registry.Find(HandOffTool.ToolName), Is.Null, "At the cap the tool is no longer offered (ADR 0020, section 6).");
+            Assert.That(capped.Open(HandOffKind.Question), Is.EqualTo(HandOffOpening.Refused(HandOffRefusal.CapReached)));
+            Assert.That(capped.QuestionsTarget!.Id, Is.EqualTo("anthropic"), "The choice of the user is kept for next month.");
+        });
+
+        spend.Change(SpendVerdict.Allowed);
+        Assert.That(registry.Find(HandOffTool.ToolName), Is.Not.Null, "A new month, or a cap raised.");
+    }
+
+    [Test]
+    public void What_the_cap_has_to_tell_is_a_sentence_in_the_language_of_the_turn_taken_once()
+    {
+        var spend = new FakeSpendCap();
+        using var capped = new HandOffTargets(settings, providers, connector, registry, spend);
+        spend.Notices.Enqueue(SpendNotice.NearCap);
+        spend.Notices.Enqueue(SpendNotice.CapReached);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(capped.Notice(AssistantLanguage.French), Does.Contain("plus de 80 % du plafond"));
+            Assert.That(capped.Notice(AssistantLanguage.English), Does.Contain("cap is now reached"));
+            Assert.That(capped.Notice(AssistantLanguage.French), Is.Null);
+            Assert.That(targets.Notice(AssistantLanguage.French), Is.Null, "Without a spending slice there is nothing to tell.");
+        });
+    }
+
+    private sealed class FakeSpendCap : ISpendCap
+    {
+        public event Action? Changed;
+
+        public SpendVerdict Verdict { get; set; } = SpendVerdict.Allowed;
+
+        public List<LlmProvider> Checked { get; } = [];
+
+        public Queue<SpendNotice> Notices { get; } = new();
+
+        public SpendStatus Status => new(new DateOnly(2026, 11, 1), 0m, 10m);
+
+        public SpendVerdict Check(LlmProvider provider)
+        {
+            Checked.Add(provider);
+            return Verdict;
+        }
+
+        public SpendNotice? TakeNotice() => Notices.TryDequeue(out var notice) ? notice : null;
+
+        public void Change(SpendVerdict verdict)
+        {
+            Verdict = verdict;
+            Changed?.Invoke();
+        }
+    }
 }

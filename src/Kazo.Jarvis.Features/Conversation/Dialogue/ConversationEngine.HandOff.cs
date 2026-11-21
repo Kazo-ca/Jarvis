@@ -76,7 +76,8 @@ public sealed partial class ConversationEngine
             offered,
             target.WithMemory ? run.Recall.Block : null,
             target,
-            FirstText);
+            FirstText,
+            () => handOff.Open(asked.Kind).Refusal);
         var written = run.Answer.Length;
         try
         {
@@ -87,6 +88,12 @@ public sealed partial class ConversationEngine
             }
 
             run.Handed = usage;
+            if (handOff.Notice(language) is { } notice)
+            {
+                // 80 % of the cap passed, or the cap reached by this answer: said once, after the answer (section 6).
+                await WriteAsync(run, notice).ConfigureAwait(false);
+            }
+
             return SystemPrompt.Text("HandOff_Answered", language, target.Name);
         }
         catch (LlmException exception)
@@ -99,6 +106,20 @@ public sealed partial class ConversationEngine
                 HandOff = (turn.HandOff ?? entry) with { Failure = exception.Failure.ToString() },
             }));
             throw new ToolException(SystemPrompt.Text("HandOff_" + exception.Failure, language, target.Name), exception);
+        }
+        catch (HandOffStoppedException exception)
+        {
+            // The cap was reached between two requests of the target: it stops there, and the cause says it.
+            var refusal = exception.Refusal.ToString();
+            _ = handOff.Notice(language);
+            LogHandOffRefused(answering.Turn, asked.Kind, refusal);
+            journal.Show(answering.Update(turn => turn with
+            {
+                Provider = before.Provider,
+                Model = before.Model,
+                HandOff = (turn.HandOff ?? entry) with { Failure = refusal },
+            }));
+            throw new ToolException(SystemPrompt.Text("HandOff_" + refusal, language), exception);
         }
     }
 
@@ -134,7 +155,21 @@ public sealed partial class ConversationEngine
     /// <param name="Memory">The block of the memory in its system message, or <see langword="null"/>.</param>
     /// <param name="Target">The target, when this is not the local model.</param>
     /// <param name="FirstText">Called at each piece of text; the hand-off measures its first one.</param>
-    private sealed record Speaker(IChatClient Client, ActionRequester Requester, List<AITool> Offered, string? Memory, HandOffTarget? Target = null, Action? FirstText = null);
+    /// <param name="Recheck">Asked before each request after the first: why the target must stop, or <see langword="null"/>.</param>
+    private sealed record Speaker(
+        IChatClient Client,
+        ActionRequester Requester,
+        List<AITool> Offered,
+        string? Memory,
+        HandOffTarget? Target = null,
+        Action? FirstText = null,
+        Func<HandOffRefusal?>? Recheck = null);
+
+    /// <summary>A target stopped between two of its requests.</summary>
+    private sealed class HandOffStoppedException(HandOffRefusal refusal) : Exception($"The hand-off stopped: {refusal}.")
+    {
+        public HandOffRefusal Refusal { get; } = refusal;
+    }
 
     /// <summary>What a turn shares between the models that answer in it: the answer written so far, what is said, what was denied.</summary>
     private sealed class TurnRun(Answering answering, AssistantLanguage language, IReadOnlyList<ConversationTurn> recent, MemoryRecall recall)

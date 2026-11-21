@@ -249,12 +249,25 @@ ce qu'il décrit.
   local et à la cible, `ConversationTurn.HandOff` garde qui a répondu et pourquoi. Aucune cible au départ ;
   l'outil n'est au registre que quand une cible est réglée ; la mémoire ne part que si la case est cochée ;
   une cible qui échoue est une cause dite, jamais une panne. La cible des tâches (Claude Code) attend le
-  chantier 12. **Aucun appel n'est parti vers une vraie API cloud, et aucun plafond ne borne encore la
-  dépense** (chantier 10). Choix provisoires à confirmer par Benoit
+  chantier 12. **Aucun appel n'est parti vers une vraie API cloud** (le plafond de dépense
+  est venu avec le chantier 10). Choix provisoires à confirmer par Benoit
   ([détail](../dev/hand-off.md#choix-provisoires-de-ce-chantier)) : motif montré mais pas dit, nom dit d'après
   le genre du fournisseur, formules sur « Claude » seulement, huit appels d'outils propres à la cible.
   **Tests Windows en attente** ([liste](../dev/hand-off.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/10-spend-cap` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory` et `stage2/9-hand-off` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/10-spend-cap`** (voir [dev/spend-cap.md](../dev/spend-cap.md)), selon l'ADR 0020,
+  sections 6 et 7 : contrat du noyau `ISpendCap` (`Kernel/Llm`) et message `ProviderAnswered` ; causes
+  `HandOffRefusal.NoPrice` et `CapReached`, `IHandOff.Notice` ; tranche `Llm/Spend` (`SpendLedger`,
+  `KnownPrices`, sections `Llm.Spend` et `Llm.SpendCount`, collection `Llm.SpendEntries`, page « Dépense »,
+  ordre 12). Plafond de 10 $ US par mois au départ ; un fournisseur cloud sans prix n'est jamais appelé ; le
+  plafond est demandé avant chaque passage et avant chaque requête suivante de la cible ; au plafond l'outil
+  quitte le registre ; Jarvis prévient une fois à 80 % et une fois au plafond. **Écarts avec l'ADR** : la
+  collection a un seul point dans son nom ; le réglage « Claude Code est payé par abonnement » et
+  `--max-budget-usd` attendent le chantier 12. **Aucun appel n'est parti vers une vraie API cloud : le compte
+  n'a jamais été comparé à une facture.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/spend-cap.md#choix-provisoires-de-ce-chantier)) : « Tout effacer » ne remet pas le compte à
+  zéro, bouton de remise à zéro sur la page, avertissement dit après la réponse de la cible.
+  **Tests Windows en attente** ([liste](../dev/spend-cap.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/11-tasks-and-sessions` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off` et `stage2/10-spend-cap` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

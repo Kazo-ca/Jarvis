@@ -69,6 +69,7 @@ to cover loading a 9 GB model):
 - **The default provider must be local at stage 1** (validation rule); a cloud provider is configured and
   tested, its "default" button is greyed out. It only answers through the hand-off, once chosen as a target
   ([hand-off.md](hand-off.md)); `ILlmProviderList` gives the list of the providers to the other slices.
+  It needs a price, and the cap of the month must not be reached ([spend-cap.md](spend-cap.md)).
 - **Preload:** at start, then after each change of the default provider. On failure (Docker starting Ollama
   after logon, for instance), new attempts after 15 s, 30 s, 1 min, 2 min and 5 min, then wait for a turn or a
   settings change.

@@ -4,6 +4,7 @@ using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Llm;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Permissions;
@@ -287,6 +288,121 @@ public sealed partial class ConversationEngineTests
             Assert.That(stored.Outcome, Is.EqualTo(TurnOutcome.Interrupted));
             Assert.That(stored.Answer, Is.EqualTo("La réponse est"));
             Assert.That(stored.ToolCalls.Single().Outcome, Is.EqualTo(ToolCallOutcome.Interrupted));
+        });
+    }
+
+    [Test]
+    public async Task Each_request_of_the_target_is_told_with_its_tokens_and_nothing_of_what_was_said()
+    {
+        SetTarget();
+        registry.Register(new FakeTool("read_file") { Run = (_, _) => ValueTask.FromResult("contenu") });
+        cloud!.Rounds.Enqueue([Call("read_file", "c1")]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Demande à Claude de lire mes notes"));
+        await TurnStoredAsync();
+
+        var answered = Published<ProviderAnswered>();
+        Assert.Multiple(() =>
+        {
+            Assert.That(answered.Select(message => (message.Provider.Id, message.Model, message.InputTokens, message.OutputTokens)), Is.EqualTo(new[]
+            {
+                ("anthropic", "claude-opus-5-5", (long?)100, (long?)10),
+                ("anthropic", "claude-opus-5-5", (long?)120, (long?)14),
+            }), "One message per request, each with its own tokens: the cap is checked between them.");
+            Assert.That(handOff.Opened, Has.Count.EqualTo(2), "Asked again before the second request.");
+        });
+    }
+
+    [Test]
+    public async Task The_local_model_is_never_counted()
+    {
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Quelle heure est-il ?"));
+        await TurnStoredAsync();
+
+        Assert.That(Published<ProviderAnswered>(), Is.Empty);
+    }
+
+    [Test]
+    public async Task A_cap_reached_is_told_to_the_local_model_and_the_target_is_not_called()
+    {
+        SetTarget();
+        handOff.Refusal = HandOffRefusal.CapReached;
+        client.Rounds.Enqueue([HandOffCall()]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Explique-moi la relativité générale."));
+        await TurnStoredAsync();
+
+        var stored = journal.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(cloud!.Calls, Is.Empty, "At the cap the call does not happen.");
+            Assert.That(ResultOf(client.Calls[1].Messages[^1]), Does.Contain("le plafond de dépense cloud de ce mois est atteint"));
+            Assert.That(stored.HandOff!.Failure, Is.EqualTo("CapReached"));
+            Assert.That(stored.Provider, Is.EqualTo("Ollama"), "Jarvis stays local.");
+            Assert.That(stored.Outcome, Is.EqualTo(TurnOutcome.Answered));
+        });
+    }
+
+    [Test]
+    public async Task Ask_Claude_at_the_cap_or_without_a_price_says_so()
+    {
+        SetTarget();
+        handOff.Refusal = HandOffRefusal.NoPrice;
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Demande à Claude la capitale de l'Australie"));
+        await TurnStoredAsync();
+
+        var stored = journal.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(cloud!.Calls, Is.Empty);
+            Assert.That(client.Calls, Is.Empty, "Nobody answers in the place of the target.");
+            Assert.That(stored.Answer, Does.Contain("la cible n'a pas de prix"));
+            Assert.That(stored.HandOff!.Failure, Is.EqualTo("NoPrice"));
+        });
+    }
+
+    [Test]
+    public async Task A_cap_reached_between_two_requests_stops_the_target_there()
+    {
+        SetTarget();
+        handOff.Refusal = HandOffRefusal.CapReached;
+        handOff.AllowedOpenings = 1;
+        handOff.Notices.Enqueue("Le plafond est atteint.");
+        registry.Register(new FakeTool("read_file") { Run = (_, _) => ValueTask.FromResult("contenu") });
+        cloud!.Rounds.Enqueue([Call("read_file", "c1")]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Demande à Claude de lire mes notes"));
+        await TurnStoredAsync();
+
+        var stored = journal.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(cloud!.Calls, Has.Count.EqualTo(1), "The second request is not made.");
+            Assert.That(Published<ProviderAnswered>(), Has.Length.EqualTo(1), "What was spent is counted.");
+            Assert.That(stored.Answer, Does.Contain("le plafond de dépense cloud de ce mois est atteint"));
+            Assert.That(stored.Answer, Does.Not.Contain("Le plafond est atteint."), "The cause already says it: the notice is not added.");
+            Assert.That(handOff.Notices, Is.Empty);
+            Assert.That(stored.HandOff!.Failure, Is.EqualTo("CapReached"));
+            Assert.That(stored.Provider, Is.Null, "A forced hand-off never asked the local model: nobody answered.");
+        });
+    }
+
+    [Test]
+    public async Task What_must_be_told_about_the_cap_is_written_and_said_after_the_answer_of_the_target()
+    {
+        SetTarget();
+        handOff.Notices.Enqueue("Au fait, plus de 80 % du plafond est utilisé.");
+
+        var turn = await StartSpokenTurnAsync();
+        await Bus.PublishAsync(new UtteranceTranscribed(turn, "Demande à Claude combien font six fois sept", AssistantLanguage.French, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(300)));
+        await engine.LastAnswer.WaitAsync(Wait);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(journal.Turns.Single().Answer, Is.EqualTo("La réponse est quarante-deux. Voilà. Au fait, plus de 80 % du plafond est utilisé."));
+            Assert.That(Published<SentenceToSpeak>().Select(sentence => sentence.Text),
+                Is.EqualTo(new[] { "Je demande à Claude.", "La réponse est quarante-deux.", "Voilà.", "Au fait, plus de 80 % du plafond est utilisé." }));
         });
     }
 }
