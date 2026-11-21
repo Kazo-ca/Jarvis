@@ -54,7 +54,9 @@ Run on Benoit's PC by an agent through remote control (work item `stage2/1-spike
 
 ## Decisions proposed after E11 to E14
 
-**To be accepted by Benoit**, then written into the work item 2 ADRs (named at the end of each line).
+**Accepted by Benoit on 2026-11-20** ("I agree with your recommendations", in answer to the five questions
+asked in the conversation). His choices follow the list; where they change a line, they win. They are written
+into the work item 2 ADRs (named at the end of each line).
 
 1. **Fan** (E11): WPF rendering in a second transparent window, **created at start-up and kept hidden**
    (never destroyed); 400 ms opening and 300 ms closing animation at 30 frames per second; the orb is put back
@@ -83,6 +85,19 @@ Run on Benoit's PC by an agent through remote control (work item `stage2/1-spike
    the tool name: domain `lock`, `alarm_control_panel`, `valve`, `siren`, or `cover` of class `garage`, `door`
    or `gate` = critical; scripts (`script__…`, `intent_script__…`) sensitive by default; an adjustable list of
    "security" entities and scripts (MCP gives neither labels nor zones). (ADR 0018)
+
+### Benoit's answers of 2026-11-20
+
+1. **Fan panels: Razor**, in a `BlazorWebView` window created at start-up and kept hidden, like the rest of
+   the interface (point 1: pure WPF rendering is not kept). (Work item 14.)
+2. **Claude Code writes: a single decision point**, Jarvis's permission tool, which asks by voice or next to
+   the orb (point 2). (ADR 0021)
+3. **Repository settings: `CLAUDE.md` alone**, without settings or hooks; the full settings only for folders
+   the user marks as "trusted" (point 4). (ADR 0021)
+4. **Security home automation: from the targeted device**, plus a list the user completes (point 7).
+   (ADR 0018)
+5. **Home Assistant scripts: no confirmation by default.** The user marks as "security" those that require
+   the click. Point 7 said "sensitive by default": that is not kept. (ADR 0018)
 
 What remains after these spikes: Benoit's judgement of the fan's smoothness and of the single-click comfort,
 voice confirmation with a real delay (Claude Code's timeout on the MCP call is not measured), and the 47 Home
