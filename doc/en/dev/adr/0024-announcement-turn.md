@@ -2,8 +2,7 @@
 
 ## Status
 
-Proposed on 2026-11-21 (work item `stage2/13-announcement-turn-adr`). Waiting for Benoit's answer to the
-question asked in the conversation.
+Accepted by Benoit on 2026-11-21 (proposed the same day, work item `stage2/13-announcement-turn-adr`).
 
 - **Completes:** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md): one more row in the
   transition table. No phase and no look is added; no existing row changes.
@@ -64,10 +63,11 @@ and that the table is the contract: adding a row takes an ADR.
   announcement is said: whoever publishes it decides (per-folder setting, quiet hours).
 - The voice slice does not change: it says the sentences of a turn.
 
-## Question to Benoit
+## Benoit's answer
 
-Asked in the conversation on 2026-11-21: how Jarvis says an announcement nobody asked for. The recommendation
-is this ADR (an announcement turn). His answer will be repeated here when the ADR is accepted.
+Question asked in the conversation on 2026-11-21: how Jarvis says an announcement nobody asked for. Three
+choices: an announcement turn (recommended, this ADR), speech outside any turn, or nothing aloud. Benoit
+answered "Ok" the same day: he takes the recommendation, the announcement turn.
 
 ## Options set aside
 
