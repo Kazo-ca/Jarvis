@@ -83,6 +83,39 @@ public sealed class McpToolServerConnectorTests
         Assert.That(failure!.Failure, Is.EqualTo(ToolServerFailure.CommandNotFound));
     }
 
+    [Test]
+    public void A_command_is_looked_up_in_the_folders_of_the_path_with_the_extensions_of_windows()
+    {
+        var folder = Directory.CreateTempSubdirectory("jarvis-mcp-path-").FullName;
+        try
+        {
+            File.WriteAllText(Path.Combine(folder, "npx.cmd"), string.Empty);
+            File.WriteAllText(Path.Combine(folder, "server"), string.Empty);
+            var path = string.Join(Path.PathSeparator, Path.Combine(folder, "missing"), folder);
+            Assert.Multiple(() =>
+            {
+                // Windows: « npx » is npx.cmd, found through PATHEXT; a name that already ends with an extension of PATHEXT matches it whatever the case. Lower case extensions here, since the Linux file system is case-sensitive.
+                Assert.That(McpToolServerConnector.CommandExists("npx", path, ".com;.exe;.bat;.cmd"), Is.True);
+                Assert.That(McpToolServerConnector.CommandExists("npx.cmd", path, ".EXE;.CMD"), Is.True);
+                Assert.That(McpToolServerConnector.CommandExists("uvx", path, ".COM;.EXE;.BAT;.CMD"), Is.False);
+
+                // Elsewhere, the name as it is.
+                Assert.That(McpToolServerConnector.CommandExists("server", path, null), Is.True);
+                Assert.That(McpToolServerConnector.CommandExists("npx", path, null), Is.False);
+
+                // A path is checked as a file, not looked up.
+                Assert.That(McpToolServerConnector.CommandExists(Path.Combine(folder, "server"), null, null), Is.True);
+                Assert.That(McpToolServerConnector.CommandExists(Path.Combine(folder, "npx"), null, ".cmd"), Is.True);
+                Assert.That(McpToolServerConnector.CommandExists(Path.Combine(folder, "nothing"), path, ".CMD"), Is.False);
+                Assert.That(McpToolServerConnector.CommandExists("  ", path, null), Is.False);
+            });
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
+
     [TestCase(HttpStatusCode.Unauthorized, ToolServerFailure.Rejected)]
     [TestCase(HttpStatusCode.Forbidden, ToolServerFailure.Rejected)]
     [TestCase(HttpStatusCode.NotFound, ToolServerFailure.Protocol)]
