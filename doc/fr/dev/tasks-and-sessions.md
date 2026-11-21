@@ -135,8 +135,9 @@ L'ADR ne les tranche pas ; à confirmer par Benoit :
    section 6), et n'apparaîtra pas dans l'éventail tant que ses hooks ne sont pas installés.
 4. **Le dernier message d'une session n'est pas lu** dans cette partie : la transcription sert au résumé du
    chantier `stage2/13`.
-5. **Les tâches non terminées d'une exécution précédente restent telles quelles au démarrage.** Le chantier 12
-   décidera de celles dont le processus n'existe plus.
+5. **Les tâches non terminées d'une exécution précédente restent telles quelles au démarrage**, sauf celles
+   que Jarvis avait lancées lui-même (source `harness`) : leur processus n'existe plus, elles passent à
+   `blocked` ([claude-code-tasks.md](claude-code-tasks.md#fin-dune-session)).
 
 ## Non vérifié
 

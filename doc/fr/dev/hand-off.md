@@ -39,8 +39,9 @@ du noyau les relient.
   ferme l'ancien client et en ouvre un nouveau.
 - Le nom dit à l'utilisateur vient du genre du fournisseur : « Claude » pour `anthropic`, « ChatGPT » pour
   `openai`.
-- **La cible des tâches (Claude Code) n'existe pas encore** : elle arrive avec les sessions Claude Code
-  (ADR 0021, chantier `stage2/12`). Un passage de genre `task` est refusé avec sa cause.
+- **La cible des tâches est Claude Code**, lancé par la tranche `ClaudeCode/Launch`
+  ([claude-code-tasks.md](claude-code-tasks.md)) : un passage de genre `task` lui est remis par le contrat
+  `IClaudeTasks`. Sur un hôte sans cette tranche, il est refusé avec sa cause.
 
 ## L'outil `hand_off_to_claude` (`HandOffTool`)
 
@@ -138,8 +139,8 @@ L'ADR ne les tranche pas ; à confirmer par Benoit :
 7. **La cible a ses propres huit appels d'outils** au plus, en plus de ceux du modèle local.
 8. **Après un passage par l'outil qui échoue, le modèle local peut le redemander** dans le même tour, dans la
    limite des huit appels.
-9. **`kind` ne propose que `question`** tant que la cible des tâches n'existe pas ; « Demande à Claude Code »
-   est reconnu et refusé avec sa cause.
+9. **`kind` ne propose que `question`** au modèle local ; « Demande à Claude Code » lance une session
+   ([claude-code-tasks.md](claude-code-tasks.md), écart n° 3).
 
 ## Limites connues
 

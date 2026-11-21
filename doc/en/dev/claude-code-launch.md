@@ -2,8 +2,8 @@
 
 Work item `stage2/12-claude-code-launch`, **first part** of work item 12 (US2.9, US2.10). Decisions:
 [ADR 0021](adr/0021-claude-code-sessions.md), sections 1 to 5, and [ADR 0017](adr/0017-tools-classes-and-decision-point.md).
-This part lays the services; **nothing starts a session yet**: "Ask Claude to…", the choice of the folder, the
-delegated task, the summary and the cost are the second part (`stage2/12-claude-code-tasks`).
+This part lays the services; "Ask Claude Code to…", the choice of the folder, the delegated task and the cost
+are the second part, [claude-code-tasks.md](claude-code-tasks.md).
 
 ## What is built
 
@@ -98,13 +98,10 @@ that received the request (table of ADR 0021, section 4) and the sentence to say
    `X-Relais-Task`.
 3. **No confirmation timeout** (ADR 0023).
 
-## What is left of the work item
+## Rest of the work item
 
-Second part, branch `stage2/12-claude-code-tasks`: the `ClaudeCode/Launch` slice ("Ask Claude to…", allowed
-folder chosen or asked, task created before the launch, classification of the requests per the table of the
-ADR, stop of a session whose write tool runs without a request, summary said at the end, cost and setting
-"Claude Code is paid by subscription", cap per session, three sessions at most), the settings page, and the
-simulated version of `IClaudeCode` for the Web host.
+The second part is built: see [claude-code-tasks.md](claude-code-tasks.md) (slice `ClaudeCode/Launch`,
+"Ask Claude Code to…", settings page, simulated `IClaudeCode`).
 
 ## Not verified
 
@@ -124,4 +121,5 @@ simulated version of `IClaudeCode` for the Web host.
 
 ## Windows checks
 
-To do with Benoit, once the second part is built: they require starting a real session.
+They require starting a real session: the list is in
+[claude-code-tasks.md](claude-code-tasks.md#windows-checks).

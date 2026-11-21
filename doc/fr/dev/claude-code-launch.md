@@ -2,8 +2,8 @@
 
 Chantier `stage2/12-claude-code-launch`, **première partie** du chantier 12 (US2.9, US2.10). Décisions :
 [ADR 0021](adr/0021-claude-code-sessions.md), sections 1 à 5, et [ADR 0017](adr/0017-tools-classes-and-decision-point.md).
-Cette partie pose les services ; **rien ne lance encore de session** : « Demande à Claude de… », le choix du
-dossier, la tâche déléguée, le résumé et le coût sont la seconde partie (`stage2/12-claude-code-tasks`).
+Cette partie pose les services ; « Demande à Claude Code de… », le choix du dossier, la tâche déléguée et le
+coût sont la seconde partie, [claude-code-tasks.md](claude-code-tasks.md).
 
 ## Ce qui est construit
 
@@ -100,13 +100,10 @@ donnée par le code qui a reçu la demande (table de l'ADR 0021, section 4) et l
    `X-Relais-Task`.
 3. **Aucun délai de confirmation** (ADR 0023).
 
-## Ce qui reste du chantier
+## Suite du chantier
 
-Seconde partie, branche `stage2/12-claude-code-tasks` : la tranche `ClaudeCode/Launch` (« Demande à Claude
-de… », dossier autorisé choisi ou demandé, tâche créée avant le lancement, classement des demandes selon la
-table de l'ADR, arrêt d'une session dont un outil d'écriture s'exécute sans demande, résumé dit à la fin,
-coût et réglage « Claude Code est payé par abonnement », plafond par session, trois sessions au plus), la page
-de réglages, et la version simulée de `IClaudeCode` pour l'hôte Web.
+La seconde partie est construite : voir [claude-code-tasks.md](claude-code-tasks.md) (tranche
+`ClaudeCode/Launch`, « Demande à Claude Code de… », page de réglages, version simulée de `IClaudeCode`).
 
 ## Non vérifié
 
@@ -127,4 +124,5 @@ de réglages, et la version simulée de `IClaudeCode` pour l'hôte Web.
 
 ## Vérifications sur Windows
 
-À faire avec Benoit, une fois la seconde partie construite : elles demandent de lancer une vraie session.
+Elles demandent de lancer une vraie session : la liste est dans
+[claude-code-tasks.md](claude-code-tasks.md#vérifications-sur-windows).

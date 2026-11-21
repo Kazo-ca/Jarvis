@@ -95,8 +95,9 @@ Une réponse qui saute de moins de 80 % au plafond ne dit que le plafond.
 
 - **La collection s'appelle `Llm.SpendEntries`**, pas `Llm.Spend.Entries` : un nom de collection a un seul
   point ([storage.md](storage.md)).
-- **Le réglage « Claude Code est payé par abonnement » n'existe pas encore** : il arrive avec les sessions
-  Claude Code (chantier `stage2/12`), de même que le plafond de chaque session (`--max-budget-usd`).
+- **Le réglage « Claude Code est payé par abonnement »** (coché par défaut) et le plafond de chaque session
+  (`--max-budget-usd`) sont arrivés avec les sessions Claude Code : voir
+  [claude-code-tasks.md](claude-code-tasks.md#coût-llmspend).
 
 ## Choix provisoires de ce chantier
 

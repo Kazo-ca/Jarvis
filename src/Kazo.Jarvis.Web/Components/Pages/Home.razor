@@ -21,6 +21,8 @@
 @inject SimulatedToolServers ToolServers
 @inject SimulatedClaudeSessions ClaudeSessions
 @inject SimulatedClaudeUserSettings ClaudeSettings
+@inject SimulatedClaudeCode ClaudeCode
+@inject Kazo.Jarvis.Kernel.Tasks.ITaskBoard Board
 @inject ConfigurationFaultReporter ConfigurationCheck
 
 @* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
@@ -77,6 +79,11 @@
         <output id="claude-sessions" data-step="@ClaudeSessions.Step">Claude Code sessions, step @ClaudeSessions.Step</output>
         <output id="claude-settings" data-copies="@ClaudeSettings.Copies" data-jarvis-hooks="@(ClaudeSettings.Text.Contains("/hook/task.start", StringComparison.Ordinal) ? "true" : "false")"
                 data-kept="@(ClaudeSettings.Text.Contains("echo done", StringComparison.Ordinal) ? "true" : "false")">Claude Code settings, @ClaudeSettings.Copies copy(ies)</output>
+        <output id="claude-code" data-launches="@ClaudeCode.Launches.Count" data-last-folder="@(ClaudeCode.Launches.LastOrDefault()?.Folder ?? "")"
+                data-last-trusted="@(ClaudeCode.Launches.LastOrDefault()?.Trusted == true ? "true" : "false")"
+                data-last-budget="@(ClaudeCode.Launches.LastOrDefault()?.BudgetUsd.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                data-last-end="@ClaudeCode.LastEnd" data-last-task-status="@(LastHarnessTask?.Status.ToString() ?? "")"
+                data-last-task-summary="@(LastHarnessTask?.Summary ?? "")">@(ClaudeCode.Launches.LastOrDefault()?.FirstMessage ?? "No Claude Code session started")</output>
         <output id="tool-servers" data-calls="@ToolServers.Calls.Count" data-last-call="@(ToolServers.Calls.LastOrDefault() ?? "")" data-revision="@ToolServers.Revision">@(ToolServers.Calls.LastOrDefault() ?? "No tool server called")</output>
         <output id="confirmation" data-pending="@(State.Current.Interaction is null ? "false" : "true")" data-kind="@(State.Current.Interaction?.Kind.ToString() ?? "")"
                 data-question-said="@(State.Current.Interaction is { } pending && pending.Id == questionSaid ? "true" : "false")">@(State.Current.Interaction is null ? "No confirmation pending" : "Confirmation pending")</output>
@@ -107,6 +114,8 @@
         Browser.Changed += OnChanged;
         ToolServers.Changed += OnChanged;
         ClaudeSettings.Changed += OnChanged;
+        ClaudeCode.Changed += OnChanged;
+        Board.Changed += OnBoardChanged;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
         questionSubscription = Bus.Subscribe<ConfirmationQuestionSaid>((message, _) => new ValueTask(InvokeAsync(() =>
         {
@@ -131,12 +140,20 @@
         Browser.Changed -= OnChanged;
         ToolServers.Changed -= OnChanged;
         ClaudeSettings.Changed -= OnChanged;
+        ClaudeCode.Changed -= OnChanged;
+        Board.Changed -= OnBoardChanged;
         stateSubscription?.Dispose();
         transcriptionSubscription?.Dispose();
         questionSubscription?.Dispose();
     }
 
     private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    private void OnBoardChanged() => _ = InvokeAsync(StateHasChanged);
+
+    // The task of the last session Jarvis started itself.
+    private Kazo.Jarvis.Kernel.Tasks.WorkTask? LastHarnessTask =>
+        Board.Tasks.Where(task => task.Source == Kazo.Jarvis.Kernel.Tasks.TaskSource.Harness).OrderByDescending(task => task.CreatedAt).FirstOrDefault();
 
     private Task OpenUpdates() => Bus.PublishAsync(new UpdatesWindowRequested()).AsTask();
 

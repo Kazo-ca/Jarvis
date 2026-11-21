@@ -359,6 +359,23 @@ public sealed class ClaudeTaskRunnerTests
     }
 
     [Test]
+    public async Task A_permission_asked_while_the_session_is_still_starting_waits_for_it_instead_of_being_refused()
+    {
+        var input = JsonSerializer.SerializeToElement(new { file_path = Path.Combine(Bar, "README.md"), content = "Bonjour" });
+        ValueTask<ClaudeApproval>? early = null;
+        claude.DuringStart = launch => early = runner.AskAsync(new ClaudeApprovalRequest(launch.TaskId, "Write", input, "tu-1"));
+
+        await StartAsync("corrige le menu");
+        var answer = await early!.Value;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(answer, Is.EqualTo(ClaudeApproval.Allow));
+            Assert.That(decisions.Requests, Has.Count.EqualTo(1), "The request reached the decision point as one of a known session.");
+        });
+    }
+
+    [Test]
     public async Task A_path_outside_the_folder_reaches_the_decision_point_as_forbidden()
     {
         var opening = await StartAsync("corrige le menu");
@@ -565,6 +582,9 @@ public sealed class ClaudeTaskRunnerTests
 
         public bool TaskExistedAtLaunch { get; private set; }
 
+        /// <summary>Runs inside the launch, before it returns: what a fast session does before Jarvis holds its run.</summary>
+        public Action<ClaudeLaunch>? DuringStart { get; set; }
+
         public ValueTask<ClaudeCodeInstall> FindAsync(CancellationToken cancellationToken = default) =>
             ValueTask.FromResult(new ClaudeCodeInstall(Found, Found ? new Version(2, 1, 328) : null));
 
@@ -579,6 +599,7 @@ public sealed class ClaudeTaskRunnerTests
             TaskExistedAtLaunch = Board?.Find(launch.TaskId) is { Status: WorkTaskStatus.Pending };
             var run = new FakeRun();
             Runs.Add(run);
+            DuringStart?.Invoke(launch);
             return ValueTask.FromResult<IClaudeRun>(run);
         }
     }

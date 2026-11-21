@@ -156,7 +156,7 @@
             return;
         }
 
-        await SaveAsync(options with { SessionBudgetUsd = budget });
+        await SaveAsync(Saved() with { SessionBudgetUsd = budget });
     }
 
     private async Task ChangeMostAsync(ChangeEventArgs e)
@@ -167,16 +167,20 @@
             return;
         }
 
-        await SaveAsync(options with { MostSessions = most });
+        await SaveAsync(Saved() with { MostSessions = most });
     }
 
     private Task TrustAsync(string folder, bool trusted)
     {
         // Only folders that are still allowed stay in the list.
-        var kept = options.TrustedFolders.Where(known => !string.Equals(known, folder, StringComparison.OrdinalIgnoreCase)
+        var saved = Saved();
+        var kept = saved.TrustedFolders.Where(known => !string.Equals(known, folder, StringComparison.OrdinalIgnoreCase)
             && folders.Contains(known, StringComparer.OrdinalIgnoreCase));
-        return SaveAsync(options with { TrustedFolders = [.. trusted ? kept.Append(folder) : kept] });
+        return SaveAsync(saved with { TrustedFolders = [.. trusted ? kept.Append(folder) : kept] });
     }
+
+    // Two changes made one after the other: the second starts from what the first saved, not from what the page showed.
+    private ClaudeLaunchOptions Saved() => Settings.Read(ClaudeLaunchOptions.Section);
 
     private async Task SaveAsync(ClaudeLaunchOptions changed)
     {

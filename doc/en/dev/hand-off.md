@@ -37,8 +37,9 @@ contracts link them.
   closes the former client and opens a new one.
 - The name said to the user comes from the kind of the provider: "Claude" for `anthropic`, "ChatGPT" for
   `openai`.
-- **The target for tasks (Claude Code) does not exist yet**: it comes with the Claude Code sessions (ADR 0021,
-  work item `stage2/12`). A hand-off of kind `task` is refused with its cause.
+- **The target for tasks is Claude Code**, started by the slice `ClaudeCode/Launch`
+  ([claude-code-tasks.md](claude-code-tasks.md)): a hand-off of kind `task` is given to it through the
+  `IClaudeTasks` contract. On a host without that slice, it is refused with its cause.
 
 ## The `hand_off_to_claude` tool (`HandOffTool`)
 
@@ -139,8 +140,8 @@ The ADR does not settle them; to be confirmed by Benoit:
 7. **The target has its own eight tool calls** at most, on top of those of the local model.
 8. **After a hand-off by the tool that fails, the local model may ask again** in the same turn, within the
    bound of eight calls.
-9. **`kind` only offers `question`** as long as the target for tasks does not exist; "Ask Claude Code" is
-   recognized and refused with its cause.
+9. **`kind` only offers `question`** to the local model; "Ask Claude Code" starts a session
+   ([claude-code-tasks.md](claude-code-tasks.md), deviation 3).
 
 ## Known limits
 

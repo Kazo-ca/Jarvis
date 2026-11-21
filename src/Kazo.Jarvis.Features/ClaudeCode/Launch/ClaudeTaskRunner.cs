@@ -49,6 +49,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
     private readonly ILogger<ClaudeTaskRunner> logger;
     private readonly Lock gate = new();
     private readonly Dictionary<string, Session> sessions = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, TaskCompletionSource> opening = new(StringComparer.Ordinal);
     private int starting;
     private (ClaudeTaskRequest Request, DateTimeOffset At)? question;
     private bool closing;
@@ -250,11 +251,32 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
                 BudgetUsd = budget,
                 Model = options.Model,
             };
-            var run = await claude.StartAsync(launch, cancellationToken).ConfigureAwait(false);
-            var session = new Session(task.Id, folder, name, language, run, time.GetUtcNow());
+            // A session may ask its first permission before the launch returns: the question waits for the session
+            // to be known rather than being refused as a stranger's.
+            var opened = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             lock (gate)
             {
-                sessions[task.Id] = session;
+                opening[task.Id] = opened;
+            }
+
+            Session session;
+            try
+            {
+                var run = await claude.StartAsync(launch, cancellationToken).ConfigureAwait(false);
+                session = new Session(task.Id, folder, name, language, run, time.GetUtcNow());
+                lock (gate)
+                {
+                    sessions[task.Id] = session;
+                }
+            }
+            finally
+            {
+                lock (gate)
+                {
+                    opening.Remove(task.Id);
+                }
+
+                opened.TrySetResult();
             }
 
             LogStarted(task.Id, launch.Trusted);
@@ -306,6 +328,23 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         return true;
     }
 
+    // The stream of a session and its permission calls arrive on two paths: one at a time, so that a line of the
+    // stream never puts back to work a task that waits for an answer (ADR 0021, section 5).
+    private async Task StatusAsync(Session session, int waits, string? sessionId = null)
+    {
+        await session.Status.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            session.Waiting = Math.Max(0, session.Waiting + waits);
+            var status = session.Waiting > 0 ? WorkTaskStatus.WaitingApproval : WorkTaskStatus.Working;
+            await board.ChangeAsync(session.TaskId, new TaskChange(status, Session: sessionId), CancellationToken.None).ConfigureAwait(false);
+        }
+        finally
+        {
+            session.Status.Release();
+        }
+    }
+
     /// <inheritdoc />
     public async ValueTask<ClaudeApproval> AskAsync(ClaudeApprovalRequest request, CancellationToken cancellationToken = default)
     {
@@ -313,9 +352,22 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         Session? session = null;
         if (request.TaskId is { } id)
         {
+            Task? opened = null;
             lock (gate)
             {
-                sessions.TryGetValue(id, out session);
+                if (!sessions.TryGetValue(id, out session) && opening.TryGetValue(id, out var pending))
+                {
+                    opened = pending.Task;
+                }
+            }
+
+            if (opened is not null)
+            {
+                await opened.WaitAsync(cancellationToken).ConfigureAwait(false);
+                lock (gate)
+                {
+                    sessions.TryGetValue(id, out session);
+                }
             }
         }
 
@@ -334,7 +386,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         var asks = verdict.Class is ActionClass.Sensitive or ActionClass.Critical;
         if (asks)
         {
-            await board.ChangeAsync(session.TaskId, new TaskChange(WorkTaskStatus.WaitingApproval), CancellationToken.None).ConfigureAwait(false);
+            await StatusAsync(session, waits: 1).ConfigureAwait(false);
         }
 
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, session.Stopping.Token);
@@ -357,7 +409,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         if (asks && !session.Ended)
         {
             // The decision puts the task back to work (ADR 0021, section 5).
-            await board.ChangeAsync(session.TaskId, new TaskChange(WorkTaskStatus.Working), CancellationToken.None).ConfigureAwait(false);
+            await StatusAsync(session, waits: -1).ConfigureAwait(false);
         }
 
         LogDecided(session.TaskId, request.ToolName, decision.Allowed, decision.Cause);
@@ -470,7 +522,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
                 switch (happened)
                 {
                     case ClaudeStarted started:
-                        await board.ChangeAsync(session.TaskId, new TaskChange(WorkTaskStatus.Working, Session: started.SessionId), CancellationToken.None).ConfigureAwait(false);
+                        await StatusAsync(session, waits: 0, started.SessionId).ConfigureAwait(false);
                         break;
 
                     case ClaudeToolUse use when SessionRules.WritesOrRuns(use.Name):
@@ -591,6 +643,12 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         public Dictionary<string, string> Uses { get; } = new(StringComparer.Ordinal);
 
         public Task? Following { get; set; }
+
+        /// <summary>One change of status at a time.</summary>
+        public SemaphoreSlim Status { get; } = new(1, 1);
+
+        /// <summary>The permission requests waiting for a human answer. Touched under <see cref="Status"/> only.</summary>
+        public int Waiting { get; set; }
 
         /// <summary>How the session ends, once known: the first cause wins.</summary>
         public (ClaudeTaskEnd End, string? Summary)? Outcome { get; private set; }

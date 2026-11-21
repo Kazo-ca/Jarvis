@@ -286,11 +286,22 @@ Resume point for any agent. Update it in the same change as what it describes.
   a request of a Claude Code session goes through the decision point with a class given by code; `approve`
   tool on `/mcp` of the local server (`ModelContextProtocol.AspNetCore`, token of the run only) and contract
   `IClaudeApprovals`; contract `IClaudeCode` and adapter `ClaudeCodeProcess` (command line of ADR 0021, files
-  under `.kazo\jarvis\claude\` without a secret, token and task through the environment). **Nothing starts a
-  session yet.** Deviations: no `SessionStart` hook for the sessions of Jarvis; no confirmation timeout
+  under `.kazo\jarvis\claude\` without a secret, token and task through the environment). Deviations: no `SessionStart` hook for the sessions of Jarvis; no confirmation timeout
   (ADR 0023 prevails over ADR 0021). **Not verified: no real Claude Code started by this code; variables in
-  the headers of the MCP file.** Left: second part, `stage2/12-claude-code-tasks` (slice `ClaudeCode/Launch`).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, second part of work item 12 (`stage2/12-claude-code-tasks`) of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap` and `stage2/11` (its two parts, `stage2/11-tasks-and-sessions` and `stage2/11-hook-server`) are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+  the headers of the MCP file.**
+- **Work item `stage2/12-claude-code-tasks`, second part of work item 12** (see
+  [dev/claude-code-tasks.md](../dev/claude-code-tasks.md)): slice `ClaudeCode/Launch` (`ClaudeTaskRunner`,
+  "Claude Code tasks" page, order 54). "Ask Claude Code to…" starts a session on an allowed folder (chosen by
+  its name in the request, otherwise Jarvis asks which); task created before the launch; requests classified
+  by `SessionRules` then given to the decision point; session stopped if a write runs without having asked;
+  ends `done`, `blocked`, `abandoned`; `ClaudeTaskEnded` published. Kernel contracts: `IClaudeTasks`,
+  `IAllowedFolders`, `ISpendCap.SessionBudget`. Setting "Claude Code is paid by subscription" (checked by
+  default) in `Llm/Spend`. **Deviations: the summary at the end is not said aloud yet (work item 13);
+  `kind: task` is not offered to the local model, only the formula starts a session.** Provisional choices to
+  be confirmed by Benoit ([details](../dev/claude-code-tasks.md#provisional-choices-of-this-work-item)).
+  **No real session started; Windows tests pending**
+  ([list](../dev/claude-code-tasks.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item 13 (`stage2/13-session-announcements`) of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap`, `stage2/11` (its two parts, `stage2/11-tasks-and-sessions` and `stage2/11-hook-server`) and `stage2/12` (its two parts, `stage2/12-claude-code-launch` and `stage2/12-claude-code-tasks`) are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

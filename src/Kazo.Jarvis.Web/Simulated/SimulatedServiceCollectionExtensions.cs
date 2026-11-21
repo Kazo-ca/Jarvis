@@ -82,6 +82,11 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<SimulatedLocalServer>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(provider => provider.GetRequiredService<SimulatedLocalServer>());
 
+        // Sessions started by Jarvis (stage2/12-claude-code-tasks): a scripted Claude Code that asks its
+        // permissions through the same contract as the real approve tool.
+        services.TryAddSingleton<SimulatedClaudeCode>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode>(provider => provider.GetRequiredService<SimulatedClaudeCode>());
+
         services.TryAddSingleton<SimulatedLocalFiles>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Files.ILocalFiles>(provider => provider.GetRequiredService<SimulatedLocalFiles>());
         services.TryAddSingleton<SimulatedReadingBrowser>();
