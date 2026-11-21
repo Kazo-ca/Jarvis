@@ -1,0 +1,79 @@
+.sessions-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.sessions-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.sessions-notes {
+    width: 100%;
+    margin: 0;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.sessions-switch {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sessions-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.sessions-project-name {
+    margin: 0 0 0.3rem;
+    font-size: 1rem;
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+}
+
+.sessions-rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.sessions-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.1rem 0.8rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+}
+
+.sessions-row[data-session-waits="true"] {
+    border-color: var(--jarvis-amber);
+}
+
+.sessions-row[data-session-waits="true"] .sessions-state {
+    color: var(--jarvis-amber);
+}
+
+.sessions-row .sessions-note {
+    grid-column: 1 / -1;
+    overflow-wrap: anywhere;
+}
+
+.sessions-number {
+    width: 6rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}

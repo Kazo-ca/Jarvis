@@ -256,7 +256,19 @@ Resume point for any agent. Update it in the same change as what it describes.
   choices to be confirmed by Benoit ([details](../dev/spend-cap.md#provisional-choices-of-this-work-item)):
   "Erase everything" does not put the count back to zero, reset button on the page, warning said after the
   answer of the target. **Windows checks pending** ([list](../dev/spend-cap.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/11-tasks-and-sessions` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off` and `stage2/10-spend-cap` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/11-tasks-and-sessions`, first part** (see
+  [dev/tasks-and-sessions.md](../dev/tasks-and-sessions.md)), per ADR 0013 (section 6) and 0021 (sections 6, 7
+  and 10): shape of a task in the kernel (`WorkTask`, nine statuses, `TaskKeys`, `ITaskBoard`); slice
+  `Tasks/Board` (collection `Tasks.Board`); contract `IClaudeSessionRegistry` and adapter
+  `Adapters/ClaudeCode/ClaudeSessionRegistry`, which opens `sessions/*.json` only (a test proves that no
+  `*.key` nor `ide/*.lock` is opened); slice `ClaudeCode/Sessions` (section `ClaudeCode.Sessions`, "Claude
+  sessions" page, order 52). **Left of the work item, branch `stage2/11-hook-server`**: local server of the
+  `/hook/…` routes with a token, installation and removal of the hooks in the user's settings, check that a
+  hook without a server does not slow a session. Nothing creates a task yet. Provisional choices to be
+  confirmed by Benoit ([details](../dev/tasks-and-sessions.md#provisional-choices-of-this-work-item)): reading
+  of the registry on at first, every 5 seconds. **Windows checks pending**
+  ([list](../dev/tasks-and-sessions.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, second part of work item 11 (`stage2/11-hook-server`), then work item `stage2/12-claude-code-tasks` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off` and `stage2/10-spend-cap` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

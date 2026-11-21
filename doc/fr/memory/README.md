@@ -267,7 +267,19 @@ ce qu'il décrit.
   ([détail](../dev/spend-cap.md#choix-provisoires-de-ce-chantier)) : « Tout effacer » ne remet pas le compte à
   zéro, bouton de remise à zéro sur la page, avertissement dit après la réponse de la cible.
   **Tests Windows en attente** ([liste](../dev/spend-cap.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/11-tasks-and-sessions` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off` et `stage2/10-spend-cap` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/11-tasks-and-sessions`, première partie** (voir
+  [dev/tasks-and-sessions.md](../dev/tasks-and-sessions.md)), selon les ADR 0013 (section 6) et 0021 (sections
+  6, 7 et 10) : forme d'une tâche dans le noyau (`WorkTask`, neuf statuts, `TaskKeys`, `ITaskBoard`) ; tranche
+  `Tasks/Board` (collection `Tasks.Board`) ; contrat `IClaudeSessionRegistry` et adaptateur
+  `Adapters/ClaudeCode/ClaudeSessionRegistry`, qui n'ouvre que `sessions/*.json` (un test prouve qu'aucun
+  `*.key` ni `ide/*.lock` n'est ouvert) ; tranche `ClaudeCode/Sessions` (section `ClaudeCode.Sessions`, page
+  « Sessions Claude », ordre 52). **Reste du chantier, branche `stage2/11-hook-server`** : serveur local des
+  routes `/hook/…` avec jeton, installation et retrait des hooks chez l'utilisateur, vérification qu'un hook
+  sans serveur ne ralentit pas une session. Rien ne crée encore de tâche. Choix provisoires à confirmer par
+  Benoit ([détail](../dev/tasks-and-sessions.md#choix-provisoires-de-ce-chantier)) : lecture du registre
+  activée au départ, toutes les 5 secondes. **Tests Windows en attente**
+  ([liste](../dev/tasks-and-sessions.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, seconde partie du chantier 11 (`stage2/11-hook-server`), puis chantier `stage2/12-claude-code-tasks` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off` et `stage2/10-spend-cap` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
