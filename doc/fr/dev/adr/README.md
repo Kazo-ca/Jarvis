@@ -22,11 +22,12 @@ libre est indiqué dans la [mémoire du projet](../../memory/README.md).
 | [0014](0014-license-kazo-bar-rule-and-jarvis-py.md) | Licence Apache 2.0, règle sur Kazo Bar (copie permise, aucune référence) et retrait de `jarvis.py` | Accepté |
 | [0015](0015-work-tracking-source.md) | Source de suivi du travail (GitHub Issues ou Azure Boards) et lien obligatoire des commits et des PR | Accepté |
 | [0016](0016-onnx-runtime-managed-on-sherpa-native.md) | Un seul ONNX Runtime natif, celui de sherpa-onnx (remplace en partie 0001) | Accepté |
-| [0017](0017-tools-classes-and-decision-point.md) | Outils de base, classe de chaque outil et point de décision des permissions | Accepté |
+| [0017](0017-tools-classes-and-decision-point.md) | Outils de base, classe de chaque outil et point de décision des permissions (navigateur de la section 3 remplacé par 0022) | Accepté |
 | [0018](0018-mcp-client-and-home-assistant.md) | Client MCP, Home Assistant et domotique de sécurité (précise 0009 pour les scripts Home Assistant) | Accepté |
 | [0019](0019-conversation-memory.md) | Mémoire de conversation : faits retenus, résumé des anciens échanges, page « Mémoire » | Accepté |
 | [0020](0020-hand-off-targets-and-spend-cap.md) | Passage de main, cibles et plafond de dépense | Accepté |
 | [0021](0021-claude-code-sessions.md) | Sessions Claude Code : lancement, permissions, hooks, annonces | Accepté |
+| [0022](0022-in-app-browser-for-web-search.md) | Recherche web dans un navigateur interne à Jarvis (remplace en partie 0017) | Proposé |
 
 Les neuf premiers ADR sont ceux de l'étape 1, listés dans le
 [document de conception](../plans/design.md#méthode-de-travail-et-premiers-adr).
