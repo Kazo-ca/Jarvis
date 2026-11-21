@@ -6,6 +6,7 @@ using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
+using Kazo.Jarvis.Features.Mcp.Servers;
 using Kazo.Jarvis.Features.Permissions.Confirmation;
 using Kazo.Jarvis.Features.Permissions.Decision;
 using Kazo.Jarvis.Features.Settings.Language;
@@ -106,6 +107,9 @@ public static class FeaturesServiceCollectionExtensions
         services.AddToolCatalogSlice();
         services.AddFileToolsSlice();
         services.AddWebToolsSlice();
+
+        // Tool servers (stage2/6-mcp-client, ADR 0018): more tools, each off until the user turns it on.
+        services.AddMcpServersSlice();
 
         // Other slices arrive with the next work items.
         return services;

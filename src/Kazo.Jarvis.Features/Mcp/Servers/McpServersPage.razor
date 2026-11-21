@@ -1,0 +1,264 @@
+@inject McpServerHub Hub
+@inject ISettingsStore Settings
+@inject IStringLocalizer<McpServersPage> T
+@implements IDisposable
+
+@* The « Serveurs MCP » page (ADR 0018, sections 1 to 4 and 6; US2.2): add a tool server by address or by command,
+   test its connection, see every tool with its whole description, and turn the tools on one by one. No server is
+   configured by default, and every tool is off when it is found. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    @if (!Hub.Available)
+    {
+        <p class="mcp-note" role="status" data-mcp-unavailable>@T["Unavailable"]</p>
+    }
+
+    @if (statuses.Count == 0)
+    {
+        <p class="mcp-note" data-mcp-none>@T["None"]</p>
+    }
+
+    @foreach (var status in statuses)
+    {
+        var server = status.Options;
+        var remote = server.Uri is { } uri && !McpServerHub.IsLocal(uri);
+        var enabledTokens = status.Tools.Where(tool => tool.Enabled).Sum(tool => tool.Tokens);
+        <section class="mcp-server" data-mcp-server="@server.Name" data-mcp-state="@status.State" data-mcp-failure="@status.Failure" @key="server.Name">
+            <header class="mcp-server-head">
+                <h3 class="mcp-server-name">@server.Name</h3>
+                <span class="mcp-tag">@T["Kind_" + server.Kind]</span>
+                <span class="mcp-tag" data-mcp-state-text>@StateText(status)</span>
+                @if (remote)
+                {
+                    <span class="mcp-tag mcp-tag-remote" data-mcp-remote>@T["Remote"]</span>
+                }
+            </header>
+            <p class="mcp-server-target">@(server.ByCommand ? string.Join(' ', new[] { server.Command }.Concat(server.Arguments)) : server.Address)</p>
+            <p class="mcp-note" data-mcp-leaves>
+                @(server.ByCommand ? T["LeavesCommand"] : T["LeavesAddress", server.Uri?.GetLeftPart(UriPartial.Authority) ?? string.Empty])
+            </p>
+            @if (status.AnnouncedName is { Length: > 0 } announced)
+            {
+                <p class="mcp-note" data-mcp-announced>@T["Announced", announced]</p>
+            }
+
+            <div class="mcp-actions">
+                <label class="mcp-switch">
+                    <input type="checkbox" data-mcp-enabled checked="@server.Enabled"
+                           @onchange="e => SaveAsync(Hub.ChangeAsync(server.Name, current => current with { Enabled = e.Value is true }))" />
+                    <span>@T["Enabled"]</span>
+                </label>
+                <button type="button" class="mcp-button" data-mcp-test disabled="@(testing == server.Name || !Hub.Available)" @onclick="() => TestAsync(server.Name)">@T["Test"]</button>
+                @if (server.Enabled && status.State is McpServerState.Failed or McpServerState.Stopped or McpServerState.Connected)
+                {
+                    <button type="button" class="mcp-button" data-mcp-retry @onclick="() => Hub.RetryAsync(server.Name)">@T["Retry"]</button>
+                }
+                <button type="button" class="mcp-button mcp-button-remove" data-mcp-remove @onclick="() => SaveAsync(Hub.RemoveAsync(server.Name))">@T["Remove"]</button>
+            </div>
+            @if (tests.TryGetValue(server.Name, out var test))
+            {
+                <p class="mcp-test" role="status" data-mcp-test-result="@(test.Failure?.ToString() ?? "Ok")">
+                    @(test.Failure is { } failure ? T["TestFailed", T["Failure_" + failure].Value] : T["TestOk", test.Tools])
+                </p>
+            }
+
+            @if (!server.ByCommand && server.Headers.Count > 0)
+            {
+                <div class="mcp-headers">
+                    @foreach (var header in server.Headers)
+                    {
+                        <SecretField Reference="McpServersOptions.HeaderSecret(server.Name, header)" Label="@T["HeaderValue", header]" />
+                    }
+                    <p class="mcp-note">@T["HeaderHint"]</p>
+                </div>
+            }
+
+            @if (status.Tools.Count > 0)
+            {
+                <p class="mcp-note" data-mcp-size data-mcp-tokens="@enabledTokens">@T["Size", status.Tools.Count(tool => tool.Enabled), status.Tools.Count, enabledTokens]</p>
+                <ul class="mcp-tools" data-mcp-tools>
+                    @foreach (var tool in status.Tools)
+                    {
+                        <li class="mcp-tool" data-mcp-tool="@tool.Name" data-mcp-tool-enabled="@(tool.Enabled ? "true" : "false")" data-mcp-tool-class="@tool.Class"
+                            data-mcp-tool-changed="@(tool.ChangedSinceApproval ? "true" : "false")" @key="tool.Name">
+                            <label class="mcp-switch">
+                                <input type="checkbox" data-mcp-tool-switch checked="@tool.Enabled" @onchange="e => SwitchAsync(tool, e.Value is true)" />
+                                <span class="mcp-tool-name">@tool.Name</span>
+                            </label>
+                            <select class="mcp-class" data-mcp-tool-class-choice aria-label="@T["ClassLabel", tool.Name]"
+                                    value="@tool.Class" @onchange="e => RaiseAsync(server.Name, tool, e.Value?.ToString())">
+                                <option value="@tool.ServerClass">@T["ClassOfServer", T["Class_" + tool.ServerClass].Value]</option>
+                                @foreach (var raised in new[] { ActionClass.Sensitive, ActionClass.Critical }.Where(raised => raised > tool.ServerClass))
+                                {
+                                    <option value="@raised">@T["Class_" + raised]</option>
+                                }
+                            </select>
+                            @if (tool.ChangedSinceApproval)
+                            {
+                                <p class="mcp-tool-changed" role="alert">@T["ChangedSinceApproval"]</p>
+                            }
+                            <p class="mcp-tool-description">@tool.Description</p>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+
+    <SettingsField Label="@T["AddLabel"]" Hint="@T["AddHint"]">
+        <div class="mcp-add" data-mcp-add>
+            <label class="mcp-add-line">
+                <span>@T["Name"]</span>
+                <input type="text" class="mcp-input" data-mcp-add-name spellcheck="false" placeholder="@T["NamePlaceholder"]" @bind="name" @bind:event="oninput" />
+            </label>
+            <label class="mcp-add-line">
+                <span>@T["Kind"]</span>
+                <select class="mcp-class" data-mcp-add-kind @bind="kind">
+                    @foreach (var choice in Enum.GetValues<McpServerKind>())
+                    {
+                        <option value="@choice">@T["Kind_" + choice]</option>
+                    }
+                </select>
+            </label>
+            <div class="mcp-add-line">
+                <label class="mcp-switch">
+                    <input type="radio" name="mcp-add-way" data-mcp-add-by-address checked="@(!byCommand)" @onchange="() => byCommand = false" />
+                    <span>@T["ByAddress"]</span>
+                </label>
+                <label class="mcp-switch">
+                    <input type="radio" name="mcp-add-way" data-mcp-add-by-command checked="@byCommand" @onchange="() => byCommand = true" />
+                    <span>@T["ByCommand"]</span>
+                </label>
+            </div>
+            @if (byCommand)
+            {
+                <label class="mcp-add-line">
+                    <span>@T["Command"]</span>
+                    <input type="text" class="mcp-input" data-mcp-add-command spellcheck="false" placeholder="@T["CommandPlaceholder"]" @bind="command" @bind:event="oninput" />
+                </label>
+                <label class="mcp-add-line">
+                    <span>@T["Arguments"]</span>
+                    <textarea class="mcp-input" data-mcp-add-arguments rows="3" spellcheck="false" placeholder="@T["ArgumentsPlaceholder"]" @bind="arguments"></textarea>
+                </label>
+                <p class="mcp-note">@T["LeavesCommand"]</p>
+            }
+            else
+            {
+                <label class="mcp-add-line">
+                    <span>@T["Address"]</span>
+                    <input type="text" class="mcp-input" data-mcp-add-address spellcheck="false" placeholder="https://…" @bind="address" @bind:event="oninput" />
+                </label>
+                <label class="mcp-add-line">
+                    <span>@T["Token"]</span>
+                    <input type="password" class="mcp-input" data-mcp-add-token autocomplete="off" spellcheck="false" placeholder="@T["TokenPlaceholder"]" @bind="token" @bind:event="oninput" />
+                </label>
+                <p class="mcp-note" data-mcp-add-leaves>@T["AddLeaves"]</p>
+            }
+            <button type="button" class="mcp-button" data-mcp-add-button disabled="@(string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(byCommand ? command : address))" @onclick="AddAsync">@T["Add"]</button>
+        </div>
+    </SettingsField>
+
+    @if (problem is not null)
+    {
+        <p class="mcp-problem" role="alert" data-mcp-problem>@problem</p>
+    }
+</SettingsFrame>
+
+@code {
+    private const string TokenHeader = "Authorization";
+
+    private readonly Dictionary<string, McpConnectionTest> tests = new(StringComparer.Ordinal);
+    private IReadOnlyList<McpServerStatus> statuses = [];
+    private string? name;
+    private McpServerKind kind = McpServerKind.Generic;
+    private bool byCommand;
+    private string? address;
+    private string? token;
+    private string? command;
+    private string? arguments;
+    private string? problem;
+    private string? testing;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Hub.Changed += OnHubChanged;
+        statuses = Hub.Statuses;
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Hub.Changed -= OnHubChanged;
+
+    private void OnHubChanged() => _ = InvokeAsync(() =>
+    {
+        statuses = Hub.Statuses;
+        StateHasChanged();
+    });
+
+    private string StateText(McpServerStatus status) => status.State switch
+    {
+        McpServerState.Failed or McpServerState.Stopped when status.Failure is { } failure => T["State_" + status.State, T["Failure_" + failure].Value],
+        var state => T["State_" + state, string.Empty],
+    };
+
+    private async Task AddAsync()
+    {
+        var server = new McpServerOptions
+        {
+            Name = (name ?? string.Empty).Trim().ToLowerInvariant(),
+            Kind = kind,
+            Address = byCommand ? null : WithScheme(address),
+            Command = byCommand ? command?.Trim() : null,
+            Arguments = byCommand
+                ? [.. (arguments ?? string.Empty).Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)]
+                : [],
+            Headers = !byCommand && !string.IsNullOrWhiteSpace(token) ? [TokenHeader] : [],
+        };
+        var values = string.IsNullOrWhiteSpace(token)
+            ? null
+            : new Dictionary<string, string> { [TokenHeader] = token.Trim().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? token.Trim() : "Bearer " + token.Trim() };
+        if (await SaveAsync(Hub.AddAsync(server, values)))
+        {
+            // The typed token leaves the page as soon as it is in the vault.
+            name = address = token = command = arguments = null;
+        }
+    }
+
+    private static string? WithScheme(string? text)
+    {
+        text = text?.Trim();
+        return string.IsNullOrEmpty(text) || text.Contains("://", StringComparison.Ordinal) ? text : "https://" + text;
+    }
+
+    private async Task TestAsync(string server)
+    {
+        testing = server;
+        tests.Remove(server);
+        try
+        {
+            tests[server] = await Hub.TestAsync(server);
+        }
+        finally
+        {
+            testing = null;
+        }
+    }
+
+    private Task SwitchAsync(McpToolStatus tool, bool enabled) =>
+        SaveAsync(Settings.WriteAsync(ToolActivation.Section, Settings.Read(ToolActivation.Section).With(tool.Name, enabled)).AsTask());
+
+    private Task RaiseAsync(string server, McpToolStatus tool, string? choice) =>
+        SaveAsync(Hub.RaiseClassAsync(server, tool.ServerName, Enum.TryParse<ActionClass>(choice, out var raised) && raised > tool.ServerClass ? raised : null));
+
+    private async Task<bool> SaveAsync(Task<SettingsWriteResult> writing)
+    {
+        var result = await writing;
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        statuses = Hub.Statuses;
+        return result.Outcome == SettingsWriteOutcome.Saved;
+    }
+}

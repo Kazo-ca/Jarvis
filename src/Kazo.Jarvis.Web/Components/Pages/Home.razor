@@ -18,6 +18,7 @@
 @inject ISettingsStore Settings
 @inject SimulatedNotes Notes
 @inject SimulatedReadingBrowser Browser
+@inject SimulatedToolServers ToolServers
 @inject ConfigurationFaultReporter ConfigurationCheck
 
 @* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
@@ -57,6 +58,7 @@
         <button type="button" id="toggle-voice" @onclick="ToggleVoice">@(Speech.FailWith is null ? "Break the voice" : "Repair the voice")</button>
         <button type="button" id="break-configuration" @onclick="BreakConfigurationAsync">Restart on an unreadable config.json</button>
         <button type="button" id="repair-configuration" @onclick="RepairConfigurationAsync">Restart on a repaired config.json</button>
+        <button type="button" id="revise-tool-servers" @onclick="ToolServers.Revise">Make the tool servers change a tool</button>
         <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="fault" data-cause="@(State.Current.Fault?.Cause.ToString() ?? "")" data-origin="@(State.Current.Fault?.Origin?.ToString() ?? "")">@(State.Current.Fault is { } fault ? $"{fault.Cause} ({fault.Origin})" : "No fault")</output>
         <output id="microphone-open" data-device="@(Microphones.OpenDevice?.Id ?? "")">@(Microphones.OpenDevice?.Name ?? "No microphone open")</output>
@@ -66,6 +68,7 @@
         <output id="notes" data-count="@Notes.Notes.Count" data-erased="@Notes.Erased">@(Notes.Notes.LastOrDefault() ?? "No note")</output>
         <output id="browser" data-searches="@Browser.Searches.Count" data-last-search="@(Browser.Searches.LastOrDefault() ?? "")" data-shown="@Browser.Shown.Count"
                 data-last-shown="@(Browser.Shown.LastOrDefault() ?? "")" data-cleared="@Browser.Cleared">@(Browser.Shown.LastOrDefault() ?? "No page shown")</output>
+        <output id="tool-servers" data-calls="@ToolServers.Calls.Count" data-last-call="@(ToolServers.Calls.LastOrDefault() ?? "")" data-revision="@ToolServers.Revision">@(ToolServers.Calls.LastOrDefault() ?? "No tool server called")</output>
         <output id="confirmation" data-pending="@(State.Current.Interaction is null ? "false" : "true")" data-kind="@(State.Current.Interaction?.Kind.ToString() ?? "")"
                 data-question-said="@(State.Current.Interaction is { } pending && pending.Id == questionSaid ? "true" : "false")">@(State.Current.Interaction is null ? "No confirmation pending" : "Confirmation pending")</output>
         <output id="updater-launched" data-folder="@(Launcher.LaunchedFolder ?? "")">@(Launcher.LaunchedFolder is null ? "Updater not started" : "Updater started")</output>
@@ -93,6 +96,7 @@
         Speech.Spoke += OnChanged;
         Notes.Changed += OnChanged;
         Browser.Changed += OnChanged;
+        ToolServers.Changed += OnChanged;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
         questionSubscription = Bus.Subscribe<ConfirmationQuestionSaid>((message, _) => new ValueTask(InvokeAsync(() =>
         {
@@ -115,6 +119,7 @@
         Speech.Spoke -= OnChanged;
         Notes.Changed -= OnChanged;
         Browser.Changed -= OnChanged;
+        ToolServers.Changed -= OnChanged;
         stateSubscription?.Dispose();
         transcriptionSubscription?.Dispose();
         questionSubscription?.Dispose();

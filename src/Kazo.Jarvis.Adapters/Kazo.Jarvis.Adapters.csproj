@@ -25,6 +25,8 @@
     <PackageReference Include="org.k2fsa.sherpa.onnx" />
     <!-- Models download (stage1/14-first-run): bzip2 of the sherpa-onnx voice archives. -->
     <PackageReference Include="SharpZipLib" />
+    <!-- Tool servers (ADR 0018): the official MCP client. -->
+    <PackageReference Include="ModelContextProtocol.Core" />
   </ItemGroup>
 
   <ItemGroup>

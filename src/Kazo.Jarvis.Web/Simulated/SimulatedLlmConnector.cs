@@ -16,7 +16,8 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// « écris une note … » or "write a note …" for the simulated "Sensitive" tool <c>write_note</c>, « efface les notes »
 /// or "erase the notes" for the simulated "Critical" tool <c>erase_notes</c> (both ask for a confirmation, ADR 0023),
 /// « liste le dossier … » for <c>list_directory</c>, « lis le fichier … » for <c>read_file</c>, « cherche sur le web … »
-/// for <c>web_search</c>, « lis la page … » for <c>fetch_url</c>,
+/// for <c>web_search</c>, « lis la page … » for <c>fetch_url</c>, « cours de l'action … », « envoie le message … » and
+/// « lance le dé » for the tools of the simulated tool servers (<c>lookup_stock</c>, <c>send_message</c>, <c>roll_dice</c>),
 /// and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
@@ -187,6 +188,8 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         private static FunctionCallContent? ToolCall(string request, ChatOptions? options)
         {
             bool Offered(string name) => options?.Tools?.Any(tool => tool.Name == name) == true;
+            string? OfferedAs(string name) =>
+                options?.Tools?.FirstOrDefault(tool => tool.Name == name || tool.Name.EndsWith("__" + name, StringComparison.Ordinal))?.Name;
 
             if (Offered("get_datetime") && TimeRequest().IsMatch(request))
             {
@@ -234,6 +237,22 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_fetch", "fetch_url", new Dictionary<string, object?> { ["url"] = page.Groups[1].Value.Trim() });
             }
 
+            // Tools of the simulated tool servers (stage2/6-mcp-client), under their plain name or prefixed by a server.
+            if (StockRequest().Match(request) is { Success: true } stock && OfferedAs("lookup_stock") is { } lookup)
+            {
+                return new FunctionCallContent("call_stock", lookup, new Dictionary<string, object?> { ["symbol"] = stock.Groups[1].Value.Trim() });
+            }
+
+            if (MessageRequest().Match(request) is { Success: true } message && OfferedAs("send_message") is { } send)
+            {
+                return new FunctionCallContent("call_message", send, new Dictionary<string, object?> { ["text"] = message.Groups[1].Value.Trim().TrimEnd('.', '!', '?').Trim() });
+            }
+
+            if (DiceRequest().IsMatch(request) && OfferedAs("roll_dice") is { } dice)
+            {
+                return new FunctionCallContent("call_dice", dice, new Dictionary<string, object?>());
+            }
+
             // A tool the registry does not know: only when tools are offered, as a real model could invent one.
             return options?.Tools is { Count: > 0 } && request.Contains("outil inconnu", StringComparison.OrdinalIgnoreCase)
                 ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
@@ -262,6 +281,15 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
 
     [GeneratedRegex(@"(?:lis la page|read the page)\s+(\S+)", RegexOptions.IgnoreCase)]
     private static partial Regex PageRequest();
+
+    [GeneratedRegex(@"(?:cours de l'action|price of the stock)\s+(\S+)", RegexOptions.IgnoreCase)]
+    private static partial Regex StockRequest();
+
+    [GeneratedRegex(@"(?:envoie le message|send the message)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex MessageRequest();
+
+    [GeneratedRegex(@"lance le dé|roll the die", RegexOptions.IgnoreCase)]
+    private static partial Regex DiceRequest();
 
     [GeneratedRegex(@"heure exacte|exact time", RegexOptions.IgnoreCase)]
     private static partial Regex TimeRequest();
