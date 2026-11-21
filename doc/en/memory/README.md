@@ -166,7 +166,17 @@ Resume point for any agent. Update it in the same change as what it describes.
   menu entry, and by itself only on a refusal for want of a microphone; unreachable server raised after two failed
   loads in a row; the "Voices" page clears the voice fault; no button for unreadable settings; origin in the kernel.
 - **Stage 2 plan: validated** by Benoit on November 20, 2026 (work item `stage1/stage-2-plan`, [plan](../dev/plans/stage-2.md)): 15 work items `stage2/<n>-<topic>`, first spikes E11 to E14 on his PC then ADRs 0017 to 0021 (numbers reserved by the plan). His answers: `stage1/base` merged into `main` without waiting for the acceptance (he allowed the agent to merge that PR), `stage2/base` starts from `main`; web search through an API with a key (Brave Search) behind a contract; spikes, then ADRs, then tools, the fan towards the end.
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/3-tool-loop` (ADRs 0017 to 0021 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/3-tool-loop`** (tool loop, see [dev/tools.md](../dev/tools.md)): kernel contracts
+  `ITool`, `IToolRegistry`, `ToolActivation` (section `Tools.Activation`), `IPermissionDecision` and
+  `ActionClass`; slice `Permissions/Decision` (a single decision point, denied by default, log in the
+  collection `Permissions.Decisions`); slices `Tools/Clock` (`get_datetime`) and `Tools/Calculator`
+  (`calculate`); the three adapters send the tools and read the calls, with the tolerant parser for the
+  local adapters; the conversation runs the loop (8 calls per turn, 30 s per call, result cut at 2,000
+  characters) and shows each call in the turn. **"Sensitive" and "Critical" are denied until work item 4
+  (confirmation) is done.** No "Tools" page and no log page yet. **Not verified with a real model** nor
+  against the real OpenAI and Anthropic APIs. **Pending Windows tests**
+  ([list](../dev/tools.md#checks-on-windows)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/4-confirmation` (work item `stage2/3-tool-loop` is done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

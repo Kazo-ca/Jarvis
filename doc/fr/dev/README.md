@@ -16,6 +16,7 @@
 | [transcription.md](transcription.md) | Transcription : fin de phrase (Silero, seuil d'énergie), Whisper, page « Transcription », modèles |
 | [speech.md](speech.md) | Synthèse vocale : moteurs Piper, Kokoro et dans le nuage, voix de chaque langue, page « Voix » |
 | [conversation.md](conversation.md) | Conversation : le tour complet, l'interruption, la fenêtre de conversation, la personnalité |
+| [tools.md](tools.md) | Outils : contrats du noyau, point de décision des permissions et son journal, boucle d'outils, heure et calcul |
 | [llm.md](llm.md) | Modèles de langage : fournisseurs, adaptateurs, modèle par défaut, test de la connexion |
 | [first-run.md](first-run.md) | Premier lancement : assistant de configuration, page « Modèles vocaux » (téléchargement vérifié), recherche d'Ollama |
 | [faults.md](faults.md) | Pannes : causes nommées, action corrective, lien vers le bon réglage, fenêtre « Problème de Jarvis » |
