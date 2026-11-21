@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Home Assistant</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Une commande vers un appareil de sécurité demande un clic sur cet ordinateur : la voix ne suffit pas. Jarvis cherche les appareils qu'une commande vise avant de décider.</value>
+  </data>
+  <data name="AlwaysLabel" xml:space="preserve">
+    <value>Toujours de sécurité</value>
+  </data>
+  <data name="Always" xml:space="preserve">
+    <value>Les serrures, les alarmes, les vannes, les sirènes, et les ouvrants qui sont une porte de garage, une porte ou un portail.</value>
+  </data>
+  <data name="EntitiesLabel" xml:space="preserve">
+    <value>Autres appareils de sécurité</value>
+  </data>
+  <data name="EntitiesHint" xml:space="preserve">
+    <value>Un nom par ligne, comme Home Assistant nomme l'appareil.</value>
+  </data>
+  <data name="ScriptsLabel" xml:space="preserve">
+    <value>Scripts de sécurité</value>
+  </data>
+  <data name="ScriptsHint" xml:space="preserve">
+    <value>Un script peut actionner n'importe quoi, et son nom ne dit pas quoi. Sans marque, un script s'exécute sans question.</value>
+  </data>
+  <data name="NoScript" xml:space="preserve">
+    <value>Aucun serveur connecté n'offre de script.</value>
+  </data>
+  <data name="ContextLabel" xml:space="preserve">
+    <value>Liste des appareils gardée (secondes)</value>
+  </data>
+  <data name="ContextHint" xml:space="preserve">
+    <value>Chaque commande lit les appareils que Home Assistant expose. La liste est réutilisée pendant ce temps, de 0 à {0} secondes.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le fichier de réglages ne peut pas être écrit.</value>
+  </data>
+</root>

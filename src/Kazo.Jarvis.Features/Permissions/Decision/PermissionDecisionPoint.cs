@@ -71,10 +71,10 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
     /// <param name="tool">The tool.</param>
     /// <param name="arguments">The arguments of the call.</param>
     /// <returns>The class; a classifier can only raise the declared one.</returns>
-    internal static ActionClass ClassOf(ITool tool, JsonElement arguments)
+    internal static async ValueTask<ActionClass> ClassOfAsync(ITool tool, JsonElement arguments, CancellationToken cancellationToken = default)
     {
         var declared = tool.DeclaredClass;
-        var classified = tool.Classify(arguments);
+        var classified = await tool.ClassifyAsync(arguments, cancellationToken).ConfigureAwait(false);
         if (!Enum.IsDefined(declared) || !Enum.IsDefined(classified))
         {
             throw new InvalidOperationException($"The tool '{tool.Name}' gave a class that does not exist.");
@@ -106,7 +106,11 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
         ActionClass actionClass;
         try
         {
-            actionClass = ClassOf(tool, arguments);
+            actionClass = await ClassOfAsync(tool, arguments, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return PermissionDecision.Deny(DenialCause.Interrupted);
         }
         catch (Exception exception)
         {

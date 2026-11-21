@@ -208,10 +208,20 @@ Resume point for any agent. Update it in the same change as what it describes.
   named cause, new attempts from 5 s to 5 minutes, tools **off when found**, activation tied to the
   fingerprint, class "Read" or "Sensitive" raised by the user only, tokens in the vault. **No real MCP server
   was reached from Jarvis.** Provisional choices to be confirmed by Benoit
-  ([details](../dev/mcp.md#provisional-choices-of-this-work-item)): the `HomeAssistant` type is classed like
-  `Generic` until work item 7, a single "Token" field, no editing of a server on the page, no environment
+  ([details](../dev/mcp.md#provisional-choices-of-this-work-item)): a single "Token" field, no editing of a server on the page, no environment
   variables, package `Core`. **Windows checks pending** ([list](../dev/mcp.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/7-home-assistant` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools` and `stage2/6-mcp-client` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/7-home-assistant`** (see [dev/home-assistant.md](../dev/home-assistant.md)), following
+  ADR 0018, section 5: `ITool.ClassifyAsync` (the decision point only calls this one), kernel contract
+  `IToolServerClassifier`, slice `Mcp/HomeAssistant` (`HomeAssistantClassifier`, section `Mcp.HomeAssistant`,
+  "Home Assistant" page). A call is classed from the entities it aims at, read through `GetLiveContext`: lock,
+  alarm, valve, siren, garage door, door, gate and marked entities give "Critical"; target not found = the
+  highest class possible; script "Everyday effect" unless marked; without the list of the entities, the call
+  is denied. **No call left Jarvis for the real Home Assistant.** Provisional choices to be confirmed by
+  Benoit ([details](../dev/home-assistant.md#provisional-choices-of-this-work-item)): section
+  `Mcp.HomeAssistant` and a page of its own, entity marked by its name, one list for all servers, floor
+  treated as a target not found, list kept 5 s, thermostat not classed as security. **Windows checks pending**
+  ([list](../dev/home-assistant.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/8-memory` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client` and `stage2/7-home-assistant` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

@@ -1,0 +1,64 @@
+.home-assistant-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.home-assistant-entities {
+    width: 100%;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-mono);
+}
+
+.home-assistant-number {
+    width: 7rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.home-assistant-scripts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.home-assistant-script {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    background: var(--jarvis-input);
+}
+
+.home-assistant-script[data-ha-script-security="true"] {
+    border-left: 3px solid var(--jarvis-amber);
+}
+
+.home-assistant-switch {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.home-assistant-script-name {
+    font-family: var(--jarvis-font-mono);
+    overflow-wrap: anywhere;
+}
+
+.home-assistant-problem {
+    width: 100%;
+    margin: 0;
+    color: var(--jarvis-red);
+}

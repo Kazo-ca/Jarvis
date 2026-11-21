@@ -47,6 +47,16 @@ public interface ITool
     ActionClass Classify(JsonElement arguments);
 
     /// <summary>
+    /// The class of one call when finding it needs a question to something else: a home automation command is
+    /// classed from the devices it aims at, which the server must be asked (ADR 0018, section 5). The decision
+    /// point calls this one. By default it is <see cref="Classify"/>. Throwing is a denial.
+    /// </summary>
+    /// <param name="arguments">The arguments of the call, a JSON object.</param>
+    /// <param name="cancellationToken">Cancels the classification.</param>
+    /// <returns>The class of this call.</returns>
+    ValueTask<ActionClass> ClassifyAsync(JsonElement arguments, CancellationToken cancellationToken) => new(Classify(arguments));
+
+    /// <summary>
     /// One sentence that tells the user what this call would do, for a confirmation request (ADR 0023, section 2).
     /// Written by code from the arguments, never by a model. <see langword="null"/> gives a general sentence that
     /// names the tool; the exact arguments are shown next to it in every case.

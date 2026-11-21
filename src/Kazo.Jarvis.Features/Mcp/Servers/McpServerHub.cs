@@ -23,6 +23,7 @@ public sealed partial class McpServerHub : IHostedService, IAsyncDisposable
     private readonly IToolServerConnector? connector;
     private readonly TimeProvider time;
     private readonly ILogger logger;
+    private readonly IReadOnlyList<IToolServerClassifier> classifiers;
     private readonly SemaphoreSlim sync = new(1, 1);
     private readonly Lock gate = new();
     private readonly Dictionary<string, McpServerSession> sessions = new(StringComparer.Ordinal);
@@ -38,13 +39,15 @@ public sealed partial class McpServerHub : IHostedService, IAsyncDisposable
     /// <param name="connector">What speaks to a server; <see langword="null"/> on a host that has none.</param>
     /// <param name="time">The clock of the waits between two attempts.</param>
     /// <param name="logger">The technical log. It never receives a header value nor the arguments of a call.</param>
+    /// <param name="classifiers">The classifications of the kinds of servers that have their own (ADR 0018, section 5).</param>
     public McpServerHub(
         ISettingsStore settings,
         IToolRegistry registry,
         ISecretVault? vault = null,
         IToolServerConnector? connector = null,
         TimeProvider? time = null,
-        ILogger<McpServerHub>? logger = null)
+        ILogger<McpServerHub>? logger = null,
+        IEnumerable<IToolServerClassifier>? classifiers = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(registry);
@@ -54,6 +57,7 @@ public sealed partial class McpServerHub : IHostedService, IAsyncDisposable
         this.connector = connector;
         this.time = time ?? TimeProvider.System;
         this.logger = logger ?? (ILogger)NullLogger.Instance;
+        this.classifiers = [.. classifiers ?? []];
     }
 
     /// <summary>Raised when the state of a server or its tools changed; on any thread.</summary>
@@ -394,7 +398,7 @@ public sealed partial class McpServerHub : IHostedService, IAsyncDisposable
                 }
 
                 taken.Add(name);
-                var tool = new McpTool(session, settings, offer, name);
+                var tool = new McpTool(session, settings, offer, name, ClassifierOf(session.Options.Kind));
                 var isOn = activation.Switches?.GetValueOrDefault(name) == true;
                 if (isOn && !(approved.TryGetValue(offer.Name, out var fingerprint) && string.Equals(fingerprint, tool.Fingerprint, StringComparison.Ordinal)))
                 {
@@ -462,6 +466,13 @@ public sealed partial class McpServerHub : IHostedService, IAsyncDisposable
 
         Notify();
     }
+
+    /// <summary>The classification of a kind of server, when a slice registered one.</summary>
+    internal IToolServerClassifier? ClassifierOf(McpServerKind kind) => kind switch
+    {
+        McpServerKind.HomeAssistant => classifiers.FirstOrDefault(classifier => classifier.Kind == ToolServerKinds.HomeAssistant),
+        _ => null,
+    };
 
     /// <summary>Tells the pages that something changed.</summary>
     internal void Notify() => Changed?.Invoke();

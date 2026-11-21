@@ -174,4 +174,7 @@
   <data name="TestFailed" xml:space="preserve">
     <value>Le test a échoué : {0}.</value>
   </data>
+  <data name="ScriptWarning" xml:space="preserve">
+    <value>Un script peut actionner n'importe quoi, et s'exécute sans question. Marquez-le « sécurité » dans la page Home Assistant s'il doit exiger un clic.</value>
+  </data>
 </root>

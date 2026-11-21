@@ -20,7 +20,7 @@ public static class PermissionDecisionSlice
         services.TryAddSingleton<IPermissionDecision, PermissionDecisionPoint>();
 
         // Last page of the settings: the log of what was decided (ADR 0023, section 5).
-        services.AddSingleton(new SettingsPage(PageKey, typeof(DecisionLogPage), typeof(DecisionLogPage), "Title", Order: 50));
+        services.AddSingleton(new SettingsPage(PageKey, typeof(DecisionLogPage), typeof(DecisionLogPage), "Title", Order: 60));
         return services;
     }
 }

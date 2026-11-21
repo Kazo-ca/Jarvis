@@ -28,7 +28,7 @@ boucle.
 
 | Type | Rôle |
 | --- | --- |
-| `ITool` | Nom anglais stable, origine (`builtin`, `mcp:<serveur>`, `hand-off`), description par langue, schéma JSON, classe déclarée, classement d'un appel, exécution |
+| `ITool` | Nom anglais stable, origine (`builtin`, `mcp:<serveur>`, `hand-off`), description par langue, schéma JSON, classe déclarée, classement d'un appel (`Classify`, et `ClassifyAsync` quand il faut interroger un serveur : voir [home-assistant.md](home-assistant.md)), exécution |
 | `ToolException` | Un appel impossible pour une raison que le modèle peut dire ; son message revient comme résultat |
 | `IToolRegistry`, `ToolRegistry` | Les outils connus et les outils activés ; un outil s'ajoute aussi en cours de route (serveur MCP) |
 | `ToolActivation` | Section de réglages `Tools.Activation` : un interrupteur par outil ; sans choix, l'outil suit `EnabledByDefault` |

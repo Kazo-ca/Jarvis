@@ -6,6 +6,7 @@ using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
+using Kazo.Jarvis.Features.Mcp.HomeAssistant;
 using Kazo.Jarvis.Features.Mcp.Servers;
 using Kazo.Jarvis.Features.Permissions.Confirmation;
 using Kazo.Jarvis.Features.Permissions.Decision;
@@ -109,6 +110,8 @@ public static class FeaturesServiceCollectionExtensions
         services.AddWebToolsSlice();
 
         // Tool servers (stage2/6-mcp-client, ADR 0018): more tools, each off until the user turns it on.
+        // Before the servers: the classification of Home Assistant (stage2/7-home-assistant) is given to their hub.
+        services.AddHomeAssistantSlice();
         services.AddMcpServersSlice();
 
         // Other slices arrive with the next work items.

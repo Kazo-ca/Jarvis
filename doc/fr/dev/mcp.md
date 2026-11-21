@@ -2,7 +2,7 @@
 
 Chantier `stage2/6-mcp-client` (US2.2). Décision :
 [ADR 0018](adr/0018-mcp-client-home-assistant-and-security-devices.md), sections 1 à 4, 6 et 7. Le classement
-propre à Home Assistant (section 5) vient au chantier `stage2/7-home-assistant`. Le registre des outils et le
+propre à Home Assistant (section 5) est décrit dans [home-assistant.md](home-assistant.md). Le registre des outils et le
 point de décision sont décrits dans [tools.md](tools.md).
 
 ## Ce qui est construit
@@ -85,7 +85,8 @@ coupe les interrupteurs de ses outils.
   réactive. Un interrupteur resté allumé sans empreinte gardée est coupé de la même façon.
 - Classe : « Lecture » si le serveur déclare l'outil en lecture seule, sinon « Sensible » (confirmation à
   chaque appel). L'utilisateur peut la monter à « Sensible » ou « Critique », jamais la descendre : les
-  réglages refusent toute autre valeur.
+  réglages refusent toute autre valeur. Un serveur de type `HomeAssistant` a son propre classement, par
+  appel ([home-assistant.md](home-assistant.md)).
 - Un échec signalé par l'outil revient au modèle avec son texte. Une cause de connexion revient en une
   phrase qui nomme le serveur.
 - `Discloses` dit où partent les arguments : l'adresse, ou le programme lancé.
@@ -110,8 +111,8 @@ message … » et « lance le dé ». L'élément `#tool-servers` montre les app
 
 L'ADR ne les tranche pas ; à confirmer par Benoit :
 
-1. **Le type `HomeAssistant` se choisit déjà, mais se classe comme `Generic`** jusqu'au chantier 7 : toute
-   commande qui n'est pas une lecture demande une confirmation.
+1. *(Levé par le chantier 7.)* Le type `HomeAssistant` a maintenant son classement :
+   [home-assistant.md](home-assistant.md).
 2. **Un seul champ « Jeton » à l'ajout** (`Authorization: Bearer …`). Les autres en-têtes s'écrivent dans
    `config.json` (leurs noms) ; leur valeur se saisit ensuite sur la page.
 3. **Pas de modification d'un serveur** sur la page : on le retire et on l'ajoute de nouveau.
@@ -149,8 +150,8 @@ L'ADR ne les tranche pas ; à confirmer par Benoit :
 
 1. Ajouter le serveur de Home Assistant par son adresse (`…/api/mcp`) avec un jeton : « Connecté », 47 outils
    environ, tous désactivés. Le jeton n'est pas dans `config.json`.
-2. Activer `GetLiveContext` et `HassTurnOn` ; « allume le salon » demande une confirmation (classement
-   générique, en attendant le chantier 7). **Ne rien activer qui touche une serrure, l'alarme, la porte de
+2. Avec le type « Générique », activer `GetLiveContext` et `HassTurnOn` ; « allume le salon » demande une
+   confirmation. Avec le type « Home Assistant », voir [home-assistant.md](home-assistant.md#vérifications-sur-windows). **Ne rien activer qui touche une serrure, l'alarme, la porte de
    garage, le thermostat ou un script.**
 3. Couper le réseau : le serveur passe à « Injoignable », ses outils disparaissent de la page « Outils »,
    Jarvis reste en veille sans panne. Rétablir : il revient tout seul.

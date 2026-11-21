@@ -216,11 +216,21 @@ ce qu'il décrit.
   avec cause nommée, nouveaux essais de 5 s à 5 minutes, outils **désactivés à la découverte**, activation
   liée à l'empreinte, classe « Lecture » ou « Sensible » montée par l'utilisateur seulement, jetons au
   coffre. **Aucun vrai serveur MCP n'a été joint depuis Jarvis.** Choix provisoires à confirmer par Benoit
-  ([détail](../dev/mcp.md#choix-provisoires-de-ce-chantier)) : le type `HomeAssistant` se classe comme
-  `Generic` jusqu'au chantier 7, un seul champ « Jeton », pas de modification d'un serveur sur la page, pas de
+  ([détail](../dev/mcp.md#choix-provisoires-de-ce-chantier)) : un seul champ « Jeton », pas de modification d'un serveur sur la page, pas de
   variables d'environnement, paquet `Core`. **Tests Windows en attente**
   ([liste](../dev/mcp.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/7-home-assistant` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools` et `stage2/6-mcp-client` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/7-home-assistant`** (voir [dev/home-assistant.md](../dev/home-assistant.md)), selon
+  l'ADR 0018, section 5 : `ITool.ClassifyAsync` (le point de décision n'appelle que celle-ci), contrat du noyau
+  `IToolServerClassifier`, tranche `Mcp/HomeAssistant` (`HomeAssistantClassifier`, section `Mcp.HomeAssistant`,
+  page « Home Assistant »). Un appel est classé d'après les entités visées, lues par `GetLiveContext` : serrure,
+  alarme, vanne, sirène, porte de garage, porte, portail et entités marquées donnent « Critique » ; cible
+  introuvable = classe la plus haute possible ; script « Effet courant » sauf s'il est marqué ; sans la liste
+  des entités, l'appel est refusé. **Aucun appel n'est parti de Jarvis vers le vrai Home Assistant.** Choix
+  provisoires à confirmer par Benoit ([détail](../dev/home-assistant.md#choix-provisoires-de-ce-chantier)) :
+  section `Mcp.HomeAssistant` et page à part, entité marquée par son nom, liste commune à tous les serveurs,
+  étage traité comme cible introuvable, liste gardée 5 s, thermostat non classé de sécurité. **Tests Windows en
+  attente** ([liste](../dev/home-assistant.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/8-memory` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client` et `stage2/7-home-assistant` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

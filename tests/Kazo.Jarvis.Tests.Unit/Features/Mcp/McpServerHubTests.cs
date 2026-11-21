@@ -469,6 +469,56 @@ public sealed class McpServerHubTests
         public ValueTask<string> InvokeAsync(JsonElement arguments, CancellationToken cancellationToken) => ValueTask.FromResult(name);
     }
 
+    [Test]
+    public async Task A_server_of_a_kind_that_has_its_own_classification_is_classed_by_it()
+    {
+        await hub.DisposeAsync();
+        var classifier = new FakeClassifier();
+        hub = new McpServerHub(settings, registry, vault, connector, time, classifiers: [classifier]);
+        connector.Tools = [Tool("turn_on"), Tool("read_state", readOnly: true)];
+        await StartWithAsync(ByAddress("maison") with { Kind = McpServerKind.HomeAssistant }, ByAddress("other", "https://other.example/mcp"));
+        await WaitUntil(() => registry.Tools.Count(tool => tool.Origin.StartsWith("mcp:", StringComparison.Ordinal)) == 4);
+
+        var home = registry.Tools.Single(tool => tool.Origin == ToolOrigins.Mcp("maison") && tool.Name.EndsWith("turn_on", StringComparison.Ordinal));
+        var general = registry.Tools.Single(tool => tool.Origin == ToolOrigins.Mcp("other") && tool.Name.EndsWith("turn_on", StringComparison.Ordinal));
+        using var lamp = JsonDocument.Parse("""{"name":"lampe"}""");
+        using var doorLock = JsonDocument.Parse("""{"name":"serrure"}""");
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(home.DeclaredClass, Is.EqualTo(ActionClass.EverydayEffect), "The lowest class of the kind.");
+            Assert.That(await home.ClassifyAsync(lamp.RootElement, CancellationToken.None), Is.EqualTo(ActionClass.EverydayEffect));
+            Assert.That(await home.ClassifyAsync(doorLock.RootElement, CancellationToken.None), Is.EqualTo(ActionClass.Critical));
+            Assert.That(home.Classify(lamp.RootElement), Is.EqualTo(ActionClass.Sensitive), "Without a question to the server, the general rule.");
+            Assert.That(classifier.Asked, Is.EqualTo("maison:read_state: ok"), "The classifier asks the server through the session of the tool.");
+            Assert.That(general.DeclaredClass, Is.EqualTo(ActionClass.Sensitive), "A general server keeps the general rule.");
+            Assert.That(await general.ClassifyAsync(lamp.RootElement, CancellationToken.None), Is.EqualTo(ActionClass.Sensitive));
+        });
+
+        // The user can raise a tool, never lower what the classification finds.
+        Assert.That((await hub.RaiseClassAsync("maison", "turn_on", ActionClass.Sensitive)).Outcome, Is.EqualTo(SettingsWriteOutcome.Saved));
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await home.ClassifyAsync(lamp.RootElement, CancellationToken.None), Is.EqualTo(ActionClass.Sensitive));
+            Assert.That(await home.ClassifyAsync(doorLock.RootElement, CancellationToken.None), Is.EqualTo(ActionClass.Critical));
+        });
+    }
+
+    private sealed class FakeClassifier : IToolServerClassifier
+    {
+        public string? Asked { get; private set; }
+
+        public string Kind => ToolServerKinds.HomeAssistant;
+
+        public ActionClass LowestClass(ToolServerTool tool) => tool.ReadOnly ? ActionClass.Read : ActionClass.EverydayEffect;
+
+        public async ValueTask<ActionClass> ClassifyAsync(ToolServerCall call, CancellationToken cancellationToken = default)
+        {
+            Asked = call.Server + ":" + (await call.Ask("read_state", call.Arguments, cancellationToken)).Text;
+            return call.Arguments.GetProperty("name").GetString() == "serrure" ? ActionClass.Critical : ActionClass.EverydayEffect;
+        }
+    }
+
     private sealed class FakeConnector : IToolServerConnector
     {
         private int connections;

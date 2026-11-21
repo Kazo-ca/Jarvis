@@ -174,4 +174,7 @@
   <data name="TestFailed" xml:space="preserve">
     <value>The test failed: {0}.</value>
   </data>
+  <data name="ScriptWarning" xml:space="preserve">
+    <value>A script can actuate anything, and runs without a question. Mark it &quot;security&quot; on the Home Assistant page if it must ask for a click.</value>
+  </data>
 </root>
