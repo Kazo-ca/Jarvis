@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Hooks Claude Code</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Les hooks disent à Jarvis qu'une session Claude Code lancée à la main vous attend ou a terminé. Jarvis écoute seulement : il ne répond jamais à la place d'une session.</value>
+  </data>
+  <data name="ServerLabel" xml:space="preserve">
+    <value>Serveur local</value>
+  </data>
+  <data name="ServerHint" xml:space="preserve">
+    <value>Les hooks appellent ce serveur, à l'intérieur de Jarvis.</value>
+  </data>
+  <data name="Server_Listening" xml:space="preserve">
+    <value>À l'écoute sur 127.0.0.1, port {0}.</value>
+  </data>
+  <data name="Server_NotListening" xml:space="preserve">
+    <value>Pas à l'écoute : le port {0} n'a pas pu être ouvert. Un autre programme l'utilise peut-être ; choisissez un autre port.</value>
+  </data>
+  <data name="Server_None" xml:space="preserve">
+    <value>Cet hôte n'a pas de serveur local.</value>
+  </data>
+  <data name="Note_Loopback" xml:space="preserve">
+    <value>Il écoute sur cet ordinateur seulement, jamais sur le réseau.</value>
+  </data>
+  <data name="Note_Token" xml:space="preserve">
+    <value>Aucune demande n'est acceptée sans jeton.</value>
+  </data>
+  <data name="PortLabel" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="PortHint" xml:space="preserve">
+    <value>De {0} à {1}. Après un changement, installez les hooks de nouveau : ils portent le port.</value>
+  </data>
+  <data name="NotANumber" xml:space="preserve">
+    <value>Entrez un nombre entier.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le réglage n'a pas pu être enregistré.</value>
+  </data>
+  <data name="HooksLabel" xml:space="preserve">
+    <value>Hooks dans vos réglages Claude Code</value>
+  </data>
+  <data name="HooksHint" xml:space="preserve">
+    <value>Pour les sessions que vous lancez vous-même.</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>Cet hôte ne peut pas atteindre vos réglages Claude Code.</value>
+  </data>
+  <data name="State_None" xml:space="preserve">
+    <value>Non installés.</value>
+  </data>
+  <data name="State_Installed" xml:space="preserve">
+    <value>Installés.</value>
+  </data>
+  <data name="State_Outdated" xml:space="preserve">
+    <value>Installés, mais pas à jour : le port ou le jeton a changé, ou une ligne a été retirée. Installez-les de nouveau.</value>
+  </data>
+  <data name="State_Unreadable" xml:space="preserve">
+    <value>Jarvis ne sait pas lire votre fichier de réglages sans risque : il ne le modifiera pas.</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>Fichier : {0}</value>
+  </data>
+  <data name="FileMissing" xml:space="preserve">
+    <value>Fichier : {0} (n'existe pas encore ; l'installation le crée)</value>
+  </data>
+  <data name="Note_OnClick" xml:space="preserve">
+    <value>Rien n'est écrit dans votre fichier avant votre clic sur « Installer ».</value>
+  </data>
+  <data name="Note_Copy" xml:space="preserve">
+    <value>Une copie datée du fichier est faite d'abord, à côté de lui. Vos autres réglages sont gardés ; seule la mise en page du fichier est réécrite.</value>
+  </data>
+  <data name="Note_Background" xml:space="preserve">
+    <value>Les hooks s'exécutent en arrière-plan : quand Jarvis est fermé, ils échouent en silence et vos sessions n'attendent pas.</value>
+  </data>
+  <data name="Note_WatchOnly" xml:space="preserve">
+    <value>« Retirer » n'enlève que les lignes de Jarvis, et rend leur jeton inutile.</value>
+  </data>
+  <data name="PreviewLabel" xml:space="preserve">
+    <value>Les lignes exactes qui sont ajoutées :</value>
+  </data>
+  <data name="PreviewToPaste" xml:space="preserve">
+    <value>Les lignes à ajouter à la main :</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>Installer</value>
+  </data>
+  <data name="InstallAgain" xml:space="preserve">
+    <value>Installer de nouveau</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="NoToken" xml:space="preserve">
+    <value>Le coffre n'a pas pu garder le jeton des hooks : rien ne peut être installé.</value>
+  </data>
+  <data name="Installed" xml:space="preserve">
+    <value>Hooks installés. Les nouvelles sessions les utilisent.</value>
+  </data>
+  <data name="InstalledWithCopy" xml:space="preserve">
+    <value>Hooks installés. Les nouvelles sessions les utilisent. Copie de votre fichier : {0}</value>
+  </data>
+  <data name="Removed" xml:space="preserve">
+    <value>Hooks retirés.</value>
+  </data>
+  <data name="RemovedWithCopy" xml:space="preserve">
+    <value>Hooks retirés. Copie de votre fichier : {0}</value>
+  </data>
+  <data name="Result_Nothing" xml:space="preserve">
+    <value>Il n'y avait aucun hook de Jarvis à retirer. Votre fichier n'a pas été touché.</value>
+  </data>
+  <data name="Result_Unreadable" xml:space="preserve">
+    <value>Jarvis ne sait pas lire votre fichier de réglages sans risque. Il n'a pas été touché.</value>
+  </data>
+  <data name="Result_Failed" xml:space="preserve">
+    <value>Votre fichier de réglages n'a pas pu être écrit. Il est comme avant.</value>
+  </data>
+  <data name="Result_Unavailable" xml:space="preserve">
+    <value>Cet hôte ne peut pas atteindre vos réglages Claude Code ou le coffre.</value>
+  </data>
+</root>

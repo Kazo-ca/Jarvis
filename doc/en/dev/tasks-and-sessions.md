@@ -3,7 +3,7 @@
 Work item `stage2/11-tasks-and-sessions`, **first part** (US2.11, US2.14). Decisions:
 [ADR 0013](adr/0013-relais-readiness.md), section 6, and [ADR 0021](adr/0021-claude-code-sessions.md),
 sections 6, 7 and 10. The second part of the work item, the local server of the `/hook/…` routes and the
-installation of the hooks in the user's settings, is not done: see "What is left of the work item".
+installation of the hooks in the user's settings, is in [hook-server.md](hook-server.md).
 
 ## What is built
 
@@ -62,8 +62,8 @@ That of Relais (ADR 0013, section 6). The type is named `WorkTask`, so that it i
 - The tasks in memory are the truth while Jarvis runs: "Erase everything" empties the store, and a task still
   in progress stays on the board until Jarvis stops.
 
-In this part nothing creates a task yet: the hooks (second part) and the launch of a session (work item
-`stage2/12`) will.
+The hooks create and move the tasks ([hook-server.md](hook-server.md)); the launch of a session (work item
+`stage2/12`) will too.
 
 ## Registry of the sessions (`IClaudeSessionRegistry`, `Adapters/ClaudeCode`)
 
@@ -117,17 +117,10 @@ topic, last activity, status of the task), the time between two readings.
 Desktop, and a folder without Git). The button "Make the Claude Code sessions move" of the test page advances
 the scenario: a session waits, then no session at all, then no registry.
 
-## What is left of the work item
+## Second part of the work item
 
-Second part, branch `stage2/11-hook-server`:
-
-- the local server, listening on `127.0.0.1` only, with a token, for the routes `/hook/task.context`,
-  `/hook/task.start`, `/hook/approval.requested`, `/hook/task.idle`, `/hook/subtask.idle` (ADR 0021, section 3),
-  which create and move the tasks of the board;
-- the installation and the removal of the hooks in `%USERPROFILE%\.claude\settings.json`, on the user's request
-  only, with a preview of the lines and a dated copy (ADR 0021, section 6);
-- the check the ADR asks for: a hook whose server does not answer must neither block nor slow the session of
-  the user.
+Done on branch `stage2/11-hook-server`: the local server of the `/hook/…` routes, with a token, and the
+installation of the hooks in the user's settings. See [hook-server.md](hook-server.md).
 
 ## Provisional choices of this work item
 

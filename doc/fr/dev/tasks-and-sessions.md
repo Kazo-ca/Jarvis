@@ -3,7 +3,7 @@
 Chantier `stage2/11-tasks-and-sessions`, **première partie** (US2.11, US2.14). Décisions :
 [ADR 0013](adr/0013-relais-readiness.md), section 6, et [ADR 0021](adr/0021-claude-code-sessions.md),
 sections 6, 7 et 10. La seconde partie du chantier, le serveur local des routes `/hook/…` et l'installation
-des hooks chez l'utilisateur, n'est pas faite : voir « Ce qui reste du chantier ».
+des hooks chez l'utilisateur, est dans [hook-server.md](hook-server.md).
 
 ## Ce qui est construit
 
@@ -63,8 +63,8 @@ de .NET.
 - Les tâches en mémoire font foi tant que Jarvis tourne : « Tout effacer » vide la base, et une tâche encore
   en cours reste au tableau jusqu'à l'arrêt.
 
-Dans cette partie, rien ne crée encore de tâche : les hooks (seconde partie) et le lancement d'une session
-(chantier `stage2/12`) le feront.
+Les hooks créent et font bouger les tâches ([hook-server.md](hook-server.md)) ; le lancement d'une session
+(chantier `stage2/12`) le fera aussi.
 
 ## Registre des sessions (`IClaudeSessionRegistry`, `Adapters/ClaudeCode`)
 
@@ -118,17 +118,10 @@ Jarvis », sujet, dernière activité, statut de la tâche), le délai entre deu
 Claude Desktop, et un dossier sans Git). Le bouton « Make the Claude Code sessions move » de la page de test
 fait avancer le scénario : une session attend, puis plus aucune session, puis plus de registre.
 
-## Ce qui reste du chantier
+## Seconde partie du chantier
 
-Seconde partie, branche `stage2/11-hook-server` :
-
-- le serveur local, à l'écoute de `127.0.0.1` seulement, avec jeton, pour les routes `/hook/task.context`,
-  `/hook/task.start`, `/hook/approval.requested`, `/hook/task.idle`, `/hook/subtask.idle` (ADR 0021,
-  section 3), qui créent et font bouger les tâches du tableau ;
-- l'installation et le retrait des hooks dans `%USERPROFILE%\.claude\settings.json`, à la demande de
-  l'utilisateur seulement, avec aperçu des lignes et copie datée (ADR 0021, section 6) ;
-- la vérification demandée par l'ADR : un hook dont le serveur ne répond pas ne doit ni bloquer ni ralentir
-  la session de l'utilisateur.
+Faite sur la branche `stage2/11-hook-server` : le serveur local des routes `/hook/…`, avec jeton, et
+l'installation des hooks chez l'utilisateur. Voir [hook-server.md](hook-server.md).
 
 ## Choix provisoires de ce chantier
 

@@ -111,6 +111,19 @@ public static class AdaptersServiceCollectionExtensions
         // Claude Code sessions (ADR 0021, section 6): the registry of the running sessions, read only.
         services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeSessionRegistry>(provider =>
             new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry(provider.GetService<ILogger<Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry>>()));
+
+        // The user's Claude Code settings (ADR 0021, section 6): read to show, written on the user's click only.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeUserSettings>(_ => new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeUserSettings());
+
+        // Local server (ADR 0021, section 3): 127.0.0.1 only, a token on every route.
+        services.TryAddSingleton(provider => new Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer(
+            provider.GetRequiredService<ISettingsStore>(),
+            provider.GetServices<Kazo.Jarvis.Kernel.LocalServer.ILocalRoute>(),
+            provider.GetService<ISecretVault>(),
+            provider.GetService<ILogger<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>>()));
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
+        services.AddHostedService(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
+
         // Tool servers (ADR 0018): the MCP client.
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Tools.Servers.IToolServerConnector, Kazo.Jarvis.Adapters.Mcp.McpToolServerConnector>();
         services.TryAddSingleton<IWebSearchApi>(provider => new BraveSearchApi(

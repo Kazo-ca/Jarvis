@@ -75,6 +75,13 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<SimulatedClaudeSessions>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeSessionRegistry>(provider => provider.GetRequiredService<SimulatedClaudeSessions>());
 
+        // Hooks (stage2/11-hook-server): the user's Claude Code settings in memory, and a local server that only
+        // says it listens. The real server and its token check are tested with the adapter.
+        services.TryAddSingleton<SimulatedClaudeUserSettings>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeUserSettings>(provider => provider.GetRequiredService<SimulatedClaudeUserSettings>());
+        services.TryAddSingleton<SimulatedLocalServer>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(provider => provider.GetRequiredService<SimulatedLocalServer>());
+
         services.TryAddSingleton<SimulatedLocalFiles>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Files.ILocalFiles>(provider => provider.GetRequiredService<SimulatedLocalFiles>());
         services.TryAddSingleton<SimulatedReadingBrowser>();

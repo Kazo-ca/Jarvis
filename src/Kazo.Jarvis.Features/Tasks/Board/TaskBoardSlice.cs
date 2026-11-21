@@ -1,6 +1,9 @@
+using Kazo.Jarvis.Kernel.ClaudeCode;
+using Kazo.Jarvis.Kernel.LocalServer;
 using Kazo.Jarvis.Kernel.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Kazo.Jarvis.Features.Tasks.Board;
 
@@ -16,6 +19,21 @@ public static class TaskBoardSlice
         services.TryAddSingleton<TaskBoard>();
         services.TryAddSingleton<ITaskBoard>(provider => provider.GetRequiredService<TaskBoard>());
         services.AddHostedService(provider => provider.GetRequiredService<TaskBoard>());
+
+        // The routes of the hooks (ADR 0021, section 3): the local server of the host finds them as ILocalRoute.
+        if (services.Any(known => known.ServiceType == typeof(TaskHooks)))
+        {
+            return services;
+        }
+
+        services.TryAddSingleton(provider => new TaskHooks(
+            provider.GetRequiredService<ITaskBoard>(),
+            provider.GetService<IClaudeSessionRegistry>(),
+            provider.GetService<ILogger<TaskHooks>>()));
+        foreach (var kind in Enum.GetValues<TaskHookKind>())
+        {
+            services.AddSingleton<ILocalRoute>(provider => new TaskHookRoute(kind, provider.GetRequiredService<TaskHooks>()));
+        }
         return services;
     }
 }

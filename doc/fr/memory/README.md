@@ -273,13 +273,26 @@ ce qu'il décrit.
   `Tasks/Board` (collection `Tasks.Board`) ; contrat `IClaudeSessionRegistry` et adaptateur
   `Adapters/ClaudeCode/ClaudeSessionRegistry`, qui n'ouvre que `sessions/*.json` (un test prouve qu'aucun
   `*.key` ni `ide/*.lock` n'est ouvert) ; tranche `ClaudeCode/Sessions` (section `ClaudeCode.Sessions`, page
-  « Sessions Claude », ordre 52). **Reste du chantier, branche `stage2/11-hook-server`** : serveur local des
-  routes `/hook/…` avec jeton, installation et retrait des hooks chez l'utilisateur, vérification qu'un hook
-  sans serveur ne ralentit pas une session. Rien ne crée encore de tâche. Choix provisoires à confirmer par
+  « Sessions Claude », ordre 52). Choix provisoires à confirmer par
   Benoit ([détail](../dev/tasks-and-sessions.md#choix-provisoires-de-ce-chantier)) : lecture du registre
   activée au départ, toutes les 5 secondes. **Tests Windows en attente**
   ([liste](../dev/tasks-and-sessions.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, seconde partie du chantier 11 (`stage2/11-hook-server`), puis chantier `stage2/12-claude-code-tasks` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off` et `stage2/10-spend-cap` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/11-hook-server`, seconde partie du chantier 11** (voir
+  [dev/hook-server.md](../dev/hook-server.md)), selon l'ADR 0021 (sections 3, 5 et 6) : contrats du noyau
+  `ILocalServer`, `ILocalRoute`, `LocalServerOptions` (section `Local.Server`, port 47821), `HookPaths`,
+  `IClaudeUserSettings` ; adaptateur `Adapters/LocalServer/KestrelLocalServer` (Kestrel sur `127.0.0.1`
+  seulement, **aucune route sans jeton** : jeton de l'exécution en mémoire, jeton des hooks de l'utilisateur
+  dans le coffre sous `ClaudeCode.UserHookToken`, valable pour `/hook/…` seulement) ; routes des hooks dans
+  `Tasks/Board` (`TaskHooks`), qui créent les tâches de source `hook` et font bouger le tableau ; tranche
+  `ClaudeCode/Hooks` (page « Hooks Claude Code », ordre 53) : aperçu, installation et retrait dans
+  `%USERPROFILE%\.claude\settings.json` **sur le clic de l'utilisateur seulement**, avec copie datée.
+  `Kazo.Jarvis.Adapters` référence `Microsoft.AspNetCore.App`. **Écarts par rapport à l'ADR 0021** : page à
+  part au lieu d'un bouton dans « Sessions Claude » ; hooks installés en **commandes `curl.exe` en
+  arrière-plan** (`async`) et non en hooks `http`, parce que la vérification demandée par la section 6 n'a
+  pas pu se faire sans Windows. `/mcp` et `approve` : chantier 12. Choix provisoires à confirmer par Benoit
+  ([détail](../dev/hook-server.md#choix-provisoires-de-ce-chantier)). **Tests Windows en attente, dont
+  « Jarvis fermé, une session ne ralentit pas »** ([liste](../dev/hook-server.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/12-claude-code-tasks` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap` et `stage2/11` (ses deux parties, `stage2/11-tasks-and-sessions` et `stage2/11-hook-server`) sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
