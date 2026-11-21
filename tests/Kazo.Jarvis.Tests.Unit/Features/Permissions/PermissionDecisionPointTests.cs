@@ -43,6 +43,20 @@ public sealed class PermissionDecisionPointTests
         folder.Dispose();
     }
 
+    /// <summary>Rebuilds the decision point with a confirmation that always gives <paramref name="outcome"/>; returns what it was asked.</summary>
+    private List<ConfirmationRequest> WithConfirmation(ConfirmationOutcome outcome)
+    {
+        var confirmation = new FakeConfirmation(_ => outcome);
+        point = new PermissionDecisionPoint(
+            registry,
+            store,
+            TimeProvider.System,
+            NullLogger<PermissionDecisionPoint>.Instance,
+            new Kazo.Jarvis.Tests.Unit.Features.Settings.ManualLanguage { Current = Kazo.Jarvis.Kernel.Localization.AssistantLanguage.French },
+            confirmation);
+        return confirmation.Asked;
+    }
+
     private static JsonElement Arguments(string json = "{}") => JsonDocument.Parse(json).RootElement.Clone();
 
     private ValueTask<PermissionDecision> AskAsync(string tool, string json = "{}") =>
@@ -67,12 +81,104 @@ public sealed class PermissionDecisionPointTests
     [TestCase(ActionClass.Critical)]
     public async Task What_needs_a_confirmation_is_denied_while_nobody_can_be_asked(ActionClass actionClass)
     {
-        // The confirmation request arrives with work item 4: until then, denied by default (ADR 0009, principle 3).
+        // A host without the confirmation slice: denied by default (ADR 0009, principle 3).
         registry.Register(new FakeTool("write_file") { DeclaredClass = actionClass });
 
         var decision = await AskAsync("write_file");
 
         Assert.That(decision, Is.EqualTo(PermissionDecision.Deny(DenialCause.ConfirmationUnavailable, actionClass)));
+    }
+
+    [TestCase(ActionClass.Sensitive, ConfirmationChannels.Click)]
+    [TestCase(ActionClass.Sensitive, ConfirmationChannels.Voice)]
+    [TestCase(ActionClass.Critical, ConfirmationChannels.Click)]
+    public async Task An_agreement_through_an_accepted_channel_allows_the_call_and_the_channel_is_logged(ActionClass actionClass, string channel)
+    {
+        var asked = WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, channel));
+        registry.Register(new FakeTool("write_note")
+        {
+            DeclaredClass = actionClass,
+            Summary = (arguments, language) => $"Note « {arguments.GetProperty("text").GetString()} » ({language.Code}).",
+        });
+        var context = new ActionContext(new Kazo.Jarvis.Kernel.Assistant.TurnId(7), true);
+
+        var decision = await point.DecideAsync(new ActionRequest(Model, "write_note", Arguments("""{"text":"lait"}""")) { Context = context });
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(decision, Is.EqualTo(PermissionDecision.Allow(actionClass) with { Channel = channel }));
+            Assert.That(asked.Single(), Is.EqualTo(new ConfirmationRequest(Model, "write_note", "Note « lait » (fr).", """{"text":"lait"}""", actionClass, context)),
+                "The summary is written by the tool, in the language of the assistant; the detail is exact; the turn follows.");
+            var record = (await LogAsync()).Single();
+            Assert.That((record.Allowed, record.Class, record.Cause, record.Channel), Is.EqualTo((true, (ActionClass?)actionClass, (DenialCause?)null, channel)));
+        });
+    }
+
+    [Test]
+    public async Task A_critical_call_is_never_approved_by_voice()
+    {
+        // ADR 0023, section 4: whatever the confirmation slice answers, the decision point checks the channel.
+        WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, ConfirmationChannels.Voice));
+        registry.Register(new FakeTool("erase_notes") { DeclaredClass = ActionClass.Critical });
+
+        var decision = await AskAsync("erase_notes");
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(decision, Is.EqualTo(PermissionDecision.Deny(DenialCause.Refused, ActionClass.Critical) with { Channel = ConfirmationChannels.Voice }));
+            Assert.That((await LogAsync()).Single().Channel, Is.EqualTo(ConfirmationChannels.Voice), "The rejected agreement is logged with its channel.");
+        });
+    }
+
+    [Test]
+    public async Task An_agreement_without_a_channel_is_not_an_agreement()
+    {
+        WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, null));
+        registry.Register(new FakeTool("write_note") { DeclaredClass = ActionClass.Sensitive });
+
+        Assert.That((await AskAsync("write_note")).Allowed, Is.False);
+    }
+
+    [TestCase(ConfirmationAnswer.Refused, ConfirmationChannels.Click, DenialCause.Refused)]
+    [TestCase(ConfirmationAnswer.Refused, ConfirmationChannels.Voice, DenialCause.Refused)]
+    [TestCase(ConfirmationAnswer.TimedOut, null, DenialCause.TimedOut)]
+    [TestCase(ConfirmationAnswer.Interrupted, null, DenialCause.Interrupted)]
+    public async Task Anything_but_an_agreement_is_a_denial_with_its_cause(ConfirmationAnswer answer, string? channel, DenialCause cause)
+    {
+        WithConfirmation(new ConfirmationOutcome(answer, channel));
+        registry.Register(new FakeTool("write_note") { DeclaredClass = ActionClass.Sensitive });
+
+        var decision = await AskAsync("write_note");
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(decision, Is.EqualTo(PermissionDecision.Deny(cause, ActionClass.Sensitive) with { Channel = channel }));
+            var record = (await LogAsync()).Single();
+            Assert.That((record.Allowed, record.Cause, record.Channel), Is.EqualTo((false, (DenialCause?)cause, channel)));
+        });
+    }
+
+    [Test]
+    public async Task A_confirmation_that_fails_is_a_denial_and_a_summary_that_fails_does_not_stop_the_request()
+    {
+        var asked = WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, ConfirmationChannels.Click));
+        registry.Register(new FakeTool("write_note") { DeclaredClass = ActionClass.Sensitive, Summary = (_, _) => throw new InvalidOperationException("no summary") });
+
+        Assert.That((await AskAsync("write_note")).Allowed, Is.True);
+        Assert.That(asked.Single().Summary, Is.Null, "The confirmation slice then shows its general sentence.");
+
+        point = new PermissionDecisionPoint(registry, store, TimeProvider.System, NullLogger<PermissionDecisionPoint>.Instance, null, new FakeConfirmation(_ => throw new InvalidOperationException("no window")));
+        Assert.That(await AskAsync("write_note"), Is.EqualTo(PermissionDecision.Deny(DenialCause.ConfirmationUnavailable, ActionClass.Sensitive)));
+    }
+
+    [Test]
+    public async Task A_read_does_not_ask_for_a_confirmation()
+    {
+        var asked = WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Refused, ConfirmationChannels.Click));
+        registry.Register(new FakeTool("get_datetime"));
+
+        Assert.That((await AskAsync("get_datetime")).Allowed, Is.True);
+        Assert.That(asked, Is.Empty);
     }
 
     [Test]
@@ -180,5 +286,21 @@ public sealed class PermissionDecisionPointTests
             Assert.That(log[1].Cause, Is.EqualTo(DenialCause.UnknownTool));
             Assert.That(log[1].Class, Is.Null);
         });
+    }
+}
+
+/// <summary>A confirmation that answers what the test decides, and keeps what it was asked.</summary>
+internal sealed class FakeConfirmation(Func<ConfirmationRequest, ConfirmationOutcome> answer) : IConfirmation
+{
+    public List<ConfirmationRequest> Asked { get; } = [];
+
+    public ValueTask<ConfirmationOutcome> AskAsync(ConfirmationRequest request, CancellationToken cancellationToken = default)
+    {
+        lock (Asked)
+        {
+            Asked.Add(request);
+        }
+
+        return ValueTask.FromResult(answer(request));
     }
 }

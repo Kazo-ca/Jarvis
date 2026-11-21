@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Journal des permissions</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Chaque action qu'un modèle a demandée, et ce que Jarvis a décidé : autorisée, ou refusée et pourquoi. Les {0} décisions les plus récentes des {1} derniers jours. Le journal reste sur cet ordinateur.</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Actualiser</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Aucune décision pour le moment.</value>
+  </data>
+  <data name="LoadFailed" xml:space="preserve">
+    <value>Le journal n'a pas pu être lu.</value>
+  </data>
+  <data name="Allowed" xml:space="preserve">
+    <value>Autorisée</value>
+  </data>
+  <data name="Denied" xml:space="preserve">
+    <value>Refusée : {0}</value>
+  </data>
+  <data name="By" xml:space="preserve">
+    <value>demandée par {0} « {1} »</value>
+  </data>
+  <data name="Requester_Tool" xml:space="preserve">
+    <value>le modèle</value>
+  </data>
+  <data name="Requester_Session" xml:space="preserve">
+    <value>la session</value>
+  </data>
+  <data name="Requester_Task" xml:space="preserve">
+    <value>la tâche</value>
+  </data>
+  <data name="Class" xml:space="preserve">
+    <value>classe {0}</value>
+  </data>
+  <data name="Class_Read" xml:space="preserve">
+    <value>Lecture</value>
+  </data>
+  <data name="Class_EverydayEffect" xml:space="preserve">
+    <value>Effet courant</value>
+  </data>
+  <data name="Class_Sensitive" xml:space="preserve">
+    <value>Sensible</value>
+  </data>
+  <data name="Class_Critical" xml:space="preserve">
+    <value>Critique</value>
+  </data>
+  <data name="Class_Forbidden" xml:space="preserve">
+    <value>Interdite</value>
+  </data>
+  <data name="Channel_voice" xml:space="preserve">
+    <value>réponse à voix haute</value>
+  </data>
+  <data name="Channel_click" xml:space="preserve">
+    <value>réponse par clic</value>
+  </data>
+  <data name="Cause_UnknownTool" xml:space="preserve">
+    <value>outil inconnu</value>
+  </data>
+  <data name="Cause_ToolDisabled" xml:space="preserve">
+    <value>outil non activé</value>
+  </data>
+  <data name="Cause_UnreadableArguments" xml:space="preserve">
+    <value>arguments illisibles</value>
+  </data>
+  <data name="Cause_ClassifierFailed" xml:space="preserve">
+    <value>la classe n'a pas pu être établie</value>
+  </data>
+  <data name="Cause_Forbidden" xml:space="preserve">
+    <value>action interdite</value>
+  </data>
+  <data name="Cause_ConfirmationUnavailable" xml:space="preserve">
+    <value>personne à qui demander</value>
+  </data>
+  <data name="Cause_Refused" xml:space="preserve">
+    <value>vous avez refusé</value>
+  </data>
+  <data name="Cause_TimedOut" xml:space="preserve">
+    <value>pas de réponse à temps</value>
+  </data>
+  <data name="Cause_Interrupted" xml:space="preserve">
+    <value>interrompue</value>
+  </data>
+  <data name="Cause_Unknown" xml:space="preserve">
+    <value>cause inconnue</value>
+  </data>
+</root>

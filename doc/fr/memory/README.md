@@ -181,11 +181,23 @@ ce qu'il décrit.
   la collection `Permissions.Decisions`) ; tranches `Tools/Clock` (`get_datetime`) et `Tools/Calculator`
   (`calculate`) ; les trois adaptateurs envoient les outils et lisent les appels, avec l'analyseur tolérant
   pour les adaptateurs locaux ; la conversation fait la boucle (8 appels par tour, 30 s par appel, résultat
-  coupé à 2 000 caractères) et montre chaque appel dans le tour. **« Sensible » et « Critique » sont refusés
-  tant que le chantier 4 (confirmation) n'est pas fait.** Pas encore de page « Outils » ni de page du
-  journal. **Non vérifié avec un vrai modèle** ni contre les vraies API d'OpenAI et d'Anthropic. **Tests
+  coupé à 2 000 caractères) et montre chaque appel dans le tour. « Sensible » et « Critique » passent par la demande de confirmation du chantier 4. Pas encore de page
+  « Outils ». **Non vérifié avec un vrai modèle** ni contre les vraies API d'OpenAI et d'Anthropic. **Tests
   Windows en attente** ([liste](../dev/tools.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/4-confirmation` (le chantier `stage2/3-tool-loop` est fait ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/4-confirmation`** (demande de confirmation, voir
+  [dev/confirmation.md](../dev/confirmation.md)), construit sur les recommandations de l'ADR 0023 **encore
+  proposé** : condition `AssistantState.Confirmation` et aspect « Confirmation » (ambre) dans le noyau,
+  contrat `IConfirmation`, `ITool.Summarize` ; tranche `Permissions/Confirmation` (`ConfirmationDesk`, une
+  demande à la fois, fenêtre, délai de 30 s réglable de 10 à 120, liste fermée de mots par langue) ; le
+  point de décision demande la confirmation, revérifie le canal (« Critique » : clic seul) et journalise le
+  canal ; page « Journal des permissions » ; `Voice/Speech` dit la question sans phase « Parole »,
+  `Voice/Transcription` ouvre une seule écoute. Hôte Web : outils factices `write_note` (« Sensible ») et
+  `erase_notes` (« Critique »). **Aucun vrai outil « Sensible » ou « Critique » n'existe encore.** Choix
+  provisoires à confirmer par Benoit : fermer la fenêtre vaut refus, le délai part à l'ouverture, la liste
+  de mots suit la langue, la fenêtre n'est pas encore placée près de l'orbe. **Le code ne se fusionne dans
+  `stage2/base` qu'une fois l'ADR 0023 accepté et fusionné.** **Tests Windows en attente**
+  ([liste](../dev/confirmation.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/5-basic-tools` du [plan](../dev/plans/stage-2.md) une fois l'ADR 0023 accepté et le chantier `stage2/4-confirmation` fusionné (le chantier `stage2/3-tool-loop` est fait ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

@@ -1,0 +1,62 @@
+.decision-log-bar {
+    margin: 0 0 0.8rem;
+}
+
+.decision-log-refresh {
+    padding: 0.35rem 1rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.decision-log {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.decision-log-entry {
+    padding: 0.5rem 0.7rem;
+    border-left: 3px solid var(--jarvis-green);
+    background: var(--jarvis-input);
+}
+
+.decision-log-entry[data-decision-allowed="false"] {
+    border-left-color: var(--jarvis-red);
+}
+
+.decision-log-head,
+.decision-log-what {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin: 0;
+}
+
+.decision-log-what,
+.decision-log-none {
+    color: var(--jarvis-text-muted);
+    font-size: 0.9em;
+}
+
+.decision-log-tool {
+    color: var(--jarvis-text);
+    font-weight: 600;
+}
+
+.decision-log-arguments {
+    margin: 0.3rem 0 0;
+    font-size: 0.85em;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.decision-log-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

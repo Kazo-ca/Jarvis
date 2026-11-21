@@ -47,12 +47,12 @@ The kernel carries no classification logic.
 3. class of the call: the highest of the class the tool declares and the one its classifier gives. A
    classifier can therefore only raise the class. A classifier that fails: denied;
 4. "Read" and "Everyday effect": allowed;
-5. "Sensitive" and "Critical": **denied for now** (`ConfirmationUnavailable`). The confirmation request
-   arrives with work item `stage2/4-confirmation`;
+5. "Sensitive" and "Critical": a human answer decides, through the
+   [confirmation request](confirmation.md). Without it in the host: denied (`ConfirmationUnavailable`);
 6. "Forbidden": denied without a question.
 
 Every decision goes to the collection `Permissions.Decisions` of `jarvis.db`: date, requester, tool,
-arguments cut at 500 characters, class, result, cause. A failure to write the log does not change the
+arguments cut at 500 characters, class, result, cause, channel of the human answer. A failure to write the log does not change the
 decision. "Erase everything" erases this log too. An interruption is logged as a denial.
 
 ## Tools
@@ -93,8 +93,9 @@ The local adapters have the tolerant parser of ADR 0007, section 4.
 ## Web host
 
 The simulated model asks for a tool from the words of the request: "exact time" (`get_datetime`),
-"calculate …" (`calculate`), "outil inconnu" (a tool that does not exist, denied). After a result, its
-answer quotes it.
+"calculate …" (`calculate`), "outil inconnu" (a tool that does not exist, denied), "write a note …" and
+"erase the notes" (two dummy tools that ask for a confirmation, see [confirmation.md](confirmation.md)).
+After a result, its answer quotes it.
 
 ## Provisional choices of this work item
 
@@ -108,7 +109,7 @@ The ADRs do not settle them; to be confirmed by Benoit:
    follows the language.
 4. **The tolerant parser** is turned off per provider in `config.json` (`TolerantToolCalls`), with no switch
    on the page.
-5. **The decision log has no page**: it comes with work item 4.
+5. ~~The decision log has no page~~: done in work item 4 ("Permission log" page).
 
 ## Not verified
 

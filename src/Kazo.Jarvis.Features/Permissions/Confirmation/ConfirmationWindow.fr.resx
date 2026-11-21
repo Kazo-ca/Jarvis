@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="Title_Sensitive" xml:space="preserve">
+    <value>Jarvis demande votre accord</value>
+  </data>
+  <data name="Title_Critical" xml:space="preserve">
+    <value>Action critique : votre accord est requis</value>
+  </data>
+  <data name="GeneralSummary" xml:space="preserve">
+    <value>L'outil « {0} » veut agir.</value>
+  </data>
+  <data name="Question_Voice" xml:space="preserve">
+    <value>Confirmez-vous ?</value>
+  </data>
+  <data name="Question_Click" xml:space="preserve">
+    <value>Approuvez ou refusez dans la fenêtre.</value>
+  </data>
+  <data name="Question_Critical" xml:space="preserve">
+    <value>C'est une action critique : la voix ne suffit pas, approuvez-la d'un clic dans la fenêtre.</value>
+  </data>
+  <data name="RequesterLabel" xml:space="preserve">
+    <value>Demandé par</value>
+  </data>
+  <data name="Requester_Tool" xml:space="preserve">
+    <value>le modèle « {0} »</value>
+  </data>
+  <data name="Requester_Session" xml:space="preserve">
+    <value>la session « {0} »</value>
+  </data>
+  <data name="Requester_Task" xml:space="preserve">
+    <value>la tâche « {0} »</value>
+  </data>
+  <data name="ToolLabel" xml:space="preserve">
+    <value>Outil</value>
+  </data>
+  <data name="DetailLabel" xml:space="preserve">
+    <value>Détail exact</value>
+  </data>
+  <data name="ClassLabel" xml:space="preserve">
+    <value>Classe</value>
+  </data>
+  <data name="Class_Sensitive" xml:space="preserve">
+    <value>Sensible</value>
+  </data>
+  <data name="Class_Critical" xml:space="preserve">
+    <value>Critique</value>
+  </data>
+  <data name="Channel_Voice" xml:space="preserve">
+    <value>Répondez à voix haute (« oui » ou « non ») ou cliquez.</value>
+  </data>
+  <data name="Channel_Click" xml:space="preserve">
+    <value>Répondez d'un clic.</value>
+  </data>
+  <data name="Channel_Critical" xml:space="preserve">
+    <value>La voix ne suffit pas pour une action critique : répondez d'un clic.</value>
+  </data>
+  <data name="TimeLeft" xml:space="preserve">
+    <value>Refusé sans réponse dans {0} s.</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Approuver</value>
+  </data>
+  <data name="Refuse" xml:space="preserve">
+    <value>Refuser</value>
+  </data>
+  <data name="NoRequest" xml:space="preserve">
+    <value>Aucune demande n'attend.</value>
+  </data>
+</root>

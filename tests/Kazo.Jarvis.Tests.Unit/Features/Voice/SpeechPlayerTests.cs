@@ -5,6 +5,7 @@ using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Audio;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Speech;
@@ -289,6 +290,97 @@ public sealed class SpeechPlayerTests
     }
 
     /// <summary>Starts a spoken turn and ends the utterance: the state machine waits for the answer.</summary>
+    // ADR 0023, section 2: the question of a confirmation request is said in the voice of the turn, and it is
+    // not a sentence of the answer: the phase does not change.
+    [Test]
+    public async Task The_question_of_a_confirmation_request_is_said_without_entering_the_speaking_phase()
+    {
+        var turn = await StartThinkingAsync();
+        var id = Guid.NewGuid();
+
+        await player.HandleAsync(new ConfirmationQuestionToSay(id, turn, "Jarvis veut écrire une note. Confirmez-vous ?", true), CancellationToken.None);
+        await Eventually(() => Published<ConfirmationQuestionSaid>().Length == 1);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(piper.Said.Select(said => said.Text), Is.EqualTo(new[] { "Jarvis veut écrire une note. Confirmez-vous ?" }));
+            Assert.That(playback.Played, Has.Count.EqualTo(1));
+            Assert.That(Published<ConfirmationQuestionSaid>(), Is.EqualTo(new[] { new ConfirmationQuestionSaid(id, turn, true) }));
+            Assert.That(Published<FirstSentenceReady>(), Is.Empty);
+            Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Thinking));
+        });
+
+        // The answer of the model follows in the same turn, and only then Jarvis "speaks".
+        await SayAsync(turn, "C'est noté, Monsieur.");
+        await EndAsync(turn);
+        await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Published<FirstSentenceReady>(), Is.EqualTo(new[] { new FirstSentenceReady(turn) }));
+            Assert.That(Published<SpeechEnded>(), Is.EqualTo(new[] { new SpeechEnded(turn) }));
+            Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Idle));
+        });
+    }
+
+    [Test]
+    public async Task A_turn_whose_only_sound_was_the_question_ends_without_speech()
+    {
+        var turn = await StartThinkingAsync();
+
+        await player.HandleAsync(new ConfirmationQuestionToSay(Guid.NewGuid(), turn, "Confirmez-vous ?", false), CancellationToken.None);
+        await EndAsync(turn);
+        await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Published<ConfirmationQuestionSaid>().Single().Listen, Is.False);
+            Assert.That(Published<AnswerFinishedWithoutSpeech>(), Has.Length.EqualTo(1));
+            Assert.That(Published<SpeechEnded>(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task A_request_answered_while_its_question_is_said_cuts_the_question_and_not_the_turn()
+    {
+        var turn = await StartThinkingAsync();
+        var id = Guid.NewGuid();
+        playback.Hold = true;
+
+        await player.HandleAsync(new ConfirmationQuestionToSay(id, turn, "Confirmez-vous ?", true), CancellationToken.None);
+        await playback.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        playback.Hold = false;
+        await player.HandleAsync(new ConfirmationClosed(id), CancellationToken.None);
+        await SayAsync(turn, "C'est noté.");
+        await EndAsync(turn);
+        await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Published<ConfirmationQuestionSaid>(), Is.Empty, "Nobody listens for the answer of a closed request.");
+            Assert.That(playback.Played, Has.Count.EqualTo(2), "The answer of the model is said after the cut question.");
+            Assert.That(Published<SpeechEnded>(), Is.EqualTo(new[] { new SpeechEnded(turn) }));
+        });
+    }
+
+    [Test]
+    public async Task The_question_of_a_request_already_closed_makes_no_sound()
+    {
+        var turn = await StartThinkingAsync();
+        var id = Guid.NewGuid();
+
+        await player.HandleAsync(new ConfirmationClosed(id), CancellationToken.None);
+        await player.HandleAsync(new ConfirmationQuestionToSay(id, turn, "Confirmez-vous ?", true), CancellationToken.None);
+        await EndAsync(turn);
+        await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(playback.Played, Is.Empty);
+            Assert.That(Published<ConfirmationQuestionSaid>(), Is.Empty);
+        });
+    }
+
     private async Task<TurnId> StartThinkingAsync()
     {
         await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Hotkey));

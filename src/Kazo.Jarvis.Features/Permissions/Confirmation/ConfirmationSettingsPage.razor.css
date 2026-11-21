@@ -1,0 +1,24 @@
+.confirmation-number {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.confirmation-number input {
+    width: 5.5rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.confirmation-words {
+    margin: 0;
+    color: var(--jarvis-text-muted);
+}
+
+.confirmation-problem {
+    margin: 0.8rem 0 0;
+    color: var(--jarvis-red);
+}

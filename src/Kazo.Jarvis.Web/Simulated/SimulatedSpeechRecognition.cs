@@ -5,7 +5,7 @@ namespace Kazo.Jarvis.Web.Simulated;
 
 /// <summary>
 /// Simulated <see cref="ISpeechRecognition"/> (ADR 0003, section 3): no model, no native library. Every
-/// utterance becomes the same request, in the language asked for.
+/// utterance becomes the same request, in the language asked for, unless <see cref="NextPhrase"/> was set.
 /// </summary>
 public sealed class SimulatedSpeechRecognition : ISpeechRecognition
 {
@@ -14,6 +14,9 @@ public sealed class SimulatedSpeechRecognition : ISpeechRecognition
 
     /// <summary>What is "heard" in French.</summary>
     public const string FrenchRequest = "Quelle heure est-il ?";
+
+    /// <summary>What the next utterance becomes, once: a request that calls a tool, or the answer to a confirmation request.</summary>
+    public string? NextPhrase { get; set; }
 
     /// <summary>
     /// When set, the Whisper file is "gone": loading fails and the model already loaded fails at the next
@@ -49,7 +52,9 @@ public sealed class SimulatedSpeechRecognition : ISpeechRecognition
 
             // About the time of large-v3-turbo on the graphics card (spike E4).
             await Task.Delay(TimeSpan.FromMilliseconds(200), cancellationToken).ConfigureAwait(false);
-            return [new TranscriptSegment(" " + (language == AssistantLanguage.French ? FrenchRequest : EnglishRequest), 0.01f)];
+            var phrase = owner.NextPhrase ?? (language == AssistantLanguage.French ? FrenchRequest : EnglishRequest);
+            owner.NextPhrase = null;
+            return [new TranscriptSegment(" " + phrase, 0.01f)];
         }
 
         public void Dispose()

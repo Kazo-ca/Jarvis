@@ -36,6 +36,6 @@ public sealed record DecisionRecord
     [JsonConverter(typeof(JsonStringEnumConverter<DenialCause>))]
     public DenialCause? Cause { get; init; }
 
-    /// <summary>The channel of the human answer, when there was one (work item <c>stage2/4-confirmation</c>).</summary>
+    /// <summary>The channel of the human answer, when there was one (ADR 0023, section 5): <c>voice</c> or <c>click</c>.</summary>
     public string? Channel { get; init; }
 }

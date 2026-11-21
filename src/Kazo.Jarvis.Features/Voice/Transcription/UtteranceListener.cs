@@ -4,6 +4,7 @@ using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Audio;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Settings;
@@ -17,11 +18,21 @@ namespace Kazo.Jarvis.Features.Voice.Transcription;
 /// activity detector, publishes <see cref="UtteranceEnded"/> after the silence that ends the utterance (or
 /// <see cref="NothingHeard"/> after the timeout), then transcribes it with Whisper and publishes
 /// <see cref="UtteranceTranscribed"/>. A <see cref="TurnCancelled"/> stops it at any point.
+/// <para>
+/// It also opens the single listening that follows the question of a confirmation request (ADR 0023, section 3):
+/// same end of speech, same Whisper, but what is heard only goes out as <see cref="ConfirmationAnswerHeard"/>. It
+/// publishes none of the messages of a turn, so the phase does not change and no model receives the text.
+/// </para>
 /// </summary>
 /// <remarks>
 /// The capture thread only copies the samples into a channel; the detector and Whisper run on a pool thread.
 /// </remarks>
-public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEventHandler<TurnCancelled>, IDisposable
+public sealed partial class UtteranceListener :
+    IEventHandler<TurnStarted>,
+    IEventHandler<TurnCancelled>,
+    IEventHandler<ConfirmationQuestionSaid>,
+    IEventHandler<ConfirmationClosed>,
+    IDisposable
 {
     /// <summary>
     /// Audio kept before the start of speech, so the first syllable is not cut: detectors answer a little late.
@@ -45,6 +56,11 @@ public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEve
     private readonly ILogger<UtteranceListener> logger;
     private readonly Lock gate = new();
     private Session? current;
+
+    /// <summary>The listening of a confirmation answer, its request, and the last request closed.</summary>
+    private Session? answer;
+    private Guid answerOf;
+    private Guid closedRequest;
     private HeardUtterance? lastHeard;
     private int sileroWarned;
 
@@ -107,13 +123,17 @@ public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEve
         var options = settings.Read(TranscriptionOptions.Section);
         var session = new Session(message.Turn);
         Session? previous;
+        Session? previousAnswer;
         lock (gate)
         {
             previous = current;
             current = session;
+            previousAnswer = answer;
+            answer = null;
         }
 
         previous?.Cancel();
+        previousAnswer?.Cancel();
 
         // Subscribe now, on the bus thread, so no sample after the activation is missed.
         session.Subscription = microphone.Subscribe(session.Accept);
@@ -126,12 +146,70 @@ public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEve
     {
         ArgumentNullException.ThrowIfNull(message);
         Session? cancelled = null;
+        Session? cancelledAnswer = null;
         lock (gate)
         {
             if (current?.Turn == message.Turn)
             {
                 cancelled = current;
                 current = null;
+            }
+
+            if (answer?.Turn == message.Turn)
+            {
+                cancelledAnswer = answer;
+                answer = null;
+            }
+        }
+
+        cancelled?.Cancel();
+        cancelledAnswer?.Cancel();
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public ValueTask HandleAsync(ConfirmationQuestionSaid message, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        if (!message.Listen)
+        {
+            return ValueTask.CompletedTask;
+        }
+
+        var options = settings.Read(TranscriptionOptions.Section);
+        var session = new Session(message.Turn);
+        Session? previous;
+        lock (gate)
+        {
+            // Closed while the question ended, or a turn that is listening: no answer to hear.
+            if (closedRequest == message.Id || current is not null)
+            {
+                return ValueTask.CompletedTask;
+            }
+
+            previous = answer;
+            answer = session;
+            answerOf = message.Id;
+        }
+
+        previous?.Cancel();
+        session.Subscription = microphone.Subscribe(session.Accept);
+        _ = Task.Run(() => RunAnswerAsync(session, message.Id, options));
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public ValueTask HandleAsync(ConfirmationClosed message, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        Session? cancelled = null;
+        lock (gate)
+        {
+            closedRequest = message.Id;
+            if (answer is not null && answerOf == message.Id)
+            {
+                cancelled = answer;
+                answer = null;
             }
         }
 
@@ -143,13 +221,68 @@ public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEve
     public void Dispose()
     {
         Session? session;
+        Session? listening;
         lock (gate)
         {
             session = current;
             current = null;
+            listening = answer;
+            answer = null;
         }
 
         session?.Cancel();
+        listening?.Cancel();
+    }
+
+    /// <summary>
+    /// The single listening of a confirmation answer. Nothing heard, or a failure, is "no answer": the request stays
+    /// open and the click remains possible.
+    /// </summary>
+    private async Task RunAnswerAsync(Session session, Guid request, TranscriptionOptions options)
+    {
+        var token = session.Token;
+        try
+        {
+            string? text = null;
+            var (detector, _) = CreateDetector(options.Detector);
+            Utterance? utterance;
+            using (detector)
+            {
+                utterance = await ListenAsync(session, detector, options.ToTiming(), token).ConfigureAwait(false);
+            }
+
+            session.StopListening();
+            if (utterance is not null)
+            {
+                var segments = await recognizer.TranscribeAsync(utterance.Samples, language.Current, token).ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
+                text = TranscriptText.From(segments);
+            }
+
+            // The length only: the words of the answer are not logged.
+            LogAnswerHeard(session.Turn, text?.Length ?? 0);
+            await bus.PublishAsync(new ConfirmationAnswerHeard(request, text), CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            // The request closed or the turn was cancelled: nothing to publish.
+        }
+        catch (Exception exception) when (!token.IsCancellationRequested)
+        {
+            LogAnswerFailed(exception, session.Turn);
+            await bus.PublishAsync(new ConfirmationAnswerHeard(request, null), CancellationToken.None).ConfigureAwait(false);
+        }
+        finally
+        {
+            session.StopListening();
+            lock (gate)
+            {
+                if (answer == session)
+                {
+                    answer = null;
+                }
+            }
+        }
     }
 
     private async Task RunAsync(Session session, TranscriptionOptions options)
@@ -309,6 +442,12 @@ public sealed partial class UtteranceListener : IEventHandler<TurnStarted>, IEve
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Listening of {Turn} failed")]
     private partial void LogFailed(Exception exception, TurnId turn);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Confirmation answer of {Turn} heard: {Characters} characters")]
+    private partial void LogAnswerHeard(TurnId turn, int characters);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Listening to the confirmation answer of {Turn} failed; the request stays open")]
+    private partial void LogAnswerFailed(Exception exception, TurnId turn);
 
     private sealed record Utterance(float[] Samples, long EndedAt);
 

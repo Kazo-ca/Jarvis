@@ -6,6 +6,7 @@ using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
+using Kazo.Jarvis.Features.Permissions.Confirmation;
 using Kazo.Jarvis.Features.Permissions.Decision;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
@@ -89,6 +90,10 @@ public static class FeaturesServiceCollectionExtensions
         // Tools (stage2/3-tool-loop, ADR 0017): every call a model asks for goes through the decision point; each
         // tool slice registers its tool in the registry of the kernel, read by the conversation.
         services.AddPermissionDecisionSlice();
+
+        // Confirmation (stage2/4-confirmation, ADR 0023): the decision point asks the user through it before a
+        // "Sensitive" or "Critical" call; the speech slice says the question, the transcription slice hears the answer.
+        services.AddConfirmationSlice();
         services.AddClockToolSlice();
         services.AddCalculatorToolSlice();
 

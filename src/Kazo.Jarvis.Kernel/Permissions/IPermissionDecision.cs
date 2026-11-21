@@ -39,7 +39,11 @@ public sealed record ActionRequester(RequesterKind Kind, string Name);
 /// <param name="Requester">Who asks.</param>
 /// <param name="Tool">The name of the tool, as the model wrote it.</param>
 /// <param name="Arguments">The arguments, a JSON object; <see langword="null"/> when they could not be read, which is a denial.</param>
-public sealed record ActionRequest(ActionRequester Requester, string Tool, JsonElement? Arguments);
+public sealed record ActionRequest(ActionRequester Requester, string Tool, JsonElement? Arguments)
+{
+    /// <summary>The turn the action was asked in; <see cref="ActionContext.None"/> outside a turn.</summary>
+    public ActionContext Context { get; init; } = ActionContext.None;
+}
 
 /// <summary>Why an action was denied. The slice that asked turns it into one sentence for the model.</summary>
 public enum DenialCause
@@ -59,7 +63,7 @@ public enum DenialCause
     /// <summary>The call is of class <see cref="ActionClass.Forbidden"/>.</summary>
     Forbidden,
 
-    /// <summary>The call needs a confirmation and no channel can ask for it yet (work item <c>stage2/4-confirmation</c>).</summary>
+    /// <summary>The call needs a confirmation and this host has nothing to ask it with.</summary>
     ConfirmationUnavailable,
 
     /// <summary>The user refused.</summary>
@@ -78,6 +82,9 @@ public enum DenialCause
 /// <param name="Cause">For a denial, why.</param>
 public sealed record PermissionDecision(bool Allowed, ActionClass? Class, DenialCause? Cause)
 {
+    /// <summary>The channel of the human answer (<see cref="ConfirmationChannels"/>), when there was one.</summary>
+    public string? Channel { get; init; }
+
     /// <summary>An allowed action of class <paramref name="actionClass"/>.</summary>
     /// <param name="actionClass">The class of the call.</param>
     /// <returns>The decision.</returns>

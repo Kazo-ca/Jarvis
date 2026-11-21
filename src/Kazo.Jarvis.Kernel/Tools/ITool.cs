@@ -46,6 +46,16 @@ public interface ITool
     /// <returns>The class of this call.</returns>
     ActionClass Classify(JsonElement arguments);
 
+    /// <summary>
+    /// One sentence that tells the user what this call would do, for a confirmation request (ADR 0023, section 2).
+    /// Written by code from the arguments, never by a model. <see langword="null"/> gives a general sentence that
+    /// names the tool; the exact arguments are shown next to it in every case.
+    /// </summary>
+    /// <param name="arguments">The arguments of the call, a JSON object.</param>
+    /// <param name="language">The language of the assistant.</param>
+    /// <returns>The sentence, or <see langword="null"/>.</returns>
+    string? Summarize(JsonElement arguments, AssistantLanguage language) => null;
+
     /// <summary>Runs the call. Only called after the decision point allowed it.</summary>
     /// <param name="arguments">The arguments of the call, a JSON object.</param>
     /// <param name="cancellationToken">Cancelled by an interruption or by the time limit of a call.</param>

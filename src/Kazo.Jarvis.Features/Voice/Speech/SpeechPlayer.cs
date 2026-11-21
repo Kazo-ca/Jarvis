@@ -3,6 +3,7 @@ using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Audio;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Speech;
@@ -17,10 +18,18 @@ namespace Kazo.Jarvis.Features.Voice.Speech;
 /// <see cref="FirstSentenceReady"/> when the first sound starts and <see cref="SpeechEnded"/> after the last one.
 /// On <see cref="TurnCancelled"/> (US1.12) the sound stops at once and the waiting sentences are dropped; so it does
 /// on <see cref="TurnFailed"/>, when the model fails in the middle of an answer (work item 13).
+/// <para>
+/// The question of a confirmation request (<see cref="ConfirmationQuestionToSay"/>, ADR 0023, section 2) goes
+/// through the same queue, so it is said in the voice of the turn and after what the model already said. It is not
+/// a sentence of the answer: it does not publish <see cref="FirstSentenceReady"/>, so the phase does not change.
+/// Once said, <see cref="ConfirmationQuestionSaid"/> is published; a request closed meanwhile cuts the question.
+/// </para>
 /// </summary>
 public sealed class SpeechPlayer :
     IEventHandler<SentenceToSpeak>,
     IEventHandler<AnswerSentencesEnded>,
+    IEventHandler<ConfirmationQuestionToSay>,
+    IEventHandler<ConfirmationClosed>,
     IEventHandler<TurnCancelled>,
     IEventHandler<TurnFailed>,
     IDisposable
@@ -41,6 +50,9 @@ public sealed class SpeechPlayer :
 
     /// <summary>The last turn closed (spoken, cancelled or failed); later messages of it are ignored.</summary>
     private long closedUpTo;
+
+    /// <summary>The last confirmation request closed: only one is open at a time, so one identifier is enough.</summary>
+    private Guid closedQuestion;
 
     /// <summary>Creates the player.</summary>
     /// <param name="selection">The voice of each language.</param>
@@ -92,7 +104,46 @@ public sealed class SpeechPlayer :
         ArgumentNullException.ThrowIfNull(message);
         if (!string.IsNullOrWhiteSpace(message.Text))
         {
-            QueueFor(message.Turn)?.Sentences.Writer.TryWrite(message.Text.Trim());
+            QueueFor(message.Turn)?.Sentences.Writer.TryWrite(new Sentence(message.Text.Trim(), null));
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public ValueTask HandleAsync(ConfirmationQuestionToSay message, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        if (!string.IsNullOrWhiteSpace(message.Text))
+        {
+            QueueFor(message.Turn)?.Sentences.Writer.TryWrite(new Sentence(message.Text.Trim(), message));
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public ValueTask HandleAsync(ConfirmationClosed message, CancellationToken cancellationToken)
+    {
+        // Answered by a click while the question was being said: the question stops, the answer of the model follows.
+        ArgumentNullException.ThrowIfNull(message);
+        CancellationTokenSource? playing = null;
+        lock (gate)
+        {
+            closedQuestion = message.Id;
+            if (current?.QuestionPlaying?.Id == message.Id)
+            {
+                playing = current.QuestionPlaying.Value.Cancel;
+            }
+        }
+
+        try
+        {
+            playing?.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // The question ended at the same moment.
         }
 
         return ValueTask.CompletedTask;
@@ -213,12 +264,18 @@ public sealed class SpeechPlayer :
         var spoken = false;
         try
         {
-            var clips = Channel.CreateBounded<AudioClip>(ClipsAhead);
+            var clips = Channel.CreateBounded<(AudioClip Clip, ConfirmationQuestionToSay? Question)>(ClipsAhead);
             var synthesis = SynthesizeAllAsync(speech, clips.Writer, token);
-            await foreach (var clip in clips.Reader.ReadAllAsync(token).ConfigureAwait(false))
+            await foreach (var (clip, question) in clips.Reader.ReadAllAsync(token).ConfigureAwait(false))
             {
                 // ReadAllAsync hands out what is already buffered without looking at the token.
                 token.ThrowIfCancellationRequested();
+                if (question is not null)
+                {
+                    await AskAsync(speech, clip, question, token).ConfigureAwait(false);
+                    continue;
+                }
+
                 if (!spoken)
                 {
                     spoken = true;
@@ -268,8 +325,55 @@ public sealed class SpeechPlayer :
         }
     }
 
+    /// <summary>
+    /// Says the question of a confirmation request, then tells it was said. A request closed before or while it is
+    /// said makes no sound, or stops it, without stopping the turn.
+    /// </summary>
+    private async Task AskAsync(TurnSpeech speech, AudioClip clip, ConfirmationQuestionToSay question, CancellationToken token)
+    {
+        using var only = CancellationTokenSource.CreateLinkedTokenSource(token);
+        lock (gate)
+        {
+            if (closedQuestion == question.Id)
+            {
+                return;
+            }
+
+            speech.QuestionPlaying = (question.Id, only);
+        }
+
+        try
+        {
+            await PlayAsync(clip, only.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (!token.IsCancellationRequested)
+        {
+            // The request closed: only this clip stops.
+            levels.Report(SoundOrigin.Voice, 0);
+            return;
+        }
+        finally
+        {
+            lock (gate)
+            {
+                speech.QuestionPlaying = null;
+            }
+        }
+
+        bool closed;
+        lock (gate)
+        {
+            closed = closedQuestion == question.Id;
+        }
+
+        if (!closed)
+        {
+            await bus.PublishAsync(new ConfirmationQuestionSaid(question.Id, question.Turn, question.Listen), CancellationToken.None).ConfigureAwait(false);
+        }
+    }
+
     /// <summary>Synthesizes each sentence in order into <paramref name="clips"/>; completes it with the failure if any.</summary>
-    private async Task SynthesizeAllAsync(TurnSpeech speech, ChannelWriter<AudioClip> clips, CancellationToken token)
+    private async Task SynthesizeAllAsync(TurnSpeech speech, ChannelWriter<(AudioClip Clip, ConfirmationQuestionToSay? Question)> clips, CancellationToken token)
     {
         try
         {
@@ -288,8 +392,8 @@ public sealed class SpeechPlayer :
                         ?? throw new SpeechException(SpeechFailure.UnknownVoice, $"No engine '{resolved.Value.Voice.Engine}'.");
                 }
 
-                var clip = await engine!.SynthesizeAsync(resolved.Value.Voice, sentence, resolved.Value.Speed, token).ConfigureAwait(false);
-                await clips.WriteAsync(clip, token).ConfigureAwait(false);
+                var clip = await engine!.SynthesizeAsync(resolved.Value.Voice, sentence.Text, resolved.Value.Speed, token).ConfigureAwait(false);
+                await clips.WriteAsync((clip, sentence.Question), token).ConfigureAwait(false);
             }
 
             clips.TryComplete();
@@ -349,12 +453,18 @@ public sealed class SpeechPlayer :
         _ => new AssistantFault(FaultCause.VoiceMissing, exception.Message, FaultOrigin.Voice),
     };
 
+    /// <summary>One thing to say: a sentence of the answer, or the question of a confirmation request.</summary>
+    private sealed record Sentence(string Text, ConfirmationQuestionToSay? Question);
+
     /// <summary>The speech of one turn: its sentences in order and its cancellation.</summary>
     private sealed class TurnSpeech(TurnId turn)
     {
         public TurnId Turn { get; } = turn;
 
-        public Channel<string> Sentences { get; } = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true });
+        public Channel<Sentence> Sentences { get; } = Channel.CreateUnbounded<Sentence>(new UnboundedChannelOptions { SingleReader = true });
+
+        /// <summary>The question being said and what stops it alone. Guarded by the gate of the player.</summary>
+        public (Guid Id, CancellationTokenSource Cancel)? QuestionPlaying { get; set; }
 
         public CancellationTokenSource Cancel { get; } = new();
 

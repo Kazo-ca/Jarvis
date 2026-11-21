@@ -1,3 +1,5 @@
+using Kazo.Jarvis.Kernel.Permissions;
+
 namespace Kazo.Jarvis.Kernel.Assistant;
 
 /// <summary>
@@ -20,6 +22,9 @@ public sealed record AssistantState(
 {
     /// <summary>State at start-up: idle, no turn, no condition.</summary>
     public static AssistantState Initial { get; } = new(AssistantPhase.Idle, TurnId.None, TurnId.None, false, null, 0);
+
+    /// <summary>The condition "confirmation pending" (ADR 0023, section 1), or <see langword="null"/>.</summary>
+    public PendingConfirmation? Confirmation { get; init; }
 
     /// <summary>Whether a turn is in progress.</summary>
     public bool HasTurn => CurrentTurn != TurnId.None;

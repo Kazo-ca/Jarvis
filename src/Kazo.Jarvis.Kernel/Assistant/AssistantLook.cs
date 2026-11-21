@@ -26,4 +26,7 @@ public enum AssistantLook
 
     /// <summary>Still, gray, labelled "microphone muted".</summary>
     MicrophoneMuted,
+
+    /// <summary>Slow pulse, amber: a confirmation request waits for the user (ADR 0023, section 1).</summary>
+    Confirmation,
 }

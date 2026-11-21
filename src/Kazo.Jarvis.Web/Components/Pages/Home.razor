@@ -16,6 +16,7 @@
 @inject SimulatedLlmConnector Llm
 @inject SimulatedSpeechRecognition Recognition
 @inject ISettingsStore Settings
+@inject SimulatedNotes Notes
 @inject ConfigurationFaultReporter ConfigurationCheck
 
 @* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
@@ -43,6 +44,9 @@
         <button type="button" id="plug-microphones" @onclick="Microphones.PlugAll">Plug the microphones back</button>
         <button type="button" id="simulate-wake-word" @onclick="WakeWord.Say">Say “Hey Jarvis”</button>
         <button type="button" id="say-phrase" @onclick="Voice.SayPhrase">Say a phrase</button>
+        <label for="phrase-text">Phrase to say:</label>
+        <input type="text" id="phrase-text" @bind="phrase" @bind:event="oninput" />
+        <button type="button" id="say-text" @onclick="SayText">Say this phrase</button>
         <button type="button" id="simulate-answer" @onclick="SimulateAnswerAsync">Simulate a spoken answer</button>
         <button type="button" id="open-first-run" @onclick="OpenFirstRun">Open the first-run wizard (tray menu)</button>
         <button type="button" id="open-faults" @onclick="OpenFaults">Solve the problem (tray menu)</button>
@@ -58,6 +62,9 @@
         <output id="output-played" data-count="@Speakers.PlayedCount" data-device="@(Speakers.LastOutput?.Id ?? "")">@Speakers.PlayedCount sound(s) played</output>
         <output id="last-transcription" data-turn="@(transcribed?.Turn.Value ?? 0)">@(transcribed?.Text ?? "Nothing transcribed")</output>
         <output id="voice-spoken" data-count="@Speech.Spoken.Count">@(Speech.Spoken.LastOrDefault() ?? "Nothing said yet")</output>
+        <output id="notes" data-count="@Notes.Notes.Count" data-erased="@Notes.Erased">@(Notes.Notes.LastOrDefault() ?? "No note")</output>
+        <output id="confirmation" data-pending="@(State.Current.Confirmation is null ? "false" : "true")" data-class="@(State.Current.Confirmation?.Class.ToString() ?? "")"
+                data-question-said="@(State.Current.Confirmation is { } pending && pending.Id == questionSaid ? "true" : "false")">@(State.Current.Confirmation is null ? "No confirmation pending" : "Confirmation pending")</output>
         <output id="updater-launched" data-folder="@(Launcher.LaunchedFolder ?? "")">@(Launcher.LaunchedFolder is null ? "Updater not started" : "Updater started")</output>
     </nav>
     @* Like a window of the Windows host, the dialogs rebuild their texts when the language changes. *@
@@ -70,6 +77,9 @@
     private IDisposable? stateSubscription;
     private IDisposable? transcriptionSubscription;
     private UtteranceTranscribed? transcribed;
+    private string phrase = string.Empty;
+    private IDisposable? questionSubscription;
+    private Guid questionSaid;
 
     protected override void OnInitialized()
     {
@@ -78,7 +88,13 @@
         Microphones.Changed += OnChanged;
         Speakers.Played += OnChanged;
         Speech.Spoke += OnChanged;
+        Notes.Changed += OnChanged;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
+        questionSubscription = Bus.Subscribe<ConfirmationQuestionSaid>((message, _) => new ValueTask(InvokeAsync(() =>
+        {
+            questionSaid = message.Id;
+            StateHasChanged();
+        })));
         transcriptionSubscription = Bus.Subscribe<UtteranceTranscribed>((message, _) => new ValueTask(InvokeAsync(() =>
         {
             transcribed = message;
@@ -93,8 +109,10 @@
         Microphones.Changed -= OnChanged;
         Speakers.Played -= OnChanged;
         Speech.Spoke -= OnChanged;
+        Notes.Changed -= OnChanged;
         stateSubscription?.Dispose();
         transcriptionSubscription?.Dispose();
+        questionSubscription?.Dispose();
     }
 
     private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
@@ -119,6 +137,14 @@
         await Bus.PublishAsync(new SentenceToSpeak(turn, "Certainly, sir."));
         await Bus.PublishAsync(new SentenceToSpeak(turn, "The simulated voice says a second, longer sentence so there is time to interrupt it."));
         await Bus.PublishAsync(new AnswerSentencesEnded(turn));
+    }
+
+    // The next utterance is "heard" as the text of the field: a request that calls a tool, or the answer to a
+    // confirmation request (stage2/4-confirmation).
+    private void SayText()
+    {
+        Recognition.NextPhrase = string.IsNullOrWhiteSpace(phrase) ? null : phrase.Trim();
+        Voice.SayPhrase();
     }
 
     private void PressHotkey() => Hotkey.Press();

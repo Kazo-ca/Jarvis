@@ -1,0 +1,58 @@
+@using System.Globalization
+@implements IDisposable
+@inject ISettingsStore Settings
+@inject IStringLocalizer<ConfirmationSettingsPage> T
+
+@* Settings page of the confirmation requests (ADR 0023, section 4): how long a request waits for an answer. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["TimeoutLabel"]" Hint="@T["TimeoutHint", ConfirmationOptions.MinimumTimeout, ConfirmationOptions.MaximumTimeout]">
+        <label class="confirmation-number">
+            <input type="number" data-confirmation-timeout min="@ConfirmationOptions.MinimumTimeout" max="@ConfirmationOptions.MaximumTimeout" step="5"
+                   value="@options.TimeoutSeconds" @onchange="ChooseTimeoutAsync" />
+            <span>s</span>
+        </label>
+    </SettingsField>
+    <SettingsField Label="@T["WordsLabel"]" Hint="@T["WordsHint"]">
+        <p class="confirmation-words" data-confirmation-words>@string.Join(", ", ConfirmationWords.Agreements(Language.Current))</p>
+    </SettingsField>
+    @if (problem)
+    {
+        <p class="confirmation-problem" role="alert">@T["SaveFailed"]</p>
+    }
+</SettingsFrame>
+
+@code {
+    private ConfirmationOptions options = new();
+    private bool problem;
+    private IDisposable? watch;
+
+    [Inject]
+    private IAssistantLanguageReader Language { get; set; } = null!;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        options = Settings.Read(ConfirmationOptions.Section);
+        watch = Settings.Watch(ConfirmationOptions.Section, value => _ = InvokeAsync(() =>
+        {
+            options = value;
+            StateHasChanged();
+        }));
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => watch?.Dispose();
+
+    private async Task ChooseTimeoutAsync(ChangeEventArgs change)
+    {
+        if (!int.TryParse(change.Value as string, CultureInfo.InvariantCulture, out var value))
+        {
+            return;
+        }
+
+        var wanted = options with { TimeoutSeconds = Math.Clamp(value, ConfirmationOptions.MinimumTimeout, ConfirmationOptions.MaximumTimeout) };
+        var result = await Settings.WriteAsync(ConfirmationOptions.Section, wanted);
+        problem = !result.IsSaved;
+        options = Settings.Read(ConfirmationOptions.Section);
+    }
+}

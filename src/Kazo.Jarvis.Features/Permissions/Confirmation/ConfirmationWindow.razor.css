@@ -1,0 +1,102 @@
+.confirmation-window {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 1.5rem;
+    border-left: 3px solid var(--jarvis-amber);
+    background: var(--jarvis-background);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-body);
+}
+
+.confirmation-window[data-confirmation-class="Critical"] {
+    border-left-color: var(--jarvis-red);
+}
+
+.confirmation-title {
+    margin: 0;
+    color: var(--jarvis-amber);
+    font-family: var(--jarvis-font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.confirmation-window[data-confirmation-class="Critical"] .confirmation-title {
+    color: var(--jarvis-red);
+}
+
+.confirmation-summary {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.confirmation-facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1rem;
+    margin: 0;
+}
+
+.confirmation-facts dt {
+    color: var(--jarvis-text-muted);
+}
+
+.confirmation-facts dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.confirmation-detail {
+    max-height: 12rem;
+    margin: 0;
+    padding: 0.5rem;
+    overflow: auto;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    font-size: 0.9em;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.confirmation-channel,
+.confirmation-time {
+    margin: 0;
+    color: var(--jarvis-text-muted);
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 0.4rem;
+}
+
+.confirmation-button {
+    padding: 0.5rem 1.4rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.confirmation-approve {
+    border-color: var(--jarvis-green);
+    color: var(--jarvis-green);
+}
+
+.confirmation-refuse {
+    border-color: var(--jarvis-red);
+    color: var(--jarvis-red);
+}
+
+.confirmation-button:focus-visible {
+    outline: 2px solid var(--jarvis-text);
+    outline-offset: 2px;
+}

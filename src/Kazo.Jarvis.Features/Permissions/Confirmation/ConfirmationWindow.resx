@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="Title_Sensitive" xml:space="preserve">
+    <value>Jarvis asks for your agreement</value>
+  </data>
+  <data name="Title_Critical" xml:space="preserve">
+    <value>Critical action: your agreement is needed</value>
+  </data>
+  <data name="GeneralSummary" xml:space="preserve">
+    <value>The tool "{0}" wants to act.</value>
+  </data>
+  <data name="Question_Voice" xml:space="preserve">
+    <value>Do you confirm?</value>
+  </data>
+  <data name="Question_Click" xml:space="preserve">
+    <value>Approve or refuse in the window.</value>
+  </data>
+  <data name="Question_Critical" xml:space="preserve">
+    <value>This is a critical action: voice is not enough, approve it with a click in the window.</value>
+  </data>
+  <data name="RequesterLabel" xml:space="preserve">
+    <value>Asked by</value>
+  </data>
+  <data name="Requester_Tool" xml:space="preserve">
+    <value>the model "{0}"</value>
+  </data>
+  <data name="Requester_Session" xml:space="preserve">
+    <value>the session "{0}"</value>
+  </data>
+  <data name="Requester_Task" xml:space="preserve">
+    <value>the task "{0}"</value>
+  </data>
+  <data name="ToolLabel" xml:space="preserve">
+    <value>Tool</value>
+  </data>
+  <data name="DetailLabel" xml:space="preserve">
+    <value>Exact detail</value>
+  </data>
+  <data name="ClassLabel" xml:space="preserve">
+    <value>Class</value>
+  </data>
+  <data name="Class_Sensitive" xml:space="preserve">
+    <value>Sensitive</value>
+  </data>
+  <data name="Class_Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Channel_Voice" xml:space="preserve">
+    <value>Answer aloud ("yes" or "no") or click.</value>
+  </data>
+  <data name="Channel_Click" xml:space="preserve">
+    <value>Answer with a click.</value>
+  </data>
+  <data name="Channel_Critical" xml:space="preserve">
+    <value>Voice is not enough for a critical action: answer with a click.</value>
+  </data>
+  <data name="TimeLeft" xml:space="preserve">
+    <value>Denied without an answer in {0} s.</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Approve</value>
+  </data>
+  <data name="Refuse" xml:space="preserve">
+    <value>Refuse</value>
+  </data>
+  <data name="NoRequest" xml:space="preserve">
+    <value>No request is waiting.</value>
+  </data>
+</root>

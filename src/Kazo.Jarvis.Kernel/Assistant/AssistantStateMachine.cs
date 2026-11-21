@@ -1,5 +1,7 @@
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messaging;
+using Kazo.Jarvis.Kernel.Permissions;
 
 namespace Kazo.Jarvis.Kernel.Assistant;
 
@@ -41,6 +43,14 @@ public static class AssistantStateMachine
                 ? Applied(state with { Fault = null })
                 : Ignored(state, $"the current fault is not {resolved.Cause} from {resolved.Origin?.ToString() ?? "any origin"}"),
             DelegatedTaskCountChanged tasks => ChangeTasks(state, tasks.Count),
+
+            // ADR 0023, section 1: a condition, like the fault; the phase and the turn do not move.
+            ConfirmationOpened opened => state.Confirmation is null
+                ? Applied(state with { Confirmation = new PendingConfirmation(opened.Id, opened.Class) })
+                : Ignored(state, "a confirmation request is already open"),
+            ConfirmationClosed closed => state.Confirmation?.Id == closed.Id
+                ? Applied(state with { Confirmation = null })
+                : Ignored(state, "this confirmation request is not the open one"),
             _ => Ignored(state, $"{input.GetType().Name} is not in the transition table"),
         };
     }

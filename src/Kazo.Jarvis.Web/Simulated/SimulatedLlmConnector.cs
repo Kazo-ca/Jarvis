@@ -13,6 +13,8 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// <para>
 /// Tool calls (ADR 0017) are simulated from the words of the request, when the tool is offered: « heure exacte » or
 /// "exact time" asks for <c>get_datetime</c>, « calcule … » or "calculate …" for <c>calculate</c> with what follows,
+/// « écris une note … » or "write a note …" for the simulated "Sensitive" tool <c>write_note</c>, « efface les notes »
+/// or "erase the notes" for the simulated "Critical" tool <c>erase_notes</c> (both ask for a confirmation, ADR 0023),
 /// and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
@@ -194,6 +196,16 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_calculate", "calculate", new Dictionary<string, object?> { ["expression"] = calculation.Groups[1].Value.Trim() });
             }
 
+            if (Offered(SimulatedNoteTool.ToolName) && NoteRequest().Match(request) is { Success: true } note)
+            {
+                return new FunctionCallContent("call_note", SimulatedNoteTool.ToolName, new Dictionary<string, object?> { ["text"] = note.Groups[1].Value.Trim().TrimEnd('.', '!', '?').Trim() });
+            }
+
+            if (Offered(SimulatedEraseTool.ToolName) && EraseRequest().IsMatch(request))
+            {
+                return new FunctionCallContent("call_erase", SimulatedEraseTool.ToolName, new Dictionary<string, object?>());
+            }
+
             // A tool the registry does not know: only when tools are offered, as a real model could invent one.
             return options?.Tools is { Count: > 0 } && request.Contains("outil inconnu", StringComparison.OrdinalIgnoreCase)
                 ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
@@ -204,6 +216,12 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         {
         }
     }
+
+    [GeneratedRegex(@"(?:écris une note|write a note)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex NoteRequest();
+
+    [GeneratedRegex(@"efface les notes|erase the notes", RegexOptions.IgnoreCase)]
+    private static partial Regex EraseRequest();
 
     [GeneratedRegex(@"heure exacte|exact time", RegexOptions.IgnoreCase)]
     private static partial Regex TimeRequest();

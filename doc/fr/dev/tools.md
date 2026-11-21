@@ -48,12 +48,12 @@ Le noyau ne porte aucune logique de classement.
 3. classe de l'appel : la plus haute entre la classe déclarée par l'outil et celle de son classement. Un
    classement ne peut donc que monter la classe. Un classement qui échoue : refusé ;
 4. « Lecture » et « Effet courant » : permis ;
-5. « Sensible » et « Critique » : **refusés pour l'instant** (`ConfirmationUnavailable`). La demande de
-   confirmation arrive au chantier `stage2/4-confirmation` ;
+5. « Sensible » et « Critique » : une réponse humaine décide, par la
+   [demande de confirmation](confirmation.md). Sans elle dans l'hôte : refusé (`ConfirmationUnavailable`) ;
 6. « Interdite » : refusé sans question.
 
 Chaque décision va dans la collection `Permissions.Decisions` de `jarvis.db` : date, demandeur, outil,
-arguments coupés à 500 caractères, classe, résultat, cause. Un échec d'écriture du journal ne change pas la
+arguments coupés à 500 caractères, classe, résultat, cause, canal de la réponse humaine. Un échec d'écriture du journal ne change pas la
 décision. « Tout effacer » efface aussi ce journal. Une interruption est journalisée comme un refus.
 
 ## Outils
@@ -94,7 +94,9 @@ fournisseur. Les adaptateurs locaux ont l'analyseur tolérant de l'ADR 0007, sec
 ## Hôte Web
 
 Le modèle simulé demande un outil d'après les mots de la demande : « heure exacte » (`get_datetime`),
-« calcule … » (`calculate`), « outil inconnu » (un outil qui n'existe pas, refusé). Après un résultat, sa
+« calcule … » (`calculate`), « outil inconnu » (un outil qui n'existe pas, refusé), « écris une note … » et
+« efface les notes » (deux outils factices qui demandent une confirmation, voir
+[confirmation.md](confirmation.md)). Après un résultat, sa
 réponse le cite.
 
 ## Choix provisoires de ce chantier
@@ -109,7 +111,7 @@ Les ADR ne les tranchent pas ; à confirmer par Benoit :
    suit la langue.
 4. **L'analyseur tolérant** se coupe par fournisseur dans `config.json` (`TolerantToolCalls`), sans
    interrupteur sur la page.
-5. **Le journal des décisions n'a pas de page** : elle vient avec le chantier 4.
+5. ~~Le journal des décisions n'a pas de page~~ : fait au chantier 4 (page « Journal des permissions »).
 
 ## Non vérifié
 

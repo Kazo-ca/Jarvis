@@ -37,7 +37,7 @@
     <value>Refusé : cette action est interdite.</value>
   </data>
   <data name="Denied_ConfirmationUnavailable" xml:space="preserve">
-    <value>Refusé : cette action demande une confirmation de l'utilisateur, et Jarvis ne peut pas encore la demander.</value>
+    <value>Refusé : cette action demande une confirmation de l'utilisateur, et Jarvis n'a aucun moyen de la demander ici.</value>
   </data>
   <data name="Denied_Refused" xml:space="preserve">
     <value>Refusé : l'utilisateur a refusé.</value>

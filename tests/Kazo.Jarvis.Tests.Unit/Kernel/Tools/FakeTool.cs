@@ -25,9 +25,13 @@ internal sealed class FakeTool(string name) : ITool
     public Func<JsonElement, CancellationToken, ValueTask<string>>? Run { get; init; }
 
     /// <summary>The arguments of the calls that ran.</summary>
+    public Func<JsonElement, AssistantLanguage, string?>? Summary { get; init; }
+
     public List<string> Invoked { get; } = [];
 
     public string Describe(AssistantLanguage language) => $"{Name} ({language.Code})";
+
+    public string? Summarize(JsonElement arguments, AssistantLanguage language) => Summary?.Invoke(arguments, language);
 
     public ActionClass Classify(JsonElement arguments) => Classifier?.Invoke(arguments) ?? DeclaredClass;
 

@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Localization;
+using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Permissions;
 using Kazo.Jarvis.Kernel.Tools;
 using Microsoft.Extensions.AI;
@@ -86,7 +87,8 @@ public sealed partial class ConversationEngine
             return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_Again", turnLanguage), denial: "Again");
         }
 
-        var decision = await permissions.DecideAsync(new ActionRequest(requester, call.Name, arguments), token).ConfigureAwait(false);
+        var decision = await permissions.DecideAsync(new ActionRequest(requester, call.Name, arguments) { Context = new ActionContext(answering.Turn, answering.Input == TurnInput.Voice) },
+            token).ConfigureAwait(false);
         var tool = decision.Allowed ? tools.Find(call.Name) : null;
         if (tool is null || arguments is null)
         {
