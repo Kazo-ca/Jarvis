@@ -1,0 +1,668 @@
+{
+  "date": "2026-11-20",
+  "webview2Sdk": "1.0.3179.45",
+  "runtime": "157.0.4341.60",
+  "probe": [
+    {
+      "variant": "never-shown/controller-visible",
+      "createMs": 657,
+      "envMs": 274,
+      "controllerMs": 353,
+      "windowVisible": false,
+      "throttle": {
+        "navOk": true,
+        "navMs": 81,
+        "page": {
+          "hidden": false,
+          "intervalsPerS": 9.8,
+          "rafPerS": 55,
+          "seconds": 2,
+          "timeoutsPerS": 223,
+          "vis": "visible"
+        }
+      },
+      "capture": {
+        "bytes": 6087,
+        "width": 720,
+        "height": 540,
+        "pixel": "#C00000",
+        "ms": 70
+      },
+      "search-ddg-html": {
+        "Ms": 3968,
+        "Specific": 5,
+        "Block": "",
+        "NavOk": true
+      },
+      "search-bing": {
+        "Ms": 10246,
+        "Specific": 2,
+        "Block": "",
+        "NavOk": true
+      },
+      "afterShow": {
+        "windowVisible": true,
+        "throttle": {
+          "navOk": true,
+          "navMs": 80,
+          "page": {
+            "hidden": false,
+            "intervalsPerS": 9.9,
+            "rafPerS": 60,
+            "seconds": 2,
+            "timeoutsPerS": 224,
+            "vis": "visible"
+          }
+        },
+        "capture": {
+          "bytes": 6087,
+          "width": 720,
+          "height": 540,
+          "pixel": "#C00000",
+          "ms": 67
+        }
+      },
+      "disposeMs": 295,
+      "browserExited": true
+    },
+    {
+      "variant": "never-shown/controller-invisible",
+      "createMs": 310,
+      "envMs": 35,
+      "controllerMs": 273,
+      "windowVisible": false,
+      "throttle": {
+        "navOk": true,
+        "navMs": 77,
+        "page": {
+          "hidden": true,
+          "intervalsPerS": 1,
+          "rafPerS": 0,
+          "seconds": 2,
+          "timeoutsPerS": 4,
+          "vis": "hidden"
+        }
+      },
+      "capture": {
+        "bytes": 6087,
+        "width": 720,
+        "height": 540,
+        "pixel": "#C00000",
+        "ms": 139044
+      },
+      "search-ddg-html": {
+        "Ms": 1286,
+        "Specific": 5,
+        "Block": "",
+        "NavOk": true
+      },
+      "search-bing": {
+        "Ms": 651,
+        "Specific": 3,
+        "Block": "",
+        "NavOk": true
+      },
+      "disposeMs": 283,
+      "browserExited": true
+    },
+    {
+      "variant": "shown-noactivate/controller-visible",
+      "createMs": 375,
+      "envMs": 119,
+      "controllerMs": 255,
+      "windowVisible": true,
+      "throttle": {
+        "navOk": true,
+        "navMs": 75,
+        "page": {
+          "hidden": false,
+          "intervalsPerS": 10,
+          "rafPerS": 56,
+          "seconds": 2,
+          "timeoutsPerS": 223,
+          "vis": "visible"
+        }
+      },
+      "capture": {
+        "bytes": 6087,
+        "width": 720,
+        "height": 540,
+        "pixel": "#C00000",
+        "ms": 51
+      },
+      "search-ddg-html": {
+        "Ms": 1266,
+        "Specific": 5,
+        "Block": "",
+        "NavOk": true
+      },
+      "search-bing": {
+        "Ms": 686,
+        "Specific": 3,
+        "Block": "",
+        "NavOk": true
+      },
+      "disposeMs": 1439,
+      "browserExited": true
+    }
+  ],
+  "probeFocus": {
+    "checks": 14,
+    "checksChanged": 0,
+    "checksForegroundOurs": 0,
+    "samplerChanges": 0,
+    "samplerChangesToOurs": 0
+  },
+  "search": {
+    "options": {
+      "window": "NeverShown",
+      "controllerVisible": true
+    },
+    "cost": {
+      "createMs": 657,
+      "EnvMs": 262,
+      "ControllerMs": 362,
+      "coldFirstResultMs": 7170,
+      "firstSearchMs": 3363,
+      "secondSearchMs": 3368,
+      "memAfterCreate": {
+        "Processes": 5,
+        "PrivateMb": 123.6,
+        "WorkingSetMb": 288.5
+      },
+      "memDuringMaxPrivateMb": 1041.7,
+      "memDuringMaxWorkingSetMb": 1287.7,
+      "memDuringMaxProcesses": 9,
+      "memIdleAfterSearch": {
+        "Processes": 7,
+        "PrivateMb": 593.7,
+        "WorkingSetMb": 876.8
+      },
+      "DisposeMs": 316,
+      "BrowserExited": true
+    },
+    "engines": [
+      {
+        "engine": "ddg-html",
+        "queries": 10,
+        "successSpecific": 10,
+        "successGeneric": 10,
+        "avgOverlap": 5,
+        "blocks": 0,
+        "blockKinds": [],
+        "firstBlockAtQuery": null,
+        "consentBanner": 0,
+        "medianMs": 1755,
+        "worstMs": 3363
+      },
+      {
+        "engine": "ddg",
+        "queries": 10,
+        "successSpecific": 10,
+        "successGeneric": 10,
+        "avgOverlap": 5,
+        "blocks": 0,
+        "blockKinds": [],
+        "firstBlockAtQuery": null,
+        "consentBanner": 0,
+        "medianMs": 1303,
+        "worstMs": 3368
+      },
+      {
+        "engine": "bing",
+        "queries": 10,
+        "successSpecific": 3,
+        "successGeneric": 5,
+        "avgOverlap": 1.3,
+        "blocks": 0,
+        "blockKinds": [],
+        "firstBlockAtQuery": null,
+        "consentBanner": 10,
+        "medianMs": 765,
+        "worstMs": 10280
+      },
+      {
+        "engine": "google",
+        "queries": 10,
+        "successSpecific": 0,
+        "successGeneric": 0,
+        "avgOverlap": 0,
+        "blocks": 0,
+        "blockKinds": [],
+        "firstBlockAtQuery": null,
+        "consentBanner": 0,
+        "medianMs": 0,
+        "worstMs": 10284
+      },
+      {
+        "engine": "brave",
+        "queries": 3,
+        "successSpecific": 0,
+        "successGeneric": 0,
+        "avgOverlap": 0,
+        "blocks": 3,
+        "blockKinds": [
+          "captcha-text"
+        ],
+        "firstBlockAtQuery": 1,
+        "consentBanner": 0,
+        "medianMs": 0,
+        "worstMs": 3294
+      },
+      {
+        "engine": "startpage",
+        "queries": 10,
+        "successSpecific": 10,
+        "successGeneric": 10,
+        "avgOverlap": 5,
+        "blocks": 0,
+        "blockKinds": [],
+        "firstBlockAtQuery": null,
+        "consentBanner": 0,
+        "medianMs": 1008,
+        "worstMs": 1378
+      }
+    ],
+    "stoppedEngines": [
+      "brave"
+    ],
+    "focus": {
+      "checks": 57,
+      "checksChanged": 0,
+      "checksForegroundOurs": 0,
+      "samplerChanges": 0,
+      "samplerChangesToOurs": 0
+    },
+    "reads": [
+      {
+        "host": "www.ricardocuisine.com",
+        "navOk": true,
+        "status": 200,
+        "navMs": 4315,
+        "totalMs": 5846,
+        "extract": {
+          "cmpFrames": 0,
+          "len": 6369,
+          "overlays": [
+            {
+              "cookie": true,
+              "pct": 100,
+              "tag": "div"
+            },
+            {
+              "cookie": false,
+              "pct": 102,
+              "tag": "div"
+            }
+          ],
+          "src": "div",
+          "words": 1124
+        }
+      },
+      {
+        "host": "learn.microsoft.com",
+        "navOk": true,
+        "status": 200,
+        "navMs": 1642,
+        "totalMs": 3187,
+        "extract": {
+          "cmpFrames": 0,
+          "len": 135,
+          "overlays": [],
+          "src": "article",
+          "words": 18
+        }
+      },
+      {
+        "host": "www.regulation-ai.eu",
+        "navOk": true,
+        "status": 200,
+        "navMs": 1216,
+        "totalMs": 2728,
+        "extract": {
+          "cmpFrames": 0,
+          "len": 7460,
+          "overlays": [
+            {
+              "cookie": false,
+              "pct": 62,
+              "tag": "aside"
+            },
+            {
+              "cookie": true,
+              "pct": 37,
+              "tag": "div"
+            }
+          ],
+          "src": "main",
+          "words": 1181
+        }
+      }
+    ]
+  },
+  "bingRerunTextContent": [
+    {
+      "engine": "bing",
+      "queries": 3,
+      "successSpecific": 3,
+      "successGeneric": 3,
+      "avgOverlap": 3,
+      "blocks": 0,
+      "blockKinds": [],
+      "firstBlockAtQuery": null,
+      "consentBanner": 3,
+      "medianMs": 478,
+      "worstMs": 635
+    }
+  ],
+  "security": {
+    "settings": {
+      "IsPasswordAutosaveEnabled": false,
+      "IsGeneralAutofillEnabled": false,
+      "AreHostObjectsAllowed": false,
+      "IsWebMessageEnabled": false,
+      "AreDefaultScriptDialogsEnabled": false,
+      "AreDevToolsEnabled": false
+    },
+    "hostObjects": {
+      "page": {
+        "hostObjects": "function",
+        "post": "sent",
+        "webview": "object"
+      },
+      "webMessagesReceived": 0
+    },
+    "dialogs": {
+      "page": [
+        "undefined",
+        "false",
+        "null"
+      ],
+      "dialogEvents": [
+        "Alert",
+        "Confirm",
+        "Prompt"
+      ]
+    },
+    "permissions": {
+      "page": {
+        "camera": "NotAllowedError",
+        "geo": "error code 1",
+        "mic": "NotAllowedError",
+        "notifications": "denied"
+      },
+      "requestedKinds": []
+    },
+    "newWindow": {
+      "afterWindowOpen": "https://e15.test/target.html?via=open",
+      "afterTargetBlank": "https://e15.test/target.html?via=blank",
+      "events": [
+        "https://e15.test/target.html?via=open",
+        "https://e15.test/target.html?via=blank"
+      ]
+    },
+    "download": {
+      "fileBinNav": {
+        "Ok": false,
+        "Status": 0,
+        "Error": "ConnectionAborted",
+        "Ms": 47
+      },
+      "events": [
+        "data:application/octet-stream;base64,SGVsbG8=",
+        "https://e15.test/file.bin"
+      ],
+      "filesInDownloadFolder": 0
+    },
+    "externalScheme": {
+      "eventsForUnregisteredScheme": 0,
+      "eventsWithoutGesture": 0,
+      "events": [
+        "mailto:nobody@example.invalid"
+      ],
+      "sourceAfter": "https://e15.test/download.html"
+    },
+    "network-control-unguarded": {
+      "topNavigations": [
+        {
+          "url": "http://127.0.0.1:63790/ctl-top",
+          "Ok": true,
+          "Status": 200,
+          "Error": "Unknown",
+          "landedOn": "http://127.0.0.1:63790/ctl-top"
+        },
+        {
+          "url": "http://localtest.me:63790/ctl-dnstop",
+          "Ok": true,
+          "Status": 200,
+          "Error": "Unknown",
+          "landedOn": "http://localtest.me:63790/ctl-dnstop"
+        },
+        {
+          "url": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fctl-redirtop",
+          "Ok": false,
+          "Status": 403,
+          "Error": "Unknown",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fctl-redirtop"
+        },
+        {
+          "url": "http://e15-public.example/redirect?to=http%3A%2F%2F127.0.0.1%3A63790%2Fctl-synredirtop",
+          "Ok": true,
+          "Status": 200,
+          "Error": "Unknown",
+          "landedOn": "http://127.0.0.1:63790/ctl-synredirtop"
+        }
+      ],
+      "subresourceFromHttpsPage": {
+        "dnsFetch": "TypeError",
+        "fetch": "ok opaque",
+        "redirFetch": "TypeError"
+      },
+      "subresourceFromHttpPage": {
+        "dnsFetch": "ok opaque",
+        "fetch": "ok opaque",
+        "redirFetch": "ok opaque"
+      },
+      "serverHits": [
+        "GET /ctl-top",
+        "GET /ctl-dnstop",
+        "GET /ctl-synredirtop",
+        "GET /ctl-frame",
+        "GET /ctl-script",
+        "GET /ctl-fetch",
+        "GET /ctl-img",
+        "GET /ctl-redirimg"
+      ],
+      "serverHitsFromHttpPage": [
+        "GET /ctlp-frame",
+        "GET /ctlp-script",
+        "GET /ctlp-img",
+        "GET /ctlp-fetch",
+        "GET /ctlp-redirfetch",
+        "GET /ctlp-redirimg",
+        "GET /ctlp-dnsfetch"
+      ],
+      "blockedNavigations": [],
+      "blockedRequests": []
+    },
+    "network-guarded": {
+      "topNavigations": [
+        {
+          "url": "http://127.0.0.1:63790/on-top",
+          "Ok": false,
+          "Status": 0,
+          "Error": "OperationCanceled",
+          "landedOn": "http://e15-public.example/subres.html?tag=ctlp"
+        },
+        {
+          "url": "http://localtest.me:63790/on-dnstop",
+          "Ok": false,
+          "Status": 403,
+          "Error": "Unknown",
+          "landedOn": "http://localtest.me:63790/on-dnstop"
+        },
+        {
+          "url": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop",
+          "Ok": false,
+          "Status": 403,
+          "Error": "Unknown",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop"
+        },
+        {
+          "url": "http://e15-public.example/redirect?to=http%3A%2F%2F127.0.0.1%3A63790%2Fon-synredirtop",
+          "Ok": false,
+          "Status": 0,
+          "Error": "OperationCanceled",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop"
+        },
+        {
+          "url": "http://192.168.255.254/on-lantop",
+          "Ok": false,
+          "Status": 0,
+          "Error": "OperationCanceled",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop"
+        },
+        {
+          "url": "http://2130706433:63790/on-decimal",
+          "Ok": false,
+          "Status": 0,
+          "Error": "OperationCanceled",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop"
+        },
+        {
+          "url": "http://0x7f.0.0.1:63790/on-hex",
+          "Ok": false,
+          "Status": 0,
+          "Error": "OperationCanceled",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop"
+        },
+        {
+          "url": "http://[::1]:63790/on-v6",
+          "Ok": false,
+          "Status": 0,
+          "Error": "OperationCanceled",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop"
+        },
+        {
+          "url": "http://localhost:63790/on-localhost",
+          "Ok": false,
+          "Status": 0,
+          "Error": "OperationCanceled",
+          "landedOn": "https://httpbingo.org/redirect-to?url=http%3A%2F%2F127.0.0.1%3A63790%2Fon-redirtop"
+        },
+        {
+          "url": "http://127.0.0.1.nip.io:63790/on-nip",
+          "Ok": false,
+          "Status": 403,
+          "Error": "Unknown",
+          "landedOn": "http://127.0.0.1.nip.io:63790/on-nip"
+        }
+      ],
+      "subresourceFromHttpsPage": {
+        "dnsFetch": "TypeError",
+        "fetch": "ok opaque",
+        "lanFetch": "TypeError",
+        "redirFetch": "TypeError"
+      },
+      "subresourceFromHttpPage": {
+        "dnsFetch": "ok opaque",
+        "fetch": "ok opaque",
+        "lanFetch": "ok opaque",
+        "redirFetch": "ok opaque"
+      },
+      "serverHits": [],
+      "serverHitsFromHttpPage": [],
+      "blockedNavigations": [
+        "http://127.0.0.1:63790/on-top",
+        "redirect http://127.0.0.1:63790/on-synredirtop",
+        "http://192.168.255.254/on-lantop",
+        "http://127.0.0.1:63790/on-decimal",
+        "http://127.0.0.1:63790/on-hex",
+        "http://[::1]:63790/on-v6",
+        "http://localhost:63790/on-localhost",
+        "http://127.0.0.1:63790/on-frame",
+        "http://127.0.0.1:63790/onp-frame"
+      ],
+      "blockedRequests": [
+        "literal Document http://127.0.0.1:63790/on-top",
+        "dns Document http://localtest.me:63790/on-dnstop",
+        "literal Document http://127.0.0.1:63790/on-synredirtop",
+        "literal Document http://192.168.255.254/on-lantop",
+        "literal Document http://127.0.0.1:63790/on-decimal",
+        "literal Document http://127.0.0.1:63790/on-hex",
+        "literal Document http://[::1]:63790/on-v6",
+        "literal Document http://localhost:63790/on-localhost",
+        "dns Document http://127.0.0.1.nip.io:63790/on-nip",
+        "literal Document http://127.0.0.1:63790/on-frame",
+        "literal Script http://127.0.0.1:63790/on-script",
+        "literal Image http://127.0.0.1:63790/on-img",
+        "literal XmlHttpRequest http://127.0.0.1:63790/on-fetch",
+        "literal Image http://127.0.0.1:63790/on-redirimg",
+        "literal Document http://127.0.0.1:63790/onp-frame",
+        "literal Script http://127.0.0.1:63790/onp-script",
+        "literal Image http://127.0.0.1:63790/onp-img",
+        "literal XmlHttpRequest http://127.0.0.1:63790/onp-fetch",
+        "dns XmlHttpRequest http://localtest.me:63790/onp-dnsfetch",
+        "literal XmlHttpRequest http://192.168.255.254/on-lanfetch",
+        "literal Image http://192.168.255.254/on-lanimg",
+        "literal XmlHttpRequest http://127.0.0.1:63790/onp-redirfetch",
+        "literal Image http://127.0.0.1:63790/onp-redirimg"
+      ]
+    },
+    "focus": {
+      "checks": 35,
+      "checksChanged": 0,
+      "checksForegroundOurs": 0,
+      "samplerChanges": 2,
+      "samplerChangesToOurs": 0
+    },
+    "violation": null
+  },
+  "profile": [
+    {
+      "step": "set",
+      "before": {
+        "cookies": 75,
+        "domains": 22,
+        "probePresent": false
+      },
+      "after": {
+        "cookies": 76,
+        "domains": 23,
+        "probePresent": true
+      },
+      "clearMs": 0,
+      "DisposeMs": 205
+    },
+    {
+      "step": "clear",
+      "before": {
+        "cookies": 76,
+        "domains": 23,
+        "probePresent": true
+      },
+      "after": {
+        "cookies": 0,
+        "domains": 0,
+        "probePresent": false
+      },
+      "clearMs": 250,
+      "DisposeMs": 264
+    },
+    {
+      "step": "check",
+      "before": {
+        "cookies": 0,
+        "domains": 0,
+        "probePresent": false
+      },
+      "after": {
+        "cookies": 0,
+        "domains": 0,
+        "probePresent": false
+      },
+      "clearMs": 0,
+      "DisposeMs": 214
+    }
+  ]
+}

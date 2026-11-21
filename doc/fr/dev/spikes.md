@@ -52,6 +52,7 @@ Faits sur le PC de Benoit par un agent en contrôle à distance (chantier `stage
 | E12 permissions et hooks de Claude Code | **Réussi, trois surprises** | Refus et accords de l'outil MCP de `--permission-prompt-tool` respectés ; les cinq hooks atteignent `/hook/…` et voient `RELAIS_TASK_ID` ; `SessionStart` n'accepte que les hooks `command` ; `CLAUDE.md` vient avec la source `project` et ses hooks. 0,009 $ la session. | [e12-claude-code-permissions](../../../spikes/e12-claude-code-permissions/RESULTS.md) |
 | E13 outils en anglais | **Réussi** | `qwen3:14b` : 117 sur 117 en anglais, en français et en mélange, tous par le canal officiel, 0,9 s ; `kind` de `hand_off_to_claude` juste 43 fois sur 45. | [e13-tool-calls-english](../../../spikes/e13-tool-calls-english/RESULTS.md) |
 | E14 MCP Home Assistant | **Réussi, mise en garde** | `ModelContextProtocol` 2.4.0, HTTP « streamable » sans état : 47 outils devenus `AIFunction`, lecture en 0,3 s, lumière allumée puis remise éteinte, reprise après coupure ; `HassTurnOff` déverrouille aussi les serrures et les étiquettes ne passent pas par MCP. | [e14-mcp-home-assistant](../../../spikes/e14-mcp-home-assistant/RESULTS.md) |
+| E15 recherche par navigateur interne | **Réussi** | WebView2 dans une fenêtre WPF jamais affichée : 0 prise du premier plan sur 180 vérifications ; DuckDuckGo et Startpage 10 sur 10 en 1 à 1,8 s, Google illisible, Brave bloqué ; lecture seule et réseau local bloqués par l'hôte (0 requête sur 18) ; 124 Mo au repos, 1 Go en pointe. | [e15-webview-search](../../../spikes/e15-webview-search/RESULTS.md) |
 
 ## Décisions proposées après E11 à E14
 
@@ -104,3 +105,27 @@ ils l'emportent. Elles s'écrivent dans les ADR du chantier 2 (indiqués à la f
 Ce qui reste après ces essais : le jugement de Benoit sur la fluidité de l'éventail et le confort du simple
 clic, la confirmation à la voix avec un vrai délai (l'expiration de l'appel MCP par Claude Code n'est pas
 mesurée), et les 47 outils de Home Assistant donnés au modèle local.
+
+## Après E15 (20 novembre 2026)
+
+L'essai E15 prouve le navigateur interne de l'[ADR 0022](adr/0022-in-app-browser-for-web-search.md), fait sur le
+PC de Benoit pendant qu'il travaillait. Le premier essai E15, sur Edge piloté par Playwright, a été arrêté à sa
+demande et rien n'en est gardé. Ce que l'essai fixe pour le chantier `stage2/5-basic-tools` :
+
+1. **Moteur par défaut : DuckDuckGo en version HTML** (`html.duckduckgo.com`), page sans script, la plus simple
+   à lire. Repli : Startpage, puis Bing. Google (adresses cachées) et Brave Search par sa page (bloqué dès la
+   première requête) ne sont pas proposés. Brave par son API reste le second fournisseur (ADR 0017).
+2. **Fenêtre :** WPF jamais affichée (`EnsureHandle`, sans `Show`), hors barre des tâches, sans activation
+   (`WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW`), **contrôleur WebView2 gardé visible**. Avec le contrôleur caché, la
+   page est bridée et une capture attend plus de deux minutes. `Show()` sans activation pour « Voir la page ».
+3. **Adresses refusées :** le contrôle se fait dans `NavigationStarting`, `FrameNavigationStarting` et
+   `WebResourceRequested`, **avec résolution DNS** : un nom public qui pointe vers 127.0.0.1 passe un contrôle
+   fait sur le texte seul.
+4. **Mémoire :** fermer le navigateur après un temps sans usage et le recréer (0,6 s) : la mémoire ne redescend
+   pas d'elle-même après des recherches (594 Mo au repos).
+5. **Lire une page :** prendre le plus long des blocs `main` ou `article`, pas le premier ; retirer le texte des
+   bandeaux de consentement. Une heuristique générique (« lien qui contient un titre ») sert de filet quand un
+   moteur change sa page.
+
+Non vérifié par E15 : le « DNS rebinding », l'enregistrement réel des mots de passe (les réglages sont
+seulement relus), la tenue des moteurs sur la durée (une série de 10 requêtes), le coût en processeur.
