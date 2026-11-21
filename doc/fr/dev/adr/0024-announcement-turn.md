@@ -2,8 +2,7 @@
 
 ## Statut
 
-Proposé le 2026-11-21 (chantier `stage2/13-announcement-turn-adr`). En attente de la réponse de Benoit à la
-question posée dans la conversation.
+Accepté par Benoit le 2026-11-21 (proposé le même jour, chantier `stage2/13-announcement-turn-adr`).
 
 - **Complète :** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md) : une ligne de plus dans la
   table des transitions. Aucune phase et aucun aspect ne s'ajoute ; aucune ligne existante ne change.
@@ -67,10 +66,11 @@ table est ignorée, et que la table est le contrat : il faut un ADR pour y ajout
   la publie le décide (réglage par dossier, heures de silence).
 - La tranche de la voix ne change pas : elle dit les phrases d'un tour.
 
-## Question à Benoit
+## Réponse de Benoit
 
-Posée dans la conversation le 2026-11-21 : comment Jarvis dit une annonce que personne n'a demandée. La
-recommandation est cet ADR (un tour d'annonce). Sa réponse sera reprise ici quand l'ADR sera accepté.
+Question posée dans la conversation le 2026-11-21 : comment Jarvis dit une annonce que personne n'a demandée.
+Trois choix : un tour d'annonce (recommandé, cet ADR), une parole hors de tout tour, ou rien à voix haute.
+Benoit a répondu « Ok » le même jour : il prend la recommandation, le tour d'annonce.
 
 ## Options écartées
 
