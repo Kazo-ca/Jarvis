@@ -74,6 +74,18 @@ public interface ITool
     /// <returns>The sentence, or <see langword="null"/>.</returns>
     string? Discloses(AssistantLanguage language) => null;
 
+    /// <summary>
+    /// Whether the result of the tool holds a content that comes from outside the conversation: a file, a web page,
+    /// the answer of a tool server. After such a call, the turn holds a text nobody checked.
+    /// </summary>
+    bool ReadsOutsideContent => false;
+
+    /// <summary>
+    /// Whether the tool is refused once the turn holds the result of a tool that <see cref="ReadsOutsideContent"/>
+    /// (ADR 0019, section 3): its arguments come from the model, which may repeat what it just read.
+    /// </summary>
+    bool RefusedAfterOutsideContent => false;
+
     /// <summary>Runs the call. Only called after the decision point allowed it.</summary>
     /// <param name="arguments">The arguments of the call, a JSON object.</param>
     /// <param name="cancellationToken">Cancelled by an interruption or by the time limit of a call.</param>

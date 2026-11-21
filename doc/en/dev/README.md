@@ -23,6 +23,7 @@
 | [tools.md](tools.md) | Tools: kernel contracts, permission decision point and its log, tool loop, time and calculation |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [first-run.md](first-run.md) | First run: setup wizard, "Voice models" page (checked downloads), Ollama search |
+| [conversation-memory.md](conversation-memory.md) | Conversation memory: facts and summary, extraction by the local model from the words of the user only, block sent to the model, tools `remember_fact`, `forget_fact`, `search_memory`, "Memory" page |
 | [faults.md](faults.md) | Faults: named causes, corrective action, link to the right setting, "Jarvis problem" window |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |

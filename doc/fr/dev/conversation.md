@@ -51,7 +51,9 @@ appels par le point de décision des permissions : voir [tools.md](tools.md).
   ressources `PromptTexts`), puis les **règles fixes** : répondre dans la langue du tour, un texte fait pour
   être dit (ni Markdown, ni listes, ni emoji, ni code, des phrases courtes), la date et l'heure locales.
 - **Historique envoyé au modèle** : les derniers tours répondus qui tiennent dans environ la moitié du
-  contexte du fournisseur (3 caractères par jeton), 20 tours au plus.
+  contexte du fournisseur (3 caractères par jeton), 20 tours au plus et, quand la mémoire est en service,
+  aucun tour d'avant un silence de 2 heures. Le bloc de la mémoire s'ajoute au message système après les
+  règles fixes ([conversation-memory.md](conversation-memory.md)).
 - **`ConversationJournal`** : les tours de la collection `Conversation.Turns` (lus une fois, au premier
   besoin) et le tour en cours. Un tour est enregistré **quand il finit** : répondu, interrompu (avec ce qui
   était écrit) ou en échec (avec la cause). Ce qui est enregistré (ADR 0007, section 7) : demande, réponse,
@@ -92,7 +94,7 @@ Les ADR ne les tranchent pas ; à confirmer par Benoit :
 2. **Markdown retiré de ce qui est dit**, gardé dans la réponse écrite.
 3. **Historique** : derniers tours répondus, 20 au plus, dans la moitié du contexte ; les tours interrompus ou
    en échec ne sont pas renvoyés au modèle ; **pas de limite d'âge** (un tour d'hier compte) jusqu'au résumé de
-   l'étape 2.
+   l'étape 2. *(Levé par le chantier `stage2/8-memory` : silence de 2 heures, réglable.)*
 4. **Un tour est enregistré à sa fin**. Une écoute annulée ou sans mots n'est pas enregistrée.
 5. **Panne du modèle au milieu d'une réponse dite** : la voix se tait, l'orbe passe en erreur.
 6. **Personnalité** : les deux langues sur la même page ; enregistrer le texte du majordome ou un texte vide

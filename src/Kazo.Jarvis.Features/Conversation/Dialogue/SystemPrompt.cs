@@ -48,8 +48,9 @@ public sealed class SystemPrompt
     /// <summary>The whole system message for a turn in <paramref name="language"/>.</summary>
     /// <param name="language">The language of the turn.</param>
     /// <param name="withTools">Whether tools are given to the model in this turn; the rules then say how to use them.</param>
-    /// <returns>The personality, a blank line, then the fixed rules.</returns>
-    public string Build(AssistantLanguage language, bool withTools = false)
+    /// <param name="memory">The block of the memory (ADR 0019, section 6), written by its slice, or <see langword="null"/>.</param>
+    /// <returns>The personality, a blank line, the fixed rules, then the memory.</returns>
+    public string Build(AssistantLanguage language, bool withTools = false, string? memory = null)
     {
         ArgumentNullException.ThrowIfNull(language);
         var rules = Texts.GetString("Rules", language.Culture) ?? "{0}";
@@ -58,7 +59,8 @@ public sealed class SystemPrompt
         var now = time.GetLocalNow();
         var moment = now.ToString("F", language.Culture);
         var text = Personality(language).Trim() + "\n\n" + string.Format(CultureInfo.InvariantCulture, rules, moment);
-        return withTools ? text + "\n" + Text("Tools", language) : text;
+        text = withTools ? text + "\n" + Text("Tools", language) : text;
+        return string.IsNullOrWhiteSpace(memory) ? text : text + "\n\n" + memory.Trim();
     }
 
     /// <summary>A fixed text of the prompt resources, in <paramref name="language"/>: a rule, or what a denied or failed tool call returns to the model.</summary>

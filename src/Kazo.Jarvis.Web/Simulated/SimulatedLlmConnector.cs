@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Kazo.Jarvis.Features.Conversation.Memory;
+using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Llm;
 using Microsoft.Extensions.AI;
 
@@ -19,12 +21,15 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// for <c>web_search</c>, « lis la page … » for <c>fetch_url</c>, « cours de l'action … », « envoie le message … » and
 /// « lance le dé » for the tools of the simulated tool servers (<c>lookup_stock</c>, <c>send_message</c>, <c>roll_dice</c>),
 /// « allume … », « éteins … » (« tout dans la pièce … » for a room) and « lance le script … » for the simulated Home Assistant,
-/// and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
+/// « souviens-toi que … », « oublie que … » and « que sais-tu sur … » for the tools of the memory, « que retiens-tu »
+/// to hear back the memory block the model received, and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
 /// </summary>
 public sealed partial class SimulatedLlmConnector : ILlmConnector
 {
+    private static readonly System.Text.Json.JsonSerializerOptions RelaxedJson = new() { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+
     private const string Answer = "Bonsoir, Monsieur. Ceci est une réponse simulée : aucun modèle n'a été appelé.";
 
     private readonly InMemorySecretVault vault;
@@ -160,6 +165,14 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         {
             await owner.CheckAsync(provider, cancellationToken).ConfigureAwait(false);
             var last = messages.LastOrDefault();
+            if (MemoryWork(last?.Text ?? string.Empty, options) is { } work)
+            {
+                // The two background requests of the memory (stage2/8-memory): no tool, no personality.
+                await Task.Delay(40, cancellationToken).ConfigureAwait(false);
+                yield return new ChatResponseUpdate(ChatRole.Assistant, work) { ModelId = provider.Model, FinishReason = ChatFinishReason.Stop };
+                yield break;
+            }
+
             if (last?.Role == ChatRole.User && ToolCall(last.Text, options) is { } call)
             {
                 await Task.Delay(40, cancellationToken).ConfigureAwait(false);
@@ -168,7 +181,9 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
             }
 
             var result = last?.Role == ChatRole.Tool ? last.Contents.OfType<FunctionResultContent>().LastOrDefault()?.Result?.ToString() : null;
-            var answer = result is null ? Answer : "Résultat de l'outil, Monsieur : " + result;
+            var answer = result is not null ? "Résultat de l'outil, Monsieur : " + result
+                : last?.Role == ChatRole.User && RecallRequest().IsMatch(last.Text) ? Recalled(options?.Instructions)
+                : Answer;
             foreach (var word in answer.Split(' '))
             {
                 await Task.Delay(40, cancellationToken).ConfigureAwait(false);
@@ -184,6 +199,57 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
 
         public object? GetService(Type serviceType, object? serviceKey = null) =>
             serviceKey is null && serviceType == typeof(LlmProvider) ? provider : null;
+
+        /// <summary>
+        /// The answer to a background request of the memory, recognized by its instructions: a fact drawn from
+        /// « je m'appelle … » or « j'habite à … » and nothing from anything else, or a summary that counts the
+        /// exchanges it was given.
+        /// </summary>
+        private static string? MemoryWork(string request, ChatOptions? options)
+        {
+            var instructions = options?.Instructions;
+            if (instructions is null)
+            {
+                return null;
+            }
+
+            if (AssistantLanguage.Supported.Any(language => instructions == MemoryPrompts.Extraction(language)))
+            {
+                var facts = new List<string>();
+                if (NameSaid().Match(request) is { Success: true } name)
+                {
+                    facts.Add($"L'utilisateur s'appelle {name.Groups[1].Value}.");
+                }
+
+                if (HomeSaid().Match(request) is { Success: true } home)
+                {
+                    facts.Add($"L'utilisateur habite à {home.Groups[1].Value}.");
+                }
+
+                return System.Text.Json.JsonSerializer.Serialize(facts, RelaxedJson);
+            }
+
+            return AssistantLanguage.Supported.Any(language => instructions == MemoryPrompts.Summary(language))
+                ? $"Résumé simulé : {ExchangeLine().Matches(request).Count} échange(s) résumé(s)."
+                : null;
+        }
+
+        /// <summary>What the memory block of the system message holds, said back: the tests see what the model received.</summary>
+        private static string Recalled(string? instructions)
+        {
+            // The block is written in the language of the turn.
+            foreach (var (opening, closing) in new[] { ("[Mémoire]", "[Fin de la mémoire]"), ("[Memory]", "[End of memory]") })
+            {
+                var start = instructions?.LastIndexOf(opening, StringComparison.Ordinal) ?? -1;
+                var end = instructions?.LastIndexOf(closing, StringComparison.Ordinal) ?? -1;
+                if (start >= 0 && end > start)
+                {
+                    return "Je retiens ceci, Monsieur : " + instructions![(start + opening.Length)..end].ReplaceLineEndings(" ").Trim();
+                }
+            }
+
+            return "Je ne retiens rien, Monsieur.";
+        }
 
         /// <summary>The tool call the words of <paramref name="request"/> ask for, when that tool is offered.</summary>
         private static FunctionCallContent? ToolCall(string request, ChatOptions? options)
@@ -254,6 +320,22 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_dice", dice, new Dictionary<string, object?>());
             }
 
+            // Tools of the memory (stage2/8-memory).
+            if (RememberRequest().Match(request) is { Success: true } remember && Offered("remember_fact"))
+            {
+                return new FunctionCallContent("call_remember", "remember_fact", new Dictionary<string, object?> { ["text"] = Sentence(remember.Groups[1].Value) });
+            }
+
+            if (ForgetRequest().Match(request) is { Success: true } forget && Offered("forget_fact"))
+            {
+                return new FunctionCallContent("call_forget", "forget_fact", new Dictionary<string, object?> { ["text"] = Sentence(forget.Groups[1].Value) });
+            }
+
+            if (KnownRequest().Match(request) is { Success: true } known && Offered("search_memory"))
+            {
+                return new FunctionCallContent("call_search_memory", "search_memory", new Dictionary<string, object?> { ["query"] = Sentence(known.Groups[1].Value) });
+            }
+
             // Tools of the simulated Home Assistant (stage2/7-home-assistant).
             if (ScriptRequest().Match(request) is { Success: true } script && OfferedAs("script__" + script.Groups[1].Value) is { } run)
             {
@@ -276,6 +358,8 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
                 : null;
         }
+
+        private static string Sentence(string words) => words.Trim().TrimEnd('.', '!', '?').Trim();
 
         /// <summary>« tout dans la pièce X » aims at a room, anything else names a device.</summary>
         private static Dictionary<string, object?> HomeTarget(string words)
@@ -326,6 +410,27 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
 
     [GeneratedRegex(@"^(?:tout dans la pièce|everything in the room)\s+(.+)$", RegexOptions.IgnoreCase)]
     private static partial Regex RoomRequest();
+
+    [GeneratedRegex(@"(?:souviens-toi que|retiens que|remember that)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex RememberRequest();
+
+    [GeneratedRegex(@"(?:oublie que|forget that)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex ForgetRequest();
+
+    [GeneratedRegex(@"(?:que sais-tu sur|what do you know about)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex KnownRequest();
+
+    [GeneratedRegex(@"que retiens-tu|what do you remember", RegexOptions.IgnoreCase)]
+    private static partial Regex RecallRequest();
+
+    [GeneratedRegex(@"je m'appelle\s+(\p{L}+)", RegexOptions.IgnoreCase)]
+    private static partial Regex NameSaid();
+
+    [GeneratedRegex(@"j'habite à\s+(\p{L}+)", RegexOptions.IgnoreCase)]
+    private static partial Regex HomeSaid();
+
+    [GeneratedRegex(@"^(?:Utilisateur :|User:)", RegexOptions.Multiline)]
+    private static partial Regex ExchangeLine();
 
     [GeneratedRegex(@"lance le dé|roll the die", RegexOptions.IgnoreCase)]
     private static partial Regex DiceRequest();

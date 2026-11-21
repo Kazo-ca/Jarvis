@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Mémoire</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Ce que Jarvis retient de vous d'une conversation à l'autre : des faits courts et un résumé des anciens échanges. Tout reste sur cet ordinateur, et vous pouvez l'effacer ici.</value>
+  </data>
+  <data name="SwitchesLabel" xml:space="preserve">
+    <value>Ce que Jarvis peut faire</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Utiliser la mémoire</value>
+  </data>
+  <data name="EnabledHint" xml:space="preserve">
+    <value>Coupée : rien n'est retenu et rien n'est rappelé au modèle. Ce qui est déjà retenu reste visible ci-dessous.</value>
+  </data>
+  <data name="Automatic" xml:space="preserve">
+    <value>Retenir des faits tout seul</value>
+  </data>
+  <data name="AutomaticHint" xml:space="preserve">
+    <value>Après chaque échange, le modèle local relit ce que vous avez dit, et seulement cela, et retient jusqu'à trois faits durables. Coupé : Jarvis ne retient un fait que sur demande (« souviens-toi que… »).</value>
+  </data>
+  <data name="FactsLabel" xml:space="preserve">
+    <value>Faits</value>
+  </data>
+  <data name="FactsHint" xml:space="preserve">
+    <value>Le modèle reçoit d'abord les faits épinglés, puis les plus récents, jusqu'à environ {0} caractères avec le résumé. Les autres se retrouvent quand Jarvis cherche dans sa mémoire.</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Jarvis ne retient encore aucun fait.</value>
+  </data>
+  <data name="Source_Asked" xml:space="preserve">
+    <value>sur demande</value>
+  </data>
+  <data name="Source_Auto" xml:space="preserve">
+    <value>automatique</value>
+  </data>
+  <data name="Source_Manual" xml:space="preserve">
+    <value>tapé ici</value>
+  </data>
+  <data name="Sent" xml:space="preserve">
+    <value>envoyé au modèle</value>
+  </data>
+  <data name="NotSent" xml:space="preserve">
+    <value>non envoyé (hors budget)</value>
+  </data>
+  <data name="Pinned" xml:space="preserve">
+    <value>Épinglé</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Effacer</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Un fait à retenir</value>
+  </data>
+  <data name="AddPlaceholder" xml:space="preserve">
+    <value>Par exemple : L'utilisateur préfère les réponses courtes.</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="Add_AlreadyKnown" xml:space="preserve">
+    <value>Jarvis retient déjà ce fait.</value>
+  </data>
+  <data name="Add_Empty" xml:space="preserve">
+    <value>Le fait est vide.</value>
+  </data>
+  <data name="Add_TooLong" xml:space="preserve">
+    <value>Un fait a 200 caractères au plus.</value>
+  </data>
+  <data name="Add_LooksLikeSecret" xml:space="preserve">
+    <value>Cela ressemble à un mot de passe, une clé ou un numéro de carte. Jarvis n'en garde jamais dans sa mémoire.</value>
+  </data>
+  <data name="Add_Full" xml:space="preserve">
+    <value>La mémoire est pleine. Effacez d'abord des faits.</value>
+  </data>
+  <data name="Add_Unavailable" xml:space="preserve">
+    <value>Le fait n'a pas pu être enregistré.</value>
+  </data>
+  <data name="SummaryLabel" xml:space="preserve">
+    <value>Résumé des anciens échanges</value>
+  </data>
+  <data name="SummaryHint" xml:space="preserve">
+    <value>Écrit par le modèle local à partir de vos demandes et des réponses de Jarvis, sans les résultats des outils. Il remplace les échanges qui ne sont plus envoyés mot pour mot.</value>
+  </data>
+  <data name="NoSummary" xml:space="preserve">
+    <value>Pas encore de résumé.</value>
+  </data>
+  <data name="EraseSummary" xml:space="preserve">
+    <value>Effacer le résumé</value>
+  </data>
+  <data name="SilenceLabel" xml:space="preserve">
+    <value>Silence après lequel un échange est ancien (minutes)</value>
+  </data>
+  <data name="SilenceHint" xml:space="preserve">
+    <value>Après ce temps sans demande, les échanges précédents ne sont plus envoyés mot pour mot : seul le résumé les rappelle. De {0} à {1} minutes ; 120 par défaut.</value>
+  </data>
+  <data name="EraseLabel" xml:space="preserve">
+    <value>Tout effacer</value>
+  </data>
+  <data name="EraseHint" xml:space="preserve">
+    <value>Efface tous les faits et le résumé. La conversation elle-même s'efface depuis sa propre fenêtre.</value>
+  </data>
+  <data name="EraseAll" xml:space="preserve">
+    <value>Effacer toute la mémoire</value>
+  </data>
+  <data name="EraseConfirm" xml:space="preserve">
+    <value>Effacer tous les faits et le résumé ? C'est définitif.</value>
+  </data>
+  <data name="EraseYes" xml:space="preserve">
+    <value>Oui, effacer</value>
+  </data>
+  <data name="EraseNo" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le fichier des réglages ne peut pas être écrit.</value>
+  </data>
+</root>

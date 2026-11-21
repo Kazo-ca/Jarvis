@@ -45,6 +45,7 @@ public sealed partial class ConversationEngine
         ActionRequester requester,
         AssistantLanguage turnLanguage,
         HashSet<string> denied,
+        OutsideContent outside,
         int index,
         CancellationToken token)
     {
@@ -87,6 +88,13 @@ public sealed partial class ConversationEngine
             return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_Again", turnLanguage), denial: "Again");
         }
 
+        // A tool that writes what the model tells it is refused once the model has read a text from outside
+        // (ADR 0019, section 3): the user asks again, in a turn where only they spoke.
+        if (outside.Read && tools.Find(call.Name) is { RefusedAfterOutsideContent: true })
+        {
+            return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_AfterOutsideContent", turnLanguage), denial: "AfterOutsideContent");
+        }
+
         var decision = await permissions.DecideAsync(new ActionRequest(requester, call.Name, arguments) { Context = new ActionContext(answering.Turn, answering.Input == TurnInput.Voice) },
             token).ConfigureAwait(false);
         var tool = decision.Allowed ? tools.Find(call.Name) : null;
@@ -98,6 +106,7 @@ public sealed partial class ConversationEngine
             return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_" + cause, turnLanguage), decision.Class, cause.ToString());
         }
 
+        outside.Read |= tool.ReadsOutsideContent;
         using var limit = new CancellationTokenSource(CallTimeout, time);
         using var both = CancellationTokenSource.CreateLinkedTokenSource(token, limit.Token);
         try

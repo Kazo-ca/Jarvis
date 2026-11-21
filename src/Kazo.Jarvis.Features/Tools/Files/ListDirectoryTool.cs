@@ -44,6 +44,9 @@ public sealed class ListDirectoryTool : ITool
     /// <inheritdoc />
     public bool EnabledByDefault => true;
 
+    /// <summary>What it returns comes from outside the conversation (ADR 0019, section 3).</summary>
+    public bool ReadsOutsideContent => true;
+
     /// <inheritdoc />
     public ActionClass DeclaredClass => ActionClass.Read;
 

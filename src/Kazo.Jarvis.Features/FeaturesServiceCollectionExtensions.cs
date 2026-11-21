@@ -1,6 +1,7 @@
 using Kazo.Jarvis.Features.Assistant.Faults;
 using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
+using Kazo.Jarvis.Features.Conversation.Memory;
 using Kazo.Jarvis.Features.Audio.Devices;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
@@ -81,6 +82,8 @@ public static class FeaturesServiceCollectionExtensions
 
         // Conversation (stage1/13-conversation): the full turn by messages, the interruption, the conversation window
         // and the personality; the default model comes from the language models slice.
+        // Before the conversation, which asks it what to recall (stage2/8-memory): facts, summary, « Mémoire » page.
+        services.AddMemorySlice();
         services.AddConversationSlice();
 
         // First run (stage1/14-first-run): the models page downloads the models (installer and graphics card from the
