@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-21 (chantier `stage2/confirmation-adr`). Trois questions sont posées à Benoit dans la
-conversation ; elles sont reprises dans la section « Questions à Benoit ».
+Accepté par Benoit le 2026-11-21 (chantier `stage2/confirmation-adr`), avec ses trois réponses, reprises
+dans la section « Réponses de Benoit ». Elles diffèrent des recommandations : l'ADR décrit ses choix.
 
 - **Complète :** [ADR 0005](0005-assistant-state-machine-and-orb-contract.md) : une condition et un aspect
   de plus. Aucune phase et aucune transition de sa table ne change.
@@ -29,8 +29,10 @@ conversation ; elles sont reprises dans la section « Questions à Benoit ».
 
 ### 1. Une condition de plus, aucune transition changée
 
-- L'état de l'assistant gagne une quatrième condition : **confirmation en attente**
-  (`PendingConfirmation`). Elle porte l'identifiant de la demande et sa classe.
+- L'état de l'assistant gagne une quatrième condition : **interaction requise** (`PendingInteraction`).
+  Elle porte l'identifiant de ce qui attend et son genre : question, approbation, confirmation ou action
+  manuelle. La demande de confirmation est le premier genre construit ; les autres s'en serviront sans
+  nouvel ADR.
 - Deux événements d'entrée : « demande ouverte » pose la condition, « demande fermée » la lève. La machine
   reste une fonction pure. Une seule demande est ouverte à la fois ; les autres attendent leur tour.
 - **La phase ne change pas pendant une demande.** Une demande née dans un tour garde la phase où
@@ -39,19 +41,22 @@ conversation ; elles sont reprises dans la section « Questions à Benoit ».
   en « Parole » ni en « Écoute ».
 - Une activation pendant une demande (mot d'éveil, raccourci, clic sur l'orbe) reste l'interruption de
   l'ADR 0005 : le tour est annulé, la demande est fermée par un refus, journalisé « interrompu ».
-- **Aspect** (question 1) : tant que la condition est posée, l'orbe montre un aspect « confirmation », qui
-  passe avant l'aspect de la phase. L'animation suit la règle des phases actives (ADR 0005, section 6).
+- **Aspect** (réponse 1) : tant que la condition est posée, l'orbe montre un aspect « interaction
+  requise », le même pour tous les genres. Il passe avant l'aspect de la phase. L'animation suit la règle
+  des phases actives (ADR 0005, section 6).
 
 ### 2. Ce que voit et entend l'utilisateur
 
 - Une **fenêtre de confirmation** s'ouvre près de l'orbe : qui demande, le résumé dans la langue de
-  l'assistant, le détail exact (nom de l'outil et arguments, sans rien couper), la classe, le temps qui
-  reste, et les boutons **Approuver** et **Refuser**. Elle se ferme avec la demande.
+  l'assistant, le détail exact (nom de l'outil et arguments, sans rien couper), la classe, et les boutons
+  **Approuver** et **Refuser**. Elle se ferme avec la demande.
 - Pour une demande née d'un tour **dit**, Jarvis dit le résumé à voix haute, suivi de la question
   (« Confirmez-vous ? »). Pour la classe « Critique », la phrase dit que la voix ne suffit pas : il faut
   cliquer.
-- Pour une demande née d'un tour **écrit** (question 3) : la fenêtre seulement, sans voix. Jarvis ne parle
-  que si on lui parle.
+- Pour une demande née d'un tour **écrit** (réponse 3) : Jarvis dit seulement qu'une interaction est
+  requise, sans le résumé ni la question, et n'écoute pas de réponse. La fenêtre dit le reste. La forme
+  voulue par Benoit est « la tâche X du projet Y a besoin de votre interaction » ; dans une simple
+  conversation, sans tâche ni projet, la phrase est « Votre demande a besoin de votre interaction ».
 - Le résumé est écrit par du code à partir de l'outil et de ses arguments, jamais par le modèle.
 
 ### 3. La réponse vocale
@@ -65,14 +70,15 @@ conversation ; elles sont reprises dans la section « Questions à Benoit ».
     « yes », « yes Jarvis », « confirm », « I confirm », « approve », « go ahead » ;
   - non : « non », « non Jarvis », « annule », « refuse », « arrête », « no », « no Jarvis », « cancel »,
     « deny », « stop ».
-- **Toute autre réponse vaut refus** (ADR 0009). Si rien n'est entendu, la demande reste ouverte jusqu'à son
-  délai : le clic reste possible.
+- **Toute autre réponse vaut refus** (ADR 0009). Si rien n'est entendu, la demande reste ouverte : le clic
+  reste possible.
 - Le texte transcrit pendant cette écoute ne va jamais au modèle.
 
-### 4. Délai et canaux
+### 4. Aucun délai, et les canaux
 
-- Délai d'une demande (question 2) : **30 secondes**, réglable de 10 à 120. Sans réponse : refus,
-  journalisé « délai dépassé ».
+- **Aucun délai** (réponse 2) : Jarvis ne décide jamais à la place de l'utilisateur. Une demande reste
+  ouverte jusqu'à sa réponse. Elle ne se ferme autrement que par une interruption, qui est aussi un geste
+  de l'utilisateur. Le tour attend avec elle.
 - Canaux acceptés : « Sensible », la voix ou le clic ; « Critique », le clic seulement. Un accord arrivé par
   un canal que la classe n'accepte pas est rejeté et journalisé.
 - Un accord vaut pour **une** action : celle de la demande, avec ses arguments exacts.
@@ -80,7 +86,7 @@ conversation ; elles sont reprises dans la section « Questions à Benoit ».
 ### 5. Journal
 
 - La décision journalisée (ADR 0017) porte maintenant le canal de la réponse : `voice`, `click`, ou aucun
-  pour un délai dépassé ou une interruption.
+  pour une interruption.
 - Une page « Journal des permissions » des paramètres montre les décisions, les plus récentes d'abord.
 
 ### 6. Tranches et contrats
@@ -88,21 +94,22 @@ conversation ; elles sont reprises dans la section « Questions à Benoit ».
 - Noyau : la condition, les deux événements, l'aspect ; un contrat « demander une confirmation » que le
   point de décision appelle, et les messages entre tranches (demande ouverte, question dite, réponse
   entendue, demande fermée).
-- `Permissions/Confirmation` : la demande, son délai, les mots reconnus, la fenêtre, le réglage du délai.
+- `Permissions/Confirmation` : la demande, les mots reconnus, la fenêtre.
 - `Permissions/Decision` : appelle le contrat à l'étape 4, journalise le canal, porte la page du journal.
-- `Voice/Speech` dit la question ; `Voice/Transcription` ouvre l'écoute de la réponse. Aucune tranche n'en
+- `Voice/Speech` dit la question ou l'annonce ; `Voice/Transcription` ouvre l'écoute de la réponse. Aucune tranche n'en
   référence une autre.
 
-## Questions à Benoit
+## Réponses de Benoit
 
-Posées dans la conversation le 2026-11-21. La recommandation est celle que cet ADR décrit.
+Questions posées dans la conversation le 2026-11-21 ; ses réponses, le même jour :
 
-1. **Que montre l'orbe pendant une demande de confirmation ?** Recommandé : un aspect « confirmation » à
-   lui, plus la fenêtre. Autre choix : l'aspect de réflexion inchangé, la fenêtre seule.
-2. **Combien de temps Jarvis attend-il une réponse ?** Recommandé : 30 secondes, réglable. Autres choix :
-   60 secondes, 15 secondes.
-3. **Une demande écrite a besoin d'une confirmation : Jarvis parle-t-il ?** Recommandé : non, la fenêtre et
-   le clic seulement. Autre choix : il pose aussi la question à voix haute et écoute la réponse.
+1. **Que montre l'orbe pendant une demande de confirmation ?** « Mode "interaction requise" : question,
+   approbation, confirmation ou action manuelle de l'utilisateur. » La recommandation était un aspect
+   propre à la confirmation.
+2. **Combien de temps Jarvis attend-il une réponse ?** « Aucun. Il ne décide jamais à la place de
+   l'utilisateur. » La recommandation était 30 secondes, réglable.
+3. **Une demande écrite a besoin d'une confirmation : Jarvis parle-t-il ?** « Jarvis fait juste dire "la
+   tâche X du projet Y a besoin de votre interaction". » La recommandation était la fenêtre seule.
 
 ## Options écartées
 
@@ -111,12 +118,18 @@ Posées dans la conversation le 2026-11-21. La recommandation est celle que cet 
 - **Laisser le modèle comprendre la réponse.** Contraire à l'ADR 0009 : seul un humain approuve, et du code
   reconnaît son accord.
 - **Chercher « oui » n'importe où dans la phrase.** « Oui, enfin non, attends » contient « oui ».
-- **Plusieurs écoutes jusqu'au délai.** Une seule écoute, celle qui suit la question (ADR 0009) : un bruit
-  de fond dix secondes plus tard ne doit pas compter.
+- **Plusieurs écoutes tant que la demande est ouverte.** Une seule écoute, celle qui suit la question
+  (ADR 0009) : un bruit de fond dix secondes plus tard ne doit pas compter.
+- **Un délai qui refuse sans réponse** (30 secondes, réglable). Écarté par Benoit : ce serait décider à la
+  place de l'utilisateur.
 
 ## Conséquences
 
 - La table des transitions de l'ADR 0005 ne change pas ; ses tests restent valables.
+- Sans délai, un tour peut rester en « Réflexion » aussi longtemps que l'utilisateur ne répond pas, et
+  aucun autre tour ne commence sans l'interrompre. C'est voulu : rien n'est décidé sans lui.
+- Les noms de tâche et de projet de l'annonce arriveront avec les sessions et les tâches (chantier 12 et
+  suivants) ; une demande née hors d'un tour ne dit rien tant qu'ils n'existent pas.
 - Une réponse hésitante (« euh, oui ») est un refus : l'utilisateur redemande ou clique. C'est le prix d'une
   liste fermée.
 - Pendant une demande, l'orbe ne montre pas le niveau du micro comme en écoute : c'est la fenêtre qui dit
