@@ -23,6 +23,8 @@ src/Kazo.Jarvis.Kernel/
   Messages/Localization/                 AssistantLanguageChanged
   Storage/                               document store contract (see storage.md)
   Secrets/                               secret vault contract (see storage.md)
+  Tools/                                 tool, tool registry, switches (see tools.md)
+  Permissions/                           action classes, permission decision point (see tools.md)
 ```
 
 A host does not call `AddJarvisKernel()` itself: `AddJarvisFeatures()` does. Calling it again has no effect.

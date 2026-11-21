@@ -23,6 +23,8 @@ src/Kazo.Jarvis.Kernel/
   Messages/Localization/                 AssistantLanguageChanged
   Storage/                               contrat de la base de documents (voir storage.md)
   Secrets/                               contrat du coffre de secrets (voir storage.md)
+  Tools/                                 outil, registre des outils, interrupteurs (voir tools.md)
+  Permissions/                           classes d'actions, point de décision des permissions (voir tools.md)
 ```
 
 Un hôte n'appelle pas `AddJarvisKernel()` lui-même : `AddJarvisFeatures()` le fait. L'appel peut se répéter

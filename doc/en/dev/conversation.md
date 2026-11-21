@@ -25,6 +25,9 @@ conversation window ─► TextSubmitted ─► state machine ─► TurnStarted
 
 No slice references another: everything goes through the kernel's messages. The kernel did not change.
 
+Since work item `stage2/3-tool-loop`, the engine also gives the enabled tools to the model and runs its
+calls through the permission decision point: see [tools.md](tools.md).
+
 ### Slice `Features/Conversation/Dialogue`
 
 - **`ConversationEngine`** runs the turn:

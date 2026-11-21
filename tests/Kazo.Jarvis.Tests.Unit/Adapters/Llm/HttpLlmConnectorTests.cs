@@ -10,7 +10,7 @@ namespace Kazo.Jarvis.Tests.Unit.Adapters.Llm;
 
 /// <summary>The three hand-written adapters (ADR 0007, section 2) against servers in memory.</summary>
 [TestFixture]
-public sealed class HttpLlmConnectorTests
+public sealed partial class HttpLlmConnectorTests
 {
     private static readonly SecretRef KeyRef = new("llm.test.apikey");
 
@@ -128,16 +128,6 @@ public sealed class HttpLlmConnectorTests
             Assert.That(exception.Failure, Is.EqualTo(LlmFailure.TimedOut));
             Assert.That(() => client.GetResponseAsync(Question(), cancellationToken: cancelled.Token), Throws.InstanceOf<OperationCanceledException>());
         });
-    }
-
-    [Test]
-    public void Tools_are_refused_until_stage_2()
-    {
-        var (connector, _, _) = Create((_, _) => StubHandler.Stream(string.Empty));
-        using var client = connector.CreateClient(Ollama());
-        var options = new ChatOptions { Tools = [AIFunctionFactory.Create(() => "midi", "get_datetime")] };
-
-        Assert.That(() => client.GetResponseAsync(Question(), options), Throws.InstanceOf<NotSupportedException>());
     }
 
     [Test]

@@ -6,12 +6,15 @@ using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
 using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
+using Kazo.Jarvis.Features.Permissions.Decision;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
 using Kazo.Jarvis.Features.Setup.FirstRun;
 using Kazo.Jarvis.Features.Setup.Models;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
+using Kazo.Jarvis.Features.Tools.Calculator;
+using Kazo.Jarvis.Features.Tools.Clock;
 using Kazo.Jarvis.Features.Voice.Speech;
 using Kazo.Jarvis.Features.Voice.TestVoice;
 using Kazo.Jarvis.Features.Voice.Transcription;
@@ -83,7 +86,13 @@ public static class FeaturesServiceCollectionExtensions
         // do and opens the right setting, and checks the settings file at start.
         services.AddFaultsSlice();
 
-        // Other slices arrive with the next stages.
+        // Tools (stage2/3-tool-loop, ADR 0017): every call a model asks for goes through the decision point; each
+        // tool slice registers its tool in the registry of the kernel, read by the conversation.
+        services.AddPermissionDecisionSlice();
+        services.AddClockToolSlice();
+        services.AddCalculatorToolSlice();
+
+        // Other slices arrive with the next work items.
         return services;
     }
 }

@@ -41,7 +41,17 @@ octet, pour couvrir le chargement d'un modèle de 9 Go) :
   mémoire ; les autres types ne savent pas le dire.
 - **Clés :** lues dans le coffre à chaque requête, sous la référence `llm.<id>.apikey`. Un fournisseur cloud
   sans clé échoue avant tout appel réseau.
-- **Outils :** refusés (`NotSupportedException`) jusqu'à l'étape 2, avec le premier outil et l'analyseur tolérant.
+- **Outils** (chantier `stage2/3-tool-loop`, voir [tools.md](tools.md)) : chaque adaptateur envoie les outils
+  déclarés dans `ChatOptions.Tools` et rend un appel comme `FunctionCallContent`, sans jamais l'exécuter.
+  Ollama : `tools` et `message.tool_calls`, arguments en objet, résultat en rôle `tool` avec `tool_name`.
+  `/v1/chat/completions` : appel reçu en morceaux par `index`, arguments en texte JSON, résultat avec
+  `tool_call_id`. Anthropic : `input_schema`, blocs `tool_use` et `tool_result`, les résultats d'un même tour
+  de boucle dans un seul message `user`. Des arguments illisibles marquent l'appel
+  (`FunctionCallContent.Exception`) : le point de décision le refuse.
+- **Analyseur tolérant** (`ollama`, `openai-compatible` ; ADR 0007, section 4) : une réponse entière qui
+  est un seul objet JSON nommant un outil déclaré est un appel. Une réponse qui commence par `{` ou par une
+  clôture de code est retenue jusqu'à sa fin ; toute autre part morceau par morceau. Réglage
+  `TolerantToolCalls` du fournisseur, activé par défaut.
 
 ## La tranche `Llm/Providers`
 

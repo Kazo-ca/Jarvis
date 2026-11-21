@@ -25,6 +25,9 @@ fenêtre de conversation ─► TextSubmitted ─► machine à états ─► Tu
 
 Aucune tranche n'en référence une autre : tout passe par les messages du noyau. Le noyau n'a pas changé.
 
+Depuis le chantier `stage2/3-tool-loop`, le moteur donne aussi les outils activés au modèle et exécute ses
+appels par le point de décision des permissions : voir [tools.md](tools.md).
+
 ### Tranche `Features/Conversation/Dialogue`
 
 - **`ConversationEngine`** fait le tour :

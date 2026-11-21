@@ -41,7 +41,16 @@ to cover loading a 9 GB model):
   kinds cannot tell.
 - **Keys:** read from the vault at each request, under the reference `llm.<id>.apikey`. A cloud provider
   without a key fails before any network call.
-- **Tools:** refused (`NotSupportedException`) until stage 2, with the first tool and the tolerant parser.
+- **Tools** (work item `stage2/3-tool-loop`, see [tools.md](tools.md)): each adapter sends the tools declared
+  in `ChatOptions.Tools` and returns a call as a `FunctionCallContent`, without ever running it. Ollama:
+  `tools` and `message.tool_calls`, arguments as an object, result in the `tool` role with `tool_name`.
+  `/v1/chat/completions`: call received in pieces by `index`, arguments as JSON text, result with
+  `tool_call_id`. Anthropic: `input_schema`, `tool_use` and `tool_result` blocks, the results of one round
+  of the loop in a single `user` message. Unreadable arguments mark the call
+  (`FunctionCallContent.Exception`): the decision point denies it.
+- **Tolerant parser** (`ollama`, `openai-compatible`; ADR 0007, section 4): a whole answer that is one JSON
+  object naming a declared tool is a call. An answer that starts with `{` or with a code fence is held back
+  until it ends; any other goes on piece by piece. Provider setting `TolerantToolCalls`, on by default.
 
 ## The `Llm/Providers` slice
 

@@ -152,3 +152,36 @@
     margin: 0;
     color: var(--jarvis-red);
 }
+
+/* A tool call of the turn: one line, opened to see its arguments and its result. */
+.conversation-tool {
+    padding-left: 0.8rem;
+    border-left: 2px solid var(--jarvis-line);
+    color: var(--jarvis-text-muted);
+    font-size: 0.85rem;
+}
+
+.conversation-tool-summary {
+    cursor: pointer;
+}
+
+.conversation-tool-name {
+    margin-right: 0.5rem;
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-mono);
+}
+
+.conversation-tool[data-tool-outcome="Denied"] .conversation-tool-outcome,
+.conversation-tool[data-tool-outcome="Failed"] .conversation-tool-outcome {
+    color: var(--jarvis-red);
+}
+
+.conversation-tool-part {
+    margin: 0.3rem 0 0;
+    overflow-wrap: anywhere;
+}
+
+.conversation-tool-text {
+    white-space: pre-wrap;
+    font-family: var(--jarvis-font-mono);
+}

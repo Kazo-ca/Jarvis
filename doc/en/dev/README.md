@@ -16,6 +16,7 @@
 | [transcription.md](transcription.md) | Transcription: end of utterance (Silero, energy threshold), Whisper, "Transcription" page, models |
 | [speech.md](speech.md) | Speech: Piper, Kokoro and cloud engines, voice of each language, "Voices" page |
 | [conversation.md](conversation.md) | Conversation: the full turn, the interruption, the conversation window, the personality |
+| [tools.md](tools.md) | Tools: kernel contracts, permission decision point and its log, tool loop, time and calculation |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [first-run.md](first-run.md) | First run: setup wizard, "Voice models" page (checked downloads), Ollama search |
 | [faults.md](faults.md) | Faults: named causes, corrective action, link to the right setting, "Jarvis problem" window |
