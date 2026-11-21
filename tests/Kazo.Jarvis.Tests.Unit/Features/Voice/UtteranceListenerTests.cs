@@ -5,6 +5,7 @@ using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Audio;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Settings;
@@ -216,6 +217,93 @@ public sealed class UtteranceListenerTests
         {
             Assert.That(Listener.IsBusy, Is.False);
             Assert.That(silero.Created, Is.Zero);
+        });
+    }
+
+    // ADR 0023, section 3: a single listening after the question; what is heard goes to the confirmation slice
+    // only, and the turn does not move.
+    [Test]
+    public async Task After_the_question_of_a_confirmation_request_one_listening_hears_the_answer()
+    {
+        recognition.Answer = [new(" Oui.", 0.01f)];
+        await Bus.PublishAsync(new TextSubmitted("Écris une note"));
+        var turn = State.Current.CurrentTurn;
+        var id = Guid.NewGuid();
+
+        await Bus.PublishAsync(new ConfirmationQuestionSaid(id, turn, true));
+        Speak(silence: 5, speech: 20, silenceAfter: 20);
+
+        var heard = await WaitForAsync<ConfirmationAnswerHeard>();
+        Assert.Multiple(() =>
+        {
+            Assert.That(heard, Is.EqualTo(new ConfirmationAnswerHeard(id, "Oui.")));
+            Assert.That(Published<UtteranceEnded>(), Is.Empty);
+            Assert.That(Published<UtteranceTranscribed>(), Is.Empty, "The answer never goes to the conversation, so never to a model.");
+            Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Thinking));
+            Assert.That(Listener.LastHeard, Is.Null);
+        });
+
+        // A single listening: what is said later is not heard.
+        Speak(silence: 5, speech: 20, silenceAfter: 20);
+        await Task.Delay(100);
+        Assert.That(Published<ConfirmationAnswerHeard>(), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Silence_after_the_question_is_no_answer()
+    {
+        await Settings.WriteAsync(TranscriptionOptions.Section, new TranscriptionOptions { NoSpeechTimeoutSeconds = 2 });
+        await Bus.PublishAsync(new TextSubmitted("Écris une note"));
+        var id = Guid.NewGuid();
+
+        await Bus.PublishAsync(new ConfirmationQuestionSaid(id, State.Current.CurrentTurn, true));
+        Speak(silence: 70, speech: 0, silenceAfter: 0);
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await WaitForAsync<ConfirmationAnswerHeard>(), Is.EqualTo(new ConfirmationAnswerHeard(id, null)));
+            Assert.That(Published<NothingHeard>(), Is.Empty, "The turn is not dropped: the click remains possible.");
+            Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Thinking));
+        });
+    }
+
+    [Test]
+    public async Task A_question_that_accepts_no_spoken_answer_opens_no_listening()
+    {
+        await Bus.PublishAsync(new TextSubmitted("Efface les notes"));
+
+        await Bus.PublishAsync(new ConfirmationQuestionSaid(Guid.NewGuid(), State.Current.CurrentTurn, false));
+        Speak(silence: 5, speech: 20, silenceAfter: 20);
+        await Task.Delay(100);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(silero.Created, Is.Zero);
+            Assert.That(Published<ConfirmationAnswerHeard>(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task A_request_closed_stops_the_listening_of_its_answer()
+    {
+        await Bus.PublishAsync(new TextSubmitted("Écris une note"));
+        var turn = State.Current.CurrentTurn;
+        var id = Guid.NewGuid();
+        await Bus.PublishAsync(new ConfirmationQuestionSaid(id, turn, true));
+
+        await Bus.PublishAsync(new InteractionClosed(id));
+        Speak(silence: 5, speech: 20, silenceAfter: 20);
+        await Task.Delay(100);
+
+        // And a question that ends after its request closed opens nothing.
+        await Bus.PublishAsync(new ConfirmationQuestionSaid(id, turn, true));
+        Speak(silence: 5, speech: 20, silenceAfter: 20);
+        await Task.Delay(100);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Published<ConfirmationAnswerHeard>(), Is.Empty);
+            Assert.That(recognition.Created[0].Transcribed, Is.Empty);
         });
     }
 

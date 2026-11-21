@@ -59,7 +59,7 @@ public sealed class AssistantLooksTests
     }
 
     [Test]
-    public void The_seven_looks_are_all_reachable()
+    public void The_eight_looks_are_all_reachable()
     {
         var reached = new HashSet<AssistantLook>();
         foreach (var phase in Enum.GetValues<AssistantPhase>())
@@ -70,18 +70,41 @@ public sealed class AssistantLooksTests
                 {
                     foreach (var tasks in new[] { 0, 1 })
                     {
-                        reached.Add(AssistantLooks.Of(AssistantState.Initial with
+                        foreach (var pending in new[] { false, true })
                         {
-                            Phase = phase,
-                            Fault = fault ? new AssistantFault(FaultCause.VoiceMissing) : null,
-                            MicrophoneMuted = muted,
-                            DelegatedTasks = tasks,
-                        }));
+                            reached.Add(AssistantLooks.Of(AssistantState.Initial with
+                            {
+                                Phase = phase,
+                                Fault = fault ? new AssistantFault(FaultCause.VoiceMissing) : null,
+                                MicrophoneMuted = muted,
+                                DelegatedTasks = tasks,
+                                Interaction = pending ? new PendingInteraction(Guid.NewGuid(), InteractionKind.Confirmation) : null,
+                            }));
+                        }
                     }
                 }
             }
         }
 
         Assert.That(reached, Is.EquivalentTo(Enum.GetValues<AssistantLook>()));
+    }
+
+    // ADR 0023, section 1: the "interaction required" look comes before the look of the phase and before every condition.
+    [Test]
+    public void A_required_interaction_wins_over_the_phase_and_the_other_conditions(
+        [Values] AssistantPhase phase,
+        [Values] bool fault,
+        [Values] bool muted)
+    {
+        var state = AssistantState.Initial with
+        {
+            Phase = phase,
+            Fault = fault ? new AssistantFault(FaultCause.VoiceMissing) : null,
+            MicrophoneMuted = muted,
+            DelegatedTasks = 1,
+            Interaction = new PendingInteraction(Guid.NewGuid(), InteractionKind.Confirmation),
+        };
+
+        Assert.That(AssistantLooks.Of(state), Is.EqualTo(AssistantLook.InteractionRequired));
     }
 }

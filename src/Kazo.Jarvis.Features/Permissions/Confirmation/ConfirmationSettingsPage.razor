@@ -1,0 +1,10 @@
+@inject IAssistantLanguageReader Language
+@inject IStringLocalizer<ConfirmationSettingsPage> T
+
+@* Page of the confirmation requests (ADR 0023, section 3): the words that approve aloud. Nothing to set: a request
+   waits for the user as long as it takes. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["WordsLabel"]" Hint="@T["WordsHint"]">
+        <p class="confirmation-words" data-confirmation-words>@string.Join(", ", ConfirmationWords.Agreements(Language.Current))</p>
+    </SettingsField>
+</SettingsFrame>

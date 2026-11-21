@@ -56,7 +56,7 @@ its drawing. These are what the Playwright tests rely on.
   `OrbQualityKeeper` watches the section and `OrbView` swaps the drawing without a restart.
 - Jarvis never changes the version on its own (ADR 0011, section 1).
 
-## The seven looks
+## The eight looks
 
 | Look | Color | Speed high quality / light | Light |
 | --- | --- | --- | --- |
@@ -67,6 +67,7 @@ its drawing. These are what the Playwright tests rely on.
 | Long task | green | 0.45 / 0.5 | progress ring |
 | Error | red | 0 / 0 (still image) | a flash on entry; the cause on hover |
 | Microphone muted | grey | 0 / 0 (still image) | dim, "mic muted" label |
+| Interaction required | amber | 0.6 / 0.7; both versions pulse | almost full; comes before the look of the phase ([ADR 0023](adr/0023-confirmation-request-in-a-turn.md)) |
 
 - The color (`--orb-color`) and the light (`--orb-light`) of each look are in `Orb.razor.css`, for both
   versions. They are registered with `@property`: they fade (0.5 and 0.4 s), and the high-quality canvas
@@ -135,7 +136,7 @@ Easy to change; to be confirmed by Benoit.
 ## Demonstration page
 
 `/orb` in the Web host (US1.3), linked from the home page. It drives the component directly by its inputs,
-with no microphone and no model: both versions (high quality first), the seven looks, the number of tasks and
+with no microphone and no model: both versions (high quality first), the eight looks, the number of tasks and
 the progress (known or not), pending decisions, the cause of a fault, the sound level, reduced motion and the
 animated idle look (to try only: forbidden on Windows). A counter shows the "click" output.
 

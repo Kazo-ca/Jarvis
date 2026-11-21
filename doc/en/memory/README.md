@@ -172,11 +172,24 @@ Resume point for any agent. Update it in the same change as what it describes.
   collection `Permissions.Decisions`); slices `Tools/Clock` (`get_datetime`) and `Tools/Calculator`
   (`calculate`); the three adapters send the tools and read the calls, with the tolerant parser for the
   local adapters; the conversation runs the loop (8 calls per turn, 30 s per call, result cut at 2,000
-  characters) and shows each call in the turn. **"Sensitive" and "Critical" are denied until work item 4
-  (confirmation) is done.** No "Tools" page and no log page yet. **Not verified with a real model** nor
+  characters) and shows each call in the turn. "Sensitive" and "Critical" go through the confirmation request of work item 4. No "Tools" page yet. **Not verified with a real model** nor
   against the real OpenAI and Anthropic APIs. **Pending Windows tests**
   ([list](../dev/tools.md#checks-on-windows)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/4-confirmation` (work item `stage2/3-tool-loop` is done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/4-confirmation`** (confirmation request, see
+  [dev/confirmation.md](../dev/confirmation.md)), following the accepted ADR 0023: condition
+  `AssistantState.Interaction` (`PendingInteraction`, kind question, approval, confirmation or manual
+  action) and "interaction required" look (amber) in the kernel, contract `IConfirmation`,
+  `ITool.Summarize`; slice `Permissions/Confirmation` (`ConfirmationDesk`, one request at a time, window,
+  **no timeout**, closed word list per language); the decision point asks for the confirmation, checks the
+  channel again ("Critical": click only) and logs the channel; "Permission log" page; `Voice/Speech` says
+  the question (spoken turn) or the announcement (typed turn) without the "Speaking" phase,
+  `Voice/Transcription` opens a single listening. Web host: dummy tools `write_note` ("Sensitive") and
+  `erase_notes` ("Critical"). **No real "Sensitive" or "Critical" tool exists yet.** Provisional choices to
+  be confirmed by Benoit: closing the window is a refusal; the announcement of a conversation says "Your
+  request needs your interaction", the form "task X of project Y" waits for the sessions and the tasks; the
+  word list follows the language; the window is not placed near the orb yet. **Windows checks pending**
+  ([list](../dev/confirmation.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/5-basic-tools` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop` and `stage2/4-confirmation` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

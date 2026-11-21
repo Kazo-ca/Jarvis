@@ -9,7 +9,7 @@
 | Feature | Stage | Reference |
 | --- | --- | --- |
 | Orb, voice, local model and settings: built and merged into `main` on November 20, 2026, acceptance on Windows still to do | 1 | [Design](dev/plans/design.md), [series plan](dev/plans/stage-1.md) |
-| Tools, MCP, handoff and Claude sessions. Built: the tool loop, the permission decision point, the date and time and calculation tools ([details](dev/tools.md)) | 2 | [Design](dev/plans/design.md), [series plan](dev/plans/stage-2.md) |
+| Tools, MCP, handoff and Claude sessions. Built: the tool loop, the permission decision point, the date and time and calculation tools ([details](dev/tools.md)); the confirmation request before a sensitive or critical action, by voice or click, and the permission log ([details](dev/confirmation.md)) | 2 | [Design](dev/plans/design.md), [series plan](dev/plans/stage-2.md) |
 | Task fan: a double click on the orb brings out the running tasks | 2 | [ADR 0010](dev/adr/0010-task-fan-and-orb-click.md) |
 | Autonomous mode, triggers and email | 3 | [Design](dev/plans/design.md) |
 | Android mobile app | 4 | [Design](dev/plans/design.md) |

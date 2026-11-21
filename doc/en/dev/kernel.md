@@ -78,7 +78,7 @@ A host does not call `AddJarvisKernel()` itself: `AddJarvisFeatures()` does. Cal
 - **Faults.** The kernel only names the cause (`FaultCause`); the text, the corrective action and the link to
   the right setting come from the slices (work item `stage1/15-faults`). `MicrophoneMissing` refuses
   activations, like the muted microphone.
-- **Look.** `AssistantLooks.Of(state)` gives one of the seven looks (ADR 0011, section 4);
+- **Look.** `AssistantLooks.Of(state)` gives one of the eight looks (ADR 0011, section 4; "interaction required" comes from ADR 0023 and wins over all the others);
   `AssistantLooks.ShowsProgressRing(state)` says whether the progress ring is drawn over it.
 
 ### Case ADR 0005 does not cover

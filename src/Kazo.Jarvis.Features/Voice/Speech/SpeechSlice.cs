@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Speech;
@@ -25,6 +26,12 @@ public static class SpeechSlice
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<SentenceToSpeak>, SpeechPlayer>(
             provider => provider.GetRequiredService<SpeechPlayer>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AnswerSentencesEnded>, SpeechPlayer>(
+            provider => provider.GetRequiredService<SpeechPlayer>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConfirmationQuestionToSay>, SpeechPlayer>(
+            provider => provider.GetRequiredService<SpeechPlayer>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<InteractionClosed>, SpeechPlayer>(
+            provider => provider.GetRequiredService<SpeechPlayer>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AnswerFinishedWithoutSpeech>, SpeechPlayer>(
             provider => provider.GetRequiredService<SpeechPlayer>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, SpeechPlayer>(
             provider => provider.GetRequiredService<SpeechPlayer>()));

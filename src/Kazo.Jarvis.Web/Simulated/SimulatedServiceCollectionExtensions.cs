@@ -65,6 +65,10 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<IWakeWordEngine>(provider => provider.GetRequiredService<SimulatedWakeWordEngine>());
         services.TryAddSingleton<SimulatedSpeechRecognition>();
         services.TryAddSingleton<ISpeechRecognition>(provider => provider.GetRequiredService<SimulatedSpeechRecognition>());
+        // Two tools that need a confirmation, to show the request before a real tool does (stage2/4-confirmation).
+        services.TryAddSingleton<SimulatedNotes>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Kazo.Jarvis.Kernel.Tools.ITool, SimulatedNoteTool>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Kazo.Jarvis.Kernel.Tools.ITool, SimulatedEraseTool>());
         services.TryAddSingleton<SimulatedVoiceActivity>();
         services.TryAddSingleton<IVoiceActivityDetection>(provider => provider.GetRequiredService<SimulatedVoiceActivity>());
 

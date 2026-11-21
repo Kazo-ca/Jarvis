@@ -1,0 +1,64 @@
+@implements IDisposable
+@inject ConfirmationDesk Desk
+@inject IStringLocalizer<ConfirmationWindow> T
+
+@* The confirmation window (ADR 0023, section 2): who asks, the summary, the exact detail, the class, Approve
+   and Refuse. It waits as long as it takes: nothing is decided in place of the user. It follows the desk and closes with the request. Closing it is a refusal. *@
+<div class="confirmation-window" data-confirmation-window data-confirmation-class="@(open?.Request.Class.ToString() ?? "")">
+    @if (open is { } request)
+    {
+        <h2 class="confirmation-title" data-confirmation-title>@T["Title_" + request.Request.Class]</h2>
+        <p class="confirmation-summary" data-confirmation-summary>@request.Summary</p>
+        <dl class="confirmation-facts">
+            <dt>@T["RequesterLabel"]</dt>
+            <dd data-confirmation-requester>@T["Requester_" + request.Request.Requester.Kind, request.Request.Requester.Name]</dd>
+            <dt>@T["ToolLabel"]</dt>
+            <dd data-confirmation-tool>@request.Request.Tool</dd>
+            <dt>@T["DetailLabel"]</dt>
+            <dd><pre class="confirmation-detail" data-confirmation-detail>@request.Request.Detail</pre></dd>
+            <dt>@T["ClassLabel"]</dt>
+            <dd data-confirmation-class-name>@T["Class_" + request.Request.Class]</dd>
+        </dl>
+        <p class="confirmation-channel" data-confirmation-channel="@(request.Listens ? "voice" : "click")">
+            @T[request.Listens ? "Channel_Voice" : request.Request.Class == ActionClass.Critical ? "Channel_Critical" : "Channel_Click"]
+        </p>
+        <p class="confirmation-time" data-confirmation-waits>@T["Waits"]</p>
+        <div class="confirmation-buttons">
+            <button type="button" class="confirmation-button confirmation-approve" data-confirmation-approve @onclick="() => Desk.Click(request.Id, true)">@T["Approve"]</button>
+            <button type="button" class="confirmation-button confirmation-refuse" data-confirmation-refuse @onclick="() => Desk.Click(request.Id, false)">@T["Refuse"]</button>
+        </div>
+    }
+    else
+    {
+        <p class="confirmation-summary" role="status" data-confirmation-none>@T["NoRequest"]</p>
+    }
+</div>
+
+@code {
+    private OpenConfirmation? open;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        open = Desk.Current;
+        Desk.Changed += OnChanged;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Desk.Changed -= OnChanged;
+
+        // A window closed by the user while its request is open is the user's refusal.
+        if (open is { } shown)
+        {
+            Desk.Click(shown.Id, false);
+        }
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        open = Desk.Current;
+        StateHasChanged();
+    });
+}

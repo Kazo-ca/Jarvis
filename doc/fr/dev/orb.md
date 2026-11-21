@@ -56,7 +56,7 @@ sur son dessin. Ce sont les points d'appui des tests Playwright.
   l'orbe affiché : `OrbQualityKeeper` surveille la section et `OrbView` change de dessin sans redémarrer.
 - Jarvis ne change jamais de version tout seul (ADR 0011, section 1).
 
-## Les sept aspects
+## Les huit aspects
 
 | Aspect | Couleur | Vitesse haute qualité / légère | Lumière |
 | --- | --- | --- | --- |
@@ -67,6 +67,7 @@ sur son dessin. Ce sont les points d'appui des tests Playwright.
 | Tâche longue | vert | 0,45 / 0,5 | anneau de progression |
 | Erreur | rouge | 0 / 0 (image fixe) | un éclair à l'entrée ; la cause au survol |
 | Micro coupé | gris | 0 / 0 (image fixe) | faible, mention « micro coupé » |
+| Interaction requise | ambre | 0,6 / 0,7 ; les deux versions pulsent | presque pleine ; passe avant l'aspect de la phase ([ADR 0023](adr/0023-confirmation-request-in-a-turn.md)) |
 
 - La couleur (`--orb-color`) et la lumière (`--orb-light`) de chaque aspect sont dans `Orb.razor.css`, pour
   les deux versions. Elles sont enregistrées par `@property` : elles passent en fondu (0,5 et 0,4 s), et la
@@ -139,7 +140,7 @@ Faciles à changer ; à confirmer par Benoit.
 ## Page de démonstration
 
 `/orb` dans l'hôte Web (US1.3), liée depuis la page d'accueil. Elle pilote le composant directement par ses
-entrées, sans micro ni modèle : les deux versions (haute qualité au départ), les sept aspects, le nombre de
+entrées, sans micro ni modèle : les deux versions (haute qualité au départ), les huit aspects, le nombre de
 tâches et la progression (connue ou non), les décisions en attente, la cause d'une erreur, le niveau sonore,
 le mouvement réduit et la veille animée (pour essayer seulement : interdite sur Windows). Un compteur montre
 la sortie « clic ».

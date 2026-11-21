@@ -37,13 +37,10 @@
     <value>Denied: this action is forbidden.</value>
   </data>
   <data name="Denied_ConfirmationUnavailable" xml:space="preserve">
-    <value>Denied: this action needs a confirmation from the user, and Jarvis cannot ask for one yet.</value>
+    <value>Denied: this action needs a confirmation from the user, and Jarvis has no way to ask for it here.</value>
   </data>
   <data name="Denied_Refused" xml:space="preserve">
     <value>Denied: the user refused.</value>
-  </data>
-  <data name="Denied_TimedOut" xml:space="preserve">
-    <value>Denied: the user did not answer in time.</value>
   </data>
   <data name="Denied_Interrupted" xml:space="preserve">
     <value>Denied: the user interrupted.</value>

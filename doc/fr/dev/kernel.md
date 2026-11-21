@@ -82,7 +82,7 @@ sans effet.
 - **Fautes.** Le noyau ne nomme que la cause (`FaultCause`) ; le texte, l'action corrective et le lien vers
   le bon réglage viennent des tranches (chantier `stage1/15-faults`). `MicrophoneMissing` refuse les
   activations, comme le micro coupé.
-- **Aspect.** `AssistantLooks.Of(état)` donne l'un des sept aspects (ADR 0011, section 4) ;
+- **Aspect.** `AssistantLooks.Of(état)` donne l'un des huit aspects (ADR 0011, section 4 ; « interaction requise » vient de l'ADR 0023 et passe avant tous les autres) ;
   `AssistantLooks.ShowsProgressRing(état)` dit si l'anneau de progression est dessiné par-dessus.
 
 ### Cas que l'ADR 0005 ne couvre pas

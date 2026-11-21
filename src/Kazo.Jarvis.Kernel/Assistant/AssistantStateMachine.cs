@@ -41,6 +41,14 @@ public static class AssistantStateMachine
                 ? Applied(state with { Fault = null })
                 : Ignored(state, $"the current fault is not {resolved.Cause} from {resolved.Origin?.ToString() ?? "any origin"}"),
             DelegatedTaskCountChanged tasks => ChangeTasks(state, tasks.Count),
+
+            // ADR 0023, section 1: a condition, like the fault; the phase and the turn do not move.
+            InteractionOpened opened => state.Interaction is null
+                ? Applied(state with { Interaction = new PendingInteraction(opened.Id, opened.Kind) })
+                : Ignored(state, "something already waits for the user"),
+            InteractionClosed closed => state.Interaction?.Id == closed.Id
+                ? Applied(state with { Interaction = null })
+                : Ignored(state, "this is not what waits for the user"),
             _ => Ignored(state, $"{input.GetType().Name} is not in the transition table"),
         };
     }

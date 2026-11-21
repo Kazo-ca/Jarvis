@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Kernel.Messages.Assistant;
+using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Settings;
@@ -32,6 +33,12 @@ public static class TranscriptionSlice
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, UtteranceListener>(
             provider => provider.GetRequiredService<UtteranceListener>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, UtteranceListener>(
+            provider => provider.GetRequiredService<UtteranceListener>()));
+
+        // The single listening that follows the question of a confirmation request (ADR 0023, section 3).
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConfirmationQuestionSaid>, UtteranceListener>(
+            provider => provider.GetRequiredService<UtteranceListener>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<InteractionClosed>, UtteranceListener>(
             provider => provider.GetRequiredService<UtteranceListener>()));
 
         // The Whisper model installed from the models page (stage1/14-first-run) becomes the one in use.
