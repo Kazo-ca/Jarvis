@@ -1,7 +1,9 @@
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Features.Llm.Spend;
+using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.Llm;
+using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Llm;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Tests.Unit.Adapters;
@@ -269,6 +271,56 @@ public sealed class SpendTests
             Assert.That(KnownPrices.For(Other), Is.Null, "The user types it.");
             Assert.That(KnownPrices.For(Local), Is.Null);
         });
+
+    [Test]
+    public async Task A_Claude_Code_session_paid_by_subscription_is_shown_apart_and_does_not_count()
+    {
+        await SessionAsync(1.25m);
+        await SessionAsync(null);
+        await SessionAsync(0m);
+
+        var entry = (await ledger.ReadMonthAsync()).Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(new SpendOptions().ClaudeCodeBySubscription, Is.True, "Checked by default (ADR 0020, answer 4).");
+            Assert.That(ledger.Status.SpentUsd, Is.Zero);
+            Assert.That(ledger.ClaudeCodeApartUsd, Is.EqualTo(1.25m));
+            Assert.That((entry.ProviderId, entry.ProviderName, entry.Model, entry.CostUsd, entry.Apart), Is.EqualTo((SpendLedger.ClaudeCodeId, "Claude Code", "/src/kazo-bar", 1.25m, true)));
+            Assert.That(ledger.SessionBudget(2m), Is.EqualTo(2m), "The monthly cap does not bound a session paid by subscription.");
+            Assert.That(ledger.TakeNotice(), Is.Null);
+            Assert.That(Ledger().ClaudeCodeApartUsd, Is.EqualTo(1.25m), "Kept across a restart.");
+        });
+
+        time.Advance(TimeSpan.FromDays(15));
+        Assert.That(ledger.ClaudeCodeApartUsd, Is.Zero, "A new month starts again.");
+    }
+
+    [Test]
+    public async Task Unchecked_a_Claude_Code_session_counts_and_never_gets_more_than_what_is_left_of_the_cap()
+    {
+        await settings.WriteAsync(SpendOptions.Section, settings.Read(SpendOptions.Section) with { ClaudeCodeBySubscription = false });
+        var before = ledger.SessionBudget(2m);
+
+        await SessionAsync(8.5m);
+        var near = ledger.TakeNotice();
+        var left = ledger.SessionBudget(2m);
+        await SessionAsync(2m);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(before, Is.EqualTo(2m));
+            Assert.That(near, Is.EqualTo(SpendNotice.NearCap));
+            Assert.That(left, Is.EqualTo(1.5m));
+            Assert.That(ledger.Status.SpentUsd, Is.EqualTo(10.5m));
+            Assert.That(ledger.TakeNotice(), Is.EqualTo(SpendNotice.CapReached));
+            Assert.That(ledger.SessionBudget(2m), Is.Zero, "At the cap no session starts.");
+            Assert.That(ledger.ClaudeCodeApartUsd, Is.Zero);
+            Assert.That(ledger.Check(Cloud), Is.EqualTo(SpendVerdict.CapReached), "One cap for the questions and for the sessions.");
+        });
+    }
+
+    private ValueTask SessionAsync(decimal? cost) =>
+        ledger.HandleAsync(new ClaudeTaskEnded("task-1", "/src/kazo-bar", ClaudeTaskEnd.Done, "Fait.", cost, AssistantLanguage.French, time.GetUtcNow()), CancellationToken.None);
 
     private SpendLedger Ledger()
     {

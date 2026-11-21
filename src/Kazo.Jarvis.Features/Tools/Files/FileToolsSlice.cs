@@ -26,6 +26,7 @@ public static class FileToolsSlice
         }
 
         services.TryAddSingleton<AllowedFolders>();
+        services.TryAddSingleton<IAllowedFolders>(provider => provider.GetRequiredService<AllowedFolders>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, ListDirectoryTool>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, ReadFileTool>());
 

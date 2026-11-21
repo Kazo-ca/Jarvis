@@ -91,7 +91,7 @@
     <value>Les voix cloud (reconnaissance et synthèse vocales) ne sont pas comptées.</value>
   </data>
   <data name="Limit_Tasks" xml:space="preserve">
-    <value>Les tâches confiées à Claude Code ne sont pas encore comptées : elles arrivent avec une version ultérieure.</value>
+    <value>Le coût d'une session Claude Code est celui que Claude Code annonce à la fin : Jarvis ne le calcule pas.</value>
   </data>
   <data name="NotANumber" xml:space="preserve">
     <value>Entrez un nombre.</value>
@@ -101,5 +101,23 @@
   </data>
   <data name="SaveFailed" xml:space="preserve">
     <value>Le fichier de réglages ne peut pas être écrit : le changement n'est pas enregistré.</value>
+  </data>
+  <data name="ClaudeCodeLabel" xml:space="preserve">
+    <value>Claude Code</value>
+  </data>
+  <data name="ClaudeCodeHint" xml:space="preserve">
+    <value>Ce que coûtent les sessions lancées par Jarvis. Avec un abonnement Claude, elles ne sont pas facturées à l'usage : leur coût est affiché à part et ne compte pas dans le plafond.</value>
+  </data>
+  <data name="ClaudeCodeBySubscription" xml:space="preserve">
+    <value>Claude Code est payé par abonnement</value>
+  </data>
+  <data name="ClaudeCodeApart" xml:space="preserve">
+    <value>Annoncé par les sessions ce mois-ci, hors plafond : {0} $ US.</value>
+  </data>
+  <data name="ClaudeCodeCounted" xml:space="preserve">
+    <value>Le coût de chaque session compte dans le plafond, et une session ne reçoit jamais plus que ce qu'il en reste.</value>
+  </data>
+  <data name="EntryApart" xml:space="preserve">
+    <value>{0} $ US, hors plafond</value>
   </data>
 </root>

@@ -93,8 +93,9 @@ An answer that jumps from under 80 % to the cap only says the cap.
 
 - **The collection is named `Llm.SpendEntries`**, not `Llm.Spend.Entries`: a collection name has one dot only
   ([storage.md](storage.md)).
-- **The setting "Claude Code is paid by subscription" does not exist yet**: it comes with the Claude Code
-  sessions (work item `stage2/12`), as does the cap of each session (`--max-budget-usd`).
+- **The setting "Claude Code is paid by subscription"** (checked by default) and the cap of each session
+  (`--max-budget-usd`) came with the Claude Code sessions: see
+  [claude-code-tasks.md](claude-code-tasks.md#cost-llmspend).
 
 ## Provisional choices of this work item
 

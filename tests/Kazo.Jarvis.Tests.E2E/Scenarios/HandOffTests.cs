@@ -114,10 +114,11 @@ public sealed class HandOffTests : PageTest
         await Expect(Newest.Locator("[data-conversation-answer]")).Not.ToContainTextAsync("Historique : 0 message(s)");
         await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-model", "claude-opus-5-5");
 
-        // The target of the tasks is named, and is not there yet.
+        // The target of the tasks is named: Claude Code, which works on an allowed folder, and there is none here
+        // (the sessions themselves are in ClaudeTasksTests).
         await SayAsync("Ask Claude Code to tidy the repository");
-        await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("Claude Code, is not available yet");
-        await Expect(Newest.Locator("[data-conversation-handoff]")).ToHaveAttributeAsync("data-handoff-failure", "NoTasksTarget");
+        await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("No folder is allowed yet");
+        await Expect(Newest.Locator("[data-conversation-handoff]")).ToHaveAttributeAsync("data-handoff-failure", "NotStarted");
 
         // Without a target again, the tool is withdrawn.
         await ChooseAsync(string.Empty);

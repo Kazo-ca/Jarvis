@@ -91,7 +91,7 @@
     <value>The cloud voices (speech recognition and speech synthesis) are not counted.</value>
   </data>
   <data name="Limit_Tasks" xml:space="preserve">
-    <value>The tasks given to Claude Code are not counted yet: they come with a later version.</value>
+    <value>The cost of a Claude Code session is what Claude Code announces at its end: Jarvis does not compute it.</value>
   </data>
   <data name="NotANumber" xml:space="preserve">
     <value>Type a number.</value>
@@ -101,5 +101,23 @@
   </data>
   <data name="SaveFailed" xml:space="preserve">
     <value>The settings file cannot be written: the change is not saved.</value>
+  </data>
+  <data name="ClaudeCodeLabel" xml:space="preserve">
+    <value>Claude Code</value>
+  </data>
+  <data name="ClaudeCodeHint" xml:space="preserve">
+    <value>What the sessions started by Jarvis cost. With a Claude subscription they are not billed per use: their cost is shown apart and does not count against the cap.</value>
+  </data>
+  <data name="ClaudeCodeBySubscription" xml:space="preserve">
+    <value>Claude Code is paid by subscription</value>
+  </data>
+  <data name="ClaudeCodeApart" xml:space="preserve">
+    <value>Announced by the sessions this month, apart from the cap: {0} USD.</value>
+  </data>
+  <data name="ClaudeCodeCounted" xml:space="preserve">
+    <value>The cost of each session counts against the cap, and a session never gets more than what is left of it.</value>
+  </data>
+  <data name="EntryApart" xml:space="preserve">
+    <value>{0} USD, apart from the cap</value>
   </data>
 </root>

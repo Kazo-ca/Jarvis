@@ -24,6 +24,14 @@ public interface ISpendCap
     /// </summary>
     /// <returns>The notice, or <see langword="null"/>.</returns>
     SpendNotice? TakeNotice();
+
+    /// <summary>
+    /// What a Claude Code session may cost at most (ADR 0021, section 1): <paramref name="wanted"/> while
+    /// « Claude Code est payé par abonnement » is checked; otherwise never more than what is left of the cap.
+    /// </summary>
+    /// <param name="wanted">The cap of a session chosen by the user, in US dollars.</param>
+    /// <returns>The budget of the session; zero when the cap is reached and Claude Code counts.</returns>
+    decimal SessionBudget(decimal wanted) => wanted;
 }
 
 /// <summary>The answer of <see cref="ISpendCap.Check"/>.</summary>

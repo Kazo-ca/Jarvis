@@ -77,3 +77,9 @@
     font: inherit;
     cursor: pointer;
 }
+
+.spend-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

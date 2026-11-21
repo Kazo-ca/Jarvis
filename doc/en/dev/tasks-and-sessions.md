@@ -134,8 +134,9 @@ The ADR does not settle them; to be confirmed by Benoit:
    section 6), and will not appear in the fan until its hooks are installed.
 4. **The last message of a session is not read** in this part: the transcript serves the summary of work item
    `stage2/13`.
-5. **The tasks of a previous run that did not end stay as they are at start.** Work item 12 will decide about
-   those whose process is gone.
+5. **The tasks of a previous run that did not end stay as they are at start**, except those Jarvis had
+   started itself (source `harness`): their process is gone, they become `blocked`
+   ([claude-code-tasks.md](claude-code-tasks.md#end-of-a-session)).
 
 ## Not verified
 

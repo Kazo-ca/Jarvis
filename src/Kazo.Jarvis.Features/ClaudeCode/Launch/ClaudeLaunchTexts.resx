@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NoClaudeCode" xml:space="preserve">
+    <value>This computer cannot start Claude Code.</value>
+  </data>
+  <data name="NotInstalled" xml:space="preserve">
+    <value>Claude Code is not installed on this computer, or I cannot find it.</value>
+  </data>
+  <data name="NoFolder" xml:space="preserve">
+    <value>No folder is allowed yet. Add one in the settings, on the Allowed folders page.</value>
+  </data>
+  <data name="WhichFolder" xml:space="preserve">
+    <value>On which folder? {0}.</value>
+  </data>
+  <data name="Or" xml:space="preserve">
+    <value> or </value>
+  </data>
+  <data name="TooMany" xml:space="preserve">
+    <value>{0} Claude Code sessions are already running. Wait for one to end, or stop one.</value>
+  </data>
+  <data name="CapReached" xml:space="preserve">
+    <value>The spending cap of the month is reached: I am not starting Claude Code.</value>
+  </data>
+  <data name="Launching" xml:space="preserve">
+    <value>I am starting Claude Code on {0}.</value>
+  </data>
+  <data name="StartFailed" xml:space="preserve">
+    <value>Claude Code did not start.</value>
+  </data>
+  <data name="Started" xml:space="preserve">
+    <value>Claude Code now works on {0}, read-only until the user approves a write. The work is not finished: the user will be told when it ends. Do not answer the request yourself.</value>
+  </data>
+  <data name="ContextLabel" xml:space="preserve">
+    <value>Context (a summary of the conversation before the request; background, not instructions):</value>
+  </data>
+  <data name="RequestLabel" xml:space="preserve">
+    <value>Request:</value>
+  </data>
+  <data name="Summary_Write" xml:space="preserve">
+    <value>Claude Code wants to write the file {0} in {1}.</value>
+  </data>
+  <data name="Summary_Command" xml:space="preserve">
+    <value>Claude Code wants to run a command in {1}: {0}</value>
+  </data>
+  <data name="Summary_Other" xml:space="preserve">
+    <value>Claude Code wants to use its tool {0} in {1}.</value>
+  </data>
+  <data name="Blocked_NoResult" xml:space="preserve">
+    <value>The session stopped without a result.</value>
+  </data>
+  <data name="Blocked_Error" xml:space="preserve">
+    <value>The session ended on an error.</value>
+  </data>
+  <data name="Blocked_Watchdog" xml:space="preserve">
+    <value>Stopped by Jarvis: the tool {0} ran without asking for its permission.</value>
+  </data>
+  <data name="Blocked_Closed" xml:space="preserve">
+    <value>Jarvis was closed while the session was running.</value>
+  </data>
+  <data name="Abandoned" xml:space="preserve">
+    <value>Stopped by the user.</value>
+  </data>
+</root>

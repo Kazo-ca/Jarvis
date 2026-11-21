@@ -58,8 +58,21 @@ internal sealed class ScriptedChatClient : IChatClient
 
     public List<(IReadOnlyList<ChatMessage> Messages, ChatOptions? Options)> Calls { get; } = [];
 
-    public Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException();
+    /// <summary>What a request that is not a stream answers: the summary asked for a Claude Code session. <see langword="null"/>: not supported.</summary>
+    public string? Summary { get; set; }
+
+    public List<(IReadOnlyList<ChatMessage> Messages, ChatOptions? Options)> SummaryCalls { get; } = [];
+
+    public Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (Summary is null)
+        {
+            throw new NotSupportedException();
+        }
+
+        SummaryCalls.Add(([.. messages], options));
+        return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, Summary)));
+    }
 
     public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
         IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -180,4 +193,52 @@ internal sealed class FakeHandOff : IHandOff
     }
 
     public string? Notice(Kazo.Jarvis.Kernel.Localization.AssistantLanguage language) => Notices.TryDequeue(out var notice) ? notice : null;
+}
+
+/// <summary>The slice of the Claude Code sessions, scripted: it says the folder, then starts or says why not.</summary>
+internal sealed class FakeClaudeTasks : Kazo.Jarvis.Kernel.ClaudeCode.IClaudeTasks
+{
+    public List<(Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskRequest Request, string? Context)> Started { get; } = [];
+
+    /// <summary>What <see cref="StartAsync"/> says before it starts; <see langword="null"/> to start nothing.</summary>
+    public string? Announcement { get; set; } = "Je lance Claude Code sur kazo-bar.";
+
+    public string Refusal { get; set; } = "Sur quel dossier ? kazo-bar ou Notes.";
+
+    public Exception? Failure { get; set; }
+
+    /// <summary>The work given back by <see cref="Resume"/> for the request of this name.</summary>
+    public Dictionary<string, Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskRequest> Waiting { get; } = [];
+
+    public List<string> Resumed { get; } = [];
+
+    public IReadOnlyList<string> Running => [];
+
+    public Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskRequest? Resume(string request)
+    {
+        Resumed.Add(request);
+        return Waiting.Remove(request, out var waiting) ? waiting : null;
+    }
+
+    public async ValueTask<Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskOpening> StartAsync(
+        Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskRequest request, Func<string, ValueTask> announce, CancellationToken cancellationToken = default)
+    {
+        if (Failure is not null)
+        {
+            throw Failure;
+        }
+
+        if (Announcement is null)
+        {
+            return new(false, Refusal);
+        }
+
+        await announce(Announcement);
+        cancellationToken.ThrowIfCancellationRequested();
+        var context = request.Context is null ? null : await request.Context(cancellationToken);
+        Started.Add((request, context));
+        return new(true, "Claude Code travaille maintenant sur kazo-bar.", "task-1");
+    }
+
+    public ValueTask<bool> StopAsync(string taskId) => ValueTask.FromResult(false);
 }

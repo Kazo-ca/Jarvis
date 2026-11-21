@@ -4,6 +4,7 @@ using Kazo.Jarvis.Features.Conversation.Dialogue;
 using Kazo.Jarvis.Features.Conversation.Memory;
 using Kazo.Jarvis.Features.Audio.Devices;
 using Kazo.Jarvis.Features.ClaudeCode.Hooks;
+using Kazo.Jarvis.Features.ClaudeCode.Launch;
 using Kazo.Jarvis.Features.ClaudeCode.Sessions;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
@@ -138,6 +139,10 @@ public static class FeaturesServiceCollectionExtensions
         // Hooks of the sessions started by hand (stage2/11-hook-server, ADR 0021 sections 3 and 6): the routes
         // are in the board slice; this one installs the hooks in the user's settings, on the user's click.
         services.AddClaudeHooksSlice();
+
+        // Sessions started by Jarvis (stage2/12-claude-code-tasks, ADR 0021 sections 1, 4, 5 and 8): « Demande à
+        // Claude Code de… » starts one on an allowed folder; its writes and commands go to the decision point.
+        services.AddClaudeLaunchSlice();
 
         // Other slices arrive with the next work items.
         return services;

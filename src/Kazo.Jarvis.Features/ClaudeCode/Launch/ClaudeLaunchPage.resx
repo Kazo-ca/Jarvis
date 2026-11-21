@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Claude Code tasks</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Say « Ask Claude Code to… » and Jarvis starts a Claude Code session on one of your allowed folders. The session reads freely in that folder; every write and every command waits for your answer.</value>
+  </data>
+  <data name="InstallLabel" xml:space="preserve">
+    <value>Claude Code on this computer</value>
+  </data>
+  <data name="InstallHint" xml:space="preserve">
+    <value>Jarvis looks for the claude program in the PATH.</value>
+  </data>
+  <data name="Install_Unavailable" xml:space="preserve">
+    <value>This host cannot start Claude Code.</value>
+  </data>
+  <data name="Install_Looking" xml:space="preserve">
+    <value>Looking for Claude Code…</value>
+  </data>
+  <data name="Install_Missing" xml:space="preserve">
+    <value>Claude Code was not found. Install it, then open this page again.</value>
+  </data>
+  <data name="Install_Old" xml:space="preserve">
+    <value>Claude Code {0} was found. Jarvis was checked with version {1} and later: update Claude Code.</value>
+  </data>
+  <data name="Install_Unknown" xml:space="preserve">
+    <value>Claude Code was found, but it did not tell its version. Jarvis was checked with version {0} and later.</value>
+  </data>
+  <data name="Install_Found" xml:space="preserve">
+    <value>Claude Code {0} was found.</value>
+  </data>
+  <data name="Note_ReadOnly" xml:space="preserve">
+    <value>A session starts read-only: it reads, lists and searches in its folder without asking.</value>
+  </data>
+  <data name="Note_Approve" xml:space="preserve">
+    <value>Every write and every command is shown to you, with the exact path or the whole command, and waits for your answer. Nothing outside the folder of the session is ever allowed.</value>
+  </data>
+  <data name="Note_Watch" xml:space="preserve">
+    <value>If a write or a command runs without having asked, Jarvis stops the session.</value>
+  </data>
+  <data name="Note_OwnSettings" xml:space="preserve">
+    <value>A session started by Jarvis loads neither your own Claude Code settings nor your hooks.</value>
+  </data>
+  <data name="SessionsLabel" xml:space="preserve">
+    <value>Sessions started by Jarvis</value>
+  </data>
+  <data name="SessionsHint" xml:space="preserve">
+    <value>Stopping a session ends its work at once; its task is marked abandoned.</value>
+  </data>
+  <data name="NoSession" xml:space="preserve">
+    <value>No session is running.</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="BudgetLabel" xml:space="preserve">
+    <value>Cap of a session (US dollars)</value>
+  </data>
+  <data name="BudgetHint" xml:space="preserve">
+    <value>Claude Code stops a session that reaches it. From {0} to {1}. When Claude Code counts against the monthly cap, a session never gets more than what is left of it.</value>
+  </data>
+  <data name="MostLabel" xml:space="preserve">
+    <value>Sessions at the same time</value>
+  </data>
+  <data name="MostHint" xml:space="preserve">
+    <value>From 1 to {0}.</value>
+  </data>
+  <data name="TrustedLabel" xml:space="preserve">
+    <value>Trusted folders</value>
+  </data>
+  <data name="TrustedHint" xml:space="preserve">
+    <value>Unchecked, a session only reads the CLAUDE.md file at the root of the folder. Checked, it loads the full settings of the project.</value>
+  </data>
+  <data name="TrustedWarning" xml:space="preserve">
+    <value>A trusted folder runs the hooks of its repository without asking you. Check only a folder whose content you wrote or read.</value>
+  </data>
+  <data name="NoFolder" xml:space="preserve">
+    <value>No folder is allowed yet: add one on the Allowed folders page.</value>
+  </data>
+  <data name="NotANumber" xml:space="preserve">
+    <value>This is not a number.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings could not be saved.</value>
+  </data>
+</root>

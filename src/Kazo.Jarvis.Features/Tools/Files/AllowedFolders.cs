@@ -3,33 +3,12 @@ using Kazo.Jarvis.Kernel.Settings;
 
 namespace Kazo.Jarvis.Features.Tools.Files;
 
-/// <summary>What the allowed folders say of one path.</summary>
-public enum PathVerdict
-{
-    /// <summary>Inside an allowed folder: it may be read.</summary>
-    Allowed,
-
-    /// <summary>Not a usable absolute path.</summary>
-    Unusable,
-
-    /// <summary>Outside every allowed folder.</summary>
-    Outside,
-
-    /// <summary>A file of Claude Code that is refused everywhere: a session key or an IDE lock.</summary>
-    Secret,
-}
-
-/// <summary>A path checked against the allowed folders.</summary>
-/// <param name="Verdict">Whether it may be read.</param>
-/// <param name="Resolved">The full path, links and junctions resolved, when it is usable.</param>
-public sealed record CheckedPath(PathVerdict Verdict, string? Resolved);
-
 /// <summary>
 /// The allowed folders (ADR 0009, section 5): the file tools see nothing else. A path is compared after it is
 /// resolved (full path, links and junctions followed) and without regard to case, so a link inside an allowed folder
 /// that points outside is outside.
 /// </summary>
-public sealed class AllowedFolders
+public sealed class AllowedFolders : IAllowedFolders
 {
     private readonly ISettingsStore settings;
     private readonly ILocalFiles files;
@@ -45,7 +24,7 @@ public sealed class AllowedFolders
         this.files = files;
     }
 
-    /// <summary>The allowed folders, resolved; a folder whose path is not usable is left out.</summary>
+    /// <inheritdoc />
     public IReadOnlyList<string> Roots =>
         [.. settings.Read(FileToolsOptions.Section).Folders
             .Select(folder => files.Resolve(folder))
@@ -56,9 +35,7 @@ public sealed class AllowedFolders
     /// <summary>The most characters one call returns.</summary>
     public int ResultCharacters => settings.Read(FileToolsOptions.Section).ResultCharacters;
 
-    /// <summary>Checks one path.</summary>
-    /// <param name="path">The path a model wrote.</param>
-    /// <returns>The verdict, and the resolved path to read when it is allowed.</returns>
+    /// <inheritdoc />
     public CheckedPath Check(string? path)
     {
         if (string.IsNullOrWhiteSpace(path) || files.Resolve(path.Trim()) is not { } resolved)

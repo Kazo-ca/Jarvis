@@ -27,9 +27,9 @@ src/Kazo.Jarvis.Kernel/
   Conversation/                          what the memory recalls to the model (see conversation-memory.md), hand-off (see hand-off.md)
   Messages/Conversation/                 TurnRecorded, ExchangesLeftHistory
   Tools/Servers/                         tool server: connection, tools, call (see mcp.md), classification per type of server (see home-assistant.md)
-  Files/                                 local files, read only (see basic-tools.md)
+  Files/                                 local files, read only (see basic-tools.md), allowed folders seen by another slice (see claude-code-tasks.md)
   Tasks/                                 shape of a task, project and topic keys, board of the tasks (see tasks-and-sessions.md)
-  ClaudeCode/                            registry of the running Claude Code sessions (see tasks-and-sessions.md), settings file of the user (see hook-server.md), launch of Claude Code and permission requests of a session (see claude-code-launch.md)
+  ClaudeCode/                            registry of the running Claude Code sessions (see tasks-and-sessions.md), settings file of the user (see hook-server.md), launch of Claude Code and permission requests of a session (see claude-code-launch.md), work handed to Claude Code and end of a session (see claude-code-tasks.md)
   LocalServer/                           local server on 127.0.0.1, its routes, its port, hook paths (see hook-server.md)
   Web/                                   reading browser, search by API, allowed addresses (see basic-tools.md)
   Permissions/                           action classes, permission decision point (see tools.md)
