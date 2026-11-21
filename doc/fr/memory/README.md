@@ -292,7 +292,17 @@ ce qu'il décrit.
   pas pu se faire sans Windows. `/mcp` et `approve` : chantier 12. Choix provisoires à confirmer par Benoit
   ([détail](../dev/hook-server.md#choix-provisoires-de-ce-chantier)). **Tests Windows en attente, dont
   « Jarvis fermé, une session ne ralentit pas »** ([liste](../dev/hook-server.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/12-claude-code-tasks` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap` et `stage2/11` (ses deux parties, `stage2/11-tasks-and-sessions` et `stage2/11-hook-server`) sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/12-claude-code-launch`, première partie du chantier 12** (voir
+  [dev/claude-code-launch.md](../dev/claude-code-launch.md)) : `ActionRequest.Session` (`SessionAction`) pour
+  qu'une demande d'une session Claude Code passe par le point de décision avec une classe donnée par le code ;
+  outil `approve` sur `/mcp` du serveur local (`ModelContextProtocol.AspNetCore`, jeton de l'exécution
+  seulement) et contrat `IClaudeApprovals` ; contrat `IClaudeCode` et adaptateur `ClaudeCodeProcess` (ligne de
+  commande de l'ADR 0021, fichiers sous `.kazo\jarvis\claude\` sans secret, jeton et tâche par
+  l'environnement). **Rien ne lance encore de session.** Écarts : pas de hook `SessionStart` pour les sessions
+  de Jarvis ; aucun délai de confirmation (ADR 0023 l'emporte sur l'ADR 0021). **Non vérifié : aucun vrai
+  Claude Code lancé par ce code ; variables dans les en-têtes du fichier MCP.** Reste : seconde partie,
+  `stage2/12-claude-code-tasks` (tranche `ClaudeCode/Launch`).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, seconde partie du chantier 12 (`stage2/12-claude-code-tasks`) du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap` et `stage2/11` (ses deux parties, `stage2/11-tasks-and-sessions` et `stage2/11-hook-server`) sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

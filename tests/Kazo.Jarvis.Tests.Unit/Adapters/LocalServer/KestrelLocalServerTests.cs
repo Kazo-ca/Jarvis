@@ -36,7 +36,7 @@ public sealed class KestrelLocalServerTests
         vault = new FakeVault();
         vault.Secrets[LocalServerOptions.UserHookToken.Value] = UserToken;
         hook = new FakeRoute(HookPaths.Start);
-        other = new FakeRoute("/mcp");
+        other = new FakeRoute("/tools/other");
         server = new KestrelLocalServer(settings, [hook, other], vault, null, fixedPort: 0);
         await server.StartAsync(CancellationToken.None);
         client = new HttpClient { BaseAddress = new Uri($"http://127.0.0.1:{server.Status.Port}") };
@@ -105,7 +105,7 @@ public sealed class KestrelLocalServerTests
     public async Task The_token_of_the_run_opens_every_route_as_a_session_of_Jarvis()
     {
         using var first = await PostAsync(HookPaths.Start, server.SessionToken, """{"session_id":"s1"}""", ("X-Relais-Task", "task-1"));
-        using var second = await PostAsync("/mcp", server.SessionToken, "{}");
+        using var second = await PostAsync("/tools/other", server.SessionToken, "{}");
 
         Assert.Multiple(() =>
         {
@@ -124,7 +124,7 @@ public sealed class KestrelLocalServerTests
     public async Task The_token_of_the_users_hooks_opens_the_hook_routes_only()
     {
         using var onHook = await PostAsync(HookPaths.Start, UserToken, "{}");
-        using var elsewhere = await PostAsync("/mcp", UserToken, "{}");
+        using var elsewhere = await PostAsync("/tools/other", UserToken, "{}");
 
         Assert.Multiple(() =>
         {

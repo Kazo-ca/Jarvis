@@ -57,6 +57,90 @@ public sealed class PermissionDecisionPointTests
         return confirmation.Asked;
     }
 
+    [Test]
+    public async Task A_read_of_a_session_is_allowed_without_a_question_and_logged()
+    {
+        var asked = WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, ConfirmationChannels.Click));
+
+        var decision = await point.DecideAsync(SessionRequest(ActionClass.Read));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(decision, Is.EqualTo(PermissionDecision.Allow(ActionClass.Read)));
+            Assert.That(asked, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task A_write_of_a_session_asks_the_human_with_the_tool_and_the_exact_input()
+    {
+        var asked = WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, ConfirmationChannels.Voice));
+
+        var decision = await point.DecideAsync(SessionRequest(ActionClass.Sensitive, "Écrire notes.txt"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(decision.Allowed, Is.True);
+            Assert.That(decision.Channel, Is.EqualTo(ConfirmationChannels.Voice));
+            Assert.That(asked, Has.Count.EqualTo(1));
+            Assert.That(asked[0].Requester, Is.EqualTo(new ActionRequester(RequesterKind.Session, "kazo-bar")));
+            Assert.That(asked[0].Tool, Is.EqualTo("Write"), "The tool of Claude Code, which is in no registry of Jarvis.");
+            Assert.That(asked[0].Summary, Is.EqualTo("Écrire notes.txt"));
+            Assert.That(asked[0].Detail, Does.Contain("notes.txt"));
+            Assert.That(asked[0].Class, Is.EqualTo(ActionClass.Sensitive));
+        });
+    }
+
+    [Test]
+    public async Task A_session_refused_by_the_human_is_denied()
+    {
+        WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Refused, ConfirmationChannels.Click));
+
+        var decision = await point.DecideAsync(SessionRequest(ActionClass.Sensitive));
+
+        Assert.That(decision, Is.EqualTo(PermissionDecision.Deny(DenialCause.Refused, ActionClass.Sensitive) with { Channel = ConfirmationChannels.Click }));
+    }
+
+    [Test]
+    public async Task A_forbidden_action_of_a_session_is_denied_without_a_question()
+    {
+        var asked = WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, ConfirmationChannels.Click));
+
+        var decision = await point.DecideAsync(SessionRequest(ActionClass.Forbidden));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(decision, Is.EqualTo(PermissionDecision.Deny(DenialCause.Forbidden, ActionClass.Forbidden)));
+            Assert.That(asked, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task A_session_request_without_a_class_or_with_unreadable_input_is_denied()
+    {
+        WithConfirmation(new ConfirmationOutcome(ConfirmationAnswer.Approved, ConfirmationChannels.Click));
+        var session = new ActionRequester(RequesterKind.Session, "kazo-bar");
+
+        var unclassified = await point.DecideAsync(new ActionRequest(session, "Write", Arguments()));
+        var unreadable = await point.DecideAsync(new ActionRequest(session, "Write", null) { Session = new SessionAction(ActionClass.Read) });
+        var unknownClass = await point.DecideAsync(new ActionRequest(session, "Write", Arguments()) { Session = new SessionAction((ActionClass)42) });
+        var asTool = await point.DecideAsync(new ActionRequest(Model, "Write", Arguments()) { Session = new SessionAction(ActionClass.Read) });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(unclassified.Cause, Is.EqualTo(DenialCause.UnknownTool));
+            Assert.That(unreadable.Cause, Is.EqualTo(DenialCause.UnreadableArguments));
+            Assert.That(unknownClass.Cause, Is.EqualTo(DenialCause.ClassifierFailed));
+            Assert.That(asTool.Cause, Is.EqualTo(DenialCause.UnknownTool), "A class given by a model's tool call is not listened to.");
+        });
+    }
+
+    private static ActionRequest SessionRequest(ActionClass actionClass, string? summary = null) =>
+        new(new ActionRequester(RequesterKind.Session, "kazo-bar"), "Write", Arguments("""{"file_path":"C:\\src\\kazo-bar\\notes.txt","content":"ok"}"""))
+        {
+            Session = new SessionAction(actionClass, summary),
+        };
+
     private static JsonElement Arguments(string json = "{}") => JsonDocument.Parse(json).RootElement.Clone();
 
     private ValueTask<PermissionDecision> AskAsync(string tool, string json = "{}") =>

@@ -28,6 +28,7 @@
 | [spend-cap.md](spend-cap.md) | Spending cap: price per cloud provider, cost counted at each answer of the target, count of the month, warning at 80 %, cap that withdraws the tool and keeps Jarvis local, "Spending" page |
 | [tasks-and-sessions.md](tasks-and-sessions.md) | Tasks and Claude Code sessions: shape of a task and its nine statuses (Relais), project and topic keys, board of the tasks, reading of the registry of the sessions without ever opening a key file, "Claude sessions" page |
 | [hook-server.md](hook-server.md) | Local server and Claude Code hooks: server on `127.0.0.1` only, no route without a token, the five `/hook/…` routes that move the tasks, installation and removal of the hooks in the user's Claude Code settings on their click, with a preview and a dated copy |
+| [claude-code-launch.md](claude-code-launch.md) | Starting Claude Code (first part of work item 12): requests of a session at the decision point, `approve` tool on `/mcp`, command line of `claude -p`, files of Jarvis without a secret, events of the stream; what is left of the work item |
 | [faults.md](faults.md) | Faults: named causes, corrective action, link to the right setting, "Jarvis problem" window |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |
