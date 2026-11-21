@@ -3,6 +3,7 @@ using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
 using Kazo.Jarvis.Features.Conversation.Memory;
 using Kazo.Jarvis.Features.Audio.Devices;
+using Kazo.Jarvis.Features.ClaudeCode.Hooks;
 using Kazo.Jarvis.Features.ClaudeCode.Sessions;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
@@ -133,6 +134,10 @@ public static class FeaturesServiceCollectionExtensions
         // of the tasks, in the shape of Relais, and the list of the sessions running on the computer.
         services.AddTaskBoardSlice();
         services.AddClaudeSessionsSlice();
+
+        // Hooks of the sessions started by hand (stage2/11-hook-server, ADR 0021 sections 3 and 6): the routes
+        // are in the board slice; this one installs the hooks in the user's settings, on the user's click.
+        services.AddClaudeHooksSlice();
 
         // Other slices arrive with the next work items.
         return services;

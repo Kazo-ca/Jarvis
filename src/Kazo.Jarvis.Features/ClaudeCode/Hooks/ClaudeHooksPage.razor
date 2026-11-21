@@ -1,0 +1,173 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject ClaudeHooks Hooks
+@inject IServiceProvider Services
+@inject IStringLocalizer<ClaudeHooksPage> T
+@implements IDisposable
+
+@* The « Hooks Claude Code » page (US2.12; ADR 0021, sections 3 and 6): the local server that receives the hooks,
+   and the hooks Jarvis can add to the user's own Claude Code settings. Nothing is written to that file before the
+   user clicks « Install », after reading the exact lines; « Remove » takes away those lines only. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["ServerLabel"]" Hint="@T["ServerHint"]">
+        <p class="hooks-state" data-hooks-server data-hooks-listening="@(server.Listening ? "true" : "false")" data-hooks-server-port="@server.Port">
+            @(server.Listening ? T["Server_Listening", server.Port] : hasServer ? T["Server_NotListening", server.Port] : T["Server_None"])
+        </p>
+        <ul class="hooks-notes" data-hooks-server-notes>
+            <li>@T["Note_Loopback"]</li>
+            <li>@T["Note_Token"]</li>
+        </ul>
+    </SettingsField>
+
+    <SettingsField Label="@T["PortLabel"]" Hint="@T["PortHint", LocalServerOptions.LeastPort, LocalServerOptions.MostPort]">
+        <input type="number" class="hooks-number" data-hooks-port aria-label="@T["PortLabel"]"
+               min="@LocalServerOptions.LeastPort" max="@LocalServerOptions.MostPort" step="1"
+               value="@view.Port.ToString(CultureInfo.InvariantCulture)" @onchange="ChangePortAsync" />
+        @if (problem is not null)
+        {
+            <p class="hooks-problem" role="alert" data-hooks-problem>@problem</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["HooksLabel"]" Hint="@T["HooksHint"]">
+        <div class="hooks-block" data-hooks data-hooks-available="@(view.Available ? "true" : "false")" data-hooks-install-state="@view.State">
+            @if (!view.Available)
+            {
+                <p class="hooks-note" data-hooks-unavailable>@T["Unavailable"]</p>
+            }
+            else
+            {
+                <p class="hooks-state" data-hooks-state-text>@T["State_" + view.State]</p>
+                <p class="hooks-note" data-hooks-file>@(view.FileMissing ? T["FileMissing", view.FilePath ?? ""] : T["File", view.FilePath ?? ""])</p>
+                <ul class="hooks-notes" data-hooks-notes>
+                    <li>@T["Note_OnClick"]</li>
+                    <li>@T["Note_Copy"]</li>
+                    <li>@T["Note_Background"]</li>
+                    <li>@T["Note_WatchOnly"]</li>
+                </ul>
+                @if (view.Preview is not null)
+                {
+                    <p class="hooks-note">@(view.State == HookInstallState.Unreadable ? T["PreviewToPaste"] : T["PreviewLabel"])</p>
+                    <pre class="hooks-preview" data-hooks-preview tabindex="0">@view.Preview</pre>
+                    <div class="hooks-actions">
+                        @if (view.State != HookInstallState.Unreadable)
+                        {
+                            <button type="button" class="hooks-button" data-hooks-install disabled="@busy" @onclick="InstallAsync">
+                                @(view.State == HookInstallState.None ? T["Install"] : T["InstallAgain"])
+                            </button>
+                        }
+
+                        @if (view.State is HookInstallState.Installed or HookInstallState.Outdated)
+                        {
+                            <button type="button" class="hooks-button" data-hooks-remove disabled="@busy" @onclick="RemoveAsync">@T["Remove"]</button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="hooks-problem" role="alert" data-hooks-no-token>@T["NoToken"]</p>
+                }
+
+                @if (result is not null)
+                {
+                    <p class="@(resultIsProblem ? "hooks-problem" : "hooks-note")" role="status" data-hooks-result="@resultOutcome">@result</p>
+                }
+            }
+        </div>
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private ClaudeHooksView view = ClaudeHooksView.Unavailable;
+    private ILocalServer? localServer;
+    private LocalServerStatus server = new(false, LocalServerOptions.DefaultPort);
+    private bool hasServer;
+    private bool busy;
+    private string? problem;
+    private string? result;
+    private bool resultIsProblem;
+    private ClaudeHooksOutcome? resultOutcome;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        // A host without a local server still shows the page: it says so.
+        localServer = Services.GetService(typeof(ILocalServer)) as ILocalServer;
+        hasServer = localServer is not null;
+        if (localServer is not null)
+        {
+            localServer.Changed += OnServerChanged;
+            server = localServer.Status;
+        }
+
+        view = await Hooks.ReadAsync();
+        if (!hasServer)
+        {
+            server = server with { Port = view.Port };
+        }
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (localServer is not null)
+        {
+            localServer.Changed -= OnServerChanged;
+        }
+    }
+
+    private void OnServerChanged() => _ = InvokeAsync(() =>
+    {
+        server = localServer!.Status;
+        StateHasChanged();
+    });
+
+    private async Task ChangePortAsync(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var port))
+        {
+            problem = T["NotANumber"];
+            return;
+        }
+
+        var written = await Settings.WriteAsync(LocalServerOptions.Section, Settings.Read(LocalServerOptions.Section) with { Port = port });
+        problem = written.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", written.Problems),
+        };
+        result = null;
+        view = await Hooks.ReadAsync();
+        if (localServer is not null)
+        {
+            server = localServer.Status;
+        }
+    }
+
+    private Task InstallAsync() => RunAsync(() => Hooks.InstallAsync(), "Installed");
+
+    private Task RemoveAsync() => RunAsync(() => Hooks.RemoveAsync(), "Removed");
+
+    private async Task RunAsync(Func<ValueTask<ClaudeHooksResult>> action, string done)
+    {
+        busy = true;
+        try
+        {
+            var outcome = await action();
+            resultOutcome = outcome.Outcome;
+            resultIsProblem = outcome.Outcome is not (ClaudeHooksOutcome.Done or ClaudeHooksOutcome.Nothing);
+            result = outcome.Outcome switch
+            {
+                ClaudeHooksOutcome.Done when outcome.CopyPath is { } copy => T[done + "WithCopy", copy],
+                ClaudeHooksOutcome.Done => T[done],
+                _ => T["Result_" + outcome.Outcome],
+            };
+            view = await Hooks.ReadAsync();
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

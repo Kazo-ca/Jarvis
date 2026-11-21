@@ -29,7 +29,8 @@ src/Kazo.Jarvis.Kernel/
   Tools/Servers/                         serveur d'outils : connexion, outils, appel (voir mcp.md), classement par type de serveur (voir home-assistant.md)
   Files/                                 fichiers locaux en lecture (voir basic-tools.md)
   Tasks/                                 forme d'une tâche, clés de projet et de sujet, tableau des tâches (voir tasks-and-sessions.md)
-  ClaudeCode/                            registre des sessions Claude Code en cours (voir tasks-and-sessions.md)
+  ClaudeCode/                            registre des sessions Claude Code en cours (voir tasks-and-sessions.md), fichier de réglages de l'utilisateur (voir hook-server.md)
+  LocalServer/                           serveur local sur 127.0.0.1, ses routes, son port, chemins des hooks (voir hook-server.md)
   Web/                                   navigateur de lecture, recherche par API, adresses permises (voir basic-tools.md)
   Permissions/                           classes d'actions, point de décision des permissions (voir tools.md)
 ```
