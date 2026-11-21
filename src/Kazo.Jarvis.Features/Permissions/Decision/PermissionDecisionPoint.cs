@@ -85,37 +85,68 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
 
     private async ValueTask<PermissionDecision> ClassifyAndDecideAsync(ActionRequest request, CancellationToken cancellationToken)
     {
-        // 1. Known and enabled?
-        var tool = tools.Find(request.Tool);
-        if (tool is null)
-        {
-            return PermissionDecision.Deny(DenialCause.UnknownTool);
-        }
-
-        if (!tools.IsEnabled(tool))
-        {
-            return PermissionDecision.Deny(DenialCause.ToolDisabled);
-        }
-
-        if (request.Arguments is not { ValueKind: JsonValueKind.Object } arguments)
-        {
-            return PermissionDecision.Deny(DenialCause.UnreadableArguments);
-        }
-
-        // 2. The class of this call.
         ActionClass actionClass;
-        try
+        JsonElement arguments;
+        string toolName;
+        Func<string?> summarize;
+        if (request.Requester.Kind == RequesterKind.Session)
         {
-            actionClass = await ClassOfAsync(tool, arguments, cancellationToken).ConfigureAwait(false);
+            // A session of Claude Code asks for one of its own tools (ADR 0021, section 4): the code that received
+            // the request classified it. Without that class, nothing is allowed.
+            if (request.Session is not { } session)
+            {
+                return PermissionDecision.Deny(DenialCause.UnknownTool);
+            }
+
+            if (request.Arguments is not { ValueKind: JsonValueKind.Object } given)
+            {
+                return PermissionDecision.Deny(DenialCause.UnreadableArguments);
+            }
+
+            if (!Enum.IsDefined(session.Class))
+            {
+                return PermissionDecision.Deny(DenialCause.ClassifierFailed);
+            }
+
+            (actionClass, arguments, toolName, summarize) = (session.Class, given, request.Tool, () => session.Summary);
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        else
         {
-            return PermissionDecision.Deny(DenialCause.Interrupted);
-        }
-        catch (Exception exception)
-        {
-            LogClassifierFailed(exception, request.Tool);
-            return PermissionDecision.Deny(DenialCause.ClassifierFailed);
+            // 1. Known and enabled?
+            var tool = tools.Find(request.Tool);
+            if (tool is null)
+            {
+                return PermissionDecision.Deny(DenialCause.UnknownTool);
+            }
+
+            if (!tools.IsEnabled(tool))
+            {
+                return PermissionDecision.Deny(DenialCause.ToolDisabled);
+            }
+
+            if (request.Arguments is not { ValueKind: JsonValueKind.Object } given)
+            {
+                return PermissionDecision.Deny(DenialCause.UnreadableArguments);
+            }
+
+            // 2. The class of this call.
+            try
+            {
+                actionClass = await ClassOfAsync(tool, given, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return PermissionDecision.Deny(DenialCause.Interrupted);
+            }
+            catch (Exception exception)
+            {
+                LogClassifierFailed(exception, request.Tool);
+                return PermissionDecision.Deny(DenialCause.ClassifierFailed);
+            }
+
+            arguments = given;
+            toolName = tool.Name;
+            summarize = () => tool.Summarize(given, language?.Current ?? AssistantLanguage.English);
         }
 
         return actionClass switch
@@ -124,7 +155,7 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
             ActionClass.Read or ActionClass.EverydayEffect => PermissionDecision.Allow(actionClass),
 
             // 4. A human answer decides.
-            ActionClass.Sensitive or ActionClass.Critical => await ConfirmAsync(request, tool, arguments, actionClass, cancellationToken).ConfigureAwait(false),
+            ActionClass.Sensitive or ActionClass.Critical => await ConfirmAsync(request, toolName, summarize, arguments, actionClass, cancellationToken).ConfigureAwait(false),
 
             // 5. Denied without a question; an unknown class is denied too.
             _ => PermissionDecision.Deny(DenialCause.Forbidden, actionClass),
@@ -132,7 +163,7 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
     }
 
     /// <summary>Step 4: asks the user, and turns the answer into a decision. Anything but an agreement through an accepted channel is a denial.</summary>
-    private async ValueTask<PermissionDecision> ConfirmAsync(ActionRequest request, ITool tool, JsonElement arguments, ActionClass actionClass, CancellationToken cancellationToken)
+    private async ValueTask<PermissionDecision> ConfirmAsync(ActionRequest request, string toolName, Func<string?> summarize, JsonElement arguments, ActionClass actionClass, CancellationToken cancellationToken)
     {
         if (confirmation is null)
         {
@@ -142,7 +173,7 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
         string? summary = null;
         try
         {
-            summary = tool.Summarize(arguments, language?.Current ?? AssistantLanguage.English);
+            summary = summarize();
         }
         catch (Exception exception)
         {
@@ -154,7 +185,7 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
         try
         {
             outcome = await confirmation.AskAsync(
-                new ConfirmationRequest(request.Requester, tool.Name, summary, arguments.GetRawText(), actionClass, request.Context),
+                new ConfirmationRequest(request.Requester, toolName, summary, arguments.GetRawText(), actionClass, request.Context),
                 cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

@@ -43,7 +43,19 @@ public sealed record ActionRequest(ActionRequester Requester, string Tool, JsonE
 {
     /// <summary>The turn the action was asked in; <see cref="ActionContext.None"/> outside a turn.</summary>
     public ActionContext Context { get; init; } = ActionContext.None;
+
+    /// <summary>
+    /// For a request of a Claude Code session only (<see cref="RequesterKind.Session"/>): the class of the action
+    /// and what to say of it, given by the code that received the request (ADR 0021, section 4). The tool of a
+    /// session is not a tool of Jarvis, so it is not looked up in the registry.
+    /// </summary>
+    public SessionAction? Session { get; init; }
 }
+
+/// <summary>An action of a Claude Code session, classified by code from the table of ADR 0021, section 4.</summary>
+/// <param name="Class">The class of the action.</param>
+/// <param name="Summary">One sentence for the confirmation request, or <see langword="null"/> for the general sentence.</param>
+public sealed record SessionAction(ActionClass Class, string? Summary = null);
 
 /// <summary>Why an action was denied. The slice that asked turns it into one sentence for the model.</summary>
 public enum DenialCause

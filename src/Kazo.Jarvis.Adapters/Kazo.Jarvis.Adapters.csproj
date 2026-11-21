@@ -25,6 +25,8 @@
     <PackageReference Include="SharpZipLib" />
     <!-- Tool servers (ADR 0018): the official MCP client. -->
     <PackageReference Include="ModelContextProtocol.Core" />
+    <!-- Local server (ADR 0021, section 3): the MCP server of Jarvis on /mcp, with the approve tool. -->
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
   </ItemGroup>
 
   <ItemGroup>

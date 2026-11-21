@@ -1,6 +1,9 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.LocalServer;
 using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
@@ -12,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ModelContextProtocol.Server;
 
 namespace Kazo.Jarvis.Adapters.LocalServer;
 
@@ -27,11 +31,19 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
     /// <summary>The largest body accepted: a hook sends the input of one tool, not a file.</summary>
     internal const long MostBody = 1024 * 1024;
 
+    /// <summary>The path of the MCP server of Jarvis, which carries the <c>approve</c> tool.</summary>
+    public const string McpPath = "/mcp";
+
+    /// <summary>The name of the permission tool, as Claude Code is told by <c>--permission-prompt-tool mcp__jarvis__approve</c>.</summary>
+    public const string ApproveTool = "approve";
+
     private const string Bearer = "Bearer ";
+    private const string TaskItem = "jarvis.task";
 
     private readonly ISettingsStore settings;
     private readonly Dictionary<string, ILocalRoute> routes;
     private readonly ISecretVault? vault;
+    private readonly IClaudeApprovals? approvals;
     private readonly ILogger<KestrelLocalServer>? logger;
     private readonly int? fixedPort;
     private readonly SemaphoreSlim turn = new(1, 1);
@@ -46,13 +58,15 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
     /// <param name="routes">The routes given by the slices.</param>
     /// <param name="vault">The vault, for the token of the user's hooks; without it no such hook is accepted.</param>
     /// <param name="logger">The log. A token is never written to it.</param>
-    public KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault = null, ILogger<KestrelLocalServer>? logger = null)
-        : this(settings, routes, vault, logger, null)
+    /// <param name="approvals">Who decides the requests of the <c>approve</c> tool; without it every request is denied.</param>
+    public KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault = null, ILogger<KestrelLocalServer>? logger = null, IClaudeApprovals? approvals = null)
+        : this(settings, routes, vault, logger, null, approvals)
     {
     }
 
-    internal KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault, ILogger<KestrelLocalServer>? logger, int? fixedPort)
+    internal KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault, ILogger<KestrelLocalServer>? logger, int? fixedPort, IClaudeApprovals? approvals = null)
     {
+        this.approvals = approvals;
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(routes);
         this.settings = settings;
@@ -140,8 +154,19 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
                 kestrel.AddServerHeader = false;
                 kestrel.Limits.MaxRequestBodySize = MostBody;
             });
+
+            // The MCP server of Jarvis (ADR 0021, section 3), without a session of its own: one request, one answer.
+            var context = new HttpContextAccessor();
+            builder.Services.AddRoutingCore();
+            builder.Services.AddSingleton<IHttpContextAccessor>(context);
+            builder.Services
+                .AddMcpServer(options => options.ServerInfo = new() { Name = "jarvis", Version = "1" })
+                .WithHttpTransport(options => options.Stateless = true)
+                .WithTools([ApproveToolOf(context)]);
             var built = builder.Build();
-            built.Run(ServeAsync);
+            built.Use(ServeAsync);
+            built.UseRouting();
+            built.MapMcp(McpPath);
             try
             {
                 await built.StartAsync().ConfigureAwait(false);
@@ -184,7 +209,40 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
         }
     }
 
-    private async Task ServeAsync(HttpContext context)
+    private McpServerTool ApproveToolOf(IHttpContextAccessor context) => McpServerTool.Create(
+        async (string tool_name, JsonElement input, CancellationToken cancellationToken, string? tool_use_id = null) =>
+        {
+            // The answer is a JSON text, the form Claude Code expects from a permission tool (spike E12).
+            var task = context.HttpContext?.Items[TaskItem] as string;
+            ClaudeApproval answer;
+            try
+            {
+                answer = approvals is null
+                    ? ClaudeApproval.Deny("Jarvis cannot decide permissions right now.")
+                    : await approvals.AskAsync(new ClaudeApprovalRequest(task, tool_name, input.Clone(), tool_use_id), cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                // Whatever fails, the session does not write.
+                if (logger is not null)
+                {
+                    LogRouteFailed(logger, McpPath, exception);
+                }
+
+                answer = ClaudeApproval.Deny("Jarvis could not decide.");
+            }
+
+            return answer.Allowed
+                ? new JsonObject { ["behavior"] = "allow", ["updatedInput"] = JsonNode.Parse(input.GetRawText()) }.ToJsonString()
+                : new JsonObject { ["behavior"] = "deny", ["message"] = answer.Message ?? "Denied by Jarvis." }.ToJsonString();
+        },
+        new McpServerToolCreateOptions
+        {
+            Name = ApproveTool,
+            Description = "Asks Jarvis (the user) whether Claude Code may use a tool.",
+        });
+
+    private async Task ServeAsync(HttpContext context, RequestDelegate next)
     {
         var request = context.Request;
         var path = request.Path.Value ?? string.Empty;
@@ -199,6 +257,18 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
         if (caller == LocalCaller.UserHook && !path.StartsWith(HookPaths.Prefix, StringComparison.Ordinal))
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return;
+        }
+
+        if (path == McpPath)
+        {
+            // Only a session Jarvis started reaches here (the token of the user's hooks was refused above).
+            if (request.Headers.TryGetValue(LocalRequest.TaskHeader, out var named) && named.ToString().Trim() is { Length: > 0 } task)
+            {
+                context.Items[TaskItem] = task;
+            }
+
+            await next(context).ConfigureAwait(false);
             return;
         }
 

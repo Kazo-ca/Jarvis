@@ -120,9 +120,16 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetRequiredService<ISettingsStore>(),
             provider.GetServices<Kazo.Jarvis.Kernel.LocalServer.ILocalRoute>(),
             provider.GetService<ISecretVault>(),
-            provider.GetService<ILogger<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>>()));
+            provider.GetService<ILogger<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>>(),
+            provider.GetService<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeApprovals>()));
         services.TryAddSingleton<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
         services.AddHostedService(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
+
+        // Claude Code as a program Jarvis starts (ADR 0021, section 1).
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode>(provider => new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeCodeProcess(
+            provider.GetRequiredService<JarvisPaths>(),
+            provider.GetRequiredService<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(),
+            provider.GetService<ILogger<Kazo.Jarvis.Adapters.ClaudeCode.ClaudeCodeProcess>>()));
 
         // Tool servers (ADR 0018): the MCP client.
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Tools.Servers.IToolServerConnector, Kazo.Jarvis.Adapters.Mcp.McpToolServerConnector>();
