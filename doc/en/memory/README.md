@@ -201,7 +201,17 @@ Resume point for any agent. Update it in the same change as what it describes.
   ([details](../dev/basic-tools.md#provisional-choices-of-this-work-item)): typed path with no folder
   picker, no "stricter" setting per tool, browser closed after 5 minutes, a single tab. **Windows checks
   pending** ([list](../dev/basic-tools.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/6-mcp-client` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation` and `stage2/5-basic-tools` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/6-mcp-client`** (MCP client, see [dev/mcp.md](../dev/mcp.md)), following ADR 0018,
+  sections 1 to 4: kernel contract `IToolServerConnector` (`Kernel/Tools/Servers`), adapter
+  `McpToolServerConnector` on the package `ModelContextProtocol.Core` 2.4.0, slice `Mcp/Servers` (section
+  `Mcp.Servers`, `McpServerHub`, "MCP servers" page): adding by address or by command, connection test with a
+  named cause, new attempts from 5 s to 5 minutes, tools **off when found**, activation tied to the
+  fingerprint, class "Read" or "Sensitive" raised by the user only, tokens in the vault. **No real MCP server
+  was reached from Jarvis.** Provisional choices to be confirmed by Benoit
+  ([details](../dev/mcp.md#provisional-choices-of-this-work-item)): the `HomeAssistant` type is classed like
+  `Generic` until work item 7, a single "Token" field, no editing of a server on the page, no environment
+  variables, package `Core`. **Windows checks pending** ([list](../dev/mcp.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/7-home-assistant` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools` and `stage2/6-mcp-client` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

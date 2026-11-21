@@ -18,6 +18,7 @@
 | [conversation.md](conversation.md) | Conversation : le tour complet, l'interruption, la fenêtre de conversation, la personnalité |
 | [confirmation.md](confirmation.md) | Demande de confirmation : condition et aspect « interaction requise » de l'orbe, fenêtre, question dite, réponse à la voix ou au clic, aucun délai, annonce pour une demande écrite, journal des permissions |
 | [basic-tools.md](basic-tools.md) | Outils de base : dossiers autorisés, `list_directory`, `read_file`, `web_search`, `fetch_url`, navigateur de Jarvis (WebView2), page « Outils » |
+| [mcp.md](mcp.md) | Client MCP : contrat « serveur d'outils », adaptateur, connexion et nouveaux essais, outils désactivés à la découverte, empreinte d'un outil, classes, page « Serveurs MCP » |
 | [tools.md](tools.md) | Outils : contrats du noyau, point de décision des permissions et son journal, boucle d'outils, heure et calcul |
 | [llm.md](llm.md) | Modèles de langage : fournisseurs, adaptateurs, modèle par défaut, test de la connexion |
 | [first-run.md](first-run.md) | Premier lancement : assistant de configuration, page « Modèles vocaux » (téléchargement vérifié), recherche d'Ollama |

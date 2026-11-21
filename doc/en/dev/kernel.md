@@ -24,6 +24,7 @@ src/Kazo.Jarvis.Kernel/
   Storage/                               document store contract (see storage.md)
   Secrets/                               secret vault contract (see storage.md)
   Tools/                                 tool, tool registry, switches (see tools.md)
+  Tools/Servers/                         tool server: connection, tools, call (see mcp.md)
   Files/                                 local files, read only (see basic-tools.md)
   Web/                                   reading browser, search by API, allowed addresses (see basic-tools.md)
   Permissions/                           action classes, permission decision point (see tools.md)

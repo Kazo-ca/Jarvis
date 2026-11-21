@@ -107,8 +107,8 @@ simulated browser received.
 The ADRs do not settle them; to be confirmed by Benoit:
 
 1. **A folder is added by typing its path**: no Windows folder picker yet.
-2. **No "stricter" setting per tool** (ask for a confirmation for a read tool): it will come with the MCP
-   client, which needs it.
+2. **No "stricter" setting per tool** (ask for a confirmation for a read tool): it exists
+   for the tools of the MCP servers ([mcp.md](mcp.md)), not yet for the built-in tools.
 3. **The browser closes after 5 minutes without use**, a fixed value.
 4. **A search by Jarvis replaces the page the user is looking at** in the browser window: there is only one
    tab.

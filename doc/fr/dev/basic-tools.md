@@ -111,7 +111,7 @@ Les ADR ne les tranchent pas ; à confirmer par Benoit :
 
 1. **Un dossier s'ajoute en tapant son chemin** : pas encore de sélecteur de dossier de Windows.
 2. **Pas de réglage « plus strict » par outil** (demander une confirmation pour un outil de lecture) : il
-   viendra avec le client MCP, qui en a besoin.
+   existe pour les outils des serveurs MCP ([mcp.md](mcp.md)), pas encore pour les outils intégrés.
 3. **Le navigateur se ferme après 5 minutes sans usage**, valeur fixe.
 4. **Une recherche de Jarvis remplace la page que l'utilisateur regarde** dans la fenêtre du navigateur : il
    n'y a qu'un seul onglet.

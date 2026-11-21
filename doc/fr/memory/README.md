@@ -209,7 +209,18 @@ ce qu'il décrit.
   ([détail](../dev/basic-tools.md#choix-provisoires-de-ce-chantier)) : chemin tapé sans sélecteur de dossier,
   pas de réglage « plus strict » par outil, fermeture du navigateur après 5 minutes, un seul onglet. **Tests
   Windows en attente** ([liste](../dev/basic-tools.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/6-mcp-client` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation` et `stage2/5-basic-tools` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/6-mcp-client`** (client MCP, voir [dev/mcp.md](../dev/mcp.md)), selon l'ADR 0018,
+  sections 1 à 4 : contrat du noyau `IToolServerConnector` (`Kernel/Tools/Servers`), adaptateur
+  `McpToolServerConnector` sur le paquet `ModelContextProtocol.Core` 2.4.0, tranche `Mcp/Servers` (section
+  `Mcp.Servers`, `McpServerHub`, page « Serveurs MCP ») : ajout par adresse ou par commande, test de connexion
+  avec cause nommée, nouveaux essais de 5 s à 5 minutes, outils **désactivés à la découverte**, activation
+  liée à l'empreinte, classe « Lecture » ou « Sensible » montée par l'utilisateur seulement, jetons au
+  coffre. **Aucun vrai serveur MCP n'a été joint depuis Jarvis.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/mcp.md#choix-provisoires-de-ce-chantier)) : le type `HomeAssistant` se classe comme
+  `Generic` jusqu'au chantier 7, un seul champ « Jeton », pas de modification d'un serveur sur la page, pas de
+  variables d'environnement, paquet `Core`. **Tests Windows en attente**
+  ([liste](../dev/mcp.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/7-home-assistant` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools` et `stage2/6-mcp-client` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
