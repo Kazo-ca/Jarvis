@@ -23,6 +23,7 @@
 @inject SimulatedClaudeUserSettings ClaudeSettings
 @inject SimulatedClaudeCode ClaudeCode
 @inject SimulatedHandSession HandSession
+@inject SimulatedTaskFanSurface FanSurface
 @inject Kazo.Jarvis.Kernel.Tasks.ITaskBoard Board
 @inject ConfigurationFaultReporter ConfigurationCheck
 
@@ -34,7 +35,8 @@
    and the faults window of the tray menu (stage1/15-faults). The orb demonstration page, which
    drives the component directly, is /orb (US1.3). *@
 <main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
-    <div class="orb-frame" hidden="@(!Orb.IsVisible)">
+    @* The orb sits in a corner of the page, above everything, as on the desktop: the fan opens around it. *@
+    <div class="orb-frame" data-orb-corner="@FanSurface.Corner" hidden="@(!Orb.IsVisible)">
         <OrbView AnimateIdle="false" />
     </div>
     <nav class="host-controls">
@@ -71,6 +73,8 @@
         <button type="button" id="hand-session-work" @onclick="HandSession.WorkAsync">Make a session started by hand work</button>
         <button type="button" id="hand-session-wait" @onclick="HandSession.WaitAsync">Make it wait for a permission</button>
         <button type="button" id="hand-session-stop" @onclick="HandSession.StopAsync">Make it end its turn</button>
+        <button type="button" id="hand-session-subtask" @onclick="HandSession.SubTaskAsync">Make it start a sub-agent</button>
+        <button type="button" id="orb-next-corner" @onclick="FanSurface.NextCorner">Move the orb to the next corner</button>
         <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="fault" data-cause="@(State.Current.Fault?.Cause.ToString() ?? "")" data-origin="@(State.Current.Fault?.Origin?.ToString() ?? "")">@(State.Current.Fault is { } fault ? $"{fault.Cause} ({fault.Origin})" : "No fault")</output>
         <output id="microphone-open" data-device="@(Microphones.OpenDevice?.Id ?? "")">@(Microphones.OpenDevice?.Name ?? "No microphone open")</output>
@@ -91,11 +95,14 @@
         <output id="tool-servers" data-calls="@ToolServers.Calls.Count" data-last-call="@(ToolServers.Calls.LastOrDefault() ?? "")" data-revision="@ToolServers.Revision">@(ToolServers.Calls.LastOrDefault() ?? "No tool server called")</output>
         <output id="confirmation" data-pending="@(State.Current.Interaction is null ? "false" : "true")" data-kind="@(State.Current.Interaction?.Kind.ToString() ?? "")"
                 data-question-said="@(State.Current.Interaction is { } pending && pending.Id == questionSaid ? "true" : "false")">@(State.Current.Interaction is null ? "No confirmation pending" : "Confirmation pending")</output>
+        <output id="task-fan" data-shown="@(FanSurface.IsShown ? "true" : "false")" data-corner="@FanSurface.Corner">@(FanSurface.IsShown ? "Fan surface shown" : "Fan surface hidden")</output>
         <output id="updater-launched" data-folder="@(Launcher.LaunchedFolder ?? "")">@(Launcher.LaunchedFolder is null ? "Updater not started" : "Updater started")</output>
     </nav>
     @* Like a window of the Windows host, the dialogs rebuild their texts when the language changes. *@
     <LanguageScope>
         <DialogOverlay />
+        @* The task fan, drawn over the page (ADR 0010, section 4). *@
+        <TaskFanView />
     </LanguageScope>
 </main>
 
@@ -120,6 +127,7 @@
         ClaudeSettings.Changed += OnChanged;
         ClaudeCode.Changed += OnChanged;
         Board.Changed += OnBoardChanged;
+        FanSurface.Changed += OnChanged;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
         questionSubscription = Bus.Subscribe<ConfirmationQuestionSaid>((message, _) => new ValueTask(InvokeAsync(() =>
         {
@@ -146,6 +154,7 @@
         ClaudeSettings.Changed -= OnChanged;
         ClaudeCode.Changed -= OnChanged;
         Board.Changed -= OnBoardChanged;
+        FanSurface.Changed -= OnChanged;
         stateSubscription?.Dispose();
         transcriptionSubscription?.Dispose();
         questionSubscription?.Dispose();

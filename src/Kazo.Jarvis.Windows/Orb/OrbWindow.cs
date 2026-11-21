@@ -61,6 +61,12 @@ internal sealed class OrbWindow : Window
     /// <summary>The top-left corner in physical screen pixels.</summary>
     public (int X, int Y) ScreenPosition => NativeMethods.WindowPosition(new WindowInteropHelper(this).Handle);
 
+    /// <summary>The window's rectangle in physical screen pixels.</summary>
+    public (int X, int Y, int Width, int Height) ScreenBounds => NativeMethods.WindowBounds(new WindowInteropHelper(this).Handle);
+
+    /// <summary>Puts the window back above the other "always on top" windows of the host, without activating it.</summary>
+    public void BringToTop() => NativeMethods.BringToTop(new WindowInteropHelper(this).Handle);
+
     /// <summary>
     /// Places the window at physical screen pixels as soon as its handle exists, before it is shown. Windows
     /// then sends the scale change of the target screen, and WPF resizes the window for it.

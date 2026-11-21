@@ -36,6 +36,9 @@ public static class SimulatedServiceCollectionExtensions
 
         services.TryAddSingleton<SimulatedOrbWindow>();
         services.TryAddSingleton<IOrbWindow>(provider => provider.GetRequiredService<SimulatedOrbWindow>());
+        services.TryAddSingleton<SimulatedTaskFanSurface>();
+        services.TryAddSingleton<ITaskFanSurface>(provider => provider.GetRequiredService<SimulatedTaskFanSurface>());
+        services.TryAddSingleton<IPointerTimings>(provider => provider.GetRequiredService<SimulatedTaskFanSurface>());
         services.TryAddSingleton<OverlayDialogService>();
         services.TryAddSingleton<IDialogService>(provider => provider.GetRequiredService<OverlayDialogService>());
         services.TryAddSingleton<SimulatedGlobalHotkey>();

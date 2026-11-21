@@ -24,6 +24,7 @@ using Kazo.Jarvis.Features.Setup.Models;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
 using Kazo.Jarvis.Features.Tasks.Board;
+using Kazo.Jarvis.Features.Tasks.Fan;
 using Kazo.Jarvis.Features.Tools.Calculator;
 using Kazo.Jarvis.Features.Tools.Catalog;
 using Kazo.Jarvis.Features.Tools.Clock;
@@ -148,6 +149,10 @@ public static class FeaturesServiceCollectionExtensions
         // Announcements of the sessions (stage2/13-session-announcements, ADR 0021 section 9, ADR 0024): Jarvis
         // says when a session ends or waits, except during the quiet time; « Où en est Claude sur… ? ».
         services.AddClaudeAnnouncementsSlice();
+
+        // Task fan (stage2/14-task-fan, ADR 0010): a double click on the orb shows the tasks in progress around
+        // it, with the decision that waits; a host without a fan surface has no fan.
+        services.AddTaskFanSlice();
 
         // Other slices arrive with the next work items.
         return services;

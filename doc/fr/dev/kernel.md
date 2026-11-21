@@ -32,7 +32,9 @@ src/Kazo.Jarvis.Kernel/
   ClaudeCode/                            registre des sessions Claude Code en cours (voir tasks-and-sessions.md), fichier de réglages de l'utilisateur (voir hook-server.md), lancement de Claude Code et demandes de permission d'une session (voir claude-code-launch.md), travail confié à Claude Code et fin d'une session (voir claude-code-tasks.md)
   LocalServer/                           serveur local sur 127.0.0.1, ses routes, son port, chemins des hooks (voir hook-server.md)
   Web/                                   navigateur de lecture, recherche par API, adresses permises (voir basic-tools.md)
-  Permissions/                           classes d'actions, point de décision des permissions (voir tools.md)
+  Permissions/                           classes d'actions, point de décision des permissions (voir tools.md), demande de confirmation ouverte (voir task-fan.md)
+  Desktop/                               fenêtre de l'orbe, dialogues, raccourci (voir hosts.md), surface de l'éventail et délai de double-clic (voir task-fan.md)
+  Messages/Desktop/                      demandes de fenêtres, TaskFanToggleRequested (voir task-fan.md)
 ```
 
 Un hôte n'appelle pas `AddJarvisKernel()` lui-même : `AddJarvisFeatures()` le fait. L'appel peut se répéter

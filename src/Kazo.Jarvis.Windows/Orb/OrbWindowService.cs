@@ -91,6 +91,29 @@ internal sealed partial class OrbWindowService : IOrbWindow
         LogOpened(openedX, openedY);
     }
 
+    /// <summary>The rectangle of the orb window in physical screen pixels, or <see langword="null"/> while it does not exist. UI thread.</summary>
+    public (int X, int Y, int Width, int Height)? ScreenBounds
+    {
+        get
+        {
+            dispatcher.VerifyAccess();
+            return window?.ScreenBounds;
+        }
+    }
+
+    /// <summary>
+    /// Puts the orb back above the fan (ADR 0010, section 5): a click on a panel activates the fan window, which
+    /// then passes over the orb in the "always on top" band (spike E11). UI thread.
+    /// </summary>
+    public void BringToTop()
+    {
+        dispatcher.VerifyAccess();
+        if (wanted)
+        {
+            window?.BringToTop();
+        }
+    }
+
     /// <summary>Closes and forgets the window (it failed, or the application quits). UI thread.</summary>
     public void Close()
     {

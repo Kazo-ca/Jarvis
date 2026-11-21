@@ -55,7 +55,8 @@ public sealed record ActionRequest(ActionRequester Requester, string Tool, JsonE
 /// <summary>An action of a Claude Code session, classified by code from the table of ADR 0021, section 4.</summary>
 /// <param name="Class">The class of the action.</param>
 /// <param name="Summary">One sentence for the confirmation request, or <see langword="null"/> for the general sentence.</param>
-public sealed record SessionAction(ActionClass Class, string? Summary = null);
+/// <param name="TaskId">The task of the session, so that the fan shows the request in the panel of that task (ADR 0010, section 2).</param>
+public sealed record SessionAction(ActionClass Class, string? Summary = null, string? TaskId = null);
 
 /// <summary>Why an action was denied. The slice that asked turns it into one sentence for the model.</summary>
 public enum DenialCause

@@ -3,15 +3,39 @@ main {
     flex-direction: column;
     align-items: center;
     gap: 24px;
-    padding-top: 48px;
+    /* The sides stay free for the orb. */
+    padding: 48px 190px 0;
     color: #d8f6ff;
     font-family: system-ui, sans-serif;
 }
 
 /* Same size as the orb window of the Windows host (160 device-independent pixels). */
 .orb-frame {
+    position: fixed;
+    z-index: 30;
     width: 160px;
     height: 160px;
+}
+
+/* The four corners; SimulatedTaskFanSurface gives the fan the same fractions for the centre of the orb. */
+.orb-frame[data-orb-corner="bottom-right"] {
+    left: calc(92% - 80px);
+    top: calc(86% - 80px);
+}
+
+.orb-frame[data-orb-corner="bottom-left"] {
+    left: calc(8% - 80px);
+    top: calc(86% - 80px);
+}
+
+.orb-frame[data-orb-corner="top-left"] {
+    left: calc(8% - 80px);
+    top: calc(14% - 80px);
+}
+
+.orb-frame[data-orb-corner="top-right"] {
+    left: calc(92% - 80px);
+    top: calc(14% - 80px);
 }
 
 .orb-frame[hidden] {

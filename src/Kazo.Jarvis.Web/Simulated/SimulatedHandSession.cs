@@ -31,6 +31,22 @@ public sealed class SimulatedHandSession
     /// <returns>A task that completes when the board is moved.</returns>
     public async Task StopAsync() => await board.ChangeAsync((await CurrentAsync()).Id, new TaskChange(WorkTaskStatus.Idle, "Le pied de page est corrigé."));
 
+    /// <summary>The session starts a sub-agent: a sub-task of its task, shown inside its panel of the fan.</summary>
+    /// <returns>A task that completes when the board is moved.</returns>
+    public async Task SubTaskAsync()
+    {
+        var parent = await CurrentAsync();
+        await board.CreateAsync(new NewWorkTask(
+            "cherche les pieds de page",
+            parent.Project,
+            parent.Topic,
+            new TaskOperator(TaskOperator.ClaudeCode),
+            TaskSource.Hook,
+            Folder,
+            parent.Id,
+            WorkTaskStatus.Working));
+    }
+
     private async Task<WorkTask> CurrentAsync()
     {
         var session = "hand-" + sessions;

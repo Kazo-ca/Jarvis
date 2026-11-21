@@ -10,6 +10,7 @@ using Kazo.Jarvis.Windows.Audio;
 using Kazo.Jarvis.Windows.Browser;
 using Kazo.Jarvis.Windows.Desktop;
 using Kazo.Jarvis.Windows.Dialogs;
+using Kazo.Jarvis.Windows.Fan;
 using Kazo.Jarvis.Windows.Orb;
 using Kazo.Jarvis.Windows.Startup;
 using Kazo.Jarvis.Windows.Tray;
@@ -22,13 +23,17 @@ namespace Kazo.Jarvis.Windows;
 /// <summary>Registers the native services of the Windows host (ADR 0003, section 5).</summary>
 internal static class WindowsHostServiceCollectionExtensions
 {
-    /// <summary>Orb window, dialogs, tray icon, global hotkey, audio devices, start with Windows, Windows display language, the browser of Jarvis and updater launcher.</summary>
+    /// <summary>Orb window, fan window, dialogs, tray icon, global hotkey, audio devices, start with Windows, Windows display language, the browser of Jarvis and updater launcher.</summary>
     /// <param name="services">The host's service collection.</param>
     /// <returns>The same collection, for chaining.</returns>
     public static IServiceCollection AddJarvisWindowsHost(this IServiceCollection services)
     {
         services.TryAddSingleton<OrbWindowService>();
         services.TryAddSingleton<IOrbWindow>(provider => provider.GetRequiredService<OrbWindowService>());
+        // The task fan (ADR 0010): its window, and the double-click time that delays a single click on the orb.
+        services.TryAddSingleton<FanWindowService>();
+        services.TryAddSingleton<ITaskFanSurface>(provider => provider.GetRequiredService<FanWindowService>());
+        services.TryAddSingleton<IPointerTimings, SystemPointerTimings>();
         services.TryAddSingleton<WindowDialogService>();
         services.TryAddSingleton<IDialogService>(provider => provider.GetRequiredService<WindowDialogService>());
         services.TryAddSingleton<IGlobalHotkey, Win32GlobalHotkey>();

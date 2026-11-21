@@ -1,4 +1,5 @@
-/* Host pages of the Windows host: index.html for the dialogs, orb.html for the orb window.
+/* Host pages of the Windows host: index.html for the dialogs, orb.html for the orb window, fan.html for the
+   window of the task fan.
    Colors and fonts come from the shared style (jarvis.css, stage1/5-shared-ui-language). */
 html, body {
     margin: 0;
@@ -9,5 +10,10 @@ html, body {
 
 /* The orb window is transparent: only the orb's own pixels are drawn and catch clicks. */
 html:has(body.orb), body.orb {
+    background: transparent;
+}
+
+/* The fan window is transparent too: closed, it draws nothing; open, the fan darkens the desktop itself. */
+html:has(body.fan), body.fan {
     background: transparent;
 }
