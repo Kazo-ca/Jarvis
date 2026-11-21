@@ -7,9 +7,10 @@ namespace Kazo.Jarvis.Tests.E2E.Scenarios;
 
 /// <summary>
 /// The confirmation request on the Web host (work item stage2/4-confirmation, ADR 0023): the two simulated tools
-/// <c>write_note</c> ("Sensitive") and <c>erase_notes</c> ("Critical") only run after a human answer. A typed turn
-/// gets the window only; a spoken turn hears the question and may answer aloud; anything but an agreement is a
-/// refusal; the permission log keeps the channel of the answer.
+/// <c>write_note</c> ("Sensitive") and <c>erase_notes</c> ("Critical") only run after a human answer. After a typed
+/// request Jarvis only says that an interaction is required; after a spoken one he says the question and may be
+/// answered aloud; anything but an agreement is a refusal; a request waits as long as it takes; the permission log
+/// keeps the channel of the answer.
 /// </summary>
 [TestFixture]
 public sealed class ConfirmationTests : PageTest
@@ -70,9 +71,9 @@ public sealed class ConfirmationTests : PageTest
         // The condition is set, the orb shows it, and the phase did not change: the tool loop waits.
         await Expect(Window).ToHaveCountAsync(1, new() { Timeout = 10_000 });
         await Expect(Pending).ToHaveAttributeAsync("data-pending", "true");
-        await Expect(Pending).ToHaveAttributeAsync("data-class", "Sensitive");
+        await Expect(Pending).ToHaveAttributeAsync("data-kind", "Confirmation");
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Thinking");
-        await Expect(Page.Locator(".orb-frame .orb")).ToHaveAttributeAsync("data-look", "Confirmation");
+        await Expect(Page.Locator(".orb-frame .orb")).ToHaveAttributeAsync("data-look", "InteractionRequired");
 
         // Who asks, the summary written by code, the exact detail, the class, the time left.
         await Expect(Window.Locator("[data-confirmation-summary]")).ToContainTextAsync(note);
@@ -80,7 +81,14 @@ public sealed class ConfirmationTests : PageTest
         await Expect(Window.Locator("[data-confirmation-detail]")).ToHaveTextAsync("{\"text\":\"" + note + "\"}");
         await Expect(Window.Locator("[data-confirmation-window]")).ToHaveAttributeAsync("data-confirmation-class", "Sensitive");
         await Expect(Window.Locator("[data-confirmation-channel]")).ToHaveAttributeAsync("data-confirmation-channel", "click");
-        await Expect(Window.Locator("[data-confirmation-time-left]")).ToBeVisibleAsync();
+        await Expect(Window.Locator("[data-confirmation-waits]")).ToBeVisibleAsync();
+
+        // A typed turn: Jarvis only says that an interaction is required, and waits. No timeout decides for the user.
+        await Expect(Spoken).ToHaveTextAsync(new Regex("a besoin de votre interaction|needs your interaction"), new() { Timeout = 10_000 });
+        Assert.That(await CountAsync(Spoken), Is.EqualTo(spokenBefore + 1));
+        await Page.WaitForTimeoutAsync(1_500);
+        await Expect(Window).ToHaveCountAsync(1);
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Thinking");
         await Expect(Notes).Not.ToHaveTextAsync(note);
 
         await Window.Locator("[data-confirmation-approve]").ClickAsync();
@@ -91,8 +99,8 @@ public sealed class ConfirmationTests : PageTest
         await Expect(Newest.Locator("[data-conversation-tool='write_note']")).ToHaveAttributeAsync("data-tool-outcome", "Done", new() { Timeout = 10_000 });
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 10_000 });
 
-        // A typed turn: Jarvis asked nothing aloud.
-        Assert.That(await CountAsync(Spoken), Is.EqualTo(spokenBefore));
+        // The answer of a typed turn is written only: nothing more was said.
+        Assert.That(await CountAsync(Spoken), Is.EqualTo(spokenBefore + 1));
 
         await ExpectLoggedAsync("write_note", allowed: true, cause: string.Empty, channel: "click");
     }
@@ -105,7 +113,6 @@ public sealed class ConfirmationTests : PageTest
 
         await Expect(Window).ToHaveCountAsync(1, new() { Timeout = 10_000 });
         await Expect(Window.Locator("[data-confirmation-window]")).ToHaveAttributeAsync("data-confirmation-class", "Critical");
-        await Expect(Pending).ToHaveAttributeAsync("data-class", "Critical");
         await Window.Locator("[data-confirmation-refuse]").ClickAsync();
 
         await Expect(Window).ToHaveCountAsync(0);
@@ -177,30 +184,6 @@ public sealed class ConfirmationTests : PageTest
     }
 
     [Test]
-    public async Task Without_an_answer_the_request_times_out_after_the_delay_of_the_settings()
-    {
-        await SetTimeoutAsync(10);
-        try
-        {
-            var note = "trop tard " + Guid.NewGuid().ToString("N")[..6];
-            await TypeAsync("Écris une note " + note);
-            await Expect(Window).ToHaveCountAsync(1, new() { Timeout = 10_000 });
-            await Expect(Window.Locator("[data-confirmation-time-left]")).ToHaveAttributeAsync("data-confirmation-time-left", new Regex("^(10|9|8)$"));
-
-            await Expect(Window).ToHaveCountAsync(0, new() { Timeout = 15_000 });
-            await Expect(Newest.Locator("[data-conversation-tool='write_note']")).ToHaveAttributeAsync("data-tool-outcome", "Denied", new() { Timeout = 10_000 });
-            await Expect(Notes).Not.ToHaveTextAsync(note);
-            await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 10_000 });
-            await ExpectLoggedAsync("write_note", allowed: false, cause: "TimedOut", channel: string.Empty);
-        }
-        finally
-        {
-            await CloseDialogsAsync();
-            await SetTimeoutAsync(30);
-        }
-    }
-
-    [Test]
     public async Task An_activation_during_a_request_interrupts_the_turn_and_closes_the_request()
     {
         var note = "interrompue " + Guid.NewGuid().ToString("N")[..6];
@@ -267,17 +250,6 @@ public sealed class ConfirmationTests : PageTest
         await Expect(newest).ToHaveAttributeAsync("data-decision-allowed", allowed ? "true" : "false");
         await Expect(newest).ToHaveAttributeAsync("data-decision-cause", cause);
         await Expect(newest).ToHaveAttributeAsync("data-decision-channel", channel);
-    }
-
-    private async Task SetTimeoutAsync(int seconds)
-    {
-        await Page.ClickAsync("#open-settings");
-        await Settings.Locator("[data-settings-page='Permissions.Confirmation']").ClickAsync();
-        var field = Settings.Locator("[data-confirmation-timeout]");
-        await field.FillAsync(seconds.ToString(CultureInfo.InvariantCulture));
-        await field.PressAsync("Tab");
-        await Expect(field).ToHaveValueAsync(seconds.ToString(CultureInfo.InvariantCulture));
-        await CloseDialogsAsync();
     }
 
     private async Task CloseDialogsAsync()

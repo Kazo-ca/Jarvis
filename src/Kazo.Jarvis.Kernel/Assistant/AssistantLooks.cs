@@ -6,7 +6,7 @@ public static class AssistantLooks
     /// <summary>Computes the look of a state.</summary>
     /// <param name="state">The assistant state.</param>
     /// <returns>
-    /// Confirmation while a confirmation request is open (ADR 0023); otherwise the look of the phase when Listening, Thinking or Speaking; otherwise Error if there is a fault;
+    /// InteractionRequired while something waits for the user (ADR 0023); otherwise the look of the phase when Listening, Thinking or Speaking; otherwise Error if there is a fault;
     /// otherwise MicrophoneMuted if muted; otherwise LongTask if a delegated task runs; otherwise Idle.
     /// </returns>
     public static AssistantLook Of(AssistantState state)
@@ -15,7 +15,7 @@ public static class AssistantLooks
 
         return state.Phase switch
         {
-            _ when state.Confirmation is not null => AssistantLook.Confirmation,
+            _ when state.Interaction is not null => AssistantLook.InteractionRequired,
             AssistantPhase.Listening => AssistantLook.Listening,
             AssistantPhase.Thinking => AssistantLook.Thinking,
             AssistantPhase.Speaking => AssistantLook.Speaking,

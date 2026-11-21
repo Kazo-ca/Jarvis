@@ -141,7 +141,6 @@ public sealed class PermissionDecisionPointTests
 
     [TestCase(ConfirmationAnswer.Refused, ConfirmationChannels.Click, DenialCause.Refused)]
     [TestCase(ConfirmationAnswer.Refused, ConfirmationChannels.Voice, DenialCause.Refused)]
-    [TestCase(ConfirmationAnswer.TimedOut, null, DenialCause.TimedOut)]
     [TestCase(ConfirmationAnswer.Interrupted, null, DenialCause.Interrupted)]
     public async Task Anything_but_an_agreement_is_a_denial_with_its_cause(ConfirmationAnswer answer, string? channel, DenialCause cause)
     {

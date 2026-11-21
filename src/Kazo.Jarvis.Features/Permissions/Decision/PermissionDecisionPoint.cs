@@ -170,7 +170,6 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
         {
             ConfirmationAnswer.Approved when accepted => PermissionDecision.Allow(actionClass) with { Channel = outcome.Channel },
             ConfirmationAnswer.Approved or ConfirmationAnswer.Refused => PermissionDecision.Deny(DenialCause.Refused, actionClass) with { Channel = outcome.Channel },
-            ConfirmationAnswer.TimedOut => PermissionDecision.Deny(DenialCause.TimedOut, actionClass),
             _ => PermissionDecision.Deny(DenialCause.Interrupted, actionClass),
         };
     }

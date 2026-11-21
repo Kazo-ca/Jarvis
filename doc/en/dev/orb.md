@@ -67,7 +67,7 @@ its drawing. These are what the Playwright tests rely on.
 | Long task | green | 0.45 / 0.5 | progress ring |
 | Error | red | 0 / 0 (still image) | a flash on entry; the cause on hover |
 | Microphone muted | grey | 0 / 0 (still image) | dim, "mic muted" label |
-| Confirmation | amber | 0.6 / 0.7; both versions pulse | almost full; comes before the look of the phase ([ADR 0023](adr/0023-confirmation-request-in-a-turn.md)) |
+| Interaction required | amber | 0.6 / 0.7; both versions pulse | almost full; comes before the look of the phase ([ADR 0023](adr/0023-confirmation-request-in-a-turn.md)) |
 
 - The color (`--orb-color`) and the light (`--orb-light`) of each look are in `Orb.razor.css`, for both
   versions. They are registered with `@property`: they fade (0.5 and 0.4 s), and the high-quality canvas

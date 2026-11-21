@@ -31,7 +31,7 @@ public sealed partial class UtteranceListener :
     IEventHandler<TurnStarted>,
     IEventHandler<TurnCancelled>,
     IEventHandler<ConfirmationQuestionSaid>,
-    IEventHandler<ConfirmationClosed>,
+    IEventHandler<InteractionClosed>,
     IDisposable
 {
     /// <summary>
@@ -199,7 +199,7 @@ public sealed partial class UtteranceListener :
     }
 
     /// <inheritdoc />
-    public ValueTask HandleAsync(ConfirmationClosed message, CancellationToken cancellationToken)
+    public ValueTask HandleAsync(InteractionClosed message, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(message);
         Session? cancelled = null;

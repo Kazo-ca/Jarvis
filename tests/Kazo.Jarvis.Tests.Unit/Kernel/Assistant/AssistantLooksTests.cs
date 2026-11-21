@@ -1,5 +1,4 @@
 using Kazo.Jarvis.Kernel.Assistant;
-using Kazo.Jarvis.Kernel.Permissions;
 
 namespace Kazo.Jarvis.Tests.Unit.Kernel.Assistant;
 
@@ -79,7 +78,7 @@ public sealed class AssistantLooksTests
                                 Fault = fault ? new AssistantFault(FaultCause.VoiceMissing) : null,
                                 MicrophoneMuted = muted,
                                 DelegatedTasks = tasks,
-                                Confirmation = pending ? new PendingConfirmation(Guid.NewGuid(), ActionClass.Sensitive) : null,
+                                Interaction = pending ? new PendingInteraction(Guid.NewGuid(), InteractionKind.Confirmation) : null,
                             }));
                         }
                     }
@@ -90,9 +89,9 @@ public sealed class AssistantLooksTests
         Assert.That(reached, Is.EquivalentTo(Enum.GetValues<AssistantLook>()));
     }
 
-    // ADR 0023, section 1: the confirmation look comes before the look of the phase and before every condition.
+    // ADR 0023, section 1: the "interaction required" look comes before the look of the phase and before every condition.
     [Test]
-    public void A_pending_confirmation_wins_over_the_phase_and_the_other_conditions(
+    public void A_required_interaction_wins_over_the_phase_and_the_other_conditions(
         [Values] AssistantPhase phase,
         [Values] bool fault,
         [Values] bool muted)
@@ -103,9 +102,9 @@ public sealed class AssistantLooksTests
             Fault = fault ? new AssistantFault(FaultCause.VoiceMissing) : null,
             MicrophoneMuted = muted,
             DelegatedTasks = 1,
-            Confirmation = new PendingConfirmation(Guid.NewGuid(), ActionClass.Critical),
+            Interaction = new PendingInteraction(Guid.NewGuid(), InteractionKind.Confirmation),
         };
 
-        Assert.That(AssistantLooks.Of(state), Is.EqualTo(AssistantLook.Confirmation));
+        Assert.That(AssistantLooks.Of(state), Is.EqualTo(AssistantLook.InteractionRequired));
     }
 }

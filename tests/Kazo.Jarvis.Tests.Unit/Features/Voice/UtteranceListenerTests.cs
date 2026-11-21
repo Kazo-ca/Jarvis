@@ -291,7 +291,7 @@ public sealed class UtteranceListenerTests
         var id = Guid.NewGuid();
         await Bus.PublishAsync(new ConfirmationQuestionSaid(id, turn, true));
 
-        await Bus.PublishAsync(new ConfirmationClosed(id));
+        await Bus.PublishAsync(new InteractionClosed(id));
         Speak(silence: 5, speech: 20, silenceAfter: 20);
         await Task.Delay(100);
 

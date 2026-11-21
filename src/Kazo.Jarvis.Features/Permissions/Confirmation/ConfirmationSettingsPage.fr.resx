@@ -16,21 +16,12 @@
     <value>Confirmations</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Avant une action sensible ou critique, Jarvis demande votre accord : une fenêtre s'ouvre et, après une demande parlée, il pose la question à voix haute. Sans réponse, l'action est refusée.</value>
-  </data>
-  <data name="TimeoutLabel" xml:space="preserve">
-    <value>Délai de réponse</value>
-  </data>
-  <data name="TimeoutHint" xml:space="preserve">
-    <value>De {0} à {1} secondes. Passé ce délai, l'action est refusée.</value>
+    <value>Avant une action sensible ou critique, Jarvis demande votre accord : une fenêtre s'ouvre et l'orbe passe à l'ambre. Après une demande parlée, il pose la question à voix haute ; après une demande écrite, il dit seulement que votre interaction est requise. Il attend votre réponse aussi longtemps qu'il faut.</value>
   </data>
   <data name="WordsLabel" xml:space="preserve">
     <value>Mots qui approuvent</value>
   </data>
   <data name="WordsHint" xml:space="preserve">
     <value>Votre réponse entière doit être l'un de ces mots. Toute autre réponse est un refus. Une action critique ne s'approuve que d'un clic.</value>
-  </data>
-  <data name="SaveFailed" xml:space="preserve">
-    <value>Le réglage n'a pas pu être enregistré.</value>
   </data>
 </root>

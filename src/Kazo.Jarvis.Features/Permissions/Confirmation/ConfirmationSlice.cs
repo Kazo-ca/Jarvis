@@ -14,14 +14,13 @@ public static class ConfirmationSlice
     public const string PageKey = "Permissions.Confirmation";
 
     /// <summary>
-    /// Adds the desk of the requests, its window and its settings page. Without this slice the decision point denies
+    /// Adds the desk of the requests, its window and the page that lists the words that approve. Without this slice the decision point denies
     /// every call that needs a confirmation.
     /// </summary>
     /// <param name="services">The host's service collection.</param>
     /// <returns>The same collection, for chaining.</returns>
     public static IServiceCollection AddConfirmationSlice(this IServiceCollection services)
     {
-        services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<ConfirmationDesk>();
         services.TryAddSingleton<IConfirmation>(provider => provider.GetRequiredService<ConfirmationDesk>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConfirmationAnswerHeard>, ConfirmationDesk>(

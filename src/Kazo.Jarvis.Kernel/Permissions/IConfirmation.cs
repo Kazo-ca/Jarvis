@@ -9,7 +9,10 @@ namespace Kazo.Jarvis.Kernel.Permissions;
 /// </summary>
 public interface IConfirmation
 {
-    /// <summary>Opens a request and waits for its answer, its timeout or an interruption. Never throws for a refusal.</summary>
+    /// <summary>
+    /// Opens a request and waits for its answer or an interruption, as long as it takes: Jarvis never decides in
+    /// place of the user, so no timeout refuses for them (ADR 0023, section 4). Never throws for a refusal.
+    /// </summary>
     /// <param name="request">What is asked, and by whom.</param>
     /// <param name="cancellationToken">An interruption of the turn: the request closes with <see cref="ConfirmationAnswer.Interrupted"/>.</param>
     /// <returns>The answer and its channel.</returns>
@@ -40,9 +43,6 @@ public enum ConfirmationAnswer
     /// <summary>The user refused, or answered something that is not an agreement.</summary>
     Refused,
 
-    /// <summary>Nobody answered in time.</summary>
-    TimedOut,
-
     /// <summary>The turn was interrupted.</summary>
     Interrupted,
 }
@@ -62,7 +62,7 @@ public static class ConfirmationChannels
     public const string Click = "click";
 }
 
-/// <summary>The turn an action was asked in: it decides whether Jarvis says the question aloud (ADR 0023, section 2).</summary>
+/// <summary>The turn an action was asked in: it decides what Jarvis says aloud (ADR 0023, section 2).</summary>
 /// <param name="Turn">The turn, or <see cref="TurnId.None"/> outside a turn.</param>
 /// <param name="Spoken">Whether the user spoke the request of this turn.</param>
 public sealed record ActionContext(TurnId Turn, bool Spoken)
@@ -70,8 +70,3 @@ public sealed record ActionContext(TurnId Turn, bool Spoken)
     /// <summary>An action asked outside a turn.</summary>
     public static ActionContext None { get; } = new(TurnId.None, false);
 }
-
-/// <summary>The condition "confirmation pending" of the assistant state (ADR 0023, section 1).</summary>
-/// <param name="Id">The identifier of the open request.</param>
-/// <param name="Class">Its class.</param>
-public sealed record PendingConfirmation(Guid Id, ActionClass Class);

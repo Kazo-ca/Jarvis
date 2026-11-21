@@ -42,9 +42,6 @@
   <data name="Denied_Refused" xml:space="preserve">
     <value>Denied: the user refused.</value>
   </data>
-  <data name="Denied_TimedOut" xml:space="preserve">
-    <value>Denied: the user did not answer in time.</value>
-  </data>
   <data name="Denied_Interrupted" xml:space="preserve">
     <value>Denied: the user interrupted.</value>
   </data>

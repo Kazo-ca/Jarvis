@@ -1,4 +1,3 @@
-using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Features.Permissions.Confirmation;
 using Kazo.Jarvis.Kernel;
 using Kazo.Jarvis.Kernel.Assistant;
@@ -12,13 +11,13 @@ using Kazo.Jarvis.Tests.Unit.Adapters;
 using Kazo.Jarvis.Tests.Unit.Features.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Time.Testing;
 
 namespace Kazo.Jarvis.Tests.Unit.Features.Permissions;
 
 /// <summary>
 /// The confirmation request (ADR 0023): the condition and the window while it is open, the question said for a
-/// spoken turn, the channels each class accepts, the timeout, the interruption. Runs with the real kernel.
+/// spoken turn, the announcement for a typed one, the channels each class accepts, the wait without a timeout, the
+/// interruption. Runs with the real kernel.
 /// </summary>
 [TestFixture]
 public sealed class ConfirmationDeskTests
@@ -29,9 +28,7 @@ public sealed class ConfirmationDeskTests
 
     private TemporaryFolder folder = null!;
     private ServiceProvider provider = null!;
-    private JsonFileSettingsStore settings = null!;
     private RecordingDialogs dialogs = null!;
-    private FakeTimeProvider time = null!;
     private ManualLanguage language = null!;
     private ConfirmationDesk desk = null!;
     private List<IEvent> published = null!;
@@ -46,11 +43,9 @@ public sealed class ConfirmationDeskTests
     {
         folder = new TemporaryFolder();
         provider = new ServiceCollection().AddJarvisKernel().BuildServiceProvider();
-        settings = new JsonFileSettingsStore(folder.Paths, [], TimeProvider.System);
         dialogs = new RecordingDialogs();
-        time = new FakeTimeProvider(new DateTimeOffset(2026, 11, 21, 9, 0, 0, TimeSpan.Zero));
         language = new ManualLanguage { Current = AssistantLanguage.French };
-        desk = new ConfirmationDesk(Bus, dialogs, settings, State, language, time, NullLogger<ConfirmationDesk>.Instance);
+        desk = new ConfirmationDesk(Bus, dialogs, State, language, NullLogger<ConfirmationDesk>.Instance);
         published = [];
         subscriptions =
         [
@@ -89,13 +84,12 @@ public sealed class ConfirmationDeskTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(State.Current.Confirmation, Is.EqualTo(new PendingConfirmation(open.Id, ActionClass.Sensitive)));
-            Assert.That(State.Current.Look, Is.EqualTo(AssistantLook.Confirmation));
+            Assert.That(State.Current.Interaction, Is.EqualTo(new PendingInteraction(open.Id, InteractionKind.Confirmation)));
+            Assert.That(State.Current.Look, Is.EqualTo(AssistantLook.InteractionRequired));
             Assert.That(dialogs.IsOpen(ConfirmationDesk.DialogKey), Is.True);
             Assert.That(dialogs.Opened.Single().Component, Is.EqualTo(typeof(ConfirmationWindow)));
             Assert.That(open.Summary, Is.EqualTo("Jarvis veut écrire la note « lait »."));
             Assert.That(open.Request.Detail, Is.EqualTo("""{"text":"lait"}"""), "The exact detail, nothing cut.");
-            Assert.That(open.Deadline, Is.EqualTo(time.GetUtcNow().AddSeconds(30)), "30 seconds by default.");
         });
 
         desk.Click(open.Id, true);
@@ -104,7 +98,7 @@ public sealed class ConfirmationDeskTests
         Assert.Multiple(() =>
         {
             Assert.That(outcome, Is.EqualTo(new ConfirmationOutcome(ConfirmationAnswer.Approved, ConfirmationChannels.Click)));
-            Assert.That(State.Current.Confirmation, Is.Null);
+            Assert.That(State.Current.Interaction, Is.Null);
             Assert.That(dialogs.IsOpen(ConfirmationDesk.DialogKey), Is.False);
             Assert.That(desk.Current, Is.Null);
         });
@@ -131,20 +125,34 @@ public sealed class ConfirmationDeskTests
     }
 
     [Test]
-    public async Task A_typed_turn_gets_the_window_only()
+    public async Task A_typed_turn_only_hears_that_an_interaction_is_required()
     {
-        var asking = Ask(ActionClass.Sensitive, Typed);
+        var asking = Ask(ActionClass.Sensitive, Typed, "Jarvis veut écrire la note « lait ».");
         var open = await OpenAsync();
+        await Eventually(() => Published<ConfirmationQuestionToSay>().Length == 1);
 
         Assert.Multiple(() =>
         {
-            Assert.That(Published<ConfirmationQuestionToSay>(), Is.Empty, "Jarvis speaks only when spoken to.");
+            Assert.That(Published<ConfirmationQuestionToSay>().Single(), Is.EqualTo(
+                new ConfirmationQuestionToSay(open.Id, new TurnId(1), "Votre demande a besoin de votre interaction.", false)),
+                "Neither the summary nor a question: the window says the rest, and nobody listens.");
             Assert.That(open.Listens, Is.False);
         });
 
         // A spoken answer through a channel the request does not accept is rejected: the request stays open.
         await Bus.PublishAsync(new ConfirmationAnswerHeard(open.Id, "oui"));
         Assert.That(asking.IsCompleted, Is.False);
+        desk.Click(open.Id, false);
+        await asking;
+    }
+
+    [Test]
+    public async Task A_request_outside_a_turn_says_nothing()
+    {
+        var asking = Ask(ActionClass.Sensitive, ActionContext.None);
+        var open = await OpenAsync();
+
+        Assert.That(Published<ConfirmationQuestionToSay>(), Is.Empty);
         desk.Click(open.Id, false);
         await asking;
     }
@@ -230,44 +238,24 @@ public sealed class ConfirmationDeskTests
         await asking;
     }
 
+    // Benoit, 2026-11-21: Jarvis never decides in place of the user. No timeout refuses for them.
     [Test]
-    public async Task Without_an_answer_the_request_times_out()
+    public async Task Without_an_answer_the_request_stays_open()
     {
         var asking = Ask(ActionClass.Sensitive, Spoken);
-        await OpenAsync();
-        await Eventually(() => Published<ConfirmationQuestionToSay>().Length == 1);
-
-        time.Advance(TimeSpan.FromSeconds(29));
-        Assert.That(asking.IsCompleted, Is.False);
-        time.Advance(TimeSpan.FromSeconds(1));
-
-        Assert.Multiple(async () =>
-        {
-            Assert.That(await asking.WaitAsync(TimeSpan.FromSeconds(5)), Is.EqualTo(new ConfirmationOutcome(ConfirmationAnswer.TimedOut, null)));
-            Assert.That(State.Current.Confirmation, Is.Null);
-            Assert.That(dialogs.IsOpen(ConfirmationDesk.DialogKey), Is.False);
-        });
-    }
-
-    [Test]
-    public async Task The_timeout_is_the_one_of_the_settings()
-    {
-        await settings.WriteAsync(ConfirmationOptions.Section, new ConfirmationOptions { TimeoutSeconds = 10 });
-
-        var asking = Ask(ActionClass.Sensitive, Typed);
         var open = await OpenAsync();
-        Assert.That(open.Deadline, Is.EqualTo(time.GetUtcNow().AddSeconds(10)));
-        await Task.Delay(50);
-        time.Advance(TimeSpan.FromSeconds(10));
 
-        Assert.That((await asking.WaitAsync(TimeSpan.FromSeconds(5))).Answer, Is.EqualTo(ConfirmationAnswer.TimedOut));
-    }
+        await Task.Delay(300);
 
-    [TestCase(9)]
-    [TestCase(121)]
-    public void A_timeout_outside_10_to_120_seconds_is_not_a_valid_setting(int seconds)
-    {
-        Assert.That(ConfirmationOptions.Section.Validate(new ConfirmationOptions { TimeoutSeconds = seconds }), Is.Not.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(asking.IsCompleted, Is.False);
+            Assert.That(State.Current.Interaction?.Id, Is.EqualTo(open.Id));
+            Assert.That(dialogs.IsOpen(ConfirmationDesk.DialogKey), Is.True);
+            Assert.That(Enum.GetNames<ConfirmationAnswer>(), Is.EquivalentTo(new[] { "Approved", "Refused", "Interrupted" }), "There is no \"timed out\" answer.");
+        });
+        desk.Click(open.Id, false);
+        await asking;
     }
 
     [Test]
@@ -282,8 +270,8 @@ public sealed class ConfirmationDeskTests
         Assert.Multiple(async () =>
         {
             Assert.That(await asking.WaitAsync(TimeSpan.FromSeconds(5)), Is.EqualTo(new ConfirmationOutcome(ConfirmationAnswer.Interrupted, null)));
-            Assert.That(State.Current.Confirmation, Is.Null);
-            Assert.That(Published<ConfirmationClosed>(), Has.Length.EqualTo(1));
+            Assert.That(State.Current.Interaction, Is.Null);
+            Assert.That(Published<InteractionClosed>(), Has.Length.EqualTo(1));
         });
     }
 
@@ -304,7 +292,7 @@ public sealed class ConfirmationDeskTests
         // A click meant for the first request does not answer the second.
         desk.Click(open.Id, true);
         Assert.That(second.IsCompleted, Is.False);
-        Assert.That(State.Current.Confirmation?.Class, Is.EqualTo(ActionClass.Critical));
+        Assert.That(State.Current.Interaction?.Kind, Is.EqualTo(InteractionKind.Confirmation));
         desk.Click(desk.Current!.Id, false);
         Assert.That((await second).Answer, Is.EqualTo(ConfirmationAnswer.Refused));
     }

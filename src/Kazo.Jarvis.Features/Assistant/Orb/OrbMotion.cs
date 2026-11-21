@@ -62,9 +62,9 @@ public readonly record struct OrbMotion(double Rate, bool Pulses)
             AssistantLook.Speaking => high ? new(1, false) : new(1.2, true),
             AssistantLook.LongTask => new(high ? 0.45 : 0.5, false),
 
-            // ADR 0023, section 1: a request waits for the user. Slow and pulsing, to call the eye without
+            // ADR 0023, section 1: something waits for the user. Slow and pulsing, to call the eye without
             // the hurry of the thinking look; animated like an active phase.
-            AssistantLook.Confirmation => new(high ? 0.6 : 0.7, true),
+            AssistantLook.InteractionRequired => new(high ? 0.6 : 0.7, true),
 
             // ADR 0011, section 5: a flash on entry (drawn by the style sheet), then a still image. The
             // catalog's 0.25 rotation predates the idle budget and is not kept.

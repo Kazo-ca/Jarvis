@@ -90,9 +90,6 @@
   <data name="Cause_Refused" xml:space="preserve">
     <value>vous avez refusé</value>
   </data>
-  <data name="Cause_TimedOut" xml:space="preserve">
-    <value>pas de réponse à temps</value>
-  </data>
   <data name="Cause_Interrupted" xml:space="preserve">
     <value>interrompue</value>
   </data>

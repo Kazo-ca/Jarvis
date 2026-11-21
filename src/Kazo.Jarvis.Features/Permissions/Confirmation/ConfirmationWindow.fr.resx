@@ -69,9 +69,6 @@
   <data name="Channel_Critical" xml:space="preserve">
     <value>La voix ne suffit pas pour une action critique : répondez d'un clic.</value>
   </data>
-  <data name="TimeLeft" xml:space="preserve">
-    <value>Refusé sans réponse dans {0} s.</value>
-  </data>
   <data name="Approve" xml:space="preserve">
     <value>Approuver</value>
   </data>
@@ -80,5 +77,11 @@
   </data>
   <data name="NoRequest" xml:space="preserve">
     <value>Aucune demande n'attend.</value>
+  </data>
+  <data name="Announcement" xml:space="preserve">
+    <value>Votre demande a besoin de votre interaction.</value>
+  </data>
+  <data name="Waits" xml:space="preserve">
+    <value>Jarvis attend votre réponse. Rien n'est décidé sans vous.</value>
   </data>
 </root>

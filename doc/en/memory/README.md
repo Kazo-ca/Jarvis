@@ -176,19 +176,20 @@ Resume point for any agent. Update it in the same change as what it describes.
   against the real OpenAI and Anthropic APIs. **Pending Windows tests**
   ([list](../dev/tools.md#checks-on-windows)).
 - **Work item `stage2/4-confirmation`** (confirmation request, see
-  [dev/confirmation.md](../dev/confirmation.md)), built on the recommendations of ADR 0023, **still
-  proposed**: condition `AssistantState.Confirmation` and "Confirmation" look (amber) in the kernel,
-  contract `IConfirmation`, `ITool.Summarize`; slice `Permissions/Confirmation` (`ConfirmationDesk`, one
-  request at a time, window, 30 s timeout adjustable from 10 to 120, closed word list per language); the
-  decision point asks for the confirmation, checks the channel again ("Critical": click only) and logs the
-  channel; "Permission log" page; `Voice/Speech` says the question without the "Speaking" phase,
+  [dev/confirmation.md](../dev/confirmation.md)), following the accepted ADR 0023: condition
+  `AssistantState.Interaction` (`PendingInteraction`, kind question, approval, confirmation or manual
+  action) and "interaction required" look (amber) in the kernel, contract `IConfirmation`,
+  `ITool.Summarize`; slice `Permissions/Confirmation` (`ConfirmationDesk`, one request at a time, window,
+  **no timeout**, closed word list per language); the decision point asks for the confirmation, checks the
+  channel again ("Critical": click only) and logs the channel; "Permission log" page; `Voice/Speech` says
+  the question (spoken turn) or the announcement (typed turn) without the "Speaking" phase,
   `Voice/Transcription` opens a single listening. Web host: dummy tools `write_note` ("Sensitive") and
   `erase_notes` ("Critical"). **No real "Sensitive" or "Critical" tool exists yet.** Provisional choices to
-  be confirmed by Benoit: closing the window is a refusal, the timeout starts when the request opens, the
-  word list follows the language, the window is not placed near the orb yet. **The code is merged into
-  `stage2/base` only once ADR 0023 is accepted and merged.** **Windows checks pending**
+  be confirmed by Benoit: closing the window is a refusal; the announcement of a conversation says "Your
+  request needs your interaction", the form "task X of project Y" waits for the sessions and the tasks; the
+  word list follows the language; the window is not placed near the orb yet. **Windows checks pending**
   ([list](../dev/confirmation.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/5-basic-tools` of the [plan](../dev/plans/stage-2.md) once ADR 0023 is accepted and work item `stage2/4-confirmation` is merged (work item `stage2/3-tool-loop` is done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/5-basic-tools` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop` and `stage2/4-confirmation` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

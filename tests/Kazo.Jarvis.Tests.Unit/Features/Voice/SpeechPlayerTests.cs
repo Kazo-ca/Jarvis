@@ -350,7 +350,7 @@ public sealed class SpeechPlayerTests
         await player.HandleAsync(new ConfirmationQuestionToSay(id, turn, "Confirmez-vous ?", true), CancellationToken.None);
         await playback.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
         playback.Hold = false;
-        await player.HandleAsync(new ConfirmationClosed(id), CancellationToken.None);
+        await player.HandleAsync(new InteractionClosed(id), CancellationToken.None);
         await SayAsync(turn, "C'est noté.");
         await EndAsync(turn);
         await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));
@@ -363,13 +363,58 @@ public sealed class SpeechPlayerTests
         });
     }
 
+    // ADR 0023, section 2: after a typed request Jarvis only announces that an interaction is required. The
+    // conversation ends a typed turn itself; the player must not end it a second time, nor fail it.
+    [Test]
+    public async Task In_a_typed_turn_the_announcement_is_said_and_the_player_ends_nothing()
+    {
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Écris une note"));
+        var turn = State.Current.CurrentTurn;
+        var id = Guid.NewGuid();
+
+        await player.HandleAsync(new ConfirmationQuestionToSay(id, turn, "Votre demande a besoin de votre interaction.", false), CancellationToken.None);
+        await Eventually(() => Published<ConfirmationQuestionSaid>().Length == 1);
+        Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Thinking));
+
+        // The conversation ends the typed turn.
+        await player.HandleAsync(new AnswerFinishedWithoutSpeech(turn), CancellationToken.None);
+        await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(piper.Said.Select(said => said.Text), Is.EqualTo(new[] { "Votre demande a besoin de votre interaction." }));
+            Assert.That(Published<AnswerFinishedWithoutSpeech>(), Is.Empty, "Only the conversation ends a typed turn.");
+            Assert.That(Published<SpeechEnded>(), Is.Empty);
+            Assert.That(Published<TurnFailed>(), Is.Empty);
+            Assert.That(player.Running, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task A_voice_that_cannot_say_the_question_does_not_fail_the_turn()
+    {
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Écris une note"));
+        var turn = State.Current.CurrentTurn;
+        piper.FailOn = "interaction";
+
+        await player.HandleAsync(new ConfirmationQuestionToSay(Guid.NewGuid(), turn, "Votre demande a besoin de votre interaction.", false), CancellationToken.None);
+        await player.HandleAsync(new AnswerFinishedWithoutSpeech(turn), CancellationToken.None);
+        await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Published<TurnFailed>(), Is.Empty, "The window still asks.");
+            Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Thinking));
+        });
+    }
+
     [Test]
     public async Task The_question_of_a_request_already_closed_makes_no_sound()
     {
         var turn = await StartThinkingAsync();
         var id = Guid.NewGuid();
 
-        await player.HandleAsync(new ConfirmationClosed(id), CancellationToken.None);
+        await player.HandleAsync(new InteractionClosed(id), CancellationToken.None);
         await player.HandleAsync(new ConfirmationQuestionToSay(id, turn, "Confirmez-vous ?", true), CancellationToken.None);
         await EndAsync(turn);
         await player.LastSpeech.WaitAsync(TimeSpan.FromSeconds(5));

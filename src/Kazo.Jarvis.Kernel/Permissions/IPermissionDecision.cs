@@ -69,9 +69,6 @@ public enum DenialCause
     /// <summary>The user refused.</summary>
     Refused,
 
-    /// <summary>Nobody answered in time.</summary>
-    TimedOut,
-
     /// <summary>The user interrupted the turn.</summary>
     Interrupted,
 }

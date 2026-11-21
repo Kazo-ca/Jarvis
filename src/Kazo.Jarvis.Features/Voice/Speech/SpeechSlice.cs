@@ -29,7 +29,9 @@ public static class SpeechSlice
             provider => provider.GetRequiredService<SpeechPlayer>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConfirmationQuestionToSay>, SpeechPlayer>(
             provider => provider.GetRequiredService<SpeechPlayer>()));
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConfirmationClosed>, SpeechPlayer>(
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<InteractionClosed>, SpeechPlayer>(
+            provider => provider.GetRequiredService<SpeechPlayer>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AnswerFinishedWithoutSpeech>, SpeechPlayer>(
             provider => provider.GetRequiredService<SpeechPlayer>()));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, SpeechPlayer>(
             provider => provider.GetRequiredService<SpeechPlayer>()));

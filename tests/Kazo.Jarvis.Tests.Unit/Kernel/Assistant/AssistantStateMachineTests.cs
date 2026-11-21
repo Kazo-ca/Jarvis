@@ -1,8 +1,6 @@
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
-using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messaging;
-using Kazo.Jarvis.Kernel.Permissions;
 
 namespace Kazo.Jarvis.Tests.Unit.Kernel.Assistant;
 
@@ -343,44 +341,44 @@ public sealed class AssistantStateMachineTests
 
     // ADR 0023, section 1: one more condition, and no transition of ADR 0005 changed.
     [Test]
-    public void A_confirmation_request_sets_a_condition_and_leaves_the_phase_and_the_turn([Values] AssistantPhase phase)
+    public void A_required_interaction_sets_a_condition_and_leaves_the_phase_and_the_turn([Values] AssistantPhase phase)
     {
         var before = In(phase);
         var id = Guid.NewGuid();
 
-        var opened = Apply(before, new ConfirmationOpened(id, ActionClass.Sensitive));
+        var opened = Apply(before, new InteractionOpened(id, InteractionKind.Confirmation));
 
-        Assert.That(opened.State, Is.EqualTo(before with { Confirmation = new PendingConfirmation(id, ActionClass.Sensitive) }));
+        Assert.That(opened.State, Is.EqualTo(before with { Interaction = new PendingInteraction(id, InteractionKind.Confirmation) }));
         Assert.That(opened.Effects, Is.Empty);
-        Assert.That(opened.State.Look, Is.EqualTo(AssistantLook.Confirmation));
+        Assert.That(opened.State.Look, Is.EqualTo(AssistantLook.InteractionRequired));
 
-        var closed = Apply(opened.State, new ConfirmationClosed(id));
+        var closed = Apply(opened.State, new InteractionClosed(id));
 
         Assert.That(closed.State, Is.EqualTo(before));
         Assert.That(closed.Effects, Is.Empty);
     }
 
     [Test]
-    public void Only_one_confirmation_request_is_open_and_only_its_own_closing_clears_it()
+    public void Only_one_interaction_is_open_and_only_its_own_closing_clears_it()
     {
         var id = Guid.NewGuid();
-        var pending = Apply(In(AssistantPhase.Thinking), new ConfirmationOpened(id, ActionClass.Critical)).State;
+        var pending = Apply(In(AssistantPhase.Thinking), new InteractionOpened(id, InteractionKind.Confirmation)).State;
 
-        AssertIgnored(Apply(pending, new ConfirmationOpened(Guid.NewGuid(), ActionClass.Sensitive)), pending);
-        AssertIgnored(Apply(pending, new ConfirmationClosed(Guid.NewGuid())), pending);
-        AssertIgnored(Apply(In(AssistantPhase.Thinking), new ConfirmationClosed(id)), In(AssistantPhase.Thinking));
+        AssertIgnored(Apply(pending, new InteractionOpened(Guid.NewGuid(), InteractionKind.Confirmation)), pending);
+        AssertIgnored(Apply(pending, new InteractionClosed(Guid.NewGuid())), pending);
+        AssertIgnored(Apply(In(AssistantPhase.Thinking), new InteractionClosed(id)), In(AssistantPhase.Thinking));
     }
 
     [Test]
-    public void An_activation_during_a_confirmation_request_is_still_the_interruption()
+    public void An_activation_while_an_interaction_is_required_is_still_the_interruption()
     {
-        var pending = Apply(In(AssistantPhase.Thinking), new ConfirmationOpened(Guid.NewGuid(), ActionClass.Sensitive)).State;
+        var pending = Apply(In(AssistantPhase.Thinking), new InteractionOpened(Guid.NewGuid(), InteractionKind.Confirmation)).State;
 
         var transition = Apply(pending, new ActivationRequested(ActivationSource.Click));
 
         // The turn is cancelled as ADR 0005 says; the confirmation slice then closes its request by a refusal.
         Assert.That(transition.Effects[0], Is.EqualTo(new TurnCancelled(Turn1, TurnCancelReason.Interrupted)));
-        Assert.That(transition.State.Confirmation, Is.EqualTo(pending.Confirmation));
+        Assert.That(transition.State.Interaction, Is.EqualTo(pending.Interaction));
     }
 
     [Test]

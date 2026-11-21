@@ -67,7 +67,7 @@ sur son dessin. Ce sont les points d'appui des tests Playwright.
 | Tâche longue | vert | 0,45 / 0,5 | anneau de progression |
 | Erreur | rouge | 0 / 0 (image fixe) | un éclair à l'entrée ; la cause au survol |
 | Micro coupé | gris | 0 / 0 (image fixe) | faible, mention « micro coupé » |
-| Confirmation | ambre | 0,6 / 0,7 ; les deux versions pulsent | presque pleine ; passe avant l'aspect de la phase ([ADR 0023](adr/0023-confirmation-request-in-a-turn.md)) |
+| Interaction requise | ambre | 0,6 / 0,7 ; les deux versions pulsent | presque pleine ; passe avant l'aspect de la phase ([ADR 0023](adr/0023-confirmation-request-in-a-turn.md)) |
 
 - La couleur (`--orb-color`) et la lumière (`--orb-light`) de chaque aspect sont dans `Orb.razor.css`, pour
   les deux versions. Elles sont enregistrées par `@property` : elles passent en fondu (0,5 et 0,4 s), et la

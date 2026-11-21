@@ -7,16 +7,16 @@ using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Messages.Permissions;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Permissions;
-using Kazo.Jarvis.Kernel.Settings;
 using Microsoft.Extensions.Logging;
 
 namespace Kazo.Jarvis.Features.Permissions.Confirmation;
 
 /// <summary>
 /// The confirmation requests (ADR 0023): one open at a time, the others wait their turn. A request sets the
-/// condition "confirmation pending", opens the confirmation window, has the question said aloud when the turn was
-/// spoken, then waits for a click, a recognized spoken answer, its timeout or an interruption. Only a human answer
-/// through a channel the class accepts approves; everything else is a refusal.
+/// condition "interaction required", opens the confirmation window, has Jarvis say the question (spoken turn) or
+/// announce that an interaction is required (typed turn), then waits for a click, a recognized spoken answer or an
+/// interruption. It waits as long as it takes: Jarvis never decides in place of the user, so there is no timeout.
+/// Only a human answer through a channel the class accepts approves.
 /// </summary>
 public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<ConfirmationAnswerHeard>, IDisposable
 {
@@ -27,10 +27,8 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
 
     private readonly IMessageBus bus;
     private readonly IDialogService dialogs;
-    private readonly ISettingsStore settings;
     private readonly IAssistantStateReader state;
     private readonly IAssistantLanguageReader language;
-    private readonly TimeProvider time;
     private readonly ILogger<ConfirmationDesk> logger;
     private readonly SemaphoreSlim oneAtATime = new(1, 1);
     private readonly Lock gate = new();
@@ -39,26 +37,20 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
     /// <summary>Creates the desk.</summary>
     /// <param name="bus">Where the condition and the question go.</param>
     /// <param name="dialogs">Opens the confirmation window.</param>
-    /// <param name="settings">The settings, for the timeout.</param>
     /// <param name="state">The assistant state: a muted microphone hears no answer.</param>
     /// <param name="language">The language of the question and of the recognized words.</param>
-    /// <param name="time">The clock of the timeout.</param>
     /// <param name="logger">Logs each request without its arguments (ADR 0004, section 6).</param>
     public ConfirmationDesk(
         IMessageBus bus,
         IDialogService dialogs,
-        ISettingsStore settings,
         IAssistantStateReader state,
         IAssistantLanguageReader language,
-        TimeProvider time,
         ILogger<ConfirmationDesk> logger)
     {
         this.bus = bus;
         this.dialogs = dialogs;
-        this.settings = settings;
         this.state = state;
         this.language = language;
-        this.time = time;
         this.logger = logger;
     }
 
@@ -91,38 +83,36 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
         }
 
         var spoken = language.Current;
-        var timeout = TimeSpan.FromSeconds(Math.Clamp(
-            settings.Read(ConfirmationOptions.Section).TimeoutSeconds,
-            ConfirmationOptions.MinimumTimeout,
-            ConfirmationOptions.MaximumTimeout));
-        var say = request.Context.Spoken && request.Context.Turn != TurnId.None;
+        var inTurn = request.Context.Turn != TurnId.None;
 
         // ADR 0023, section 3: a spoken answer only for "Sensitive", in a spoken turn, the microphone not muted.
-        var listen = say && request.Class == ActionClass.Sensitive && !state.Current.MicrophoneMuted;
+        var listen = inTurn && request.Context.Spoken && request.Class == ActionClass.Sensitive && !state.Current.MicrophoneMuted;
         var summary = string.IsNullOrWhiteSpace(request.Summary) ? Text("GeneralSummary", spoken, request.Tool) : request.Summary.Trim();
-        var pending = new Pending(new OpenConfirmation(Guid.NewGuid(), request, summary, time.GetUtcNow() + timeout, listen), spoken);
+        var pending = new Pending(new OpenConfirmation(Guid.NewGuid(), request, summary, listen), spoken);
         lock (gate)
         {
             current = pending;
         }
 
         var id = pending.View.Id;
-        LogOpened(id, request.Tool, request.Class, say, listen);
+        LogOpened(id, request.Tool, request.Class, inTurn, listen);
         try
         {
-            await bus.PublishAsync(new ConfirmationOpened(id, request.Class), CancellationToken.None).ConfigureAwait(false);
+            await bus.PublishAsync(new InteractionOpened(id, InteractionKind.Confirmation), CancellationToken.None).ConfigureAwait(false);
             dialogs.Open(new DialogRequest(DialogKey, typeof(ConfirmationWindow), Text("WindowTitle", spoken)));
             Changed?.Invoke();
-            if (say)
+            if (inTurn)
             {
-                var question = summary + " " + Text(
-                    request.Class == ActionClass.Critical ? "Question_Critical" : listen ? "Question_Voice" : "Question_Click",
-                    spoken);
+                // After a spoken request: the summary and the question. After a typed one: only the announcement
+                // that an interaction is required; the window says the rest (ADR 0023, section 2).
+                var question = request.Context.Spoken
+                    ? summary + " " + Text(
+                        request.Class == ActionClass.Critical ? "Question_Critical" : listen ? "Question_Voice" : "Question_Click",
+                        spoken)
+                    : Text("Announcement", spoken);
                 await bus.PublishAsync(new ConfirmationQuestionToSay(id, request.Context.Turn, question, listen), CancellationToken.None).ConfigureAwait(false);
             }
 
-            using var limit = new CancellationTokenSource(timeout, time);
-            using var late = limit.Token.Register(() => pending.Answer.TrySetResult(new ConfirmationOutcome(ConfirmationAnswer.TimedOut, null)));
             using var interrupted = cancellationToken.Register(() => pending.Answer.TrySetResult(new ConfirmationOutcome(ConfirmationAnswer.Interrupted, null)));
             var outcome = await pending.Answer.Task.ConfigureAwait(false);
             LogClosed(id, outcome.Answer, outcome.Channel);
@@ -137,7 +127,7 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
 
             dialogs.Close(DialogKey);
             Changed?.Invoke();
-            await bus.PublishAsync(new ConfirmationClosed(id), CancellationToken.None).ConfigureAwait(false);
+            await bus.PublishAsync(new InteractionClosed(id), CancellationToken.None).ConfigureAwait(false);
             oneAtATime.Release();
         }
     }
@@ -173,7 +163,7 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
 
         if (string.IsNullOrWhiteSpace(message.Text))
         {
-            // Nothing heard: the request stays open until its timeout, the click remains possible.
+            // Nothing heard: the request stays open, the click remains possible.
             return ValueTask.CompletedTask;
         }
 
@@ -219,7 +209,7 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Confirmation {Id} opened for {Tool} (class {Class}); question said: {Said}, spoken answer accepted: {Listens}.")]
+    [LoggerMessage(Level = LogLevel.Information, Message = "Confirmation {Id} opened for {Tool} (class {Class}); said aloud: {Said}, spoken answer accepted: {Listens}.")]
     private partial void LogOpened(Guid id, string tool, ActionClass @class, bool said, bool listens);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Confirmation {Id} closed: {Answer} (channel {Channel}).")]
@@ -238,6 +228,5 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
 /// <param name="Id">Its identifier.</param>
 /// <param name="Request">What is asked, and by whom.</param>
 /// <param name="Summary">The sentence shown and said.</param>
-/// <param name="Deadline">When it is denied without an answer.</param>
 /// <param name="Listens">Whether a spoken answer is accepted.</param>
-public sealed record OpenConfirmation(Guid Id, ConfirmationRequest Request, string Summary, DateTimeOffset Deadline, bool Listens);
+public sealed record OpenConfirmation(Guid Id, ConfirmationRequest Request, string Summary, bool Listens);

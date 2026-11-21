@@ -16,21 +16,12 @@
     <value>Confirmations</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Before a sensitive or critical action, Jarvis asks for your agreement: a window opens, and after a spoken request he asks the question aloud. Without an answer, the action is denied.</value>
-  </data>
-  <data name="TimeoutLabel" xml:space="preserve">
-    <value>Time to answer</value>
-  </data>
-  <data name="TimeoutHint" xml:space="preserve">
-    <value>From {0} to {1} seconds. After it, the action is denied.</value>
+    <value>Before a sensitive or critical action, Jarvis asks for your agreement: a window opens and the orb turns amber. After a spoken request he asks the question aloud; after a typed one he only says that your interaction is needed. He waits for your answer as long as it takes.</value>
   </data>
   <data name="WordsLabel" xml:space="preserve">
     <value>Words that approve</value>
   </data>
   <data name="WordsHint" xml:space="preserve">
     <value>Your whole answer must be one of these. Anything else is a refusal. A critical action is approved with a click only.</value>
-  </data>
-  <data name="SaveFailed" xml:space="preserve">
-    <value>The setting could not be saved.</value>
   </data>
 </root>

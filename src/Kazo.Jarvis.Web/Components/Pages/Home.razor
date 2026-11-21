@@ -63,8 +63,8 @@
         <output id="last-transcription" data-turn="@(transcribed?.Turn.Value ?? 0)">@(transcribed?.Text ?? "Nothing transcribed")</output>
         <output id="voice-spoken" data-count="@Speech.Spoken.Count">@(Speech.Spoken.LastOrDefault() ?? "Nothing said yet")</output>
         <output id="notes" data-count="@Notes.Notes.Count" data-erased="@Notes.Erased">@(Notes.Notes.LastOrDefault() ?? "No note")</output>
-        <output id="confirmation" data-pending="@(State.Current.Confirmation is null ? "false" : "true")" data-class="@(State.Current.Confirmation?.Class.ToString() ?? "")"
-                data-question-said="@(State.Current.Confirmation is { } pending && pending.Id == questionSaid ? "true" : "false")">@(State.Current.Confirmation is null ? "No confirmation pending" : "Confirmation pending")</output>
+        <output id="confirmation" data-pending="@(State.Current.Interaction is null ? "false" : "true")" data-kind="@(State.Current.Interaction?.Kind.ToString() ?? "")"
+                data-question-said="@(State.Current.Interaction is { } pending && pending.Id == questionSaid ? "true" : "false")">@(State.Current.Interaction is null ? "No confirmation pending" : "Confirmation pending")</output>
         <output id="updater-launched" data-folder="@(Launcher.LaunchedFolder ?? "")">@(Launcher.LaunchedFolder is null ? "Updater not started" : "Updater started")</output>
     </nav>
     @* Like a window of the Windows host, the dialogs rebuild their texts when the language changes. *@

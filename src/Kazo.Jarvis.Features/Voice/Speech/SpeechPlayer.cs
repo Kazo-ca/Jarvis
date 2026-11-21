@@ -23,13 +23,16 @@ namespace Kazo.Jarvis.Features.Voice.Speech;
 /// through the same queue, so it is said in the voice of the turn and after what the model already said. It is not
 /// a sentence of the answer: it does not publish <see cref="FirstSentenceReady"/>, so the phase does not change.
 /// Once said, <see cref="ConfirmationQuestionSaid"/> is published; a request closed meanwhile cuts the question.
+/// In a typed turn it is the only thing said: the conversation ends that turn itself, and the player then only
+/// closes its queue.
 /// </para>
 /// </summary>
 public sealed class SpeechPlayer :
     IEventHandler<SentenceToSpeak>,
     IEventHandler<AnswerSentencesEnded>,
     IEventHandler<ConfirmationQuestionToSay>,
-    IEventHandler<ConfirmationClosed>,
+    IEventHandler<InteractionClosed>,
+    IEventHandler<AnswerFinishedWithoutSpeech>,
     IEventHandler<TurnCancelled>,
     IEventHandler<TurnFailed>,
     IDisposable
@@ -123,7 +126,7 @@ public sealed class SpeechPlayer :
     }
 
     /// <inheritdoc />
-    public ValueTask HandleAsync(ConfirmationClosed message, CancellationToken cancellationToken)
+    public ValueTask HandleAsync(InteractionClosed message, CancellationToken cancellationToken)
     {
         // Answered by a click while the question was being said: the question stops, the answer of the model follows.
         ArgumentNullException.ThrowIfNull(message);
@@ -154,6 +157,27 @@ public sealed class SpeechPlayer :
     {
         ArgumentNullException.ThrowIfNull(message);
         QueueFor(message.Turn)?.Sentences.Writer.TryComplete();
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public ValueTask HandleAsync(AnswerFinishedWithoutSpeech message, CancellationToken cancellationToken)
+    {
+        // A typed turn in which Jarvis only announced a confirmation request: the conversation ended the turn, so
+        // the queue closes without a second end of turn. In a spoken turn the player publishes this message itself,
+        // after it closed the turn, and finds nothing here.
+        ArgumentNullException.ThrowIfNull(message);
+        TurnSpeech? ended = null;
+        lock (gate)
+        {
+            if (current?.Turn == message.Turn)
+            {
+                ended = current;
+                ended.EndedElsewhere = true;
+            }
+        }
+
+        ended?.Sentences.Writer.TryComplete();
         return ValueTask.CompletedTask;
     }
 
@@ -288,7 +312,7 @@ public sealed class SpeechPlayer :
             // Lets a synthesis failure through: the reader ended because the writer completed with it.
             await synthesis.ConfigureAwait(false);
             token.ThrowIfCancellationRequested();
-            if (!Close(speech))
+            if (!Close(speech) || speech.EndedElsewhere)
             {
                 return;
             }
@@ -382,18 +406,28 @@ public sealed class SpeechPlayer :
             await foreach (var sentence in speech.Sentences.Reader.ReadAllAsync(token).ConfigureAwait(false))
             {
                 token.ThrowIfCancellationRequested();
-                if (resolved is null)
+                try
                 {
-                    // The voice is fixed for the whole turn, at its first sentence.
-                    var spokenLanguage = language.Current;
-                    resolved = await selection.ResolveAsync(spokenLanguage, token).ConfigureAwait(false)
-                        ?? throw new SpeechException(SpeechFailure.ModelMissing, $"No voice can speak '{spokenLanguage.Code}'.");
-                    engine = engines.FirstOrDefault(candidate => candidate.Engine == resolved.Value.Voice.Engine)
-                        ?? throw new SpeechException(SpeechFailure.UnknownVoice, $"No engine '{resolved.Value.Voice.Engine}'.");
-                }
+                    if (resolved is null)
+                    {
+                        // The voice is fixed for the whole turn, at its first sentence.
+                        var spokenLanguage = language.Current;
+                        var found = await selection.ResolveAsync(spokenLanguage, token).ConfigureAwait(false)
+                            ?? throw new SpeechException(SpeechFailure.ModelMissing, $"No voice can speak '{spokenLanguage.Code}'.");
+                        engine = engines.FirstOrDefault(candidate => candidate.Engine == found.Voice.Engine)
+                            ?? throw new SpeechException(SpeechFailure.UnknownVoice, $"No engine '{found.Voice.Engine}'.");
+                        resolved = found;
+                    }
 
-                var clip = await engine!.SynthesizeAsync(resolved.Value.Voice, sentence.Text, resolved.Value.Speed, token).ConfigureAwait(false);
-                await clips.WriteAsync((clip, sentence.Question), token).ConfigureAwait(false);
+                    var clip = await engine!.SynthesizeAsync(resolved.Value.Voice, sentence.Text, resolved.Value.Speed, token).ConfigureAwait(false);
+                    await clips.WriteAsync((clip, sentence.Question), token).ConfigureAwait(false);
+                }
+                catch (SpeechException exception) when (sentence.Question is not null)
+                {
+                    // A voice that cannot say the question does not fail the turn: the confirmation window still
+                    // asks, and a typed turn needs no voice for its answer.
+                    logger.LogWarning(exception, "The question of a confirmation request of {Turn} could not be said.", speech.Turn);
+                }
             }
 
             clips.TryComplete();
@@ -469,5 +503,8 @@ public sealed class SpeechPlayer :
         public CancellationTokenSource Cancel { get; } = new();
 
         public Task? Work { get; set; }
+
+        /// <summary>The conversation ended the turn itself (typed turn): the player publishes no end of turn.</summary>
+        public volatile bool EndedElsewhere;
     }
 }

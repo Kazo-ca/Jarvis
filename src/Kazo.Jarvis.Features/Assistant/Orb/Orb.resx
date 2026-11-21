@@ -27,8 +27,8 @@
   <data name="Look_LongTask" xml:space="preserve">
     <value>A task is running in the background. Click to talk.</value>
   </data>
-  <data name="Look_Confirmation" xml:space="preserve">
-    <value>Jarvis is waiting for your confirmation. Click to cancel.</value>
+  <data name="Look_InteractionRequired" xml:space="preserve">
+    <value>Jarvis needs your interaction. Click to cancel.</value>
   </data>
   <data name="Look_Error" xml:space="preserve">
     <value>Jarvis has a problem</value>

@@ -1,10 +1,9 @@
 @implements IDisposable
 @inject ConfirmationDesk Desk
-@inject TimeProvider Time
 @inject IStringLocalizer<ConfirmationWindow> T
 
-@* The confirmation window (ADR 0023, section 2): who asks, the summary, the exact detail, the class, the time
-   left, Approve and Refuse. It follows the desk and closes with the request. Closing it is a refusal. *@
+@* The confirmation window (ADR 0023, section 2): who asks, the summary, the exact detail, the class, Approve
+   and Refuse. It waits as long as it takes: nothing is decided in place of the user. It follows the desk and closes with the request. Closing it is a refusal. *@
 <div class="confirmation-window" data-confirmation-window data-confirmation-class="@(open?.Request.Class.ToString() ?? "")">
     @if (open is { } request)
     {
@@ -23,7 +22,7 @@
         <p class="confirmation-channel" data-confirmation-channel="@(request.Listens ? "voice" : "click")">
             @T[request.Listens ? "Channel_Voice" : request.Request.Class == ActionClass.Critical ? "Channel_Critical" : "Channel_Click"]
         </p>
-        <p class="confirmation-time" role="timer" data-confirmation-time-left="@SecondsLeft(request)">@T["TimeLeft", SecondsLeft(request)]</p>
+        <p class="confirmation-time" data-confirmation-waits>@T["Waits"]</p>
         <div class="confirmation-buttons">
             <button type="button" class="confirmation-button confirmation-approve" data-confirmation-approve @onclick="() => Desk.Click(request.Id, true)">@T["Approve"]</button>
             <button type="button" class="confirmation-button confirmation-refuse" data-confirmation-refuse @onclick="() => Desk.Click(request.Id, false)">@T["Refuse"]</button>
@@ -37,33 +36,25 @@
 
 @code {
     private OpenConfirmation? open;
-    private ITimer? clock;
 
     /// <inheritdoc />
     protected override void OnInitialized()
     {
         open = Desk.Current;
         Desk.Changed += OnChanged;
-
-        // The time left moves once a second, only while the window is open.
-        clock = Time.CreateTimer(_ => OnChanged(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
         Desk.Changed -= OnChanged;
-        clock?.Dispose();
 
-        // A window closed by the user while its request is open: a refusal, not a wait for the timeout.
+        // A window closed by the user while its request is open is the user's refusal.
         if (open is { } shown)
         {
             Desk.Click(shown.Id, false);
         }
     }
-
-    private int SecondsLeft(OpenConfirmation request) =>
-        (int)Math.Max(0, Math.Ceiling((request.Deadline - Time.GetUtcNow()).TotalSeconds));
 
     private void OnChanged() => _ = InvokeAsync(() =>
     {
