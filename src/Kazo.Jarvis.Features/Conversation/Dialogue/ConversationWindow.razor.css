@@ -185,3 +185,25 @@
     white-space: pre-wrap;
     font-family: var(--jarvis-font-mono);
 }
+
+.conversation-tool-pages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0.4rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.conversation-tool-page {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.conversation-tool-address {
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+}

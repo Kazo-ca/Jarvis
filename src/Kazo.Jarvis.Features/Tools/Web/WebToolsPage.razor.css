@@ -1,0 +1,43 @@
+.web-tools-note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--jarvis-text-muted);
+}
+
+.web-tools-choice {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.web-tools-number {
+    width: 7rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.web-tools-exceptions {
+    width: 100%;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-mono);
+}
+
+.web-tools-button {
+    padding: 0.35rem 1rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.web-tools-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}

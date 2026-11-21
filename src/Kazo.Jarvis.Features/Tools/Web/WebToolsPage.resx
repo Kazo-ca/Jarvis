@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Web</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>How Jarvis searches the web and reads a page. Both tools are off until you turn them on in the tools page.</value>
+  </data>
+  <data name="LeavesLabel" xml:space="preserve">
+    <value>What leaves this computer</value>
+  </data>
+  <data name="Leaves" xml:space="preserve">
+    <value>With a search: the words of the search, sent to the search engine below, or to Brave Search when its key is set. With a page: its address, sent to its site. Nothing else: no file, no part of the conversation. The pages come back as text that the model reads as data, never as instructions.</value>
+  </data>
+  <data name="EngineLabel" xml:space="preserve">
+    <value>Search engine</value>
+  </data>
+  <data name="EngineHint" xml:space="preserve">
+    <value>Free and without a key: Jarvis reads the results page of this engine in its own browser. If the engine asks to verify that a human is browsing, Jarvis says so and does not get around it.</value>
+  </data>
+  <data name="Engine_DuckDuckGo" xml:space="preserve">
+    <value>DuckDuckGo</value>
+  </data>
+  <data name="Engine_Startpage" xml:space="preserve">
+    <value>Startpage</value>
+  </data>
+  <data name="Engine_Bing" xml:space="preserve">
+    <value>Bing</value>
+  </data>
+  <data name="BraveLabel" xml:space="preserve">
+    <value>Brave Search</value>
+  </data>
+  <data name="BraveHint" xml:space="preserve">
+    <value>Optional. As soon as a key is stored, searches go through the Brave Search API instead of the engine above. Brave bills this service; see its price page.</value>
+  </data>
+  <data name="BraveKey" xml:space="preserve">
+    <value>Brave Search API key</value>
+  </data>
+  <data name="ResultsLabel" xml:space="preserve">
+    <value>Results per search</value>
+  </data>
+  <data name="ResultsHint" xml:space="preserve">
+    <value>From 1 to {0}. Fewer results leave more room for the conversation in the context of the model.</value>
+  </data>
+  <data name="SizeLabel" xml:space="preserve">
+    <value>Size of a result</value>
+  </data>
+  <data name="SizeHint" xml:space="preserve">
+    <value>The most characters of a page or of a list of results given to the model in one call, from {0} to {1}. A longer page is read in several calls.</value>
+  </data>
+  <data name="ExceptionsLabel" xml:space="preserve">
+    <value>Local addresses allowed</value>
+  </data>
+  <data name="ExceptionsHint" xml:space="preserve">
+    <value>Jarvis refuses to read this computer and the local network, so that a trapped page cannot make it read Home Assistant or a router. List here, one per line, the names or addresses it may read all the same.</value>
+  </data>
+  <data name="BrowserLabel" xml:space="preserve">
+    <value>Jarvis's browser</value>
+  </data>
+  <data name="BrowserHint" xml:space="preserve">
+    <value>A browser inside Jarvis, apart from yours: it never opens Edge or Chrome. It keeps its cookies. If you sign in to a site there, Jarvis then reads pages with that account open, and a trapped page can mislead the model while it reads.</value>
+  </data>
+  <data name="BrowserMissing" xml:space="preserve">
+    <value>This computer has no browser for Jarvis yet: only Brave Search can search, and pages cannot be read.</value>
+  </data>
+  <data name="BrowserOpen" xml:space="preserve">
+    <value>Open the browser</value>
+  </data>
+  <data name="BrowserClear" xml:space="preserve">
+    <value>Erase its data</value>
+  </data>
+  <data name="BrowserCleared" xml:space="preserve">
+    <value>Data erased.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings could not be saved.</value>
+  </data>
+</root>

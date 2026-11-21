@@ -69,6 +69,12 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<SimulatedNotes>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Kazo.Jarvis.Kernel.Tools.ITool, SimulatedNoteTool>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Kazo.Jarvis.Kernel.Tools.ITool, SimulatedEraseTool>());
+        // Basic tools (stage2/5-basic-tools): a few files in memory and a browser with fixed pages; the address
+        // policy comes from the web tools slice.
+        services.TryAddSingleton<SimulatedLocalFiles>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Files.ILocalFiles>(provider => provider.GetRequiredService<SimulatedLocalFiles>());
+        services.TryAddSingleton<SimulatedReadingBrowser>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Web.IReadingBrowser>(provider => provider.GetRequiredService<SimulatedReadingBrowser>());
         services.TryAddSingleton<SimulatedVoiceActivity>();
         services.TryAddSingleton<IVoiceActivityDetection>(provider => provider.GetRequiredService<SimulatedVoiceActivity>());
 

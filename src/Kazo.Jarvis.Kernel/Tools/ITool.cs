@@ -56,6 +56,14 @@ public interface ITool
     /// <returns>The sentence, or <see langword="null"/>.</returns>
     string? Summarize(JsonElement arguments, AssistantLanguage language) => null;
 
+    /// <summary>
+    /// What leaves the machine when this tool is used, in one sentence, for the tools page (ADR 0017, section 3;
+    /// ADR 0009, section 9). <see langword="null"/> when nothing does.
+    /// </summary>
+    /// <param name="language">The language of the assistant.</param>
+    /// <returns>The sentence, or <see langword="null"/>.</returns>
+    string? Discloses(AssistantLanguage language) => null;
+
     /// <summary>Runs the call. Only called after the decision point allowed it.</summary>
     /// <param name="arguments">The arguments of the call, a JSON object.</param>
     /// <param name="cancellationToken">Cancelled by an interruption or by the time limit of a call.</param>

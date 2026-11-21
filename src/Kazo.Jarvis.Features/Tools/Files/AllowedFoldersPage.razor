@@ -1,0 +1,120 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject ILocalFiles Files
+@inject IStringLocalizer<AllowedFoldersPage> T
+
+@* The « Dossiers autorisés » page (ADR 0009, section 5; ADR 0017, section 3): the only folders the file tools may
+   read. A change is saved at once and applies to the next call. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["FoldersLabel"]" Hint="@T["FoldersHint"]">
+        @if (options.Folders.Count == 0)
+        {
+            <p class="allowed-folders-none" data-allowed-folders-none>@T["None"]</p>
+        }
+        else
+        {
+            <ul class="allowed-folders" data-allowed-folders>
+                @foreach (var folder in options.Folders)
+                {
+                    var resolved = Files.Resolve(folder);
+                    <li class="allowed-folder" data-allowed-folder="@folder" data-folder-usable="@(resolved is null ? "false" : "true")" @key="folder">
+                        <span class="allowed-folder-path">@folder</span>
+                        @if (resolved is null)
+                        {
+                            <span class="allowed-folder-note" role="alert">@T["Unusable"]</span>
+                        }
+                        else if (!string.Equals(resolved, folder, StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="allowed-folder-note">@T["ResolvesTo", resolved]</span>
+                        }
+                        <button type="button" class="allowed-folder-remove" data-allowed-folder-remove @onclick="() => RemoveAsync(folder)">@T["Remove"]</button>
+                    </li>
+                }
+            </ul>
+        }
+        <div class="allowed-folders-add">
+            <input type="text" class="allowed-folders-input" data-allowed-folder-input spellcheck="false" aria-label="@T["AddLabel"]"
+                   placeholder="@T["AddPlaceholder"]" @bind="draft" @bind:event="oninput" @onkeydown="OnKeyAsync" />
+            <button type="button" class="allowed-folders-add-button" data-allowed-folder-add disabled="@string.IsNullOrWhiteSpace(draft)" @onclick="AddAsync">@T["Add"]</button>
+        </div>
+        @if (problem is not null)
+        {
+            <p class="allowed-folders-problem" role="alert" data-allowed-folders-problem>@problem</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["SizeLabel"]" Hint="@T["SizeHint", FileToolsOptions.LeastResultCharacters, FileToolsOptions.MostResultCharacters]">
+        <input type="number" class="allowed-folders-size" data-file-result-characters aria-label="@T["SizeLabel"]"
+               min="@FileToolsOptions.LeastResultCharacters" max="@FileToolsOptions.MostResultCharacters" step="100"
+               value="@options.ResultCharacters.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeSizeAsync" />
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private FileToolsOptions options = new();
+    private string? draft;
+    private string? problem;
+
+    /// <inheritdoc />
+    protected override void OnInitialized() => options = Settings.Read(FileToolsOptions.Section);
+
+    private async Task OnKeyAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AddAsync();
+        }
+    }
+
+    private async Task AddAsync()
+    {
+        var folder = draft?.Trim().Trim('"');
+        if (string.IsNullOrEmpty(folder))
+        {
+            return;
+        }
+
+        // Refused here rather than saved and ignored: a relative path or a wrong drive never matches anything.
+        if (Files.Resolve(folder) is null)
+        {
+            problem = T["AddUnusable"];
+            return;
+        }
+
+        if (options.Folders.Contains(folder, StringComparer.OrdinalIgnoreCase))
+        {
+            draft = null;
+            problem = null;
+            return;
+        }
+
+        if (await SaveAsync(options with { Folders = [.. options.Folders, folder] }))
+        {
+            draft = null;
+        }
+    }
+
+    private Task RemoveAsync(string folder) =>
+        SaveAsync(options with { Folders = [.. options.Folders.Where(existing => !string.Equals(existing, folder, StringComparison.Ordinal))] });
+
+    private async Task ChangeSizeAsync(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var size))
+        {
+            await SaveAsync(options with { ResultCharacters = Math.Clamp(size, FileToolsOptions.LeastResultCharacters, FileToolsOptions.MostResultCharacters) });
+        }
+    }
+
+    private async Task<bool> SaveAsync(FileToolsOptions changed)
+    {
+        var result = await Settings.WriteAsync(FileToolsOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        options = Settings.Read(FileToolsOptions.Section);
+        return result.IsSaved;
+    }
+}

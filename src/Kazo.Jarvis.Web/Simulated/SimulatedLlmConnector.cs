@@ -15,6 +15,8 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// "exact time" asks for <c>get_datetime</c>, « calcule … » or "calculate …" for <c>calculate</c> with what follows,
 /// « écris une note … » or "write a note …" for the simulated "Sensitive" tool <c>write_note</c>, « efface les notes »
 /// or "erase the notes" for the simulated "Critical" tool <c>erase_notes</c> (both ask for a confirmation, ADR 0023),
+/// « liste le dossier … » for <c>list_directory</c>, « lis le fichier … » for <c>read_file</c>, « cherche sur le web … »
+/// for <c>web_search</c>, « lis la page … » for <c>fetch_url</c>,
 /// and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
@@ -206,6 +208,32 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_erase", SimulatedEraseTool.ToolName, new Dictionary<string, object?>());
             }
 
+            if (Offered("list_directory") && ListRequest().Match(request) is { Success: true } list)
+            {
+                var arguments = new Dictionary<string, object?>();
+                if (list.Groups[1].Value.Trim().TrimEnd('.', '!', '?').Trim() is { Length: > 0 } folder)
+                {
+                    arguments["path"] = folder;
+                }
+
+                return new FunctionCallContent("call_list", "list_directory", arguments);
+            }
+
+            if (Offered("read_file") && FileRequest().Match(request) is { Success: true } file)
+            {
+                return new FunctionCallContent("call_read", "read_file", new Dictionary<string, object?> { ["path"] = file.Groups[1].Value.Trim().TrimEnd('!', '?').Trim() });
+            }
+
+            if (Offered("web_search") && SearchRequest().Match(request) is { Success: true } search)
+            {
+                return new FunctionCallContent("call_search", "web_search", new Dictionary<string, object?> { ["query"] = search.Groups[1].Value.Trim().TrimEnd('.', '!', '?').Trim() });
+            }
+
+            if (Offered("fetch_url") && PageRequest().Match(request) is { Success: true } page)
+            {
+                return new FunctionCallContent("call_fetch", "fetch_url", new Dictionary<string, object?> { ["url"] = page.Groups[1].Value.Trim() });
+            }
+
             // A tool the registry does not know: only when tools are offered, as a real model could invent one.
             return options?.Tools is { Count: > 0 } && request.Contains("outil inconnu", StringComparison.OrdinalIgnoreCase)
                 ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
@@ -222,6 +250,18 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
 
     [GeneratedRegex(@"efface les notes|erase the notes", RegexOptions.IgnoreCase)]
     private static partial Regex EraseRequest();
+
+    [GeneratedRegex(@"(?:liste (?:le dossier|les dossiers autorisés)|list the (?:folder|allowed folders))\s*(.*)$", RegexOptions.IgnoreCase)]
+    private static partial Regex ListRequest();
+
+    [GeneratedRegex(@"(?:lis le fichier|read the file)\s+(\S+)", RegexOptions.IgnoreCase)]
+    private static partial Regex FileRequest();
+
+    [GeneratedRegex(@"(?:cherche sur le web|search the web for)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex SearchRequest();
+
+    [GeneratedRegex(@"(?:lis la page|read the page)\s+(\S+)", RegexOptions.IgnoreCase)]
+    private static partial Regex PageRequest();
 
     [GeneratedRegex(@"heure exacte|exact time", RegexOptions.IgnoreCase)]
     private static partial Regex TimeRequest();

@@ -32,6 +32,17 @@ internal static class NativeMethods
         SetWindowLongPtr(window, GwlExStyle, new IntPtr(current | (long)(uint)style));
     }
 
+    /// <summary>Removes extended styles from a window (the browser of Jarvis, once the user opens it).</summary>
+    public static void RemoveExtendedStyle(IntPtr window, int style)
+    {
+        var current = GetWindowLongPtr(window, GwlExStyle).ToInt64();
+        SetWindowLongPtr(window, GwlExStyle, new IntPtr(current & ~(long)(uint)style));
+    }
+
+    /// <summary>The size of the client area of a window, in physical pixels.</summary>
+    public static (int Width, int Height) ClientSize(IntPtr window) =>
+        GetClientRect(window, out var rect) ? (rect.Right - rect.Left, rect.Bottom - rect.Top) : (0, 0);
+
     /// <summary>
     /// The name of the desktop that receives the input: <c>Default</c> in a normal session, <c>Winlogon</c>
     /// on the lock screen or <c>Screen-saver</c>; <see langword="null"/> when it cannot be opened (a
@@ -111,6 +122,9 @@ internal static class NativeMethods
 
     [DllImport("wtsapi32.dll")]
     private static extern void WTSFreeMemory(IntPtr memory);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool GetClientRect(IntPtr window, out Rect rect);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool GetWindowRect(IntPtr window, out Rect rect);

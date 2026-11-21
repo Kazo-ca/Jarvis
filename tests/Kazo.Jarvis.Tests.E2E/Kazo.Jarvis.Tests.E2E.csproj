@@ -27,4 +27,12 @@
     <ProjectReference Include="..\..\src\Kazo.Jarvis.Web\Kazo.Jarvis.Web.csproj" />
   </ItemGroup>
 
+  <!--
+    The scripts the browser of Jarvis runs in a results page (ADR 0022) are plain JavaScript in a plain .NET file
+    of the Windows host: compiled here as well, so that Chromium runs them against pages written by hand.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Kazo.Jarvis.Windows\Browser\SearchPages.cs" LinkBase="Windows\Browser" />
+  </ItemGroup>
+
 </Project>

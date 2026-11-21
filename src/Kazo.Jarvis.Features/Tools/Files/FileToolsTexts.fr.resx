@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="List_Description" xml:space="preserve">
+    <value>Liste les dossiers et les fichiers d'un dossier de cet ordinateur. Seuls les dossiers autorisés par l'utilisateur peuvent être lus. Sans chemin, donne la liste des dossiers autorisés.</value>
+  </data>
+  <data name="List_Path" xml:space="preserve">
+    <value>Absolute path of the folder. Omit it to get the allowed folders.</value>
+  </data>
+  <data name="Read_Description" xml:space="preserve">
+    <value>Lit le texte d'un fichier situé dans un dossier autorisé par l'utilisateur. Un long fichier vient en plusieurs parties : rappeler l'outil avec « start » égal au « next_start » du résultat précédent.</value>
+  </data>
+  <data name="Read_Path" xml:space="preserve">
+    <value>Absolute path of the file.</value>
+  </data>
+  <data name="Read_Start" xml:space="preserve">
+    <value>Position of the first character to read, 0 by default.</value>
+  </data>
+</root>

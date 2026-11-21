@@ -1,0 +1,92 @@
+@inject IToolRegistry Registry
+@inject ISettingsStore Settings
+@inject IAssistantLanguageReader Language
+@inject IServiceProvider Services
+@inject IStringLocalizer<ToolsPage> T
+@implements IDisposable
+
+@* The « Outils » page (ADR 0017, sections 4 and 6): one switch per tool, with its class, its origin and what
+   leaves the machine when it is used. Only the tools that are on are given to the model. A change is saved at once
+   and applies to the next turn. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <p class="tools-size" data-tools-size data-tools-tokens="@tokens">
+        @(context is { } size ? T["SizeOfContext", enabledCount, tokens, size] : T["Size", enabledCount, tokens])
+    </p>
+    <ul class="tools-list" data-tools-list>
+        @foreach (var tool in Registry.Tools)
+        {
+            var enabled = Registry.IsEnabled(tool);
+            var discloses = tool.Discloses(Language.Current);
+            <li class="tools-entry" data-tool="@tool.Name" data-tool-enabled="@(enabled ? "true" : "false")" data-tool-class="@tool.DeclaredClass" @key="tool.Name">
+                <label class="tools-switch">
+                    <input type="checkbox" data-tool-switch checked="@enabled" @onchange="e => SwitchAsync(tool, e.Value is true)" />
+                    <span class="tools-name">@tool.Name</span>
+                </label>
+                <span class="tools-tag">@T["Class", T["Class_" + tool.DeclaredClass].Value]</span>
+                <span class="tools-tag">@OriginOf(tool)</span>
+                <p class="tools-description">@tool.Describe(Language.Current)</p>
+                @if (discloses is not null)
+                {
+                    <p class="tools-discloses" data-tool-discloses>@T["Discloses", discloses]</p>
+                }
+            </li>
+        }
+    </ul>
+    @if (problem is not null)
+    {
+        <p class="tools-problem" role="alert" data-tools-problem>@problem</p>
+    }
+</SettingsFrame>
+
+@code {
+    private IAssistantModel? model;
+    private string? problem;
+    private int tokens;
+    private int enabledCount;
+    private int? context;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        model = Services.GetService(typeof(IAssistantModel)) as IAssistantModel;
+        Registry.Changed += OnRegistryChanged;
+        Measure();
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Registry.Changed -= OnRegistryChanged;
+
+    private void OnRegistryChanged() => _ = InvokeAsync(() =>
+    {
+        Measure();
+        StateHasChanged();
+    });
+
+    private void Measure()
+    {
+        var enabled = Registry.Enabled;
+        enabledCount = enabled.Count;
+        tokens = ToolCatalog.EstimateTokens(enabled, Language.Current);
+        context = model?.Provider?.Tuning?.ContextLength;
+    }
+
+    private string OriginOf(ITool tool) => tool.Origin switch
+    {
+        ToolOrigins.BuiltIn => T["Origin_BuiltIn"],
+        ToolOrigins.HandOff => T["Origin_HandOff"],
+        var origin when origin.StartsWith("mcp:", StringComparison.Ordinal) => T["Origin_Mcp", origin[4..]],
+        var origin => origin,
+    };
+
+    private async Task SwitchAsync(ITool tool, bool enabled)
+    {
+        var result = await Settings.WriteAsync(ToolActivation.Section, Settings.Read(ToolActivation.Section).With(tool.Name, enabled));
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        Measure();
+    }
+}

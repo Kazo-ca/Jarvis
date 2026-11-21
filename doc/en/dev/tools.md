@@ -62,6 +62,8 @@ decision. "Erase everything" erases this log too. An interruption is logged as a
 | `get_datetime` | `Tools/Clock` | Read | JSON: `date`, `time`, `weekday`, `time_zone`, `utc_offset` of the PC |
 | `calculate` | `Tools/Calculator` | Read | The value of `expression`, written with a decimal point |
 
+The file and web tools are in [basic-tools.md](basic-tools.md).
+
 `calculate` reads the expression itself (no script execution): numbers, `+ - * / % ^`, parentheses, `pi`,
 `e`, `sqrt`, `abs`, `round`, `floor`, `ceil`. It accepts `×`, `÷`, `**` and the decimal comma. It computes
 in `decimal`: 0.1 + 0.2 gives 0.3. An expression is at most 500 characters; an error (division by zero,
@@ -101,8 +103,7 @@ After a result, its answer quotes it.
 
 The ADRs do not settle them; to be confirmed by Benoit:
 
-1. **No "Tools" page yet** (`Tools/Catalog`): both tools are enabled by default, and a switch only changes
-   in `config.json` (`Tools.Activation`). The page comes with work item 5.
+1. ~~No "Tools" page yet~~: done in work item 5 ([basic-tools.md](basic-tools.md)).
 2. **The tool calls of past turns are not sent back to the model**: the history keeps the request and the
    answer.
 3. **Description of the `expression` parameter** in English in both languages; the description of the tool

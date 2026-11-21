@@ -1,0 +1,60 @@
+.tools-size {
+    margin: 0 0 0.8rem;
+    font-size: 0.9rem;
+    color: var(--jarvis-text-muted);
+}
+
+.tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tools-entry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    align-items: center;
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+}
+
+.tools-entry[data-tool-enabled="true"] {
+    border-left-color: var(--jarvis-green);
+}
+
+.tools-switch {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tools-name {
+    font-family: var(--jarvis-font-mono);
+}
+
+.tools-tag {
+    font-size: 0.8rem;
+    color: var(--jarvis-text-muted);
+}
+
+.tools-description,
+.tools-discloses {
+    flex: 1 1 100%;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.tools-discloses {
+    color: var(--jarvis-amber, var(--jarvis-text));
+}
+
+.tools-problem {
+    margin: 0.8rem 0 0;
+    color: var(--jarvis-red);
+}

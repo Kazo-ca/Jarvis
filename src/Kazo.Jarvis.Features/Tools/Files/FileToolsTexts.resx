@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="List_Description" xml:space="preserve">
+    <value>Lists the folders and files of a folder on this computer. Only the folders the user allowed can be read. Call it without a path to get the list of allowed folders.</value>
+  </data>
+  <data name="List_Path" xml:space="preserve">
+    <value>Absolute path of the folder. Omit it to get the allowed folders.</value>
+  </data>
+  <data name="Read_Description" xml:space="preserve">
+    <value>Reads the text of a file inside a folder the user allowed. Long files come in parts: call again with 'start' set to the 'next_start' of the previous result.</value>
+  </data>
+  <data name="Read_Path" xml:space="preserve">
+    <value>Absolute path of the file.</value>
+  </data>
+  <data name="Read_Start" xml:space="preserve">
+    <value>Position of the first character to read, 0 by default.</value>
+  </data>
+</root>

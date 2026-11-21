@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Outils</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Ce que Jarvis peut faire en plus de parler. Seuls les outils activés sont proposés au modèle, et chaque appel passe d'abord par les permissions. Un outil qui fait sortir quelque chose de cet ordinateur est coupé tant que vous ne l'activez pas.</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>{0} outils activés : environ {1} jetons donnés au modèle à chaque tour.</value>
+  </data>
+  <data name="SizeOfContext" xml:space="preserve">
+    <value>{0} outils activés : environ {1} jetons donnés au modèle à chaque tour, sur un contexte de {2}.</value>
+  </data>
+  <data name="Class" xml:space="preserve">
+    <value>Classe : {0}</value>
+  </data>
+  <data name="Class_Read" xml:space="preserve">
+    <value>Lecture</value>
+  </data>
+  <data name="Class_EverydayEffect" xml:space="preserve">
+    <value>Effet courant</value>
+  </data>
+  <data name="Class_Sensitive" xml:space="preserve">
+    <value>Sensible</value>
+  </data>
+  <data name="Class_Critical" xml:space="preserve">
+    <value>Critique</value>
+  </data>
+  <data name="Class_Forbidden" xml:space="preserve">
+    <value>Interdite</value>
+  </data>
+  <data name="Origin_BuiltIn" xml:space="preserve">
+    <value>Intégré à Jarvis</value>
+  </data>
+  <data name="Origin_HandOff" xml:space="preserve">
+    <value>Passage de main</value>
+  </data>
+  <data name="Origin_Mcp" xml:space="preserve">
+    <value>Serveur MCP {0}</value>
+  </data>
+  <data name="Discloses" xml:space="preserve">
+    <value>Sort de cet ordinateur : {0}</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Les paramètres n'ont pas pu être enregistrés.</value>
+  </data>
+</root>
