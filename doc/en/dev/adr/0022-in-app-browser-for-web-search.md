@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-20 (work item `stage2/in-app-browser-adr`). The open questions are in the "Questions for
-Benoit" section.
+Accepted by Benoit on 2026-11-20 (work item `stage2/in-app-browser-adr`). His answers are in the "Benoit's
+answers" section.
 
 - **Partly supersedes:** [ADR 0017](0017-tools-classes-and-decision-point.md), section 3: the "Driven
   browser" and "Spike E15" points, Benoit's answer 2 as it is read there, and the two consequences about the
@@ -32,7 +32,8 @@ Benoit" section.
 - **Jarvis never starts or drives Edge, Chrome or any other browser of the user.** It opens no tab there,
   does not read their profile and does not depend on what they do there.
 - The window never takes the focus when Jarvis uses it, and does not show in the taskbar until the user has
-  opened it. When and how it shows: question 1.
+  opened it. **It stays hidden during a search**; the conversation lists the pages
+  read, each with a "See the page" button that opens the window (answer 1).
 - **The user can open it** to see the page Jarvis is reading, and browse there themselves: address, back,
   reload, close. Closing the window does not close the browser; it stops by itself after a time without use,
   adjustable.
@@ -46,7 +47,9 @@ Benoit" section.
   ignored. A page can call nothing in Jarvis.
 - Jarvis drives it through the WebView2 API (navigation, end of loading, reading the text with a short
   script). **No Playwright, no open debugging port.**
-- What the browser keeps from one time to the next (cookies, sign-ins made by the user): question 2.
+- **The browser keeps its cookies from one time to the next** (answer 2). The user can sign in to a site
+  there themselves; the window then warns that Jarvis will afterwards read pages with that account open, and
+  that a booby-trapped page can mislead the model while it reads. A button clears all the browser's data.
 
 ### 3. Read-only, in code
 
@@ -85,22 +88,23 @@ On Benoit's PC, before work item `stage2/5-basic-tools`, with a WebView2 in a WP
 
 **If the spike fails, a new ADR says what to change**; Brave Search then remains the only provider.
 
-## Questions for Benoit
+## Benoit's answers
 
-Asked in the conversation on 2026-11-20.
+Questions asked in the conversation on 2026-11-20. Answer of the same day: "ok", which takes the
+recommendations.
 
-1. **When does the browser window show?** Recommendation: it stays hidden during a search; the conversation
-   shows the pages read with a "See the page" button that opens it.
-2. **What does the browser keep from one time to the next?** Recommendation: its cookies (fewer consent walls
-   and blocks); the user can sign in to a site there themselves, behind a warning; a button clears
-   everything.
+1. **When does the browser window show?** It stays hidden during a search. The conversation lists the pages
+   read with a "See the page" button that opens it.
+2. **What does the browser keep from one time to the next?** Its cookies. The user can sign in to a site
+   there themselves, behind a warning; a button clears everything.
+3. **When to redo spike E15?** Right away, with the internal browser.
 
 ## Options set aside
 
 - **Installed Edge or Chrome, driven by Playwright.** Set aside by Benoit: it conflicts with what the user is
   doing.
 - **The user's usual profile.** No longer makes sense: the internal browser has its own data folder. What
-  replaces it is question 2.
+  replaces it is answer 2.
 - **Reading pages with plain HTTP requests, without a browser.** Many pages and engines return nothing useful
   without script, and the user would not see what Jarvis reads.
 - **Playwright attached to the WebView2 through a debugging port.** A local port through which any program on

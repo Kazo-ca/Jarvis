@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-20 (chantier `stage2/in-app-browser-adr`). Les questions ouvertes sont dans la section
-« Questions pour Benoit ».
+Accepté par Benoit le 2026-11-20 (chantier `stage2/in-app-browser-adr`). Ses réponses sont dans la section
+« Réponses de Benoit ».
 
 - **Remplace en partie :** [ADR 0017](0017-tools-classes-and-decision-point.md), section 3 : les points
   « Navigateur piloté » et « Essai E15 », la réponse n° 2 de Benoit telle qu'elle y est lue, et les deux
@@ -33,7 +33,8 @@ Proposé le 2026-11-20 (chantier `stage2/in-app-browser-adr`). Les questions ouv
 - **Jarvis ne lance ni ne pilote jamais Edge, Chrome ou un autre navigateur de l'utilisateur.** Il n'ouvre
   aucun onglet chez lui, ne lit pas son profil et ne dépend pas de ce qu'il y fait.
 - La fenêtre ne prend jamais le focus quand Jarvis l'utilise, et n'apparaît pas dans la barre des tâches tant
-  que l'utilisateur ne l'a pas ouverte. Quand et comment elle se montre : question n° 1.
+  que l'utilisateur ne l'a pas ouverte. **Elle reste cachée pendant une recherche** ; la conversation
+  liste les pages lues, chacune avec un bouton « Voir la page » qui ouvre la fenêtre (réponse n° 1).
 - **L'utilisateur peut l'ouvrir** pour voir la page que Jarvis lit, et y naviguer lui-même : adresse,
   précédent, recharger, fermer. Fermer la fenêtre ne ferme pas le navigateur ; il s'arrête seul après un
   temps sans usage, réglable.
@@ -47,8 +48,10 @@ Proposé le 2026-11-20 (chantier `stage2/in-app-browser-adr`). Les questions ouv
   l'hôte sont ignorés. Une page ne peut rien appeler dans Jarvis.
 - Jarvis le pilote par l'API de WebView2 (navigation, fin de chargement, lecture du texte par un script
   court). **Pas de Playwright, pas de port de débogage ouvert.**
-- Ce que le navigateur garde d'une fois à l'autre (témoins, connexions faites par l'utilisateur) : question
-  n° 2.
+- **Le navigateur garde ses témoins d'une fois à l'autre** (réponse n° 2). L'utilisateur peut s'y connecter
+  lui-même à un site ; la fenêtre l'avertit alors que Jarvis lira ensuite les pages avec ce compte ouvert, et
+  qu'une page piégée peut tromper le modèle pendant qu'il lit. Un bouton efface toutes les données du
+  navigateur.
 
 ### 3. Lecture seule, par du code
 
@@ -90,22 +93,23 @@ celle du produit :
 
 **Si l'essai échoue, un nouvel ADR dit quoi changer** ; Brave Search reste alors le seul fournisseur.
 
-## Questions pour Benoit
+## Réponses de Benoit
 
-Posées dans la conversation le 2026-11-20.
+Questions posées dans la conversation le 2026-11-20. Réponse du même jour : « ok », qui prend les
+recommandations.
 
-1. **Quand la fenêtre du navigateur se montre-t-elle ?** Recommandation : elle reste cachée pendant une
-   recherche ; la conversation affiche les pages lues avec un bouton « Voir la page » qui l'ouvre.
-2. **Que garde le navigateur d'une fois à l'autre ?** Recommandation : ses témoins (moins de murs de
-   consentement et de blocages) ; l'utilisateur peut s'y connecter lui-même à un site, derrière un
-   avertissement ; un bouton efface tout.
+1. **Quand la fenêtre du navigateur se montre-t-elle ?** Elle reste cachée pendant une recherche. La
+   conversation liste les pages lues avec un bouton « Voir la page » qui l'ouvre.
+2. **Que garde le navigateur d'une fois à l'autre ?** Ses témoins. L'utilisateur peut s'y connecter lui-même
+   à un site, derrière un avertissement ; un bouton efface tout.
+3. **Quand refaire l'essai E15 ?** Tout de suite, avec le navigateur interne.
 
 ## Options écartées
 
 - **Edge ou Chrome installé, piloté par Playwright.** Écarté par Benoit : entre en conflit avec ce que
   l'utilisateur fait.
 - **Le profil habituel de l'utilisateur.** N'a plus de sens : le navigateur interne a son propre dossier de
-  données. Ce qui le remplace est la question n° 2.
+  données. Ce qui le remplace est la réponse n° 2.
 - **Lire les pages par de simples requêtes HTTP, sans navigateur.** Beaucoup de pages et de moteurs ne
   rendent rien d'utile sans script, et l'utilisateur ne verrait pas ce que Jarvis lit.
 - **Playwright branché sur le WebView2 par un port de débogage.** Un port local par lequel tout programme de

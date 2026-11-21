@@ -27,7 +27,7 @@ libre est indiqué dans la [mémoire du projet](../../memory/README.md).
 | [0019](0019-conversation-memory.md) | Mémoire de conversation : faits retenus, résumé des anciens échanges, page « Mémoire » | Accepté |
 | [0020](0020-hand-off-targets-and-spend-cap.md) | Passage de main, cibles et plafond de dépense | Accepté |
 | [0021](0021-claude-code-sessions.md) | Sessions Claude Code : lancement, permissions, hooks, annonces | Accepté |
-| [0022](0022-in-app-browser-for-web-search.md) | Recherche web dans un navigateur interne à Jarvis (remplace en partie 0017) | Proposé |
+| [0022](0022-in-app-browser-for-web-search.md) | Recherche web dans un navigateur interne à Jarvis (remplace en partie 0017) | Accepté |
 
 Les neuf premiers ADR sont ceux de l'étape 1, listés dans le
 [document de conception](../plans/design.md#méthode-de-travail-et-premiers-adr).

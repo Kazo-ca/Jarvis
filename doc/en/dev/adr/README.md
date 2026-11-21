@@ -27,7 +27,7 @@ free number is given in the [project memory](../../memory/README.md).
 | [0019](0019-conversation-memory.md) | Conversation memory: kept facts, summary of old exchanges, "Memory" page | Accepted |
 | [0020](0020-hand-off-targets-and-spend-cap.md) | Hand-off, targets and spend cap | Accepted |
 | [0021](0021-claude-code-sessions.md) | Claude Code sessions: launch, permissions, hooks, announcements | Accepted |
-| [0022](0022-in-app-browser-for-web-search.md) | Web search in a browser internal to Jarvis (partly supersedes 0017) | Proposed |
+| [0022](0022-in-app-browser-for-web-search.md) | Web search in a browser internal to Jarvis (partly supersedes 0017) | Accepted |
 
 The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).
