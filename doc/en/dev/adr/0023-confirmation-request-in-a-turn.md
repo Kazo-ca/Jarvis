@@ -33,8 +33,9 @@ conversation; they are repeated in the "Questions to Benoit" section.
   carries the identifier of the request and its class.
 - Two input events: "request opened" sets the condition, "request closed" clears it. The machine stays a
   pure function. Only one request is open at a time; the others wait for their turn.
-- **The phase does not change during a request.** A request born in a turn happens in the "Thinking"
-  phase: the tool loop waits. The question said and the answer listened to go through neither "Speaking"
+- **The phase does not change during a request.** A request born in a turn keeps the phase the turn
+  is in: "Thinking" most of the time, "Speaking" when the model already started to speak before it called
+  the tool. The tool loop waits. The question said and the answer listened to enter neither "Speaking"
   nor "Listening".
 - An activation during a request (wake word, hotkey, click on the orb) remains the interruption of
   ADR 0005: the turn is cancelled, the request is closed by a denial, logged "interrupted".

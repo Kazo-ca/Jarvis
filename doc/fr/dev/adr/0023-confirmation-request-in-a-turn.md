@@ -33,9 +33,10 @@ conversation ; elles sont reprises dans la section « Questions à Benoit ».
   (`PendingConfirmation`). Elle porte l'identifiant de la demande et sa classe.
 - Deux événements d'entrée : « demande ouverte » pose la condition, « demande fermée » la lève. La machine
   reste une fonction pure. Une seule demande est ouverte à la fois ; les autres attendent leur tour.
-- **La phase ne change pas pendant une demande.** Une demande née dans un tour se passe en phase
-  « Réflexion » : la boucle d'outils attend. La question dite et la réponse écoutée ne passent ni par
-  « Parole » ni par « Écoute ».
+- **La phase ne change pas pendant une demande.** Une demande née dans un tour garde la phase où
+  le tour se trouve : « Réflexion » le plus souvent, « Parole » si le modèle a déjà commencé à parler avant
+  d'appeler l'outil. La boucle d'outils attend. La question dite et la réponse écoutée ne font entrer ni
+  en « Parole » ni en « Écoute ».
 - Une activation pendant une demande (mot d'éveil, raccourci, clic sur l'orbe) reste l'interruption de
   l'ADR 0005 : le tour est annulé, la demande est fermée par un refus, journalisé « interrompu ».
 - **Aspect** (question 1) : tant que la condition est posée, l'orbe montre un aspect « confirmation », qui
