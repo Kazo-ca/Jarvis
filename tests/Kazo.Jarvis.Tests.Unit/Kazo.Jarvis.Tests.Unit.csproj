@@ -44,6 +44,14 @@
     <Compile Include="..\..\src\Kazo.Jarvis.Windows\Audio\PlaybackConverter.cs" LinkBase="Windows\Audio" />
   </ItemGroup>
 
+  <!--
+    Same for the pages of the search engines read by the browser of Jarvis (ADR 0022): the WebView2 code around
+    them needs Windows, the addresses, the scripts and the reading of their result do not.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Kazo.Jarvis.Windows\Browser\SearchPages.cs" LinkBase="Windows\Browser" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kazo.Jarvis.Kernel\Kazo.Jarvis.Kernel.csproj" />
     <ProjectReference Include="..\..\src\Kazo.Jarvis.Features\Kazo.Jarvis.Features.csproj" />

@@ -53,4 +53,19 @@ Le détail est dans le journal :
   <data name="FirstRunWizard" xml:space="preserve">
     <value>Assistant de configuration…</value>
   </data>
+  <data name="BrowserTitle" xml:space="preserve">
+    <value>Navigateur de Jarvis</value>
+  </data>
+  <data name="BrowserBack" xml:space="preserve">
+    <value>Précédent</value>
+  </data>
+  <data name="BrowserReload" xml:space="preserve">
+    <value>Recharger</value>
+  </data>
+  <data name="BrowserAddress" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="BrowserWarning" xml:space="preserve">
+    <value>Ce navigateur appartient à Jarvis et lit des pages pour lui. Si vous vous connectez à un site ici, Jarvis lit ensuite les pages avec ce compte ouvert, et une page piégée peut tromper le modèle pendant qu'il lit.</value>
+  </data>
 </root>
