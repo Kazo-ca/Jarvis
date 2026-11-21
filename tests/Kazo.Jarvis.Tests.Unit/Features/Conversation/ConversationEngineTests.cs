@@ -1,6 +1,7 @@
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
+using Kazo.Jarvis.Features.Permissions.Decision;
 using Kazo.Jarvis.Kernel;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Llm;
@@ -9,8 +10,11 @@ using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
+using Kazo.Jarvis.Kernel.Permissions;
+using Kazo.Jarvis.Kernel.Tools;
 using Kazo.Jarvis.Tests.Unit.Adapters;
 using Kazo.Jarvis.Tests.Unit.Features.Settings;
+using Kazo.Jarvis.Tests.Unit.Kernel.Tools;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,7 +27,7 @@ namespace Kazo.Jarvis.Tests.Unit.Features.Conversation;
 /// stored with the model, the tokens and the time. Runs with the real kernel and the real SQLite store.
 /// </summary>
 [TestFixture]
-public sealed class ConversationEngineTests
+public sealed partial class ConversationEngineTests
 {
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
 
@@ -35,6 +39,8 @@ public sealed class ConversationEngineTests
     private FakeAssistantModel model = null!;
     private ManualLanguage language = null!;
     private ConversationJournal journal = null!;
+    private ToolRegistry registry = null!;
+    private PermissionDecisionPoint permissions = null!;
     private ConversationEngine engine = null!;
     private List<IEvent> published = null!;
     private IDisposable[] subscriptions = [];
@@ -55,11 +61,15 @@ public sealed class ConversationEngineTests
         model = new FakeAssistantModel(client);
         language = new ManualLanguage { Current = AssistantLanguage.French };
         journal = new ConversationJournal(store, TimeProvider.System, NullLogger<ConversationJournal>.Instance);
+        registry = new ToolRegistry([], settings);
+        permissions = new PermissionDecisionPoint(registry, store, TimeProvider.System, NullLogger<PermissionDecisionPoint>.Instance);
         engine = new ConversationEngine(
             model,
             new SystemPrompt(settings, TimeProvider.System),
             journal,
             language,
+            registry,
+            permissions,
             Bus,
             TimeProvider.System,
             NullLogger<ConversationEngine>.Instance);
@@ -96,6 +106,7 @@ public sealed class ConversationEngineTests
         }
 
         engine.Dispose();
+        registry.Dispose();
         client.Dispose();
         provider.Dispose();
         Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
@@ -130,7 +141,13 @@ public sealed class ConversationEngineTests
         // Read back after a restart: same turn, from the store.
         var reopened = new ConversationJournal(store, TimeProvider.System, NullLogger<ConversationJournal>.Instance);
         await reopened.EnsureLoadedAsync();
-        Assert.That(reopened.Turns.Single(), Is.EqualTo(shown));
+        // A record compares its list of tool calls by reference: the list is compared apart.
+        var read = reopened.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(read.ToolCalls, Is.Empty);
+            Assert.That(read with { ToolCalls = shown.ToolCalls }, Is.EqualTo(shown));
+        });
     }
 
     [Test]

@@ -33,6 +33,12 @@ internal sealed class ScriptedChatClient : IChatClient
 
     public List<string> Pieces { get; } = [];
 
+    /// <summary>
+    /// The rounds of a turn with tools: each request takes the next one, made of pieces of text and of
+    /// <see cref="FunctionCallContent"/>. Once they are all taken, <see cref="Pieces"/> are streamed.
+    /// </summary>
+    public Queue<object[]> Rounds { get; } = new();
+
     /// <summary>When set, the stream waits for it after the first piece.</summary>
     public TaskCompletionSource? HoldAfterFirstPiece { get; set; }
 
@@ -56,6 +62,31 @@ internal sealed class ScriptedChatClient : IChatClient
         }
 
         using var registration = cancellationToken.Register(() => Cancelled.TrySetResult());
+        object[]? round;
+        lock (gate)
+        {
+            Rounds.TryDequeue(out round);
+        }
+
+        if (round is not null)
+        {
+            foreach (var item in round)
+            {
+                await Task.Yield();
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return item is FunctionCallContent call
+                    ? new ChatResponseUpdate(ChatRole.Assistant, [call]) { ModelId = "qwen3:14b" }
+                    : new ChatResponseUpdate(ChatRole.Assistant, (string)item) { ModelId = "qwen3:14b" };
+            }
+
+            yield return new ChatResponseUpdate(ChatRole.Assistant, [new UsageContent(new UsageDetails { InputTokenCount = 100, OutputTokenCount = 10 })])
+            {
+                ModelId = "qwen3:14b",
+                FinishReason = ChatFinishReason.ToolCalls,
+            };
+            yield break;
+        }
+
         for (var i = 0; i < Pieces.Count; i++)
         {
             await Task.Yield();

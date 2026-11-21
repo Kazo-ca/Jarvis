@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using Kazo.Jarvis.Kernel.Llm;
 using Microsoft.Extensions.AI;
 
@@ -9,8 +10,14 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// an address or a model, so the tests and the page can show them all:
 /// a host ending in <c>.invalid</c> is unreachable, a host ending in <c>.slow</c> never answers, a cloud provider
 /// whose key is the word <c>refused</c> is refused, and only the models in <see cref="Models"/> exist.
+/// <para>
+/// Tool calls (ADR 0017) are simulated from the words of the request, when the tool is offered: « heure exacte » or
+/// "exact time" asks for <c>get_datetime</c>, « calcule … » or "calculate …" for <c>calculate</c> with what follows,
+/// and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
+/// answer quotes it.
+/// </para>
 /// </summary>
-public sealed class SimulatedLlmConnector : ILlmConnector
+public sealed partial class SimulatedLlmConnector : ILlmConnector
 {
     private const string Answer = "Bonsoir, Monsieur. Ceci est une réponse simulée : aucun modèle n'a été appelé.";
 
@@ -146,7 +153,17 @@ public sealed class SimulatedLlmConnector : ILlmConnector
             IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             await owner.CheckAsync(provider, cancellationToken).ConfigureAwait(false);
-            foreach (var word in Answer.Split(' '))
+            var last = messages.LastOrDefault();
+            if (last?.Role == ChatRole.User && ToolCall(last.Text, options) is { } call)
+            {
+                await Task.Delay(40, cancellationToken).ConfigureAwait(false);
+                yield return new ChatResponseUpdate(ChatRole.Assistant, [call]) { ModelId = provider.Model, FinishReason = ChatFinishReason.ToolCalls };
+                yield break;
+            }
+
+            var result = last?.Role == ChatRole.Tool ? last.Contents.OfType<FunctionResultContent>().LastOrDefault()?.Result?.ToString() : null;
+            var answer = result is null ? Answer : "Résultat de l'outil, Monsieur : " + result;
+            foreach (var word in answer.Split(' '))
             {
                 await Task.Delay(40, cancellationToken).ConfigureAwait(false);
                 yield return new ChatResponseUpdate(ChatRole.Assistant, word + " ") { ModelId = provider.Model };
@@ -162,8 +179,35 @@ public sealed class SimulatedLlmConnector : ILlmConnector
         public object? GetService(Type serviceType, object? serviceKey = null) =>
             serviceKey is null && serviceType == typeof(LlmProvider) ? provider : null;
 
+        /// <summary>The tool call the words of <paramref name="request"/> ask for, when that tool is offered.</summary>
+        private static FunctionCallContent? ToolCall(string request, ChatOptions? options)
+        {
+            bool Offered(string name) => options?.Tools?.Any(tool => tool.Name == name) == true;
+
+            if (Offered("get_datetime") && TimeRequest().IsMatch(request))
+            {
+                return new FunctionCallContent("call_time", "get_datetime", new Dictionary<string, object?>());
+            }
+
+            if (Offered("calculate") && CalculationRequest().Match(request) is { Success: true } calculation)
+            {
+                return new FunctionCallContent("call_calculate", "calculate", new Dictionary<string, object?> { ["expression"] = calculation.Groups[1].Value.Trim() });
+            }
+
+            // A tool the registry does not know: only when tools are offered, as a real model could invent one.
+            return options?.Tools is { Count: > 0 } && request.Contains("outil inconnu", StringComparison.OrdinalIgnoreCase)
+                ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
+                : null;
+        }
+
         public void Dispose()
         {
         }
     }
+
+    [GeneratedRegex(@"heure exacte|exact time", RegexOptions.IgnoreCase)]
+    private static partial Regex TimeRequest();
+
+    [GeneratedRegex(@"(?:calcule|calculate)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex CalculationRequest();
 }

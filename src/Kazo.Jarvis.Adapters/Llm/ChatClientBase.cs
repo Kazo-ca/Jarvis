@@ -32,13 +32,12 @@ internal abstract class ChatClientBase : IChatClient
         IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(messages);
-        LlmHttp.RejectTools(options);
         if (!LlmHttp.IsCallable(Provider.Endpoint))
         {
             throw new LlmException(LlmFailure.InvalidAddress, $"'{Provider.Endpoint}' is not an http or https address.");
         }
 
-        await foreach (var update in StreamAsync(LlmHttp.Flatten(messages, options), options, cancellationToken).ConfigureAwait(false))
+        await foreach (var update in StreamAsync(LlmHttp.Flatten(messages, options), LlmHttp.Tools(options), options, cancellationToken).ConfigureAwait(false))
         {
             yield return update;
         }
@@ -61,9 +60,12 @@ internal abstract class ChatClientBase : IChatClient
         // The HttpClient belongs to the connector and outlives the client.
     }
 
-    /// <summary>Streams the answer of the provider.</summary>
+    /// <summary>
+    /// Streams the answer of the provider. A tool call arrives as a <see cref="FunctionCallContent"/>; it is never
+    /// run here (ADR 0007, section 2).
+    /// </summary>
     protected abstract IAsyncEnumerable<ChatResponseUpdate> StreamAsync(
-        IReadOnlyList<(string Role, string Text)> messages, ChatOptions? options, CancellationToken cancellationToken);
+        IReadOnlyList<LlmMessage> messages, IReadOnlyList<LlmTool> tools, ChatOptions? options, CancellationToken cancellationToken);
 
     /// <summary>The model asked for: the one of the options, else the provider's.</summary>
     protected string ModelOf(ChatOptions? options) => string.IsNullOrWhiteSpace(options?.ModelId) ? Provider.Model : options.ModelId;

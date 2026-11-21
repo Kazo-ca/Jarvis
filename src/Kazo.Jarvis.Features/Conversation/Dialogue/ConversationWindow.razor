@@ -18,6 +18,28 @@
                         <span class="conversation-who">@(turn.Input == TurnInput.Voice ? T["YouSaid"] : T["YouWrote"])</span>
                         <span class="conversation-body" data-conversation-request>@turn.Request</span>
                     </p>
+                    @foreach (var call in turn.ToolCalls)
+                    {
+                        @* Each tool call of the turn, collapsed by default (ADR 0017, section 5). *@
+                        <details class="conversation-tool" data-conversation-tool="@call.Name" data-tool-outcome="@call.Outcome">
+                            <summary class="conversation-tool-summary">
+                                <span class="conversation-who">@T["Tool"]</span>
+                                <span class="conversation-tool-name">@call.Name</span>
+                                <span class="conversation-tool-outcome">@T["ToolOutcome_" + call.Outcome]</span>
+                            </summary>
+                            <p class="conversation-tool-part">
+                                <span class="conversation-who">@T["ToolArguments"]</span>
+                                <code class="conversation-tool-text" data-conversation-tool-arguments>@call.Arguments</code>
+                            </p>
+                            @if (call.Result is { Length: > 0 } result)
+                            {
+                                <p class="conversation-tool-part">
+                                    <span class="conversation-who">@T["ToolResult"]</span>
+                                    <code class="conversation-tool-text" data-conversation-tool-result>@result</code>
+                                </p>
+                            }
+                        </details>
+                    }
                     <p class="conversation-answer">
                         <span class="conversation-who conversation-jarvis">Jarvis</span>
                         <span class="conversation-body" data-conversation-answer>@turn.Answer</span>

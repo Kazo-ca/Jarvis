@@ -105,4 +105,28 @@
   <data name="Failure_Other" xml:space="preserve">
     <value>failed</value>
   </data>
+  <data name="Tool" xml:space="preserve">
+    <value>Tool</value>
+  </data>
+  <data name="ToolArguments" xml:space="preserve">
+    <value>Arguments</value>
+  </data>
+  <data name="ToolResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ToolOutcome_Running" xml:space="preserve">
+    <value>running…</value>
+  </data>
+  <data name="ToolOutcome_Done" xml:space="preserve">
+    <value>done</value>
+  </data>
+  <data name="ToolOutcome_Denied" xml:space="preserve">
+    <value>denied</value>
+  </data>
+  <data name="ToolOutcome_Failed" xml:space="preserve">
+    <value>failed</value>
+  </data>
+  <data name="ToolOutcome_Interrupted" xml:space="preserve">
+    <value>interrupted</value>
+  </data>
 </root>

@@ -2,6 +2,8 @@ using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Audio;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Messaging;
+using Kazo.Jarvis.Kernel.Settings;
+using Kazo.Jarvis.Kernel.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -9,7 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Kazo.Jarvis.Kernel;
 
-/// <summary>Registers the kernel services: bus, state machine and sound level feed.</summary>
+/// <summary>Registers the kernel services: bus, state machine, sound level feed and tool registry.</summary>
 public static class KernelServiceCollectionExtensions
 {
     /// <summary>
@@ -40,6 +42,11 @@ public static class KernelServiceCollectionExtensions
         services.TryAddSingleton(_ => new MicrophoneFeed());
         services.TryAddSingleton<IMicrophoneSource>(provider => provider.GetRequiredService<MicrophoneFeed>());
         services.TryAddSingleton<IMicrophoneSink>(provider => provider.GetRequiredService<MicrophoneFeed>());
+
+        // The tools of every slice (ADR 0017, section 1). The settings store comes from the host.
+        services.TryAddSingleton<IToolRegistry>(provider => new ToolRegistry(
+            provider.GetServices<ITool>(),
+            provider.GetRequiredService<ISettingsStore>()));
 
         return services;
     }

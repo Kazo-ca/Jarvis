@@ -38,6 +38,12 @@ public sealed partial record LlmProviderSettings
     public int MaxOutputTokens { get; init; } = 16000;
 
     /// <summary>
+    /// Whether a tool call written in the text of a local model is accepted (ADR 0007, section 4). On by default;
+    /// changed in <c>config.json</c> only, the page has no switch for it yet.
+    /// </summary>
+    public bool TolerantToolCalls { get; init; } = true;
+
+    /// <summary>
     /// Reference of the API key of a provider in the vault: <c>llm.&lt;id&gt;.apikey</c>. Derived from the id, so
     /// the settings never name a secret and the key follows the provider.
     /// </summary>
@@ -60,7 +66,7 @@ public sealed partial record LlmProviderSettings
                 Kind,
                 endpoint,
                 Model.Trim(),
-                new LlmTuning(Think, ContextLength, Temperature, KeepLoaded, MaxOutputTokens),
+                new LlmTuning(Think, ContextLength, Temperature, KeepLoaded, MaxOutputTokens, TolerantToolCalls),
                 KeyReference(Id))
             : null;
 

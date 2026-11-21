@@ -47,20 +47,22 @@ internal sealed class OllamaChatClient : ChatClientBase
 
     /// <inheritdoc />
     protected override async IAsyncEnumerable<ChatResponseUpdate> StreamAsync(
-        IReadOnlyList<(string Role, string Text)> messages, ChatOptions? options, [EnumeratorCancellation] CancellationToken cancellationToken)
+        IReadOnlyList<LlmMessage> messages, IReadOnlyList<LlmTool> tools, ChatOptions? options, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var model = ModelOf(options);
         HttpResponseMessage response;
         try
         {
-            response = await SendAsync(messages, options, model, Think(Provider, noThinking, model), cancellationToken).ConfigureAwait(false);
+            response = await SendAsync(messages, tools, options, model, Think(Provider, noThinking, model), cancellationToken).ConfigureAwait(false);
         }
         catch (LlmException exception) when (RefusesThinking(exception))
         {
             noThinking[model] = true;
-            response = await SendAsync(messages, options, model, null, cancellationToken).ConfigureAwait(false);
+            response = await SendAsync(messages, tools, options, model, null, cancellationToken).ConfigureAwait(false);
         }
 
+        var tolerant = new TolerantToolCalls(tools, Provider.Tuning.TolerantToolCalls);
+        var called = false;
         using (response)
         {
             await foreach (var line in LlmHttp.ReadLinesAsync(response, cancellationToken).ConfigureAwait(false))
@@ -73,34 +75,110 @@ internal sealed class OllamaChatClient : ChatClientBase
                 }
 
                 var answeredBy = root.TryGetProperty("model", out var name) ? name.GetString() : model;
-                if (root.TryGetProperty("message", out var message)
-                    && message.TryGetProperty("content", out var content)
-                    && content.GetString() is { Length: > 0 } text)
+                if (root.TryGetProperty("message", out var message))
                 {
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, text) { ModelId = answeredBy };
+                    if (message.TryGetProperty("content", out var content)
+                        && content.GetString() is { Length: > 0 } text
+                        && tolerant.Push(text) is { Length: > 0 } passed)
+                    {
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, passed) { ModelId = answeredBy };
+                    }
+
+                    foreach (var call in Calls(message))
+                    {
+                        called = true;
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, [call]) { ModelId = answeredBy };
+                    }
                 }
 
                 if (root.TryGetProperty("done", out var done) && done.GetBoolean())
                 {
+                    var (written, held) = tolerant.End();
+                    if (written is not null)
+                    {
+                        called = true;
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, [written]) { ModelId = answeredBy };
+                    }
+                    else if (held is not null)
+                    {
+                        yield return new ChatResponseUpdate(ChatRole.Assistant, held) { ModelId = answeredBy };
+                    }
+
                     yield return LlmHttp.Final(
                         answeredBy,
-                        FinishOf(root),
+                        called ? ChatFinishReason.ToolCalls : FinishOf(root),
                         root.TryGetProperty("prompt_eval_count", out var input) ? input.GetInt64() : null,
                         root.TryGetProperty("eval_count", out var output) ? output.GetInt64() : null);
                     yield break;
                 }
             }
         }
+
+        // A stream cut before its last line: what was held back is text.
+        if (tolerant.End().Text is { } rest)
+        {
+            yield return new ChatResponseUpdate(ChatRole.Assistant, rest) { ModelId = model };
+        }
+    }
+
+    /// <summary>The tool calls of a message: <c>tool_calls[].function</c>, with the arguments as an object (or as JSON text on old versions).</summary>
+    private static IEnumerable<FunctionCallContent> Calls(JsonElement message)
+    {
+        if (!message.TryGetProperty("tool_calls", out var calls) || calls.ValueKind != JsonValueKind.Array)
+        {
+            yield break;
+        }
+
+        foreach (var call in calls.EnumerateArray())
+        {
+            if (!call.TryGetProperty("function", out var function)
+                || !function.TryGetProperty("name", out var name)
+                || name.GetString() is not { Length: > 0 } toolName)
+            {
+                continue;
+            }
+
+            var id = call.TryGetProperty("id", out var given) && given.ValueKind == JsonValueKind.String ? given.GetString() : null;
+            if (!function.TryGetProperty("arguments", out var arguments) || arguments.ValueKind == JsonValueKind.Null)
+            {
+                yield return LlmHttp.Call(id, toolName, "{}");
+            }
+            else if (arguments.ValueKind == JsonValueKind.String)
+            {
+                yield return LlmHttp.Call(id, toolName, arguments.GetString() ?? string.Empty);
+            }
+            else
+            {
+                yield return LlmHttp.Call(id, toolName, arguments.Clone());
+            }
+        }
+    }
+
+    /// <summary>A message in Ollama's format: an assistant message carries its calls, a result names its tool.</summary>
+    private static Dictionary<string, object?> Write(LlmMessage message)
+    {
+        var written = new Dictionary<string, object?> { ["role"] = message.Role, ["content"] = message.Text };
+        if (message.Calls.Count > 0)
+        {
+            written["tool_calls"] = message.Calls.Select(call => new { function = new { name = call.Name, arguments = call.Arguments } }).ToArray();
+        }
+
+        if (message.Role == "tool" && message.ToolName is not null)
+        {
+            written["tool_name"] = message.ToolName;
+        }
+
+        return written;
     }
 
     private Task<HttpResponseMessage> SendAsync(
-        IReadOnlyList<(string Role, string Text)> messages, ChatOptions? options, string model, bool? think, CancellationToken cancellationToken)
+        IReadOnlyList<LlmMessage> messages, IReadOnlyList<LlmTool> tools, ChatOptions? options, string model, bool? think, CancellationToken cancellationToken)
     {
         var body = new Dictionary<string, object?>
         {
             ["model"] = model,
             ["stream"] = true,
-            ["messages"] = messages.Select(m => new { role = m.Role, content = m.Text }).ToArray(),
+            ["messages"] = messages.Select(Write).ToArray(),
             ["options"] = new
             {
                 temperature = options?.Temperature ?? Provider.Tuning.Temperature,
@@ -108,6 +186,11 @@ internal sealed class OllamaChatClient : ChatClientBase
                 num_predict = options?.MaxOutputTokens ?? Provider.Tuning.MaxOutputTokens,
             },
         };
+        if (tools.Count > 0)
+        {
+            body["tools"] = tools.Select(tool => new { type = "function", function = new { name = tool.Name, description = tool.Description, parameters = tool.Schema } }).ToArray();
+        }
+
         if (think is not null)
         {
             body["think"] = think;

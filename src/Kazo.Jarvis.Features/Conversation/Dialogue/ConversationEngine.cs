@@ -6,6 +6,8 @@ using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
+using Kazo.Jarvis.Kernel.Permissions;
+using Kazo.Jarvis.Kernel.Tools;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 
@@ -21,6 +23,11 @@ namespace Kazo.Jarvis.Features.Conversation.Dialogue;
 /// On <see cref="TurnCancelled"/> (an interruption by the wake word, the hotkey or a click, US1.12) the generation
 /// stops; the voice slice cuts the sound itself. Each turn is shown in the conversation window while it runs and
 /// stored when it ends, with the provider, the model, the tokens and the time taken (ADR 0007, section 7).
+/// </para>
+/// <para>
+/// The enabled tools of the registry are given to the model. When it asks for one, the call goes through the
+/// decision point of the permissions, runs, and its result goes back as data; the model then continues
+/// (ADR 0017, section 4). No call runs automatically: this slice keeps the loop (ADR 0007, section 2).
 /// </para>
 /// </summary>
 public sealed partial class ConversationEngine :
@@ -41,6 +48,8 @@ public sealed partial class ConversationEngine :
     private readonly SystemPrompt prompt;
     private readonly ConversationJournal journal;
     private readonly IAssistantLanguageReader language;
+    private readonly IToolRegistry tools;
+    private readonly IPermissionDecision permissions;
     private readonly IMessageBus bus;
     private readonly TimeProvider time;
     private readonly ILogger<ConversationEngine> logger;
@@ -55,6 +64,8 @@ public sealed partial class ConversationEngine :
     /// <param name="prompt">The system message.</param>
     /// <param name="journal">The conversation shown and stored.</param>
     /// <param name="language">The language of a typed request.</param>
+    /// <param name="tools">The registry of the tools; the enabled ones are given to the model.</param>
+    /// <param name="permissions">The decision point every tool call goes through.</param>
     /// <param name="bus">The bus, for the sentences and the messages of the state machine.</param>
     /// <param name="time">Clock of the durations.</param>
     /// <param name="logger">Logs the timings and the failures, never the text (ADR 0004, section 6).</param>
@@ -63,6 +74,8 @@ public sealed partial class ConversationEngine :
         SystemPrompt prompt,
         ConversationJournal journal,
         IAssistantLanguageReader language,
+        IToolRegistry tools,
+        IPermissionDecision permissions,
         IMessageBus bus,
         TimeProvider time,
         ILogger<ConversationEngine> logger)
@@ -71,6 +84,8 @@ public sealed partial class ConversationEngine :
         this.prompt = prompt;
         this.journal = journal;
         this.language = language;
+        this.tools = tools;
+        this.permissions = permissions;
         this.bus = bus;
         this.time = time;
         this.logger = logger;
@@ -272,7 +287,12 @@ public sealed partial class ConversationEngine :
 
             var messages = History(history, provider?.Tuning.ContextLength ?? new LlmTuning().ContextLength).ToList();
             messages.Add(new ChatMessage(ChatRole.User, answering.Snapshot.Request));
-            var options = new ChatOptions { Instructions = prompt.Build(turnLanguage) };
+
+            // Only the enabled tools are offered (ADR 0017, section 4), described in the language of the turn.
+            var offered = Declarations(turnLanguage);
+            var requester = new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model");
+            var denied = new HashSet<string>(StringComparer.Ordinal);
+            var callsMade = 0;
 
             var splitter = new SentenceSplitter();
             var answer = new StringBuilder();
@@ -280,28 +300,75 @@ public sealed partial class ConversationEngine :
             long? inputTokens = null;
             long? outputTokens = null;
             started = time.GetTimestamp();
-            await foreach (var update in client.GetStreamingResponseAsync(messages, options, token).ConfigureAwait(false))
+            for (var round = 0; ; round++)
             {
-                token.ThrowIfCancellationRequested();
-                answeredBy = update.ModelId ?? answeredBy;
-                foreach (var usage in update.Contents.OfType<UsageContent>())
+                // At the bound of the calls the model gets no tool any more: it answers with what it has.
+                var withTools = offered.Count > 0 && callsMade < MostToolCalls && round <= MostToolCalls;
+                var options = new ChatOptions
                 {
-                    inputTokens = usage.Details.InputTokenCount ?? inputTokens;
-                    outputTokens = usage.Details.OutputTokenCount ?? outputTokens;
+                    Instructions = prompt.Build(turnLanguage, offered.Count > 0),
+                    Tools = withTools ? offered : null,
+                };
+                var calls = new List<FunctionCallContent>();
+                var roundText = new StringBuilder();
+                await foreach (var update in client.GetStreamingResponseAsync(messages, options, token).ConfigureAwait(false))
+                {
+                    token.ThrowIfCancellationRequested();
+                    answeredBy = update.ModelId ?? answeredBy;
+                    foreach (var content in update.Contents)
+                    {
+                        switch (content)
+                        {
+                            case UsageContent usage:
+                                // Each round is a request: the tokens of the turn are their sum.
+                                inputTokens = Sum(inputTokens, usage.Details.InputTokenCount);
+                                outputTokens = Sum(outputTokens, usage.Details.OutputTokenCount);
+                                break;
+                            case FunctionCallContent call:
+                                calls.Add(call);
+                                break;
+                        }
+                    }
+
+                    var text = update.Text;
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        continue;
+                    }
+
+                    if (roundText.Length == 0 && answer.Length > 0 && !char.IsWhiteSpace(answer[^1]))
+                    {
+                        // What the model wrote before a tool call and what it writes after are two sentences.
+                        answer.Append(' ');
+                    }
+
+                    roundText.Append(text);
+                    answer.Append(text);
+                    var written = answer.ToString();
+                    journal.Show(answering.Update(turn => turn with { Answer = written }));
+                    if (speak)
+                    {
+                        await SayAsync(answering.Turn, splitter.Push(text)).ConfigureAwait(false);
+                    }
                 }
 
-                var text = update.Text;
-                if (string.IsNullOrEmpty(text))
+                if (calls.Count == 0 || !withTools)
                 {
-                    continue;
+                    break;
                 }
 
-                answer.Append(text);
-                var written = answer.ToString();
-                journal.Show(answering.Update(turn => turn with { Answer = written }));
                 if (speak)
                 {
-                    await SayAsync(answering.Turn, splitter.Push(text)).ConfigureAwait(false);
+                    // What was written before the calls is said now, not after their results.
+                    await SayAsync(answering.Turn, splitter.Flush()).ConfigureAwait(false);
+                }
+
+                // The calls run one by one, in the order asked, each through the decision point.
+                messages.Add(new ChatMessage(ChatRole.Assistant, [.. Preface(roundText), .. calls]));
+                foreach (var call in calls)
+                {
+                    var result = await CallAsync(answering, call, requester, turnLanguage, denied, callsMade++, token).ConfigureAwait(false);
+                    messages.Add(new ChatMessage(ChatRole.Tool, [new FunctionResultContent(call.CallId, result)]));
                 }
             }
 
@@ -330,6 +397,7 @@ public sealed partial class ConversationEngine :
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             // Interrupted (US1.12): TurnCancelled already ended the turn.
+            MarkCallsInterrupted(answering);
         }
         catch (LlmException exception)
         {

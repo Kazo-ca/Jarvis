@@ -20,6 +20,51 @@ public enum TurnOutcome
     Failed,
 }
 
+/// <summary>How a tool call of a turn ended.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<ToolCallOutcome>))]
+public enum ToolCallOutcome
+{
+    /// <summary>The decision is being taken, or the tool is running.</summary>
+    Running,
+
+    /// <summary>The tool ran; <see cref="ToolCallEntry.Result"/> holds what it returned.</summary>
+    Done,
+
+    /// <summary>The decision point denied the call; <see cref="ToolCallEntry.Result"/> holds the cause told to the model.</summary>
+    Denied,
+
+    /// <summary>The tool failed or took too long.</summary>
+    Failed,
+
+    /// <summary>The user interrupted the turn during the call.</summary>
+    Interrupted,
+}
+
+/// <summary>A tool call of a turn (ADR 0017, section 5): what the window shows and what is stored with the turn.</summary>
+public sealed record ToolCallEntry
+{
+    /// <summary>The name of the tool, as the model wrote it.</summary>
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>The arguments, as JSON.</summary>
+    public string Arguments { get; init; } = string.Empty;
+
+    /// <summary>What was returned to the model: the result of the tool, or the cause of the denial or of the failure.</summary>
+    public string? Result { get; init; }
+
+    /// <summary>How the call ended.</summary>
+    public ToolCallOutcome Outcome { get; init; }
+
+    /// <summary>The class the decision point gave to the call (an <c>ActionClass</c> name), when it could tell.</summary>
+    public string? Class { get; init; }
+
+    /// <summary>For a denied call, the cause (a <c>DenialCause</c> name, <c>Again</c> or <c>CallLimit</c>).</summary>
+    public string? Denial { get; init; }
+
+    /// <summary>Time taken by the decision and the tool.</summary>
+    public TimeSpan? Duration { get; init; }
+}
+
 /// <summary>
 /// One turn of the conversation (US1.14), as the window shows it and as the collection <c>Conversation.Turns</c>
 /// keeps it (ADR 0004, section 3), with what is recorded at each answer (ADR 0007, section 7).
@@ -41,6 +86,9 @@ public sealed record ConversationTurn
 
     /// <summary>The answer as written by the model; partial for an interrupted or failed turn.</summary>
     public string Answer { get; init; } = string.Empty;
+
+    /// <summary>The tool calls of the turn, in the order they were made (ADR 0017, section 5). Empty for most turns.</summary>
+    public IReadOnlyList<ToolCallEntry> ToolCalls { get; init; } = [];
 
     /// <summary>Code of the language of the turn (<c>fr</c>, <c>en</c>).</summary>
     public string Language { get; init; } = string.Empty;
