@@ -18,6 +18,7 @@
 | [conversation.md](conversation.md) | Conversation: the full turn, the interruption, the conversation window, the personality |
 | [confirmation.md](confirmation.md) | Confirmation request: condition and orb look, window, question said, answer by voice or click, no timeout, announcement for a typed request, permission log |
 | [basic-tools.md](basic-tools.md) | Basic tools: allowed folders, `list_directory`, `read_file`, `web_search`, `fetch_url`, browser of Jarvis (WebView2), "Tools" page |
+| [mcp.md](mcp.md) | MCP client: "tool server" contract, adapter, connection and new attempts, tools off when found, fingerprint of a tool, classes, "MCP servers" page |
 | [tools.md](tools.md) | Tools: kernel contracts, permission decision point and its log, tool loop, time and calculation |
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [first-run.md](first-run.md) | First run: setup wizard, "Voice models" page (checked downloads), Ollama search |

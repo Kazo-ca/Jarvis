@@ -107,6 +107,8 @@ public static class AdaptersServiceCollectionExtensions
         // Basic tools (ADR 0017, section 3): the disk, read only, for the file tools; Brave Search for the web search,
         // called only when the tool is on and a key is in the vault. 20 s bound one search.
         services.TryAddSingleton<ILocalFiles, LocalFiles>();
+        // Tool servers (ADR 0018): the MCP client.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Tools.Servers.IToolServerConnector, Kazo.Jarvis.Adapters.Mcp.McpToolServerConnector>();
         services.TryAddSingleton<IWebSearchApi>(provider => new BraveSearchApi(
             new HttpClient { Timeout = TimeSpan.FromSeconds(20) },
             provider.GetService<ISecretVault>(),

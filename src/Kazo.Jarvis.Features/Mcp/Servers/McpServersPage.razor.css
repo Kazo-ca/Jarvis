@@ -1,0 +1,164 @@
+.mcp-note {
+    width: 100%;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.mcp-server {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border: 1px solid var(--jarvis-line);
+    border-left: 3px solid var(--jarvis-grey);
+    background: var(--jarvis-panel);
+}
+
+.mcp-server[data-mcp-state="Connected"] {
+    border-left-color: var(--jarvis-green);
+}
+
+.mcp-server[data-mcp-state="Failed"],
+.mcp-server[data-mcp-state="Stopped"] {
+    border-left-color: var(--jarvis-red);
+}
+
+.mcp-server[data-mcp-state="Connecting"] {
+    border-left-color: var(--jarvis-cyan);
+}
+
+.mcp-server-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: baseline;
+}
+
+.mcp-server-name {
+    margin: 0;
+    font-family: var(--jarvis-font-display);
+    font-size: 1.1rem;
+}
+
+.mcp-server-target,
+.mcp-tool-name {
+    margin: 0;
+    font-family: var(--jarvis-font-mono);
+    overflow-wrap: anywhere;
+}
+
+.mcp-tag {
+    padding: 0.05rem 0.5rem;
+    border: 1px solid var(--jarvis-line);
+    font-size: 0.8rem;
+    color: var(--jarvis-text-muted);
+}
+
+.mcp-tag-remote {
+    border-color: var(--jarvis-amber);
+    color: var(--jarvis-amber);
+}
+
+.mcp-actions,
+.mcp-add-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.mcp-add-line > span {
+    flex: 0 0 9rem;
+}
+
+.mcp-add,
+.mcp-headers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.mcp-switch {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.mcp-input {
+    flex: 1 1 14rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-mono);
+}
+
+.mcp-button,
+.mcp-class {
+    padding: 0.35rem 1rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.mcp-button {
+    align-self: flex-start;
+}
+
+.mcp-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.mcp-button-remove {
+    margin-left: auto;
+}
+
+.mcp-test {
+    margin: 0;
+}
+
+.mcp-test:not([data-mcp-test-result="Ok"]),
+.mcp-problem,
+.mcp-tool-changed {
+    width: 100%;
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.mcp-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mcp-tool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    background: var(--jarvis-input);
+}
+
+.mcp-tool[data-mcp-tool-changed="true"] {
+    border-left: 3px solid var(--jarvis-red);
+}
+
+.mcp-tool-description {
+    width: 100%;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--jarvis-text-muted);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}

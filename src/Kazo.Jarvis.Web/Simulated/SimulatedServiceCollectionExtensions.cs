@@ -75,6 +75,9 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Files.ILocalFiles>(provider => provider.GetRequiredService<SimulatedLocalFiles>());
         services.TryAddSingleton<SimulatedReadingBrowser>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Web.IReadingBrowser>(provider => provider.GetRequiredService<SimulatedReadingBrowser>());
+        // Tool servers (stage2/6-mcp-client): fixed servers in memory.
+        services.TryAddSingleton<SimulatedToolServers>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Tools.Servers.IToolServerConnector>(provider => provider.GetRequiredService<SimulatedToolServers>());
         services.TryAddSingleton<SimulatedVoiceActivity>();
         services.TryAddSingleton<IVoiceActivityDetection>(provider => provider.GetRequiredService<SimulatedVoiceActivity>());
 
