@@ -75,6 +75,7 @@ sans effet.
 | --- | --- |
 | `ActivationRequested(source)` | Mot d'éveil, raccourci ou clic |
 | `TextSubmitted(texte)` | Texte envoyé depuis la fenêtre de conversation |
+| `AnnouncementSubmitted(texte)` | Une annonce demande à être dite (ADR 0024) : nouveau tour au repos, ignorée sinon |
 | `UtteranceEnded(tour)` / `NothingHeard(tour)` | Fin de la phrase / rien entendu avant le délai |
 | `FirstSentenceReady(tour)` / `AnswerFinishedWithoutSpeech(tour)` / `SpeechEnded(tour)` | Étapes de la réponse |
 | `TurnFailed(tour, faute)` | Le tour ne peut pas finir |

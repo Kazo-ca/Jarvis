@@ -15,10 +15,14 @@
             @foreach (var turn in turns)
             {
                 <li class="conversation-turn" @key="turn.Key" data-conversation-turn data-turn-outcome="@turn.Outcome" data-turn-input="@turn.Input">
-                    <p class="conversation-request">
-                        <span class="conversation-who">@(turn.Input == TurnInput.Voice ? T["YouSaid"] : T["YouWrote"])</span>
-                        <span class="conversation-body" data-conversation-request>@turn.Request</span>
-                    </p>
+                    @if (turn.Input != TurnInput.Announcement)
+                    {
+                        @* An announcement (ADR 0024) is a line of Jarvis with no request above it. *@
+                        <p class="conversation-request">
+                            <span class="conversation-who">@(turn.Input == TurnInput.Voice ? T["YouSaid"] : T["YouWrote"])</span>
+                            <span class="conversation-body" data-conversation-request>@turn.Request</span>
+                        </p>
+                    }
                     @foreach (var call in turn.ToolCalls)
                     {
                         @* Each tool call of the turn, collapsed by default (ADR 0017, section 5). *@

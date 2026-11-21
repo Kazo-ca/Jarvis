@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Annonces</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Jarvis dit à voix haute quand une session Claude Code se termine ou vous attend. Choisissez quand il se tait et ce qu'il annonce pour chaque dossier.</value>
+  </data>
+  <data name="NowLabel" xml:space="preserve">
+    <value>En ce moment</value>
+  </data>
+  <data name="NowHint" xml:space="preserve">
+    <value>Une période de silence ne change aucun réglage et se termine seule. Jarvis en propose une quand vous lui dites que vous allez dormir.</value>
+  </data>
+  <data name="Now_Aloud" xml:space="preserve">
+    <value>Les annonces sont dites à voix haute.</value>
+  </data>
+  <data name="Now_Hours" xml:space="preserve">
+    <value>Heures de silence : les annonces sont seulement écrites dans la conversation.</value>
+  </data>
+  <data name="Now_Period" xml:space="preserve">
+    <value>Période de silence jusqu'à {0} : les annonces sont seulement écrites dans la conversation.</value>
+  </data>
+  <data name="PeriodStart" xml:space="preserve">
+    <value>Se taire pendant {0} heures</value>
+  </data>
+  <data name="PeriodEnd" xml:space="preserve">
+    <value>Mettre fin au silence</value>
+  </data>
+  <data name="HoursLabel" xml:space="preserve">
+    <value>Heures de silence</value>
+  </data>
+  <data name="HoursHint" xml:space="preserve">
+    <value>Chaque jour, entre ces heures, rien n'est dit : l'annonce reste écrite dans la conversation. Aucune par défaut.</value>
+  </data>
+  <data name="NoRange" xml:space="preserve">
+    <value>Aucune heure de silence n'est réglée.</value>
+  </data>
+  <data name="Range" xml:space="preserve">
+    <value>De {0} à {1}</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>De</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>À</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="FoldersLabel" xml:space="preserve">
+    <value>Par dossier</value>
+  </data>
+  <data name="FoldersHint" xml:space="preserve">
+    <value>Ce que Jarvis annonce pour les sessions de chaque dossier. Tout par défaut.</value>
+  </data>
+  <data name="NoFolder" xml:space="preserve">
+    <value>Aucun dossier pour l'instant : permettez un dossier, ou laissez une session être vue par ses hooks.</value>
+  </data>
+  <data name="Level_All" xml:space="preserve">
+    <value>Tout</value>
+  </data>
+  <data name="Level_WaitsOnly" xml:space="preserve">
+    <value>Seulement quand elle m'attend</value>
+  </data>
+  <data name="Level_None" xml:space="preserve">
+    <value>Rien</value>
+  </data>
+  <data name="LimitsLabel" xml:space="preserve">
+    <value>Bon à savoir</value>
+  </data>
+  <data name="Limit_Rest" xml:space="preserve">
+    <value>Une annonce ne vous interrompt jamais, ni une réponse : elle attend que Jarvis soit au repos. Après dix minutes d'attente, elle n'est plus dite.</value>
+  </data>
+  <data name="Limit_Written" xml:space="preserve">
+    <value>Chaque annonce est écrite dans la conversation, dite ou non. Elle n'est jamais envoyée à un modèle.</value>
+  </data>
+  <data name="Limit_Hooks" xml:space="preserve">
+    <value>Une session que vous lancez vous-même n'est annoncée qu'une fois ses hooks installés (page « Hooks Claude Code »).</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le réglage n'a pas pu être enregistré.</value>
+  </data>
+</root>

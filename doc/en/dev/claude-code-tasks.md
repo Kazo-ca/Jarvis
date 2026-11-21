@@ -167,6 +167,7 @@ write outside the folder), "without asking" or « sans demander » (a command th
 1. **The summary at the end is not said aloud in this work item.** It is kept on the task and published
    (`ClaudeTaskEnded`). Saying it without cutting the user off, outside a turn and within the quiet hours, is
    the job of work item `stage2/13-session-announcements`, which builds that mechanism.
+   **Done in work item 13**: see [session-announcements.md](session-announcements.md).
 2. **A session has one folder**: `--add-dir` is not used.
 3. **Only the formula starts a session.** The `hand_off_to_claude` tool still offers `kind: question` only to
    the local model: the conversation knows how to treat a `kind: task` call (tested), but offering it would let

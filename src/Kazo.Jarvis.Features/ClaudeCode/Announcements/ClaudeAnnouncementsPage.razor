@@ -1,0 +1,179 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject QuietTime Quiet
+@inject ITaskBoard Board
+@inject IServiceProvider Services
+@inject IStringLocalizer<ClaudeAnnouncementsPage> T
+@implements IDisposable
+
+@* The « Annonces » page (US2.12; ADR 0021, section 9): whether Jarvis speaks now, the quiet period of the moment,
+   the quiet hours of every day, and what is announced for each folder. A change is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["NowLabel"]" Hint="@T["NowHint"]">
+        <p class="announce-state" data-announce-state="@State">
+            @(State switch
+            {
+                "period" => T["Now_Period", periodEnd!.Value.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)],
+                "hours" => T["Now_Hours"],
+                _ => T["Now_Aloud"],
+            })
+        </p>
+        @if (periodEnd is not null)
+        {
+            <button type="button" class="announce-button" data-announce-period-end @onclick="Quiet.End">@T["PeriodEnd"]</button>
+        }
+        else
+        {
+            <button type="button" class="announce-button" data-announce-period-start @onclick="() => Quiet.Start(QuietTime.DefaultHours)">@T["PeriodStart", QuietTime.DefaultHours]</button>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["HoursLabel"]" Hint="@T["HoursHint"]">
+        @if (options.QuietHours.Count == 0)
+        {
+            <p class="announce-note" data-announce-no-range>@T["NoRange"]</p>
+        }
+        else
+        {
+            <ul class="announce-list" data-announce-ranges="@options.QuietHours.Count">
+                @foreach (var range in options.QuietHours)
+                {
+                    <li class="announce-row" data-announce-range="@(range.From + "-" + range.To)" @key="range">
+                        <span>@T["Range", range.From, range.To]</span>
+                        <button type="button" class="announce-button" data-announce-range-remove @onclick="() => RemoveRangeAsync(range)">@T["Remove"]</button>
+                    </li>
+                }
+            </ul>
+        }
+        <div class="announce-row">
+            <label class="announce-time">
+                <span>@T["From"]</span>
+                <input type="time" data-announce-from @bind="from" />
+            </label>
+            <label class="announce-time">
+                <span>@T["To"]</span>
+                <input type="time" data-announce-to @bind="to" />
+            </label>
+            <button type="button" class="announce-button" data-announce-range-add @onclick="AddRangeAsync">@T["Add"]</button>
+        </div>
+        @if (problem is not null)
+        {
+            <p class="announce-problem" role="alert" data-announce-problem>@problem</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["FoldersLabel"]" Hint="@T["FoldersHint"]">
+        @if (folders.Count == 0)
+        {
+            <p class="announce-note" data-announce-no-folder>@T["NoFolder"]</p>
+        }
+        else
+        {
+            <ul class="announce-list" data-announce-folders="@folders.Count">
+                @foreach (var folder in folders)
+                {
+                    <li class="announce-row" @key="folder">
+                        <span class="announce-folder">@folder</span>
+                        <select class="announce-select" data-announce-level="@folder" aria-label="@folder"
+                                value="@options.LevelOf(folder)" @onchange="e => ChangeLevelAsync(folder, e.Value?.ToString())">
+                            @foreach (var level in Enum.GetValues<AnnouncementLevel>())
+                            {
+                                <option value="@level">@T["Level_" + level]</option>
+                            }
+                        </select>
+                    </li>
+                }
+            </ul>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["LimitsLabel"]">
+        <ul class="announce-notes" data-announce-limits>
+            <li>@T["Limit_Rest"]</li>
+            <li>@T["Limit_Written"]</li>
+            <li>@T["Limit_Hooks"]</li>
+        </ul>
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private ClaudeAnnouncementsOptions options = new();
+    private IReadOnlyList<string> folders = [];
+    private DateTimeOffset? periodEnd;
+    private IDisposable? watch;
+    private TimeOnly from = new(22, 0);
+    private TimeOnly to = new(7, 0);
+    private string? problem;
+
+    private string State => periodEnd is not null ? "period" : Quiet.IsQuiet ? "hours" : "aloud";
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Quiet.Changed += OnChanged;
+        Board.Changed += OnChanged;
+        watch = Settings.Watch(ClaudeAnnouncementsOptions.Section, _ => OnChanged());
+        Read();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Quiet.Changed -= OnChanged;
+        Board.Changed -= OnChanged;
+        watch?.Dispose();
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Read();
+        StateHasChanged();
+    });
+
+    private void Read()
+    {
+        options = Settings.Read(ClaudeAnnouncementsOptions.Section);
+        periodEnd = Quiet.PeriodEnd;
+
+        // The folders a session can be started on, those of the sessions seen, and those already chosen.
+        var allowed = (Services.GetService(typeof(IAllowedFolders)) as IAllowedFolders)?.Roots ?? [];
+        var seen = Board.Tasks
+            .Where(task => task.ParentId is null && task.Operator.Account == TaskOperator.ClaudeCode && !string.IsNullOrWhiteSpace(task.Folder))
+            .Select(task => task.Folder!);
+        folders = [.. allowed.Concat(seen).Concat(options.Folders.Select(choice => choice.Folder))
+            .Select(folder => folder.TrimEnd('/', '\\'))
+            .Where(folder => folder.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Order(StringComparer.OrdinalIgnoreCase)];
+    }
+
+    private Task AddRangeAsync()
+    {
+        var saved = Saved();
+        return SaveAsync(saved with { QuietHours = [.. saved.QuietHours, new QuietRange(from.ToString("HH:mm", CultureInfo.InvariantCulture), to.ToString("HH:mm", CultureInfo.InvariantCulture))] });
+    }
+
+    private Task RemoveRangeAsync(QuietRange range)
+    {
+        var saved = Saved();
+        return SaveAsync(saved with { QuietHours = [.. saved.QuietHours.Where(known => known != range)] });
+    }
+
+    private Task ChangeLevelAsync(string folder, string? value) =>
+        Enum.TryParse<AnnouncementLevel>(value, out var level) ? SaveAsync(Saved().WithLevel(folder, level)) : Task.CompletedTask;
+
+    // Two changes made one after the other: the second starts from what the first saved.
+    private ClaudeAnnouncementsOptions Saved() => Settings.Read(ClaudeAnnouncementsOptions.Section);
+
+    private async Task SaveAsync(ClaudeAnnouncementsOptions changed)
+    {
+        var result = await Settings.WriteAsync(ClaudeAnnouncementsOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        Read();
+    }
+}

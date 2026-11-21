@@ -1,0 +1,59 @@
+.announce-state {
+    margin: 0;
+}
+
+.announce-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.announce-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.announce-list {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.announce-notes {
+    width: 100%;
+    margin: 0;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.announce-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.announce-folder {
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+.announce-time {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.announce-button {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--jarvis-line);
+    background: transparent;
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}

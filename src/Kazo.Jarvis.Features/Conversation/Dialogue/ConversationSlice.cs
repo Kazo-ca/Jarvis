@@ -37,6 +37,12 @@ public static class ConversationSlice
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, ConversationEngine>(Engine));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnFailed>, ConversationEngine>(Engine));
 
+        // What Jarvis says without being asked (ADR 0024).
+        services.TryAddSingleton<AnnouncementDesk>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AnnouncementToSay>, AnnouncementDesk>(Desk));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AssistantStateChanged>, AnnouncementDesk>(Desk));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, AnnouncementDesk>(Desk));
+
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConversationWindowRequested>, ConversationWindowOpener>());
 
         // Right after the language models (10): the personality is what the model is told first.
@@ -45,4 +51,6 @@ public static class ConversationSlice
     }
 
     private static ConversationEngine Engine(IServiceProvider provider) => provider.GetRequiredService<ConversationEngine>();
+
+    private static AnnouncementDesk Desk(IServiceProvider provider) => provider.GetRequiredService<AnnouncementDesk>();
 }

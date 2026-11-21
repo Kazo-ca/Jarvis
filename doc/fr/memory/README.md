@@ -313,7 +313,19 @@ ce qu'il décrit.
   Choix provisoires à confirmer par Benoit ([détail](../dev/claude-code-tasks.md#choix-provisoires-de-ce-chantier)).
   **Aucune vraie session lancée ; tests Windows en attente**
   ([liste](../dev/claude-code-tasks.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier 13 (`stage2/13-session-announcements`) du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap` `stage2/11` (ses deux parties, `stage2/11-tasks-and-sessions` et `stage2/11-hook-server`) et `stage2/12` (ses deux parties, `stage2/12-claude-code-launch` et `stage2/12-claude-code-tasks`) sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/13-session-announcements`** (voir
+  [dev/session-announcements.md](../dev/session-announcements.md)) : le tour d'annonce de l'ADR 0024 dans le
+  noyau (`AnnouncementSubmitted`, `TurnInput.Announcement`, `AnnouncementToSay`) et dans la conversation
+  (`AnnouncementDesk` : écrit tout de suite, dit au repos, une à la fois, jamais envoyé au modèle) ; tranche
+  `ClaudeCode/Announcements` (`SessionAnnouncer` surveille le tableau des tâches, donc mêmes annonces pour une
+  session lancée par Jarvis ou vue par ses hooks ; choix par dossier ; heures de silence, aucune par défaut ;
+  période de silence gardée en mémoire seulement ; outils `start_quiet_period` et `get_claude_sessions` ; page
+  « Annonces », ordre 55). Le résumé de fin laissé de côté au chantier 12 est dit ici. **Écarts : le badge
+  ambre de l'orbe pendant le silence attend le chantier 14 ; « je vais dormir » repose sur la description de
+  l'outil, donc sur le modèle local.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/session-announcements.md#choix-provisoires-de-ce-chantier)). **Aucune annonce dite par une
+  vraie voix ; tests Windows en attente** ([liste](../dev/session-announcements.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier 14 (`stage2/14-task-fan`) du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap` `stage2/11` (ses deux parties, `stage2/11-tasks-and-sessions` et `stage2/11-hook-server`) et `stage2/12` (ses deux parties, `stage2/12-claude-code-launch` et `stage2/12-claude-code-tasks`) et `stage2/13-session-announcements` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

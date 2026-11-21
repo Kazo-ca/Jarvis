@@ -22,6 +22,7 @@ public static class AssistantStateMachine
         {
             ActivationRequested activation => Activate(state, activation.Source),
             TextSubmitted text => SubmitText(state, text),
+            AnnouncementSubmitted announcement => Announce(state, announcement),
             UtteranceEnded ended => InTurn(state, ended.Turn, AssistantPhase.Listening, () =>
                 Applied(state with { Phase = AssistantPhase.Thinking })),
             NothingHeard nothing => InTurn(state, nothing.Turn, AssistantPhase.Listening, () =>
@@ -71,7 +72,7 @@ public static class AssistantStateMachine
             default:
                 // Interruption (US1.12): the current turn is cancelled, speech stops, a new turn starts.
                 var cancelled = new TurnCancelled(state.CurrentTurn, TurnCancelReason.Interrupted);
-                var idle = state with { Phase = AssistantPhase.Idle, CurrentTurn = TurnId.None };
+                var idle = state with { Phase = AssistantPhase.Idle, CurrentTurn = TurnId.None, Announcing = false };
                 if (Refusal(idle, source) is { } refused)
                 {
                     // ADR 0005 does not cover an interruption with the microphone unusable: Jarvis still
@@ -89,11 +90,25 @@ public static class AssistantStateMachine
             ? StartTurn(state, TurnInput.Text, text.Text)
             : Ignored(state, $"a text is only accepted when idle, not while {state.Phase}");
 
+    private static AssistantTransition Announce(AssistantState state, AnnouncementSubmitted announcement)
+    {
+        if (string.IsNullOrWhiteSpace(announcement.Text))
+        {
+            return Ignored(state, "an announcement without a text is not said");
+        }
+
+        // ADR 0024, section 1: an announcement never interrupts; its publisher submits it again at rest.
+        return state.Phase == AssistantPhase.Idle
+            ? StartTurn(state, TurnInput.Announcement, announcement.Text)
+            : Ignored(state, $"an announcement is only accepted when idle, not while {state.Phase}");
+    }
+
     private static AssistantTransition Fail(AssistantState state, TurnFailed failed) =>
         InTurn(state, failed.Turn, null, () => Applied(state with
         {
             Phase = AssistantPhase.Idle,
             CurrentTurn = TurnId.None,
+            Announcing = false,
             Fault = failed.Fault,
         }));
 
@@ -131,17 +146,22 @@ public static class AssistantStateMachine
     {
         var turn = state.LastTurn.Next();
         var phase = input == TurnInput.Voice ? AssistantPhase.Listening : AssistantPhase.Thinking;
-        return Applied(state with { Phase = phase, CurrentTurn = turn, LastTurn = turn }, new TurnStarted(turn, input, text));
+        return Applied(
+            state with { Phase = phase, CurrentTurn = turn, LastTurn = turn, Announcing = input == TurnInput.Announcement },
+            new TurnStarted(turn, input, text));
     }
 
     private static AssistantTransition Cancel(AssistantState state, TurnCancelReason reason) =>
         Applied(
-            state with { Phase = AssistantPhase.Idle, CurrentTurn = TurnId.None },
+            state with { Phase = AssistantPhase.Idle, CurrentTurn = TurnId.None, Announcing = false },
             new TurnCancelled(state.CurrentTurn, reason));
 
-    /// <summary>A turn succeeded: back to idle, and the fault condition is cleared (ADR 0005, section 3).</summary>
+    /// <summary>
+    /// A turn succeeded: back to idle, and the fault condition is cleared (ADR 0005, section 3). An announcement
+    /// said proves neither the microphone nor the model: it leaves the fault as it is (ADR 0024, section 1).
+    /// </summary>
     private static AssistantTransition Succeed(AssistantState state) =>
-        Applied(state with { Phase = AssistantPhase.Idle, CurrentTurn = TurnId.None, Fault = null });
+        Applied(state with { Phase = AssistantPhase.Idle, CurrentTurn = TurnId.None, Announcing = false, Fault = state.Announcing ? state.Fault : null });
 
     /// <summary>
     /// Applies <paramref name="apply"/> only for the current turn, and, when <paramref name="phase"/> is
