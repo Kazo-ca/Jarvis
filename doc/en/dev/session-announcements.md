@@ -146,6 +146,7 @@ lists the allowed folders, those of the sessions seen and those already set.
 
 1. **The amber badge of the orb** during the silence (ADR 0021, section 9) was not in this work item: it
    came with the fan (work item 14, [task-fan.md](task-fan.md)), which counts the tasks that wait.
+2. **"I am going to sleep" goes through the description of the tool**, not through code: the local model
    recognizes the sentence and makes the offer. No spike with the real model measured whether it does it well.
 3. **The announcement of a session started by Jarvis is said at the end of its turn** (status `idle`), not at
    the end of the process: that is when its last message is known.

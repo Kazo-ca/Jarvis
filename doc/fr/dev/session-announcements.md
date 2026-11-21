@@ -149,6 +149,7 @@ dossiers autorisés, ceux des sessions vues et ceux déjà réglés.
 
 1. **Le badge ambre de l'orbe** pendant le silence (ADR 0021, section 9) n'était pas dans ce chantier : il
    est arrivé avec l'éventail (chantier 14, [task-fan.md](task-fan.md)), qui compte les tâches en attente.
+2. **« Je vais dormir » passe par la description de l'outil**, pas par du code : c'est le modèle local qui
    reconnaît la phrase et propose. Aucun essai avec le vrai modèle n'a mesuré s'il le fait bien.
 3. **L'annonce d'une session lancée par Jarvis est dite à la fin de son tour** (statut `idle`), pas à la fin
    du processus : c'est le moment où son dernier message est connu.
