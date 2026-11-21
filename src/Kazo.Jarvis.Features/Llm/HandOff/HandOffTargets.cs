@@ -14,7 +14,8 @@ namespace Kazo.Jarvis.Features.Llm.HandOff;
 /// <summary>
 /// The targets of the hand-off (US2.7, ADR 0020, section 1). The target of the questions is one of the configured
 /// cloud providers; its client follows the settings. The tool is in the registry only while that target is set:
-/// the local model is not offered what it cannot do. The target of the tasks, Claude Code, comes with its
+/// the local model is not offered what it cannot do. With a spending slice, the cap is asked before each
+/// hand-off, and the tool leaves the registry while the target has no price or the cap is reached (section 6). The target of the tasks, Claude Code, comes with its
 /// sessions (ADR 0021): until then a hand-off of that kind is refused with its cause.
 /// </summary>
 public sealed class HandOffTargets : IHandOff, IHostedService, IDisposable
@@ -25,6 +26,7 @@ public sealed class HandOffTargets : IHandOff, IHostedService, IDisposable
     private readonly ILlmProviderList providers;
     private readonly ILlmConnector connector;
     private readonly IToolRegistry registry;
+    private readonly ISpendCap? spend;
     private readonly HandOffTool tool;
     private readonly IDisposable watch;
     private readonly Lock gate = new();
@@ -38,7 +40,8 @@ public sealed class HandOffTargets : IHandOff, IHostedService, IDisposable
     /// <param name="providers">The configured providers.</param>
     /// <param name="connector">Reaches the providers.</param>
     /// <param name="registry">The registry the tool joins while a target is set.</param>
-    public HandOffTargets(ISettingsStore settings, ILlmProviderList providers, ILlmConnector connector, IToolRegistry registry)
+    /// <param name="spend">The spending cap, when a spending slice is there: asked before each hand-off.</param>
+    public HandOffTargets(ISettingsStore settings, ILlmProviderList providers, ILlmConnector connector, IToolRegistry registry, ISpendCap? spend = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(providers);
@@ -46,11 +49,18 @@ public sealed class HandOffTargets : IHandOff, IHostedService, IDisposable
         this.providers = providers;
         this.connector = connector;
         this.registry = registry;
+        this.spend = spend;
         tool = new HandOffTool(() => QuestionsTarget is { } target ? SpokenName(target) : null);
 
         // Watch before reading: a save between the two is not missed.
         watch = settings.Watch(HandOffOptions.Section, _ => Refresh());
         providers.Changed += Refresh;
+        if (spend is not null)
+        {
+            // A price typed, the cap raised or reached, a new month: the tool comes back or goes.
+            spend.Changed += Refresh;
+        }
+
         Refresh();
     }
 
@@ -113,12 +123,37 @@ public sealed class HandOffTargets : IHandOff, IHostedService, IDisposable
             return HandOffOpening.Refused(HandOffRefusal.NoTasksTarget);
         }
 
+        LlmProvider? target;
+        IChatClient? reached;
         lock (gate)
         {
-            return provider is not null && client is not null
-                ? HandOffOpening.To(new HandOffTarget(provider, client, SpokenName(provider), settings.Read(HandOffOptions.Section).WithMemory))
-                : HandOffOpening.Refused(HandOffRefusal.NoQuestionsTarget);
+            (target, reached) = (provider, client);
         }
+
+        if (target is null || reached is null)
+        {
+            return HandOffOpening.Refused(HandOffRefusal.NoQuestionsTarget);
+        }
+
+        // Asked by code before each call (ADR 0020, section 6): at the cap, or without a price, the call does not happen.
+        return (spend?.Check(target) ?? SpendVerdict.Allowed) switch
+        {
+            SpendVerdict.NoPrice => HandOffOpening.Refused(HandOffRefusal.NoPrice),
+            SpendVerdict.CapReached => HandOffOpening.Refused(HandOffRefusal.CapReached),
+            _ => HandOffOpening.To(new HandOffTarget(target, reached, SpokenName(target), settings.Read(HandOffOptions.Section).WithMemory)),
+        };
+    }
+
+    /// <inheritdoc />
+    public string? Notice(AssistantLanguage language)
+    {
+        ArgumentNullException.ThrowIfNull(language);
+        return spend?.TakeNotice() switch
+        {
+            SpendNotice.NearCap => Text("Notice_NearCap", language),
+            SpendNotice.CapReached => Text("Notice_CapReached", language),
+            _ => null,
+        };
     }
 
     /// <summary>Nothing to start: creating the targets read the settings. Being a hosted service only makes that happen when Jarvis starts.</summary>
@@ -147,6 +182,11 @@ public sealed class HandOffTargets : IHandOff, IHostedService, IDisposable
         }
 
         providers.Changed -= Refresh;
+        if (spend is not null)
+        {
+            spend.Changed -= Refresh;
+        }
+
         watch.Dispose();
         registration?.Dispose();
         last?.Dispose();
@@ -173,7 +213,8 @@ public sealed class HandOffTargets : IHandOff, IHostedService, IDisposable
                 client = next is null ? null : connector.CreateClient(next);
             }
 
-            if (next is null)
+            // The local model is not offered what would be refused: no target, no price, or the cap reached.
+            if (next is null || (spend?.Check(next) ?? SpendVerdict.Allowed) != SpendVerdict.Allowed)
             {
                 (withdrawn, offered) = (offered, null);
             }

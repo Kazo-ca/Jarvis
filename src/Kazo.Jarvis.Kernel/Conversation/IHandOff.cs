@@ -31,6 +31,14 @@ public interface IHandOff
     /// <param name="kind">The kind.</param>
     /// <returns>The target, or why there is none.</returns>
     HandOffOpening Open(HandOffKind kind);
+
+    /// <summary>
+    /// A sentence to tell the user after a hand-off, once: 80 % of the spending cap was passed, or the cap was
+    /// reached (ADR 0020, section 6). Taking it removes it.
+    /// </summary>
+    /// <param name="language">The language of the turn.</param>
+    /// <returns>The sentence, or <see langword="null"/>.</returns>
+    string? Notice(Localization.AssistantLanguage language) => null;
 }
 
 /// <summary>The two uses of the hand-off (ADR 0020, section 1).</summary>
@@ -51,6 +59,12 @@ public enum HandOffRefusal
 
     /// <summary>No target is chosen for the tasks.</summary>
     NoTasksTarget,
+
+    /// <summary>The target has no price: its cost could not be counted against the cap (ADR 0020, section 6).</summary>
+    NoPrice,
+
+    /// <summary>The spending cap of the month is reached: Jarvis stays local.</summary>
+    CapReached,
 }
 
 /// <summary>A hand-off forced by the first words of a request.</summary>

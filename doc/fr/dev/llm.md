@@ -70,7 +70,8 @@ octet, pour couvrir le chargement d'un modèle de 9 Go) :
 - **Le fournisseur par défaut doit être local à l'étape 1** (règle de validation) ; un fournisseur cloud se
   configure et se teste, son bouton « par défaut » est grisé. Il ne répond que par le passage de main, une
   fois choisi comme cible ([hand-off.md](hand-off.md)) ; `ILlmProviderList` donne la liste des fournisseurs
-  aux autres tranches.
+  aux autres tranches. Il lui faut un prix, et le plafond du mois ne doit pas être atteint
+  ([spend-cap.md](spend-cap.md)).
 - **Préchargement :** au démarrage, puis après chaque changement du fournisseur par défaut. En cas d'échec
   (Docker qui démarre Ollama après l'ouverture de session, par exemple), nouvel essai après 15 s, 30 s, 1 min,
   2 min et 5 min, puis attente d'un tour ou d'un changement de réglage.

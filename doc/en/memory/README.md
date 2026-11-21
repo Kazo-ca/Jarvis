@@ -240,11 +240,23 @@ Resume point for any agent. Update it in the same change as what it describes.
   target, `ConversationTurn.HandOff` keeps who answered and why. No target at first; the tool is in the
   registry only while a target is set; the memory leaves only when the box is ticked; a target that fails is
   a cause told, never a fault. The target for tasks (Claude Code) waits for work item 12. **No call left for
-  a real cloud API, and no cap bounds the spending yet** (work item 10). Provisional choices to be confirmed
+  a real cloud API** (the spending cap came with work item 10). Provisional choices to be confirmed
   by Benoit ([details](../dev/hand-off.md#provisional-choices-of-this-work-item)): reason shown but not said,
   name said from the kind of the provider, formulas on "Claude" only, eight tool calls of its own for the
   target. **Windows checks pending** ([list](../dev/hand-off.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/10-spend-cap` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory` and `stage2/9-hand-off` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/10-spend-cap`** (see [dev/spend-cap.md](../dev/spend-cap.md)), per ADR 0020, sections
+  6 and 7: kernel contract `ISpendCap` (`Kernel/Llm`) and message `ProviderAnswered`; causes
+  `HandOffRefusal.NoPrice` and `CapReached`, `IHandOff.Notice`; slice `Llm/Spend` (`SpendLedger`,
+  `KnownPrices`, sections `Llm.Spend` and `Llm.SpendCount`, collection `Llm.SpendEntries`, "Spending" page,
+  order 12). Cap of 10 USD a month at first; a cloud provider without a price is never called; the cap is
+  asked before each hand-off and before each later request of the target; at the cap the tool leaves the
+  registry; Jarvis warns once at 80 % and once at the cap. **Differences from the ADR**: the collection has
+  one dot in its name; the setting "Claude Code is paid by subscription" and `--max-budget-usd` wait for work
+  item 12. **No call left for a real cloud API: the count was never compared with a bill.** Provisional
+  choices to be confirmed by Benoit ([details](../dev/spend-cap.md#provisional-choices-of-this-work-item)):
+  "Erase everything" does not put the count back to zero, reset button on the page, warning said after the
+  answer of the target. **Windows checks pending** ([list](../dev/spend-cap.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/11-tasks-and-sessions` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off` and `stage2/10-spend-cap` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

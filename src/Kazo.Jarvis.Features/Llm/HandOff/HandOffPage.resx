@@ -34,7 +34,7 @@
     <value>Never: a secret, the content of the vault, a sound.</value>
   </data>
   <data name="Cost" xml:space="preserve">
-    <value>Each question handed over is billed by the provider. No monthly spending cap bounds these calls yet.</value>
+    <value>Each question handed over is billed by the provider. A monthly cap bounds these calls: it is set on the Spending page, with the prices.</value>
   </data>
   <data name="QuestionsLabel" xml:space="preserve">
     <value>Target for questions</value>
@@ -77,5 +77,20 @@
   </data>
   <data name="SaveFailed" xml:space="preserve">
     <value>The settings cannot be written.</value>
+  </data>
+  <data name="Spend" xml:space="preserve">
+    <value>Cloud this month: {0} USD out of {1} USD.</value>
+  </data>
+  <data name="SpendReached" xml:space="preserve">
+    <value>Cloud this month: {0} USD out of {1} USD. The cap is reached: nothing is handed over until next month, or until the cap is raised.</value>
+  </data>
+  <data name="NoPrice" xml:space="preserve">
+    <value>no price</value>
+  </data>
+  <data name="ChosenNoPrice" xml:space="preserve">
+    <value>This target has no price any more: nothing is handed over until one is typed on the Spending page.</value>
+  </data>
+  <data name="PriceNote" xml:space="preserve">
+    <value>A provider without a price cannot be chosen: type its price on the Spending page.</value>
   </data>
 </root>

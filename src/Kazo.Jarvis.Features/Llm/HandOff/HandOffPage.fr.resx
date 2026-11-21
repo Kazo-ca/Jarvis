@@ -34,7 +34,7 @@
     <value>Jamais : un secret, le contenu du coffre, un son.</value>
   </data>
   <data name="Cost" xml:space="preserve">
-    <value>Chaque question passée est facturée par le fournisseur. Aucun plafond mensuel ne borne encore ces appels.</value>
+    <value>Chaque question passée est facturée par le fournisseur. Un plafond mensuel borne ces appels : il se règle à la page Dépense, avec les prix.</value>
   </data>
   <data name="QuestionsLabel" xml:space="preserve">
     <value>Cible des questions</value>
@@ -77,5 +77,20 @@
   </data>
   <data name="SaveFailed" xml:space="preserve">
     <value>Les réglages ne peuvent pas être écrits.</value>
+  </data>
+  <data name="Spend" xml:space="preserve">
+    <value>Cloud ce mois-ci : {0} USD sur {1} USD.</value>
+  </data>
+  <data name="SpendReached" xml:space="preserve">
+    <value>Cloud ce mois-ci : {0} USD sur {1} USD. Le plafond est atteint : rien n'est passé jusqu'au mois prochain, ou jusqu'à ce que le plafond soit relevé.</value>
+  </data>
+  <data name="NoPrice" xml:space="preserve">
+    <value>sans prix</value>
+  </data>
+  <data name="ChosenNoPrice" xml:space="preserve">
+    <value>Cette cible n'a plus de prix : rien n'est passé tant qu'un prix n'est pas entré à la page Dépense.</value>
+  </data>
+  <data name="PriceNote" xml:space="preserve">
+    <value>Un fournisseur sans prix ne peut pas être choisi : entrez son prix à la page Dépense.</value>
   </data>
 </root>

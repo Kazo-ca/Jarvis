@@ -98,6 +98,16 @@
     color: var(--jarvis-amber);
 }
 
+.conversation-spend {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.conversation-spend[data-spend-reached="true"] {
+    color: var(--jarvis-amber);
+}
+
 .conversation-input {
     display: flex;
     gap: 0.6rem;

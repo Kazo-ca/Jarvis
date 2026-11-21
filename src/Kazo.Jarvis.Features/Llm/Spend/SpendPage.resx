@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Spending</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>What the answers of the cloud providers cost this month, and the cap Jarvis never goes past. Amounts are in US dollars, the currency the providers bill in.</value>
+  </data>
+  <data name="CountLabel" xml:space="preserve">
+    <value>This month</value>
+  </data>
+  <data name="CountHint" xml:space="preserve">
+    <value>Counted from the tokens of each answer and the prices below. The count starts again on the first day of each month.</value>
+  </data>
+  <data name="Count" xml:space="preserve">
+    <value>{0} USD spent out of {1} USD ({2})</value>
+  </data>
+  <data name="Reached" xml:space="preserve">
+    <value>The cap is reached: Jarvis stays local until next month, or until you raise the cap.</value>
+  </data>
+  <data name="Near" xml:space="preserve">
+    <value>More than 80 % of the cap is spent.</value>
+  </data>
+  <data name="Entry" xml:space="preserve">
+    <value>{0} tokens in, {1} out, {2} USD</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Put the count back to zero</value>
+  </data>
+  <data name="ResetConfirm" xml:space="preserve">
+    <value>The count of the month and its detail will be erased. The bill of your provider does not change.</value>
+  </data>
+  <data name="ResetYes" xml:space="preserve">
+    <value>Yes, put it back to zero</value>
+  </data>
+  <data name="ResetNo" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CapLabel" xml:space="preserve">
+    <value>Monthly cap (USD)</value>
+  </data>
+  <data name="CapHint" xml:space="preserve">
+    <value>Once it is reached, no cloud provider is called. Zero means no cloud call at all.</value>
+  </data>
+  <data name="PricesLabel" xml:space="preserve">
+    <value>Prices</value>
+  </data>
+  <data name="PricesHint" xml:space="preserve">
+    <value>In US dollars per million tokens. A cloud provider without a price is never called: its cost could not be counted.</value>
+  </data>
+  <data name="NoProvider" xml:space="preserve">
+    <value>No cloud provider is configured. Add one on the language models page.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>Written</value>
+  </data>
+  <data name="UseKnown" xml:space="preserve">
+    <value>Use the known price ({0} / {1})</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove the price</value>
+  </data>
+  <data name="Unpriced" xml:space="preserve">
+    <value>No price: never called.</value>
+  </data>
+  <data name="KnownAsOf" xml:space="preserve">
+    <value>The known prices are those of {0}, when this version was published. Check them against your provider's price list.</value>
+  </data>
+  <data name="LimitsLabel" xml:space="preserve">
+    <value>What this count is not</value>
+  </data>
+  <data name="Limit_Estimate" xml:space="preserve">
+    <value>It is an estimate. The bill of your provider is what counts; discounts, cached tokens and taxes are not known here.</value>
+  </data>
+  <data name="Limit_Voices" xml:space="preserve">
+    <value>The cloud voices (speech recognition and speech synthesis) are not counted.</value>
+  </data>
+  <data name="Limit_Tasks" xml:space="preserve">
+    <value>The tasks given to Claude Code are not counted yet: they come with a later version.</value>
+  </data>
+  <data name="NotANumber" xml:space="preserve">
+    <value>Type a number.</value>
+  </data>
+  <data name="BothAmounts" xml:space="preserve">
+    <value>Type the two amounts: a price is saved once both are there.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings file cannot be written: the change is not saved.</value>
+  </data>
+</root>

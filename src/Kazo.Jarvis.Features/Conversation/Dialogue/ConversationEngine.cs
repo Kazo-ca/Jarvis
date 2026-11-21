@@ -5,6 +5,7 @@ using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Messages.Conversation;
+using Kazo.Jarvis.Kernel.Messages.Llm;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
@@ -459,8 +460,15 @@ public sealed partial class ConversationEngine :
                 Instructions = prompt.Build(run.Language, speaker.Offered.Count > 0, speaker.Memory),
                 Tools = withTools ? speaker.Offered : null,
             };
+            if (round > 0 && speaker.Recheck?.Invoke() is { } refusal)
+            {
+                // Each request of a target is a call: the cap is asked again before each one (ADR 0020, section 6).
+                throw new HandOffStoppedException(refusal);
+            }
+
             var calls = new List<FunctionCallContent>();
             var roundText = new StringBuilder();
+            var (inputBefore, outputBefore) = (usage.Input ?? 0, usage.Output ?? 0);
             await foreach (var update in speaker.Client.GetStreamingResponseAsync(messages, options, token).ConfigureAwait(false))
             {
                 token.ThrowIfCancellationRequested();
@@ -503,6 +511,20 @@ public sealed partial class ConversationEngine :
                 }
             }
 
+            if (speaker.Target is { } target)
+            {
+                // Told after each request, so the count is right before the next one. Nothing of what was said.
+                var counted = usage.Input is not null || usage.Output is not null;
+                await bus.PublishAsync(
+                    new ProviderAnswered(
+                        target.Provider,
+                        usage.Model,
+                        counted ? (usage.Input ?? 0) - inputBefore : null,
+                        counted ? (usage.Output ?? 0) - outputBefore : null,
+                        time.GetUtcNow()),
+                    CancellationToken.None).ConfigureAwait(false);
+            }
+
             if (calls.Count == 0 || !withTools)
             {
                 return usage;
@@ -533,7 +555,8 @@ public sealed partial class ConversationEngine :
     /// <summary>A sentence of Jarvis itself, written in the answer and said when the turn is spoken.</summary>
     private async Task WriteAsync(TurnRun run, string sentence)
     {
-        if (run.Answer.Length > 0 && !char.IsWhiteSpace(run.Answer[^1]))
+        var apart = run.Answer.Length > 0 && !char.IsWhiteSpace(run.Answer[^1]);
+        if (apart)
         {
             run.Answer.Append(' ');
         }
@@ -543,7 +566,8 @@ public sealed partial class ConversationEngine :
         journal.Show(run.Answering.Update(turn => turn with { Answer = written }));
         if (run.Speak)
         {
-            await SayAsync(run.Answering.Turn, run.Splitter.Push(sentence)).ConfigureAwait(false);
+            // The same space goes to what is said, so the sentence is not glued to the one before it.
+            await SayAsync(run.Answering.Turn, run.Splitter.Push(apart ? " " + sentence : sentence)).ConfigureAwait(false);
         }
     }
 

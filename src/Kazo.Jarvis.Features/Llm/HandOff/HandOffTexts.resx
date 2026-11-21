@@ -18,4 +18,10 @@
   <data name="Tool_Discloses" xml:space="preserve">
     <value>The request and the recent conversation go to {0}, over the Internet.</value>
   </data>
+  <data name="Notice_NearCap" xml:space="preserve">
+    <value>By the way, more than 80 % of this month's cloud spending cap is used.</value>
+  </data>
+  <data name="Notice_CapReached" xml:space="preserve">
+    <value>This month's cloud spending cap is now reached: I stay local until next month, or until the cap is raised.</value>
+  </data>
 </root>

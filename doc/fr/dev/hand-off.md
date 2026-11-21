@@ -2,7 +2,7 @@
 
 Chantier `stage2/9-hand-off` (US2.5, US2.6, US2.7). Décision :
 [ADR 0020](adr/0020-hand-off-targets-and-spend-cap.md), sections 1 à 5 et 7. Le plafond de dépense (section 6)
-est le chantier `stage2/10-spend-cap`. Le tour complet est décrit dans [conversation.md](conversation.md), la
+est décrit dans [spend-cap.md](spend-cap.md). Le tour complet est décrit dans [conversation.md](conversation.md), la
 boucle d'outils dans [tools.md](tools.md), les fournisseurs dans [llm.md](llm.md).
 
 ## Ce qui est construit
@@ -143,8 +143,8 @@ L'ADR ne les tranche pas ; à confirmer par Benoit :
 
 ## Limites connues
 
-- **Aucun plafond de dépense ne borne encore les appels** : c'est le chantier suivant. La page le dit. Un
-  fournisseur sans prix peut être choisi comme cible tant que les prix n'existent pas.
+- Depuis le chantier `stage2/10-spend-cap`, un plafond mensuel borne les appels et un fournisseur sans prix
+  ne peut plus être une cible : voir [spend-cap.md](spend-cap.md).
 - L'historique envoyé à la cible est taillé sur le contexte du modèle local, pas sur celui de la cible.
 
 ## Non vérifié

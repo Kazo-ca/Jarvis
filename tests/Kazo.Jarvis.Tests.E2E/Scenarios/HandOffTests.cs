@@ -55,6 +55,7 @@ public sealed class HandOffTests : PageTest
         await Expect(Settings.Locator("[data-handoff-leaves]")).ToContainTextAsync("Your request and the recent conversation, word for word");
         await Expect(Settings.Locator("[data-handoff-leaves]")).ToContainTextAsync("Never: a secret");
         await Expect(Settings.Locator("[data-handoff-cost]")).ToContainTextAsync("billed by the provider");
+        await Expect(Settings.Locator("[data-handoff-cost]")).ToContainTextAsync("A monthly cap bounds these calls");
         await Expect(Settings.Locator("[data-handoff-memory]")).Not.ToBeCheckedAsync();
         await Expect(Settings.Locator("[data-handoff-phrases] li")).ToHaveTextAsync(new[] { "Ask Claude…", "Ask Claude Code…" });
 
@@ -186,6 +187,17 @@ public sealed class HandOffTests : PageTest
         await Expect(Claude.Locator(".secret-field-delete")).ToBeVisibleAsync();
         await Settings.Locator("[data-providers-save]").ClickAsync();
         await Expect(Settings.Locator("[data-providers-save]")).ToBeDisabledAsync();
+
+        // A cloud provider without a price cannot be a target (ADR 0020, section 6): the known one is taken.
+        await Settings.Locator("[data-settings-page='Llm.Spend']").ClickAsync();
+        var row = Settings.Locator("[data-spend-provider='anthropic']");
+        await Expect(row).ToBeVisibleAsync();
+        if (await row.GetAttributeAsync("data-spend-priced") != "true")
+        {
+            await row.Locator("[data-spend-known]").ClickAsync();
+        }
+
+        await Expect(row).ToHaveAttributeAsync("data-spend-priced", "true");
     }
 
     private async Task ChooseAsync(string providerId)
@@ -212,6 +224,23 @@ public sealed class HandOffTests : PageTest
         if (await memory.IsCheckedAsync())
         {
             await memory.UncheckAsync();
+        }
+
+        // The price and the count of the month, while the provider is still there to show its row.
+        await Settings.Locator("[data-settings-page='Llm.Spend']").ClickAsync();
+        await Expect(Settings.Locator("[data-spend-count]")).ToBeVisibleAsync();
+        var price = Settings.Locator("[data-spend-provider='anthropic'] [data-spend-remove]");
+        if (await price.CountAsync() == 1)
+        {
+            await price.ClickAsync();
+            await Expect(price).ToHaveCountAsync(0);
+        }
+
+        if (await Settings.Locator("[data-spend-reset]").CountAsync() == 1)
+        {
+            await Settings.Locator("[data-spend-reset]").ClickAsync();
+            await Settings.Locator("[data-spend-reset-confirm]").ClickAsync();
+            await Expect(Settings.Locator("[data-spend-count]")).ToHaveAttributeAsync("data-spend-count", "0");
         }
 
         await Settings.Locator("[data-settings-page='Llm.Providers']").ClickAsync();

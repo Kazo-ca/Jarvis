@@ -180,4 +180,16 @@
   <data name="HandOff_Cause_Other" xml:space="preserve">
     <value>unknown cause</value>
   </data>
+  <data name="HandOff_Cause_NoPrice" xml:space="preserve">
+    <value>the target has no price</value>
+  </data>
+  <data name="HandOff_Cause_CapReached" xml:space="preserve">
+    <value>the monthly spending cap is reached</value>
+  </data>
+  <data name="Spend" xml:space="preserve">
+    <value>Cloud this month: {0} USD out of {1} USD</value>
+  </data>
+  <data name="Spend_Reached" xml:space="preserve">
+    <value>Cloud this month: {0} USD out of {1} USD. Cap reached, Jarvis stays local.</value>
+  </data>
 </root>
