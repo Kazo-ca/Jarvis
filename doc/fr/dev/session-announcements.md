@@ -2,8 +2,8 @@
 
 Chantier `stage2/13-session-announcements` (US2.12, US2.13). Décisions :
 [ADR 0021](adr/0021-claude-code-sessions.md), section 9 (ce qui est annoncé, réglage par dossier, heures de
-silence, « je vais dormir »), et [ADR 0024](adr/0024-announcement-turn.md) (le tour d'annonce). **L'ADR 0024
-est encore « Proposé »** : ce chantier est construit sur sa recommandation et attend la réponse de Benoit.
+silence, « je vais dormir »), et [ADR 0024](adr/0024-announcement-turn.md) (le tour d'annonce). L'ADR 0024 a été
+accepté par Benoit le 21 novembre 2026.
 
 ## Ce que voit et entend l'utilisateur
 
@@ -147,12 +147,11 @@ dossiers autorisés, ceux des sessions vues et ceux déjà réglés.
 
 ## Écarts par rapport à l'ADR 0021
 
-1. **L'ADR 0024 n'est pas encore accepté.** Tout le chantier repose sur son choix recommandé.
-2. **Le badge ambre de l'orbe** pendant le silence (ADR 0021, section 9) n'est pas dans ce chantier : il
+1. **Le badge ambre de l'orbe** pendant le silence (ADR 0021, section 9) n'est pas dans ce chantier : il
    arrive avec l'éventail (chantier 14), qui affiche les tâches en attente.
-3. **« Je vais dormir » passe par la description de l'outil**, pas par du code : c'est le modèle local qui
+2. **« Je vais dormir » passe par la description de l'outil**, pas par du code : c'est le modèle local qui
    reconnaît la phrase et propose. Aucun essai avec le vrai modèle n'a mesuré s'il le fait bien.
-4. **L'annonce d'une session lancée par Jarvis est dite à la fin de son tour** (statut `idle`), pas à la fin
+3. **L'annonce d'une session lancée par Jarvis est dite à la fin de son tour** (statut `idle`), pas à la fin
    du processus : c'est le moment où son dernier message est connu.
 
 ## Choix provisoires de ce chantier

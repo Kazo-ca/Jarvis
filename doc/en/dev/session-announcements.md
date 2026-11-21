@@ -2,8 +2,8 @@
 
 Work item `stage2/13-session-announcements` (US2.12, US2.13). Decisions:
 [ADR 0021](adr/0021-claude-code-sessions.md), section 9 (what is announced, per-folder setting, quiet hours,
-"I am going to sleep"), and [ADR 0024](adr/0024-announcement-turn.md) (the announcement turn). **ADR 0024 is
-still "Proposed"**: this work item is built on its recommendation and waits for Benoit's answer.
+"I am going to sleep"), and [ADR 0024](adr/0024-announcement-turn.md) (the announcement turn). ADR 0024 was accepted by
+Benoit on 21 November 2026.
 
 ## What the user sees and hears
 
@@ -144,12 +144,11 @@ lists the allowed folders, those of the sessions seen and those already set.
 
 ## Deviations from ADR 0021
 
-1. **ADR 0024 is not accepted yet.** The whole work item rests on its recommended choice.
-2. **The amber badge of the orb** during the silence (ADR 0021, section 9) is not in this work item: it comes
+1. **The amber badge of the orb** during the silence (ADR 0021, section 9) is not in this work item: it comes
    with the fan (work item 14), which shows the tasks that wait.
-3. **"I am going to sleep" goes through the description of the tool**, not through code: the local model
+2. **"I am going to sleep" goes through the description of the tool**, not through code: the local model
    recognizes the sentence and makes the offer. No spike with the real model measured whether it does it well.
-4. **The announcement of a session started by Jarvis is said at the end of its turn** (status `idle`), not at
+3. **The announcement of a session started by Jarvis is said at the end of its turn** (status `idle`), not at
    the end of the process: that is when its last message is known.
 
 ## Provisional choices of this work item
