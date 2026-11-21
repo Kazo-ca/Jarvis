@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Tâches Claude Code</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Dites « Demande à Claude Code de… » et Jarvis lance une session Claude Code sur un de vos dossiers autorisés. La session lit librement dans ce dossier ; chaque écriture et chaque commande attend votre réponse.</value>
+  </data>
+  <data name="InstallLabel" xml:space="preserve">
+    <value>Claude Code sur cet ordinateur</value>
+  </data>
+  <data name="InstallHint" xml:space="preserve">
+    <value>Jarvis cherche le programme claude dans le PATH.</value>
+  </data>
+  <data name="Install_Unavailable" xml:space="preserve">
+    <value>Cet hôte ne peut pas lancer Claude Code.</value>
+  </data>
+  <data name="Install_Looking" xml:space="preserve">
+    <value>Recherche de Claude Code…</value>
+  </data>
+  <data name="Install_Missing" xml:space="preserve">
+    <value>Claude Code est introuvable. Installez-le, puis rouvrez cette page.</value>
+  </data>
+  <data name="Install_Old" xml:space="preserve">
+    <value>Claude Code {0} est installé. Jarvis a été vérifié avec la version {1} et les suivantes : mettez Claude Code à jour.</value>
+  </data>
+  <data name="Install_Unknown" xml:space="preserve">
+    <value>Claude Code est installé, mais n'a pas donné sa version. Jarvis a été vérifié avec la version {0} et les suivantes.</value>
+  </data>
+  <data name="Install_Found" xml:space="preserve">
+    <value>Claude Code {0} est installé.</value>
+  </data>
+  <data name="Note_ReadOnly" xml:space="preserve">
+    <value>Une session démarre en lecture seule : elle lit, liste et cherche dans son dossier sans demander.</value>
+  </data>
+  <data name="Note_Approve" xml:space="preserve">
+    <value>Chaque écriture et chaque commande vous est montrée, avec le chemin exact ou la commande entière, et attend votre réponse. Rien hors du dossier de la session n'est jamais permis.</value>
+  </data>
+  <data name="Note_Watch" xml:space="preserve">
+    <value>Si une écriture ou une commande s'exécute sans avoir demandé, Jarvis arrête la session.</value>
+  </data>
+  <data name="Note_OwnSettings" xml:space="preserve">
+    <value>Une session lancée par Jarvis ne charge ni vos réglages Claude Code ni vos hooks.</value>
+  </data>
+  <data name="SessionsLabel" xml:space="preserve">
+    <value>Sessions lancées par Jarvis</value>
+  </data>
+  <data name="SessionsHint" xml:space="preserve">
+    <value>Arrêter une session met fin à son travail tout de suite ; sa tâche est marquée abandonnée.</value>
+  </data>
+  <data name="NoSession" xml:space="preserve">
+    <value>Aucune session ne tourne.</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
+  <data name="BudgetLabel" xml:space="preserve">
+    <value>Plafond d'une session ($ US)</value>
+  </data>
+  <data name="BudgetHint" xml:space="preserve">
+    <value>Claude Code arrête une session qui l'atteint. De {0} à {1}. Quand Claude Code compte dans le plafond mensuel, une session ne reçoit jamais plus que ce qu'il en reste.</value>
+  </data>
+  <data name="MostLabel" xml:space="preserve">
+    <value>Sessions en même temps</value>
+  </data>
+  <data name="MostHint" xml:space="preserve">
+    <value>De 1 à {0}.</value>
+  </data>
+  <data name="TrustedLabel" xml:space="preserve">
+    <value>Dossiers de confiance</value>
+  </data>
+  <data name="TrustedHint" xml:space="preserve">
+    <value>Décochée, une session ne lit que le fichier CLAUDE.md à la racine du dossier. Cochée, elle charge les réglages complets du projet.</value>
+  </data>
+  <data name="TrustedWarning" xml:space="preserve">
+    <value>Un dossier de confiance exécute les hooks de son dépôt sans vous le demander. Ne cochez qu'un dossier dont vous avez écrit ou lu le contenu.</value>
+  </data>
+  <data name="NoFolder" xml:space="preserve">
+    <value>Aucun dossier n'est autorisé pour l'instant : ajoutez-en un à la page Dossiers autorisés.</value>
+  </data>
+  <data name="NotANumber" xml:space="preserve">
+    <value>Ce n'est pas un nombre.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Les réglages n'ont pas pu être enregistrés.</value>
+  </data>
+</root>

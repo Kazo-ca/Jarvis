@@ -1,0 +1,65 @@
+.launch-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.launch-state {
+    margin: 0;
+}
+
+.launch-warning {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-amber);
+}
+
+.launch-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.launch-notes {
+    width: 100%;
+    margin: 0;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.launch-sessions,
+.launch-folders {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.launch-session {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.launch-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-wrap: anywhere;
+}
+
+.launch-number {
+    width: 7rem;
+}
+
+.launch-button {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--jarvis-line);
+    background: transparent;
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}

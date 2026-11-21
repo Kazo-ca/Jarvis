@@ -44,6 +44,7 @@ public sealed partial class ConversationEngineTests
     private ConversationEngine engine = null!;
     private FakeMemory memory = null!;
     private FakeHandOff handOff = null!;
+    private FakeClaudeTasks? claudeTasks;
     private List<IEvent> published = null!;
     private IDisposable[] subscriptions = [];
 
@@ -76,7 +77,10 @@ public sealed partial class ConversationEngineTests
             TimeProvider.System,
             NullLogger<ConversationEngine>.Instance,
             memory = new FakeMemory(),
-            handOff = new FakeHandOff());
+            handOff = new FakeHandOff(),
+
+            // Only the tests of the work handed to Claude Code have the slice of its sessions.
+            claudeTasks = TestContext.CurrentContext.Test.Properties.ContainsKey(WithClaudeTasks) ? new FakeClaudeTasks() : null);
         published = [];
         subscriptions =
         [

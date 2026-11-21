@@ -2,6 +2,7 @@ using System.Text.Json;
 using Kazo.Jarvis.Adapters.Files;
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Features.Tools.Files;
+using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Permissions;
 using Kazo.Jarvis.Kernel.Settings;

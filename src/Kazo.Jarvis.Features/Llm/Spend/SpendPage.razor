@@ -25,7 +25,14 @@
             <ul class="spend-entries" data-spend-entries="@entries.Count">
                 @foreach (var entry in entries.Take(MostEntriesShown))
                 {
-                    <li>@entry.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @entry.ProviderName · @entry.Model · @T["Entry", entry.InputTokens, entry.OutputTokens, Money(entry.CostUsd)]</li>
+                    @if (entry.ProviderId == SpendLedger.ClaudeCodeId)
+                    {
+                        <li data-spend-claude-entry="@(entry.Apart ? "apart" : "counted")">@entry.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @entry.ProviderName · @entry.Model · @(entry.Apart ? T["EntryApart", Money(entry.CostUsd)] : Money(entry.CostUsd))</li>
+                    }
+                    else
+                    {
+                        <li>@entry.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @entry.ProviderName · @entry.Model · @T["Entry", entry.InputTokens, entry.OutputTokens, Money(entry.CostUsd)]</li>
+                    }
                 }
             </ul>
         }
@@ -44,6 +51,22 @@
     <SettingsField Label="@T["CapLabel"]" Hint="@T["CapHint"]">
         <input type="number" class="spend-number" data-spend-cap aria-label="@T["CapLabel"]" min="0" max="@SpendOptions.MostUsd" step="1"
                value="@options.MonthlyCapUsd.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeCapAsync" />
+    </SettingsField>
+
+    <SettingsField Label="@T["ClaudeCodeLabel"]" Hint="@T["ClaudeCodeHint"]">
+        <label class="spend-check">
+            <input type="checkbox" data-spend-claude-subscription checked="@options.ClaudeCodeBySubscription"
+                   @onchange="e => SaveAsync(options with { ClaudeCodeBySubscription = e.Value is true })" />
+            <span>@T["ClaudeCodeBySubscription"]</span>
+        </label>
+        @if (options.ClaudeCodeBySubscription)
+        {
+            <p class="spend-note" data-spend-claude-apart="@Ledger.ClaudeCodeApartUsd.ToString(CultureInfo.InvariantCulture)">@T["ClaudeCodeApart", Money(Ledger.ClaudeCodeApartUsd)]</p>
+        }
+        else
+        {
+            <p class="spend-note" data-spend-claude-counted>@T["ClaudeCodeCounted"]</p>
+        }
     </SettingsField>
 
     <SettingsField Label="@T["PricesLabel"]" Hint="@T["PricesHint"]">

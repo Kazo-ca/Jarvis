@@ -1,3 +1,4 @@
+using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Messages.Llm;
 using Kazo.Jarvis.Kernel.Messaging;
@@ -25,6 +26,7 @@ public static class SpendSlice
         services.TryAddSingleton<SpendLedger>();
         services.TryAddSingleton<ISpendCap>(Ledger);
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ProviderAnswered>, SpendLedger>(Ledger));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ClaudeTaskEnded>, SpendLedger>(Ledger));
         services.AddHostedService(Ledger);
 
         // Right after the hand-off (11): what it costs.

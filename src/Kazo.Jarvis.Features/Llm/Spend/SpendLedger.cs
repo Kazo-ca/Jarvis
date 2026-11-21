@@ -1,4 +1,5 @@
 using System.Globalization;
+using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Messages.Llm;
 using Kazo.Jarvis.Kernel.Messaging;
@@ -14,10 +15,13 @@ namespace Kazo.Jarvis.Features.Llm.Spend;
 /// from its tokens and added to the count of the calendar month; the cap is checked by code before each call,
 /// never by a model. The count is an estimate: the bill of the provider is what counts.
 /// </summary>
-public sealed partial class SpendLedger : ISpendCap, IEventHandler<ProviderAnswered>, IHostedService, IDisposable
+public sealed partial class SpendLedger : ISpendCap, IEventHandler<ProviderAnswered>, IEventHandler<ClaudeTaskEnded>, IHostedService, IDisposable
 {
     /// <summary>The collection of the counted answers.</summary>
     public const string EntriesCollection = "Llm.SpendEntries";
+
+    /// <summary>The provider id of the entries of the Claude Code sessions.</summary>
+    public const string ClaudeCodeId = "claude-code";
 
     // How often the month is looked at: the first hour of a new month gives the cloud back.
     private static readonly TimeSpan MonthWatch = TimeSpan.FromMinutes(10);
@@ -98,6 +102,30 @@ public sealed partial class SpendLedger : ISpendCap, IEventHandler<ProviderAnswe
         }
     }
 
+    /// <summary>What the Claude Code sessions announced this month while paid by subscription: shown apart (ADR 0020, section 6).</summary>
+    public decimal ClaudeCodeApartUsd
+    {
+        get
+        {
+            lock (gate)
+            {
+                return count.Month == MonthKey() ? count.ClaudeCodeUsd : 0m;
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public decimal SessionBudget(decimal wanted)
+    {
+        if (settings.Read(SpendOptions.Section).ClaudeCodeBySubscription)
+        {
+            return wanted;
+        }
+
+        var status = Status;
+        return Math.Max(0m, Math.Min(wanted, status.CapUsd - status.SpentUsd));
+    }
+
     /// <summary>The counted answers of the current month, the newest first.</summary>
     /// <param name="cancellationToken">Cancels the reading.</param>
     /// <returns>The entries.</returns>
@@ -137,14 +165,56 @@ public sealed partial class SpendLedger : ISpendCap, IEventHandler<ProviderAnswe
         }
 
         var cost = price.Cost(message.InputTokens ?? 0, message.OutputTokens ?? 0);
+        await CountAsync(
+            cost,
+            apart: false,
+            new SpendEntry
+            {
+                At = message.At,
+                ProviderId = provider.Id,
+                ProviderName = provider.Name,
+                Model = message.Model ?? provider.Model,
+                InputTokens = message.InputTokens ?? 0,
+                OutputTokens = message.OutputTokens ?? 0,
+                CostUsd = cost,
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Counts the cost a Claude Code session announced (ADR 0021, section 8): apart while « Claude Code est payé
+    /// par abonnement » is checked, against the cap otherwise.
+    /// </summary>
+    /// <param name="message">The end of the session.</param>
+    /// <param name="cancellationToken">Cancels the writing.</param>
+    /// <returns>A task that ends once the count is kept.</returns>
+    public async ValueTask HandleAsync(ClaudeTaskEnded message, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        if (message.CostUsd is not { } cost || cost <= 0)
+        {
+            return;
+        }
+
+        var apart = settings.Read(SpendOptions.Section).ClaudeCodeBySubscription;
+        await CountAsync(
+            cost,
+            apart,
+            new SpendEntry { At = message.At, ProviderId = ClaudeCodeId, ProviderName = "Claude Code", Model = message.Folder, CostUsd = cost, Apart = apart },
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private async ValueTask CountAsync(decimal cost, bool apart, SpendEntry entry, CancellationToken cancellationToken)
+    {
         var month = MonthKey();
         SpendCount kept;
         lock (gate)
         {
-            var before = count.Month == month ? count.SpentUsd : 0m;
-            var after = before + cost;
-            count = kept = new SpendCount { Month = month, SpentUsd = after };
-            var cap = options.MonthlyCapUsd;
+            var same = count.Month == month;
+            var before = same ? count.SpentUsd : 0m;
+            var after = apart ? before : before + cost;
+            count = kept = new SpendCount { Month = month, SpentUsd = after, ClaudeCodeUsd = (same ? count.ClaudeCodeUsd : 0m) + (apart ? cost : 0m) };
+            var cap = settings.Read(SpendOptions.Section).MonthlyCapUsd;
             if (before < cap && after >= cap)
             {
                 notice = SpendNotice.CapReached;
@@ -155,7 +225,7 @@ public sealed partial class SpendLedger : ISpendCap, IEventHandler<ProviderAnswe
             }
         }
 
-        LogCounted(provider.Id, cost, kept.SpentUsd);
+        LogCounted(entry.ProviderId, cost, kept.SpentUsd);
         var written = await settings.WriteAsync(SpendCount.Section, kept, cancellationToken).ConfigureAwait(false);
         if (written.Outcome != SettingsWriteOutcome.Saved)
         {
@@ -165,19 +235,7 @@ public sealed partial class SpendLedger : ISpendCap, IEventHandler<ProviderAnswe
 
         try
         {
-            await Entries().AddAsync(
-                new SpendEntry
-                {
-                    At = message.At,
-                    ProviderId = provider.Id,
-                    ProviderName = provider.Name,
-                    Model = message.Model ?? provider.Model,
-                    InputTokens = message.InputTokens ?? 0,
-                    OutputTokens = message.OutputTokens ?? 0,
-                    CostUsd = cost,
-                },
-                message.At,
-                cancellationToken).ConfigureAwait(false);
+            await Entries().AddAsync(entry, entry.At, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {

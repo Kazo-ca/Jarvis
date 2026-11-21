@@ -1,0 +1,192 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject ClaudeTaskRunner Runner
+@inject IStringLocalizer<ClaudeLaunchPage> T
+@implements IDisposable
+
+@* The « Tâches Claude Code » page (US2.9, US2.10; ADR 0021, sections 1 and 2): whether Claude Code is found, the
+   sessions Jarvis started and a button to stop each, the cap of a session, how many run at once, and the folders
+   marked « de confiance ». A change is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["InstallLabel"]" Hint="@T["InstallHint"]">
+        <p class="launch-state" data-launch-install="@InstallState">
+            @(InstallState switch
+            {
+                "unavailable" => T["Install_Unavailable"],
+                "missing" => T["Install_Missing"],
+                "old" => T["Install_Old", install?.Version?.ToString() ?? "?", ClaudeCodeInstall.Checked],
+                "unknown" => T["Install_Unknown", ClaudeCodeInstall.Checked],
+                "found" => T["Install_Found", install?.Version?.ToString() ?? "?"],
+                _ => T["Install_Looking"],
+            })
+        </p>
+        <ul class="launch-notes" data-launch-notes>
+            <li>@T["Note_ReadOnly"]</li>
+            <li>@T["Note_Approve"]</li>
+            <li>@T["Note_Watch"]</li>
+            <li>@T["Note_OwnSettings"]</li>
+        </ul>
+    </SettingsField>
+
+    <SettingsField Label="@T["SessionsLabel"]" Hint="@T["SessionsHint"]">
+        @if (sessions.Count == 0)
+        {
+            <p class="launch-note" data-launch-no-session>@T["NoSession"]</p>
+        }
+        else
+        {
+            <ul class="launch-sessions" data-launch-sessions="@sessions.Count">
+                @foreach (var session in sessions)
+                {
+                    <li class="launch-session" data-launch-session="@session.TaskId" @key="session.TaskId">
+                        <span>@session.Name · @session.StartedAt.ToLocalTime().ToString("t", CultureInfo.CurrentCulture)</span>
+                        <button type="button" class="launch-button" data-launch-stop @onclick="() => StopAsync(session.TaskId)">@T["Stop"]</button>
+                    </li>
+                }
+            </ul>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["BudgetLabel"]" Hint="@T["BudgetHint", ClaudeLaunchOptions.LeastBudgetUsd, ClaudeLaunchOptions.MostBudgetUsd]">
+        <input type="number" class="launch-number" data-launch-budget aria-label="@T["BudgetLabel"]"
+               min="@ClaudeLaunchOptions.LeastBudgetUsd.ToString(CultureInfo.InvariantCulture)" max="@ClaudeLaunchOptions.MostBudgetUsd.ToString(CultureInfo.InvariantCulture)" step="0.1"
+               value="@options.SessionBudgetUsd.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeBudgetAsync" />
+    </SettingsField>
+
+    <SettingsField Label="@T["MostLabel"]" Hint="@T["MostHint", ClaudeLaunchOptions.MostSessionsAllowed]">
+        <input type="number" class="launch-number" data-launch-most aria-label="@T["MostLabel"]"
+               min="1" max="@ClaudeLaunchOptions.MostSessionsAllowed" step="1"
+               value="@options.MostSessions.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeMostAsync" />
+    </SettingsField>
+
+    <SettingsField Label="@T["TrustedLabel"]" Hint="@T["TrustedHint"]">
+        @if (folders.Count == 0)
+        {
+            <p class="launch-note" data-launch-no-folder>@T["NoFolder"]</p>
+        }
+        else
+        {
+            <p class="launch-warning" data-launch-trusted-warning>@T["TrustedWarning"]</p>
+            <ul class="launch-folders" data-launch-folders="@folders.Count">
+                @foreach (var folder in folders)
+                {
+                    <li @key="folder">
+                        <label class="launch-check">
+                            <input type="checkbox" data-launch-trusted="@folder" checked="@options.IsTrusted(folder)"
+                                   @onchange="e => TrustAsync(folder, e.Value is true)" />
+                            <span>@folder</span>
+                        </label>
+                    </li>
+                }
+            </ul>
+        }
+        @if (problem is not null)
+        {
+            <p class="launch-problem" role="alert" data-launch-problem>@problem</p>
+        }
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private ClaudeLaunchOptions options = new();
+    private ClaudeCodeInstall? install;
+    private bool looked;
+    private IReadOnlyList<RunningSession> sessions = [];
+    private IReadOnlyList<string> folders = [];
+    private IDisposable? watch;
+    private string? problem;
+
+    private string InstallState =>
+        !Runner.Available ? "unavailable"
+        : !looked ? "looking"
+        : install is not { Found: true } ? "missing"
+        : install.Version is null ? "unknown"
+        : install.UpToDate ? "found" : "old";
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        Runner.Changed += OnChanged;
+        watch = Settings.Watch(ClaudeLaunchOptions.Section, _ => OnChanged());
+        Read();
+        try
+        {
+            install = await Runner.FindAsync();
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            // Not found is said as such; why the search failed is in the log of the host.
+            install = new ClaudeCodeInstall(false);
+        }
+
+        looked = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Runner.Changed -= OnChanged;
+        watch?.Dispose();
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Read();
+        StateHasChanged();
+    });
+
+    private void Read()
+    {
+        options = Settings.Read(ClaudeLaunchOptions.Section);
+        sessions = Runner.Sessions;
+        folders = Runner.Folders;
+    }
+
+    private async Task StopAsync(string taskId)
+    {
+        await Runner.StopAsync(taskId);
+        Read();
+    }
+
+    private async Task ChangeBudgetAsync(ChangeEventArgs e)
+    {
+        if (!decimal.TryParse(e.Value?.ToString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var budget))
+        {
+            problem = T["NotANumber"];
+            return;
+        }
+
+        await SaveAsync(options with { SessionBudgetUsd = budget });
+    }
+
+    private async Task ChangeMostAsync(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var most))
+        {
+            problem = T["NotANumber"];
+            return;
+        }
+
+        await SaveAsync(options with { MostSessions = most });
+    }
+
+    private Task TrustAsync(string folder, bool trusted)
+    {
+        // Only folders that are still allowed stay in the list.
+        var kept = options.TrustedFolders.Where(known => !string.Equals(known, folder, StringComparison.OrdinalIgnoreCase)
+            && folders.Contains(known, StringComparer.OrdinalIgnoreCase));
+        return SaveAsync(options with { TrustedFolders = [.. trusted ? kept.Append(folder) : kept] });
+    }
+
+    private async Task SaveAsync(ClaudeLaunchOptions changed)
+    {
+        var result = await Settings.WriteAsync(ClaudeLaunchOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        Read();
+    }
+}

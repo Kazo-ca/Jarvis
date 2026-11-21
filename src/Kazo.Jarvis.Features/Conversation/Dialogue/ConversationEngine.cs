@@ -1,5 +1,6 @@
 using System.Text;
 using Kazo.Jarvis.Kernel.Assistant;
+using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;
@@ -71,6 +72,7 @@ public sealed partial class ConversationEngine :
     private readonly ILogger<ConversationEngine> logger;
     private readonly IConversationMemory? memory;
     private readonly IHandOff? handOff;
+    private readonly IClaudeTasks? claudeTasks;
     private readonly Lock gate = new();
     private Answering? current;
 
@@ -89,6 +91,7 @@ public sealed partial class ConversationEngine :
     /// <param name="logger">Logs the timings and the failures, never the text (ADR 0004, section 6).</param>
     /// <param name="memory">What to recall to the model, when a memory slice is there.</param>
     /// <param name="handOff">The targets of the hand-off, when a hand-off slice is there.</param>
+    /// <param name="claudeTasks">Who starts the Claude Code sessions, when that slice is there: the target of the tasks.</param>
     public ConversationEngine(
         IAssistantModel model,
         SystemPrompt prompt,
@@ -100,10 +103,12 @@ public sealed partial class ConversationEngine :
         TimeProvider time,
         ILogger<ConversationEngine> logger,
         IConversationMemory? memory = null,
-        IHandOff? handOff = null)
+        IHandOff? handOff = null,
+        IClaudeTasks? claudeTasks = null)
     {
         this.memory = memory;
         this.handOff = handOff;
+        this.claudeTasks = claudeTasks;
         this.model = model;
         this.prompt = prompt;
         this.journal = journal;
@@ -342,6 +347,19 @@ public sealed partial class ConversationEngine :
             // « Demande à Claude… » goes straight to the target (ADR 0020, section 3): the local model is neither
             // loaded nor asked.
             var forced = handOff?.Forced(answering.Snapshot.Request);
+
+            // The answer to « sur quel dossier ? » (ADR 0021, section 1) starts the work that waited. It is asked
+            // at every turn, so that anything else forgets the question; a new formula wins over it.
+            var resumed = claudeTasks?.Resume(answering.Snapshot.Request);
+            if (forced is null && resumed is not null)
+            {
+                forced = new ForcedHandOff(HandOffKind.Task, resumed.Request);
+            }
+            else
+            {
+                resumed = null;
+            }
+
             var provider = model.Provider;
             IChatClient? client = null;
             if (forced is null)
@@ -371,7 +389,7 @@ public sealed partial class ConversationEngine :
             {
                 try
                 {
-                    await HandOffAsync(run, new HandOffCall(forced.Kind, null), forced.Request, token).ConfigureAwait(false);
+                    await HandOffAsync(run, new HandOffCall(forced.Kind, null), forced.Request, token, resumed).ConfigureAwait(false);
                 }
                 catch (ToolException exception)
                 {
@@ -541,7 +559,7 @@ public sealed partial class ConversationEngine :
             foreach (var call in calls)
             {
                 var result = await CallAsync(run, speaker, call, callsMade++, token).ConfigureAwait(false);
-                if (run.Handed is not null && speaker.Target is null)
+                if ((run.Handed is not null || run.Delegated) && speaker.Target is null)
                 {
                     // The target answered the user: nothing goes back to the local model (ADR 0020, section 2).
                     return usage;

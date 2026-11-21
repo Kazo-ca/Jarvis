@@ -33,6 +33,12 @@ public sealed record SpendOptions
     /// <summary>The price of each cloud provider, by provider id. A cloud provider without a price is never called.</summary>
     public IReadOnlyDictionary<string, ProviderPrice> Prices { get; init; } = new Dictionary<string, ProviderPrice>();
 
+    /// <summary>
+    /// « Claude Code est payé par abonnement » (ADR 0020, section 6, answer 4), checked by default: the cost a
+    /// session announces is shown apart and does not count against the cap. Unchecked, it counts.
+    /// </summary>
+    public bool ClaudeCodeBySubscription { get; init; } = true;
+
     /// <summary>The price typed for the provider <paramref name="providerId"/>.</summary>
     /// <param name="providerId">The id of a provider.</param>
     /// <returns>The price, or <see langword="null"/>.</returns>
@@ -94,8 +100,11 @@ public sealed record SpendCount
     /// <summary>What the cloud answers of <see cref="Month"/> cost, in US dollars.</summary>
     public decimal SpentUsd { get; init; }
 
+    /// <summary>What the Claude Code sessions announced this month while they were paid by subscription: shown apart, never against the cap.</summary>
+    public decimal ClaudeCodeUsd { get; init; }
+
     private static IReadOnlyList<string> Validate(SpendCount value) =>
-        value.SpentUsd < 0 ? ["The count of the month cannot be negative."] : [];
+        value.SpentUsd < 0 || value.ClaudeCodeUsd < 0 ? ["The count of the month cannot be negative."] : [];
 }
 
 /// <summary>One counted answer, kept in the collection <c>Llm.SpendEntries</c>: the detail behind the count. Never a word of what was said.</summary>
@@ -121,4 +130,7 @@ public sealed record SpendEntry
 
     /// <summary>The cost counted, in US dollars, at the price of that moment.</summary>
     public decimal CostUsd { get; init; }
+
+    /// <summary>Whether the cost is shown apart and was not counted against the cap: a Claude Code session paid by subscription.</summary>
+    public bool Apart { get; init; }
 }
