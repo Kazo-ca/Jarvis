@@ -5,6 +5,7 @@ using Kazo.Jarvis.Features.Conversation.Memory;
 using Kazo.Jarvis.Features.Audio.Devices;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
+using Kazo.Jarvis.Features.Llm.HandOff;
 using Kazo.Jarvis.Features.Llm.Providers;
 using Kazo.Jarvis.Features.Maintenance.Updates;
 using Kazo.Jarvis.Features.Mcp.HomeAssistant;
@@ -66,6 +67,10 @@ public static class FeaturesServiceCollectionExtensions
         // Language models (stage1/11-llm-providers): the connector comes from the host; the default model is
         // preloaded in the background and read by the conversation (work item 13).
         services.AddLlmProvidersSlice();
+
+        // Hand-off (stage2/9-hand-off): the targets among the cloud providers, the tool and the forcing formulas;
+        // the conversation reads them through the kernel contract.
+        services.AddHandOffSlice();
 
         // Audio devices (stage1/8-audio-devices): capture and playback come from the host.
         services.AddAudioDevicesSlice();

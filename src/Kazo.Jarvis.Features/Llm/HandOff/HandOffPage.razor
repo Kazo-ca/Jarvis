@@ -1,0 +1,113 @@
+@inject ISettingsStore Settings
+@inject ILlmProviderList Providers
+@inject IAssistantLanguageReader Language
+@inject IStringLocalizer<HandOffPage> T
+@implements IDisposable
+
+@* The « Passage de main » page (US2.7, ADR 0020, sections 1 and 4): the target of the questions, chosen among the
+   configured cloud providers, and what leaves the machine once it is chosen, said in full before the choice. No
+   target is set by default. A change is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["LeavesLabel"]">
+        <ul class="handoff-list" data-handoff-leaves>
+            <li>@T["Leaves_Request"]</li>
+            <li>@T["Leaves_Tools"]</li>
+            <li>@T["Leaves_Memory"]</li>
+            <li>@T["Leaves_Never"]</li>
+        </ul>
+        <p class="handoff-warning" data-handoff-cost>@T["Cost"]</p>
+    </SettingsField>
+
+    <SettingsField Label="@T["QuestionsLabel"]" Hint="@T["QuestionsHint"]">
+        <select class="handoff-select" data-handoff-questions aria-label="@T["QuestionsLabel"]" value="@(chosen?.Id ?? string.Empty)" @onchange="ChooseAsync">
+            <option value="">@T["None"]</option>
+            @foreach (var candidate in candidates)
+            {
+                <option value="@candidate.Id">@candidate.Name · @candidate.Model</option>
+            }
+        </select>
+        @if (candidates.Count == 0)
+        {
+            <p class="handoff-note" data-handoff-no-provider>@T["NoProvider"]</p>
+        }
+        else if (chosen is not null)
+        {
+            <p class="handoff-note" data-handoff-target="@chosen.Id">@T["Chosen", HandOffTargets.SpokenName(chosen), chosen.Endpoint.Host]</p>
+        }
+        else
+        {
+            <p class="handoff-note" data-handoff-no-target>@T["NoTarget"]</p>
+        }
+        @if (problem is not null)
+        {
+            <p class="handoff-problem" role="alert" data-handoff-problem>@problem</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["MemoryLabel"]">
+        <label class="handoff-switch">
+            <input type="checkbox" data-handoff-memory checked="@options.WithMemory" @onchange="e => SaveAsync(options with { WithMemory = e.Value is true })" />
+            <span>@T["WithMemory"]</span>
+        </label>
+        <p class="handoff-note">@T["WithMemoryHint"]</p>
+    </SettingsField>
+
+    <SettingsField Label="@T["TasksLabel"]">
+        <p class="handoff-note" data-handoff-tasks>@T["TasksLater"]</p>
+    </SettingsField>
+
+    <SettingsField Label="@T["PhrasesLabel"]" Hint="@T["PhrasesHint"]">
+        <ul class="handoff-list" data-handoff-phrases>
+            @foreach (var phrase in HandOffPhrases.For(Language.Current))
+            {
+                <li>@phrase</li>
+            }
+        </ul>
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private HandOffOptions options = new();
+    private IReadOnlyList<LlmProvider> candidates = [];
+    private LlmProvider? chosen;
+    private string? problem;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Providers.Changed += OnProvidersChanged;
+        Read();
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Providers.Changed -= OnProvidersChanged;
+
+    // A provider added on the other page shows here without leaving the window.
+    private void OnProvidersChanged() => _ = InvokeAsync(() =>
+    {
+        Read();
+        StateHasChanged();
+    });
+
+    private void Read()
+    {
+        options = Settings.Read(HandOffOptions.Section);
+        candidates = HandOffTargets.Candidates(Providers.Providers);
+        chosen = candidates.FirstOrDefault(candidate => candidate.Id == options.QuestionsProviderId);
+    }
+
+    private Task ChooseAsync(ChangeEventArgs e) =>
+        SaveAsync(options with { QuestionsProviderId = e.Value?.ToString() is { Length: > 0 } id ? id : null });
+
+    private async Task SaveAsync(HandOffOptions changed)
+    {
+        var result = await Settings.WriteAsync(HandOffOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        Read();
+    }
+}

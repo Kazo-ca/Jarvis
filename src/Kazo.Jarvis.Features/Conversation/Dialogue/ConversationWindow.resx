@@ -132,4 +132,52 @@
   <data name="SeePage" xml:space="preserve">
     <value>See the page</value>
   </data>
+  <data name="HandOff" xml:space="preserve">
+    <value>Hand-off</value>
+  </data>
+  <data name="HandOff_Asked" xml:space="preserve">
+    <value>Handed over to {0}: {1}</value>
+  </data>
+  <data name="HandOff_AskedNoReason" xml:space="preserve">
+    <value>Handed over to {0}</value>
+  </data>
+  <data name="HandOff_Forced" xml:space="preserve">
+    <value>Asked {0} directly, at your request</value>
+  </data>
+  <data name="HandOff_Failed" xml:space="preserve">
+    <value>The hand-off did not happen ({0})</value>
+  </data>
+  <data name="HandOff_Cause_NoQuestionsTarget" xml:space="preserve">
+    <value>no target for questions</value>
+  </data>
+  <data name="HandOff_Cause_NoTasksTarget" xml:space="preserve">
+    <value>no target for tasks yet</value>
+  </data>
+  <data name="HandOff_Cause_NotConfigured" xml:space="preserve">
+    <value>provider not configured</value>
+  </data>
+  <data name="HandOff_Cause_InvalidAddress" xml:space="preserve">
+    <value>invalid address</value>
+  </data>
+  <data name="HandOff_Cause_Unreachable" xml:space="preserve">
+    <value>unreachable</value>
+  </data>
+  <data name="HandOff_Cause_ModelMissing" xml:space="preserve">
+    <value>unknown model</value>
+  </data>
+  <data name="HandOff_Cause_KeyMissing" xml:space="preserve">
+    <value>no key in the vault</value>
+  </data>
+  <data name="HandOff_Cause_KeyRejected" xml:space="preserve">
+    <value>key refused</value>
+  </data>
+  <data name="HandOff_Cause_TimedOut" xml:space="preserve">
+    <value>no answer in time</value>
+  </data>
+  <data name="HandOff_Cause_ServerError" xml:space="preserve">
+    <value>server error</value>
+  </data>
+  <data name="HandOff_Cause_Other" xml:space="preserve">
+    <value>unknown cause</value>
+  </data>
 </root>

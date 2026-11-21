@@ -47,6 +47,12 @@ internal sealed class ScriptedChatClient : IChatClient
     /// <summary>When set, the stream throws it after the pieces.</summary>
     public LlmFailure? FailAtEnd { get; set; }
 
+    /// <summary>When set, the client fails before it writes anything.</summary>
+    public LlmFailure? FailAtStart { get; set; }
+
+    /// <summary>The name the server gives to the model.</summary>
+    public string ModelId { get; set; } = "qwen3:14b";
+
     /// <summary>Completes when a stream is cancelled.</summary>
     public TaskCompletionSource Cancelled { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -63,6 +69,11 @@ internal sealed class ScriptedChatClient : IChatClient
             Calls.Add(([.. messages], options));
         }
 
+        if (FailAtStart is { } refused)
+        {
+            throw new LlmException(refused, "fake failure");
+        }
+
         using var registration = cancellationToken.Register(() => Cancelled.TrySetResult());
         object[]? round;
         lock (gate)
@@ -77,13 +88,13 @@ internal sealed class ScriptedChatClient : IChatClient
                 await Task.Yield();
                 cancellationToken.ThrowIfCancellationRequested();
                 yield return item is FunctionCallContent call
-                    ? new ChatResponseUpdate(ChatRole.Assistant, [call]) { ModelId = "qwen3:14b" }
-                    : new ChatResponseUpdate(ChatRole.Assistant, (string)item) { ModelId = "qwen3:14b" };
+                    ? new ChatResponseUpdate(ChatRole.Assistant, [call]) { ModelId = ModelId }
+                    : new ChatResponseUpdate(ChatRole.Assistant, (string)item) { ModelId = ModelId };
             }
 
             yield return new ChatResponseUpdate(ChatRole.Assistant, [new UsageContent(new UsageDetails { InputTokenCount = 100, OutputTokenCount = 10 })])
             {
-                ModelId = "qwen3:14b",
+                ModelId = ModelId,
                 FinishReason = ChatFinishReason.ToolCalls,
             };
             yield break;
@@ -93,7 +104,7 @@ internal sealed class ScriptedChatClient : IChatClient
         {
             await Task.Yield();
             cancellationToken.ThrowIfCancellationRequested();
-            yield return new ChatResponseUpdate(ChatRole.Assistant, Pieces[i]) { ModelId = "qwen3:14b" };
+            yield return new ChatResponseUpdate(ChatRole.Assistant, Pieces[i]) { ModelId = ModelId };
             if (i == 0 && HoldAfterFirstPiece is { } hold)
             {
                 await hold.Task.WaitAsync(cancellationToken);
@@ -107,7 +118,7 @@ internal sealed class ScriptedChatClient : IChatClient
 
         yield return new ChatResponseUpdate(ChatRole.Assistant, [new UsageContent(new UsageDetails { InputTokenCount = 120, OutputTokenCount = 14 })])
         {
-            ModelId = "qwen3:14b",
+            ModelId = ModelId,
             FinishReason = ChatFinishReason.Stop,
         };
     }
@@ -133,5 +144,28 @@ internal sealed class FakeMemory : IConversationMemory
     {
         Asked.Add((language, contextLength));
         return Failure is null ? ValueTask.FromResult(Recall) : ValueTask.FromException<MemoryRecall>(Failure);
+    }
+}
+
+/// <summary>A hand-off whose target is set by the test; the formulas and the arguments are read by the real code of the slice.</summary>
+internal sealed class FakeHandOff : IHandOff
+{
+    public string ToolName => Kazo.Jarvis.Features.Llm.HandOff.HandOffTool.ToolName;
+
+    /// <summary>The target of the questions, or <see langword="null"/> when none is set.</summary>
+    public HandOffTarget? Target { get; set; }
+
+    public List<HandOffKind> Opened { get; } = [];
+
+    public ForcedHandOff? Forced(string request) => Kazo.Jarvis.Features.Llm.HandOff.HandOffPhrases.Match(request);
+
+    public HandOffCall? Read(System.Text.Json.JsonElement arguments) => Kazo.Jarvis.Features.Llm.HandOff.HandOffTool.Read(arguments);
+
+    public HandOffOpening Open(HandOffKind kind)
+    {
+        Opened.Add(kind);
+        return kind == HandOffKind.Task ? HandOffOpening.Refused(HandOffRefusal.NoTasksTarget)
+            : Target is null ? HandOffOpening.Refused(HandOffRefusal.NoQuestionsTarget)
+            : HandOffOpening.To(Target);
     }
 }

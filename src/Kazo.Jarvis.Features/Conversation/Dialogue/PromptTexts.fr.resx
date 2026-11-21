@@ -66,4 +66,40 @@
   <data name="Truncated" xml:space="preserve">
     <value>[Résultat coupé à {0} caractères.]</value>
   </data>
+  <data name="HandOff_Announcement" xml:space="preserve">
+    <value>Je demande à {0}.</value>
+  </data>
+  <data name="HandOff_Answered" xml:space="preserve">
+    <value>{0} a répondu directement à l'utilisateur.</value>
+  </data>
+  <data name="HandOff_NoQuestionsTarget" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : aucune cible n'est réglée pour les questions. Elle se choisit dans les paramètres, à la page Passage de main.</value>
+  </data>
+  <data name="HandOff_NoTasksTarget" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : la cible des tâches, Claude Code, n'est pas encore disponible.</value>
+  </data>
+  <data name="HandOff_NotConfigured" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : {0} n'est pas configuré.</value>
+  </data>
+  <data name="HandOff_InvalidAddress" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : l'adresse réglée pour {0} n'est pas valide.</value>
+  </data>
+  <data name="HandOff_Unreachable" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : {0} est injoignable.</value>
+  </data>
+  <data name="HandOff_ModelMissing" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : {0} ne connaît pas le modèle réglé.</value>
+  </data>
+  <data name="HandOff_KeyMissing" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : {0} n'a pas de clé dans le coffre.</value>
+  </data>
+  <data name="HandOff_KeyRejected" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : {0} a refusé la clé.</value>
+  </data>
+  <data name="HandOff_TimedOut" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : {0} a mis trop de temps à répondre.</value>
+  </data>
+  <data name="HandOff_ServerError" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu : {0} a répondu par une erreur.</value>
+  </data>
 </root>

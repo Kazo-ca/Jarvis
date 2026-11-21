@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Tool_Description" xml:space="preserve">
+    <value>Hands the question over to {0}, a more capable model in the cloud, which then answers the user directly. Use it only for a question you cannot treat well yourself: long reasoning, expert knowledge, careful writing. Never for a simple conversation, the time, a calculation or the home. kind: "question". reason: one short sentence told to the user.</value>
+  </data>
+  <data name="Tool_Discloses" xml:space="preserve">
+    <value>The request and the recent conversation go to {0}, over the Internet.</value>
+  </data>
+</root>

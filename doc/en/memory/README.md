@@ -233,7 +233,18 @@ Resume point for any agent. Update it in the same change as what it describes.
   `Conversation.MemoryFacts` and `Conversation.MemorySummary`, summary limited to half of the budget, no age
   limit when the memory is off, `forget_fact` erases nothing when ambiguous, 500 facts at most. **Windows
   checks pending** ([list](../dev/conversation-memory.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/9-hand-off` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant` and `stage2/8-memory` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/9-hand-off`** (see [dev/hand-off.md](../dev/hand-off.md)), per ADR 0020, sections 1 to
+  5: kernel contracts `IHandOff` (`Kernel/Conversation`) and `ILlmProviderList` (`Kernel/Llm`); slice
+  `Llm/HandOff` (`HandOffTargets`, `HandOffTool` `hand_off_to_claude`, `HandOffPhrases`, section `Llm.HandOff`,
+  "Hand-off" page, order 11); in `Conversation/Dialogue`, the `RunAsync` loop serves the local model and the
+  target, `ConversationTurn.HandOff` keeps who answered and why. No target at first; the tool is in the
+  registry only while a target is set; the memory leaves only when the box is ticked; a target that fails is
+  a cause told, never a fault. The target for tasks (Claude Code) waits for work item 12. **No call left for
+  a real cloud API, and no cap bounds the spending yet** (work item 10). Provisional choices to be confirmed
+  by Benoit ([details](../dev/hand-off.md#provisional-choices-of-this-work-item)): reason shown but not said,
+  name said from the kind of the provider, formulas on "Claude" only, eight tool calls of its own for the
+  target. **Windows checks pending** ([list](../dev/hand-off.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item `stage2/10-spend-cap` of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory` and `stage2/9-hand-off` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

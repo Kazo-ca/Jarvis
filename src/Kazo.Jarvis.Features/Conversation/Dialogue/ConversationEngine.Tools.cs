@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Kazo.Jarvis.Kernel.Assistant;
+using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Permissions;
@@ -25,9 +26,9 @@ public sealed partial class ConversationEngine
     /// <summary>Longest time one call may take.</summary>
     internal TimeSpan CallTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
-    /// <summary>The enabled tools as the model receives them: name, description in the language of the turn, schema.</summary>
-    private List<AITool> Declarations(AssistantLanguage turnLanguage) =>
-        [.. tools.Enabled.Select(tool => (AITool)AIFunctionFactory.CreateDeclaration(tool.Name, tool.Describe(turnLanguage), tool.Schema))];
+    /// <summary>Tools as a model receives them: name, description in the language of the turn, schema.</summary>
+    private static List<AITool> Declarations(AssistantLanguage turnLanguage, IEnumerable<ITool> offered) =>
+        [.. offered.Select(tool => (AITool)AIFunctionFactory.CreateDeclaration(tool.Name, tool.Describe(turnLanguage), tool.Schema))];
 
     /// <summary>The text the model wrote before its calls, kept in the message that carries them.</summary>
     private static IEnumerable<AIContent> Preface(StringBuilder text) =>
@@ -40,15 +41,17 @@ public sealed partial class ConversationEngine
     /// to the model is data in every case: the result, or one sentence naming the cause of the denial or failure.
     /// </summary>
     private async Task<string> CallAsync(
-        Answering answering,
+        TurnRun run,
+        Speaker speaker,
         FunctionCallContent call,
-        ActionRequester requester,
-        AssistantLanguage turnLanguage,
-        HashSet<string> denied,
-        OutsideContent outside,
         int index,
         CancellationToken token)
     {
+        var answering = run.Answering;
+        var turnLanguage = run.Language;
+        var denied = run.Denied;
+        var outside = run.Outside;
+        var requester = speaker.Requester;
         var started = time.GetTimestamp();
 
         // Arguments the adapter could not read stay absent: the decision point denies them.
@@ -88,6 +91,12 @@ public sealed partial class ConversationEngine
             return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_Again", turnLanguage), denial: "Again");
         }
 
+        // A target is given the reading tools only (ADR 0020, section 4): it cannot call what it was not offered.
+        if (speaker.Target is not null && !speaker.Offered.Any(offered => offered.Name == call.Name))
+        {
+            return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_ToolDisabled", turnLanguage), denial: DenialCause.ToolDisabled.ToString());
+        }
+
         // A tool that writes what the model tells it is refused once the model has read a text from outside
         // (ADR 0019, section 3): the user asks again, in a turn where only they spoke.
         if (outside.Read && tools.Find(call.Name) is { RefusedAfterOutsideContent: true })
@@ -111,6 +120,13 @@ public sealed partial class ConversationEngine
         using var both = CancellationTokenSource.CreateLinkedTokenSource(token, limit.Token);
         try
         {
+            if (speaker.Target is null && handOff is not null && call.Name == handOff.ToolName)
+            {
+                // The terminal tool: its run is the whole answer of the target, without the time limit of a call.
+                var asked = handOff.Read(arguments.Value) ?? new HandOffCall(HandOffKind.Question, null);
+                return Finish(ToolCallOutcome.Done, await HandOffAsync(run, asked, null, token).ConfigureAwait(false), decision.Class);
+            }
+
             // WaitAsync: a tool that ignores its cancellation does not hold the turn.
             var result = await tool.InvokeAsync(arguments.Value, both.Token).AsTask().WaitAsync(both.Token).ConfigureAwait(false) ?? string.Empty;
             if (result.Length > MostResultCharacters)

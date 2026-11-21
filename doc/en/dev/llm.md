@@ -67,7 +67,8 @@ to cover loading a 9 GB model):
 - **Defaults:** one provider `local`, Ollama on `http://127.0.0.1:11434` with `qwen3:14b`, reasoning off,
   context 4096, temperature 0.3, preloaded and kept in memory (ADR 0007, section 5).
 - **The default provider must be local at stage 1** (validation rule); a cloud provider is configured and
-  tested, its "default" button is greyed out.
+  tested, its "default" button is greyed out. It only answers through the hand-off, once chosen as a target
+  ([hand-off.md](hand-off.md)); `ILlmProviderList` gives the list of the providers to the other slices.
 - **Preload:** at start, then after each change of the default provider. On failure (Docker starting Ollama
   after logon, for instance), new attempts after 15 s, 30 s, 1 min, 2 min and 5 min, then wait for a turn or a
   settings change.

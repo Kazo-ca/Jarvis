@@ -55,6 +55,9 @@ calls through the permission decision point: see [tools.md](tools.md).
   (3 characters per token), 20 turns at most and, when the memory is in use, no turn from before a silence
   of 2 hours. The memory block is added to the system message after the fixed rules
   ([conversation-memory.md](conversation-memory.md)).
+- **Hand-off**: a request that starts with "Ask Claude…", or a call of the `hand_off_to_claude` tool by the
+  local model, has the cloud target answer in the same loop; the turn keeps who answered and why
+  ([hand-off.md](hand-off.md)).
 - **`ConversationJournal`**: the turns of the collection `Conversation.Turns` (read once, when first needed)
   and the turn in progress. A turn is stored **when it ends**: answered, interrupted (with what was written by
   then) or failed (with the cause). What is stored (ADR 0007, section 7): request, answer, language, voice or

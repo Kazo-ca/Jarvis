@@ -54,6 +54,14 @@
                             }
                         </details>
                     }
+                    @if (turn.HandOff is { } handOff)
+                    {
+                        @* Who answers and why (ADR 0020, section 5); nothing changes on the orb. *@
+                        <p class="conversation-handoff" data-conversation-handoff="@(handOff.Target ?? "")" data-handoff-failure="@(handOff.Failure ?? "")" data-handoff-forced="@(handOff.Forced ? "true" : "false")">
+                            <span class="conversation-who">@T["HandOff"]</span>
+                            <span data-conversation-handoff-text>@HandOffText(handOff)</span>
+                        </p>
+                    }
                     <p class="conversation-answer">
                         <span class="conversation-who conversation-jarvis">Jarvis</span>
                         <span class="conversation-body" data-conversation-answer>@turn.Answer</span>
@@ -219,6 +227,25 @@
         });
 
         return string.Join(" · ", parts.Where(part => part.Length > 0));
+    }
+
+    private static readonly HashSet<string> HandOffCauses = new(StringComparer.Ordinal)
+    {
+        "NoQuestionsTarget", "NoTasksTarget", "NotConfigured", "InvalidAddress", "Unreachable", "ModelMissing", "KeyMissing",
+        "KeyRejected", "TimedOut", "ServerError",
+    };
+
+    private string HandOffText(HandOffEntry handOff)
+    {
+        if (handOff.Failure is { } failure)
+        {
+            return T["HandOff_Failed", T["HandOff_Cause_" + (HandOffCauses.Contains(failure) ? failure : "Other")].Value];
+        }
+
+        var target = handOff.Target ?? "Claude";
+        return handOff.Forced ? T["HandOff_Forced", target]
+            : handOff.Reason is { Length: > 0 } reason ? T["HandOff_Asked", target, reason]
+            : T["HandOff_AskedNoReason", target];
     }
 
     // The causes named by the model (LlmFailure) and by the faults (FaultCause) that have their own sentence.
