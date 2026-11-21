@@ -87,7 +87,9 @@ the application stops: never a silent crash.
   bottom right corner of the primary screen.
 - Pressing without moving (under 4 pixels) is a click. The window catches the press itself to tell a click
   from a move (the web view never receives it) and hands the click to `OrbActivation` of the orb slice, which
-  publishes `ActivationRequested(Click)`: the same path as a click on the component in the Web host.
+  publishes `ActivationRequested(Click)`: the same path as a click on the component in the Web host. Since work
+  item `stage2/14-task-fan`, that click waits for the double-click delay of Windows, and a double click opens
+  the fan, which has a window of its own ([task-fan.md](task-fan.md)).
 - The web view has a transparent background (`DefaultBackgroundColor` and
   `WEBVIEW2_DEFAULT_BACKGROUND_COLOR`).
 - The WebView2 profile of every window goes to `%USERPROFILE%\.kazo\jarvis\webview`, not next to the

@@ -32,7 +32,37 @@ public sealed record ConfirmationRequest(
     string? Summary,
     string Detail,
     ActionClass Class,
-    ActionContext Context);
+    ActionContext Context)
+{
+    /// <summary>The task that asks, when a task does (a Claude Code session): the fan shows the request in its panel.</summary>
+    public string? TaskId { get; init; }
+}
+
+/// <summary>
+/// The request that waits for the user, for whoever shows it besides the confirmation window: the task fan
+/// (ADR 0010, section 2) and the badge of the orb (ADR 0011, section 4). A click here is a click on the PC, the
+/// same channel as the buttons of the window.
+/// </summary>
+public interface IOpenConfirmations
+{
+    /// <summary>Raised after a request opened or closed, on any thread.</summary>
+    event Action? Changed;
+
+    /// <summary>The open request, or <see langword="null"/>. One at a time (ADR 0023).</summary>
+    OpenConfirmation? Current { get; }
+
+    /// <summary>A click on Approve or Refuse: accepted for both classes. Ignored when <paramref name="id"/> is no longer the open request.</summary>
+    /// <param name="id">The request that was shown.</param>
+    /// <param name="approved">Approve or refuse.</param>
+    void Click(Guid id, bool approved);
+}
+
+/// <summary>The open request, as the confirmation window and the fan show it.</summary>
+/// <param name="Id">Its identifier.</param>
+/// <param name="Request">What is asked, and by whom.</param>
+/// <param name="Summary">The sentence shown and said.</param>
+/// <param name="Listens">Whether a spoken answer is accepted.</param>
+public sealed record OpenConfirmation(Guid Id, ConfirmationRequest Request, string Summary, bool Listens);
 
 /// <summary>How a request ended.</summary>
 public enum ConfirmationAnswer

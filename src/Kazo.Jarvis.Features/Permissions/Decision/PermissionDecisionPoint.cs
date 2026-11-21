@@ -185,7 +185,7 @@ public sealed partial class PermissionDecisionPoint : IPermissionDecision
         try
         {
             outcome = await confirmation.AskAsync(
-                new ConfirmationRequest(request.Requester, toolName, summary, arguments.GetRawText(), actionClass, request.Context),
+                new ConfirmationRequest(request.Requester, toolName, summary, arguments.GetRawText(), actionClass, request.Context) { TaskId = request.Session?.TaskId },
                 cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

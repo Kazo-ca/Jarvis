@@ -1,0 +1,269 @@
+/*
+  The task fan (ADR 0010). Lengths are in em: the font size follows the smaller side of the surface, so the arc
+  fits a small screen. Colors come from jarvis.css (ADR 0011, section 2): cyan panels, amber for a decision.
+  Opening and closing are stepped at 30 images per second at most (ADR 0010, section 6; spike E11): 12 steps in
+  400 ms, 9 steps in 300 ms. Open, nothing moves.
+*/
+.fan {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    font-size: min(16px, 1.6vmin);
+    font-family: var(--jarvis-font-body);
+    color: var(--jarvis-text);
+    outline: none;
+}
+
+.fan-surface {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.fan-dim {
+    fill: rgba(0, 8, 20, 0.55);
+}
+
+.fan-slot,
+.fan-count-slot {
+    overflow: visible;
+}
+
+.fan-link {
+    stroke: var(--jarvis-cyan);
+    stroke-width: 0.09em;
+    stroke-dasharray: 0.3em 0.3em;
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.fan-link[data-fan-amber="true"] {
+    stroke: var(--jarvis-amber);
+}
+
+.fan-slot-box {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.fan-panel {
+    box-sizing: border-box;
+    width: 100%;
+    max-height: 100%;
+    padding: 0.7em 0.9em;
+    overflow: hidden;
+    border: 0.09em solid var(--jarvis-cyan);
+    border-radius: 0.6em;
+    background: rgba(6, 22, 36, 0.92);
+}
+
+.fan-panel[data-fan-amber="true"] {
+    border-color: var(--jarvis-amber);
+}
+
+/* The exact detail may be long: the panel then grows past its slot and scrolls. */
+.fan-panel[data-fan-details="true"] {
+    position: relative;
+    z-index: 1;
+    max-height: 30em;
+    overflow: auto;
+}
+
+.fan-from {
+    margin: 0;
+    overflow: hidden;
+    color: var(--jarvis-text-muted);
+    font-size: 0.72em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fan-title {
+    margin: 0.15em 0 0;
+    overflow: hidden;
+    color: var(--jarvis-cyan);
+    font-family: var(--jarvis-font-display);
+    font-size: 1em;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fan-panel[data-fan-amber="true"] .fan-title {
+    color: var(--jarvis-amber);
+}
+
+.fan-status {
+    margin: 0.2em 0 0;
+    font-size: 0.78em;
+}
+
+.fan-summary,
+.fan-decision {
+    display: -webkit-box;
+    margin: 0.3em 0 0;
+    overflow: hidden;
+    color: var(--jarvis-text-muted);
+    font-size: 0.78em;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+.fan-decision {
+    color: var(--jarvis-text);
+}
+
+.fan-subtasks {
+    margin: 0.3em 0 0;
+    padding: 0 0 0 1em;
+    color: var(--jarvis-text-muted);
+    font-size: 0.72em;
+}
+
+.fan-subtasks li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fan-more {
+    list-style: none;
+}
+
+.fan-detail {
+    margin: 0.4em 0 0;
+    padding: 0.4em;
+    border: 0.07em solid var(--jarvis-line);
+    border-radius: 0.3em;
+    background: var(--jarvis-input);
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.72em;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.fan-buttons {
+    display: flex;
+    gap: 0.4em;
+    margin-top: 0.5em;
+}
+
+.fan-button {
+    padding: 0.25em 0.7em;
+    border: 0.07em solid var(--jarvis-line-strong);
+    border-radius: 0.3em;
+    background: transparent;
+    color: var(--jarvis-text);
+    font: inherit;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+
+.fan-allow {
+    border-color: var(--jarvis-amber);
+    color: var(--jarvis-amber);
+}
+
+.fan-button:focus-visible {
+    outline: 0.12em solid var(--jarvis-text);
+    outline-offset: 0.1em;
+}
+
+.fan-count {
+    margin: 0;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+
+.fan[data-fan-horizontal="left"] .fan-count {
+    text-align: right;
+}
+
+.fan-count-decisions {
+    color: var(--jarvis-amber);
+}
+
+/* Out of the orb and back into it: the whole arc scales around the centre of the orb, the origin of the
+   inner surface. */
+.fan[data-fan-phase="Open"] .fan-arc {
+    animation: fan-out 400ms steps(12, end) both;
+}
+
+.fan[data-fan-phase="Open"] .fan-dim {
+    animation: fan-dim-in 400ms steps(12, end) both;
+}
+
+.fan[data-fan-phase="Closing"] .fan-arc {
+    animation: fan-in 300ms steps(9, end) both;
+}
+
+.fan[data-fan-phase="Closing"] .fan-dim {
+    animation: fan-dim-out 300ms steps(9, end) both;
+}
+
+@keyframes fan-out {
+    from {
+        transform: scale(0.1);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fan-in {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(0.1);
+        opacity: 0;
+    }
+}
+
+@keyframes fan-dim-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fan-dim-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+/* Reduced motion, asked by the option or by the system: the fan appears and disappears at once. */
+.fan[data-fan-motion="reduced"] .fan-arc,
+.fan[data-fan-motion="reduced"] .fan-dim {
+    animation: none;
+}
+
+.fan[data-fan-motion="reduced"][data-fan-phase="Closing"] {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fan .fan-arc,
+    .fan .fan-dim {
+        animation: none;
+    }
+
+    .fan[data-fan-phase="Closing"] {
+        display: none;
+    }
+}

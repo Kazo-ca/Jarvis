@@ -351,8 +351,8 @@ public sealed class ClaudeTaskRunnerTests
             Assert.That((refused.Allowed, refused.Message), Is.EqualTo((false, "The user refused.")));
             Assert.That(write.Requester, Is.EqualTo(new ActionRequester(RequesterKind.Session, "kazo-bar")));
             Assert.That((write.Tool, write.Arguments!.Value.GetRawText()), Is.EqualTo(("Write", input.GetRawText())), "The input is shown as received, never corrected.");
-            Assert.That(write.Session, Is.EqualTo(new SessionAction(ActionClass.Sensitive, $"Claude Code veut écrire le fichier {path} dans kazo-bar.")));
-            Assert.That(command.Session, Is.EqualTo(new SessionAction(ActionClass.Sensitive, "Claude Code veut lancer une commande dans kazo-bar : git push")));
+            Assert.That(write.Session, Is.EqualTo(new SessionAction(ActionClass.Sensitive, $"Claude Code veut écrire le fichier {path} dans kazo-bar.", opening.TaskId)), "The task goes with the request, for its panel of the fan.");
+            Assert.That(command.Session, Is.EqualTo(new SessionAction(ActionClass.Sensitive, "Claude Code veut lancer une commande dans kazo-bar : git push", opening.TaskId)));
             Assert.That(during, Is.EqualTo(WorkTaskStatus.WaitingApproval));
             Assert.That(board.Find(opening.TaskId!)!.Status, Is.EqualTo(WorkTaskStatus.Working), "The decision puts the task back to work.");
         });

@@ -18,7 +18,7 @@ namespace Kazo.Jarvis.Features.Permissions.Confirmation;
 /// interruption. It waits as long as it takes: Jarvis never decides in place of the user, so there is no timeout.
 /// Only a human answer through a channel the class accepts approves.
 /// </summary>
-public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<ConfirmationAnswerHeard>, IDisposable
+public sealed partial class ConfirmationDesk : IConfirmation, IOpenConfirmations, IEventHandler<ConfirmationAnswerHeard>, IDisposable
 {
     /// <summary>Key of the confirmation window: one window at a time.</summary>
     public const string DialogKey = "Permissions.Confirmation";
@@ -54,10 +54,10 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
         this.logger = logger;
     }
 
-    /// <summary>Raised after a request opened or closed, on any thread.</summary>
+    /// <inheritdoc />
     public event Action? Changed;
 
-    /// <summary>The open request, or <see langword="null"/>.</summary>
+    /// <inheritdoc />
     public OpenConfirmation? Current
     {
         get
@@ -132,9 +132,7 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
         }
     }
 
-    /// <summary>A click in the confirmation window: accepted for both classes.</summary>
-    /// <param name="id">The request the window showed.</param>
-    /// <param name="approved">Approve or refuse.</param>
+    /// <inheritdoc />
     public void Click(Guid id, bool approved) => Answer(
         id,
         new ConfirmationOutcome(approved ? ConfirmationAnswer.Approved : ConfirmationAnswer.Refused, ConfirmationChannels.Click));
@@ -223,10 +221,3 @@ public sealed partial class ConfirmationDesk : IConfirmation, IEventHandler<Conf
         public TaskCompletionSource<ConfirmationOutcome> Answer { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 }
-
-/// <summary>The open request, as the confirmation window shows it.</summary>
-/// <param name="Id">Its identifier.</param>
-/// <param name="Request">What is asked, and by whom.</param>
-/// <param name="Summary">The sentence shown and said.</param>
-/// <param name="Listens">Whether a spoken answer is accepted.</param>
-public sealed record OpenConfirmation(Guid Id, ConfirmationRequest Request, string Summary, bool Listens);

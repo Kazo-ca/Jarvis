@@ -19,6 +19,12 @@ public static class TaskBoardSlice
         services.TryAddSingleton<TaskBoard>();
         services.TryAddSingleton<ITaskBoard>(provider => provider.GetRequiredService<TaskBoard>());
         services.AddHostedService(provider => provider.GetRequiredService<TaskBoard>());
+        if (services.All(known => known.ServiceType != typeof(TaskCount)))
+        {
+            // After the board: it reads the tasks the board loaded.
+            services.AddSingleton<TaskCount>();
+            services.AddHostedService(provider => provider.GetRequiredService<TaskCount>());
+        }
 
         // The routes of the hooks (ADR 0021, section 3): the local server of the host finds them as ILocalRoute.
         if (services.Any(known => known.ServiceType == typeof(TaskHooks)))

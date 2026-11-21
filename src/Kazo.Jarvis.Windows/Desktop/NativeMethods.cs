@@ -22,6 +22,8 @@ internal static class NativeMethods
     private const int WtsSessionStateLock = 0;
     private const int WtsSessionStateUnlock = 1;
     private const uint SwpNoSize = 0x0001;
+    private const uint SwpNoMove = 0x0002;
+    private static readonly IntPtr HwndTopmost = new(-1);
     private const uint SwpNoZOrder = 0x0004;
     private const uint SwpNoActivate = 0x0010;
 
@@ -72,6 +74,22 @@ internal static class NativeMethods
     /// <summary>The window's top-left corner in physical screen pixels.</summary>
     public static (int X, int Y) WindowPosition(IntPtr window) =>
         GetWindowRect(window, out var rect) ? (rect.Left, rect.Top) : (0, 0);
+
+    /// <summary>The window's rectangle in physical screen pixels.</summary>
+    public static (int X, int Y, int Width, int Height) WindowBounds(IntPtr window) =>
+        GetWindowRect(window, out var rect) ? (rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top) : (0, 0, 0, 0);
+
+    /// <summary>Places a window over a rectangle of physical screen pixels, in the "always on top" band, without activating it.</summary>
+    public static void CoverTopmost(IntPtr window, int x, int y, int width, int height) =>
+        SetWindowPos(window, HwndTopmost, x, y, width, height, SwpNoActivate);
+
+    /// <summary>Puts a window back at the top of the "always on top" band, without moving, resizing or activating it.</summary>
+    public static void BringToTop(IntPtr window) =>
+        SetWindowPos(window, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate);
+
+    /// <summary>The double-click time of the system, in milliseconds (500 by default).</summary>
+    [DllImport("user32.dll")]
+    public static extern uint GetDoubleClickTime();
 
     /// <summary>Moves a window to physical screen pixels, without resizing, reordering or activating it.</summary>
     public static void MoveWindow(IntPtr window, int x, int y) =>

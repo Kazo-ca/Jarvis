@@ -1,0 +1,299 @@
+@implements IDisposable
+@inject TaskFan Fan
+@inject ITaskBoard Board
+@inject IServiceProvider Services
+@inject TimeProvider Time
+@inject IStringLocalizer<TaskFanView> T
+
+@* The task fan (ADR 0010): the darkened desktop, one panel per task on an arc around the orb, a dashed line
+   from each panel to the orb, and a line that counts the tasks and the decisions. Everything is drawn in one
+   surface, an SVG whose origin is the centre of the orb: the panels come out of the orb and go back into it by
+   scaling that one group. Closed, the component draws nothing and holds no timer (section 5). Open, it is a
+   still image: a task that changes redraws it at most once per second (section 6). The host places this
+   component on its fan surface. *@
+@if (phase != FanPhase.Closed)
+{
+    <div class="fan" @ref="root" tabindex="-1" role="dialog" aria-label="@T["Title"]"
+         data-fan data-fan-phase="@phase" data-fan-motion="@(ReducedMotion ? "reduced" : "full")"
+         data-fan-horizontal="@(direction.Horizontal < 0 ? "left" : "right")" data-fan-vertical="@(direction.Vertical < 0 ? "up" : "down")"
+         data-fan-tasks="@content.Tasks" data-fan-decisions="@content.Decisions"
+         @onkeydown="OnKey">
+        <svg class="fan-surface" width="100%" height="100%">
+            <rect class="fan-dim" width="100%" height="100%" data-fan-dim @onclick="Fan.Close" />
+            <svg class="fan-origin" x="@Percent(anchor.X)" y="@Percent(anchor.Y)" overflow="visible">
+                <g class="fan-arc">
+                    @for (var index = 0; index < content.Panels.Count; index++)
+                    {
+                        var slot = slots[index];
+                        <line class="fan-link" @key="@("link:" + content.Panels[index].Key)" data-fan-amber="@Flag(content.Panels[index].Amber)"
+                              x1="0" y1="0" x2="@Em(slot.X)" y2="@Em(slot.Y)" />
+                    }
+                    @for (var index = 0; index < content.Panels.Count; index++)
+                    {
+                        var slot = slots[index];
+                        var panel = content.Panels[index];
+                        <foreignObject class="fan-slot" @key="panel.Key"
+                                       x="@Em(slot.X - FanLayout.PanelWidth / 2)" y="@Em(slot.Y - FanLayout.PanelHeight / 2)"
+                                       width="@Em(FanLayout.PanelWidth)" height="@Em(FanLayout.PanelHeight)">
+                            <div class="fan-slot-box">
+                                <article class="fan-panel" data-fan-panel="@panel.Key" data-fan-amber="@Flag(panel.Amber)"
+                                         data-fan-status="@(panel.Task?.Status.ToWire() ?? "")" data-fan-details="@Flag(details == panel.Key)">
+                                    @if (panel.Task is { } task)
+                                    {
+                                        <p class="fan-from" data-fan-from>@From(task)</p>
+                                        <h3 class="fan-title" data-fan-title>@task.Title</h3>
+                                        <p class="fan-status" data-fan-status-text>@T["Status_" + task.Status] · @Clock(task.UpdatedAt)</p>
+                                        @if (panel.Decision is null && Short(task.Summary) is { Length: > 0 } summary)
+                                        {
+                                            <p class="fan-summary" data-fan-summary>@summary</p>
+                                        }
+                                        @if (panel.SubTasks.Count > 0)
+                                        {
+                                            <ul class="fan-subtasks" data-fan-subtasks>
+                                                @foreach (var child in panel.SubTasks)
+                                                {
+                                                    <li @key="child.Id" data-fan-subtask="@child.Id" data-fan-status="@child.Status.ToWire()">@child.Title · @T["Status_" + child.Status]</li>
+                                                }
+                                                @if (panel.MoreSubTasks > 0)
+                                                {
+                                                    <li class="fan-more" data-fan-more-subtasks>@T["MoreSubTasks", panel.MoreSubTasks]</li>
+                                                }
+                                            </ul>
+                                        }
+                                    }
+                                    else if (panel.Decision is { } apart)
+                                    {
+                                        <p class="fan-from" data-fan-from>@T["DecisionFrom", apart.Request.Requester.Name]</p>
+                                        <h3 class="fan-title" data-fan-title>@T["DecisionTitle"]</h3>
+                                    }
+                                    @if (panel.Decision is { } decision)
+                                    {
+                                        @* The request of ADR 0009, shown in the fan: a click here is a click on the PC, the same
+                                           channel as the buttons of the confirmation window, which stays open. *@
+                                        <p class="fan-decision" data-fan-decision>@decision.Summary</p>
+                                        @if (details == panel.Key)
+                                        {
+                                            <pre class="fan-detail" data-fan-detail>@decision.Request.Tool
+@decision.Request.Detail</pre>
+                                        }
+                                        <div class="fan-buttons">
+                                            <button type="button" class="fan-button fan-allow" data-fan-allow @onclick="() => Answer(decision, true)">@T["Allow"]</button>
+                                            <button type="button" class="fan-button fan-refuse" data-fan-refuse @onclick="() => Answer(decision, false)">@T["Refuse"]</button>
+                                            <button type="button" class="fan-button" data-fan-details-toggle aria-expanded="@Flag(details == panel.Key)"
+                                                    @onclick="() => ToggleDetails(panel.Key)">@T[details == panel.Key ? "HideDetails" : "Details"]</button>
+                                        </div>
+                                    }
+                                </article>
+                            </div>
+                        </foreignObject>
+                    }
+                    <foreignObject class="fan-count-slot" x="@Em(direction.Horizontal < 0 ? CountReach - CountWidth : -CountReach)"
+                                   y="@Em(direction.Vertical < 0 ? -CountDistance - CountHeight : CountDistance)"
+                                   width="@Em(CountWidth)" height="@Em(CountHeight)">
+                        <p class="fan-count" role="status" data-fan-count>
+                            @if (content.Tasks == 0 && content.Decisions == 0)
+                            {
+                                @T["NoTask"]
+                            }
+                            else
+                            {
+                                @T[content.Tasks == 1 ? "OneTask" : "Tasks", content.Tasks]
+                                @if (content.Decisions > 0)
+                                {
+                                    <span class="fan-count-decisions" data-fan-count-decisions> · @T[content.Decisions == 1 ? "OneDecision" : "Decisions", content.Decisions]</span>
+                                }
+                                @if (content.Hidden > 0)
+                                {
+                                    <span data-fan-hidden> · @T[content.Hidden == 1 ? "OneHidden" : "Hidden", content.Hidden]</span>
+                                }
+                            }
+                        </p>
+                    </foreignObject>
+                </g>
+            </svg>
+        </svg>
+    </div>
+}
+
+@code {
+    // The counting line starts beyond the orb, toward the centre of the screen, and never leaves the screen on
+    // the side of the orb: it reaches a little past the centre of the orb and extends the other way.
+    private const double CountDistance = 7.5;
+    private const double CountReach = 5;
+    private const double CountWidth = 26;
+    private const double CountHeight = 3;
+    private const int MostSummary = 200;
+    private static readonly TimeSpan Between = TimeSpan.FromSeconds(1);
+
+    private ElementReference root;
+    private IOpenConfirmations? confirmations;
+    private FanPhase phase;
+    private FanAnchor anchor = FanAnchor.BottomRight;
+    private (int Horizontal, int Vertical) direction = (-1, -1);
+    private FanContent content = new([], 0, 0, 0);
+    private IReadOnlyList<FanSlot> slots = [];
+    private string? details;
+    private bool focus;
+    private DateTimeOffset drawn;
+    private int waiting;
+
+    /// <summary>The "reduced motion" option: the fan appears and disappears at once (ADR 0010, section 6).</summary>
+    [Parameter]
+    public bool ReducedMotion { get; set; }
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        confirmations = Services.GetService<IOpenConfirmations>();
+        Fan.Changed += OnFanChanged;
+        Board.Changed += OnBoardChanged;
+        if (confirmations is not null)
+        {
+            confirmations.Changed += OnDecisionChanged;
+        }
+
+        phase = Fan.Phase;
+        if (phase != FanPhase.Closed)
+        {
+            Read();
+            focus = phase == FanPhase.Open;
+        }
+    }
+
+    /// <inheritdoc />
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focus && phase == FanPhase.Open)
+        {
+            // The keyboard focus, so that Escape puts the fan away.
+            focus = false;
+            try
+            {
+                await root.FocusAsync(preventScroll: true);
+            }
+            catch (Exception exception) when (exception is JSException or InvalidOperationException or OperationCanceledException)
+            {
+                // The surface went away meanwhile: a click still closes the fan.
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Fan.Changed -= OnFanChanged;
+        Board.Changed -= OnBoardChanged;
+        if (confirmations is not null)
+        {
+            confirmations.Changed -= OnDecisionChanged;
+        }
+    }
+
+    private void Read()
+    {
+        anchor = Fan.Anchor;
+        direction = FanLayout.Direction(anchor);
+        content = FanContent.Of(Board.Tasks, confirmations?.Current);
+        slots = FanLayout.Slots(anchor, content.Panels.Count);
+        if (details is not null && !content.Panels.Any(panel => panel.Key == details && panel.Decision is not null))
+        {
+            details = null;
+        }
+
+        drawn = Time.GetUtcNow();
+    }
+
+    private void OnFanChanged() => _ = InvokeAsync(() =>
+    {
+        var before = phase;
+        phase = Fan.Phase;
+        if (phase == FanPhase.Open)
+        {
+            Read();
+            focus = before != FanPhase.Open;
+        }
+        else if (phase == FanPhase.Closed)
+        {
+            details = null;
+        }
+
+        StateHasChanged();
+    });
+
+    // A request that opens or closes is drawn at once: its buttons must never be late.
+    private void OnDecisionChanged() => _ = InvokeAsync(Redraw);
+
+    // A task that changes redraws the fan at most once per second (ADR 0010, section 6). Closed, nothing is
+    // read and no timer starts.
+    private void OnBoardChanged()
+    {
+        if (Fan.Phase != FanPhase.Open || Interlocked.Exchange(ref waiting, 1) == 1)
+        {
+            return;
+        }
+
+        _ = InvokeAsync(async () =>
+        {
+            try
+            {
+                var wait = drawn + Between - Time.GetUtcNow();
+                if (wait > TimeSpan.Zero)
+                {
+                    await Task.Delay(wait, Time);
+                }
+            }
+            finally
+            {
+                Volatile.Write(ref waiting, 0);
+            }
+
+            Redraw();
+        });
+    }
+
+    private void Redraw()
+    {
+        if (phase != FanPhase.Open)
+        {
+            return;
+        }
+
+        Read();
+        StateHasChanged();
+    }
+
+    private void OnKey(KeyboardEventArgs pressed)
+    {
+        if (pressed.Key == "Escape")
+        {
+            Fan.Close();
+        }
+    }
+
+    private void Answer(OpenConfirmation decision, bool approved) => confirmations?.Click(decision.Id, approved);
+
+    private void ToggleDetails(string key) => details = details == key ? null : key;
+
+    // Who works on it, on what, and who started it (ADR 0010, section 2: where the task comes from).
+    private string From(WorkTask task)
+    {
+        var worker = task.Operator.Account == TaskOperator.ClaudeCode ? "Claude Code" : task.Operator.Account;
+        return T["From", worker, TaskKeys.ProjectName(task.Project), T["Source_" + task.Source].Value];
+    }
+
+    private string Clock(DateTimeOffset moment) =>
+        TimeZoneInfo.ConvertTime(moment, Time.LocalTimeZone).ToString("t", System.Globalization.CultureInfo.CurrentCulture);
+
+    private static string Short(string? text)
+    {
+        var line = string.Join(' ', (text ?? string.Empty).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        return line.Length <= MostSummary ? line : line[..MostSummary].TrimEnd() + "…";
+    }
+
+    private static string Flag(bool value) => value ? "true" : "false";
+
+    private static string Em(double value) => value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "em";
+
+    private static string Percent(double fraction) =>
+        (Math.Clamp(fraction, 0, 1) * 100).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "%";
+}

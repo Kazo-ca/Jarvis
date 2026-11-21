@@ -24,7 +24,7 @@ drawings: sections 2 and 3 of the [catalog](ui/catalog.md) and the prototypes
 | `OrbGyroscopeGeometry.cs` | The five gyroscope rings (degree scale, arcs, dashes and nodes, band, crown) and their speeds, in a 1,000 × 1,000 box |
 | `OrbQuality.cs`, `OrbOptions.cs`, `OrbQualityKeeper.cs` | The "orb quality" setting (section `Assistant.Orb` of `config.json`), watched so it applies without a restart |
 | `OrbSettingsPage.razor` (+ `.razor.css`, `.resx`) | The "Orb" page of the settings window |
-| `OrbActivation.cs` | The click on the orb (US1.6): publishes `ActivationRequested(Click)` |
+| `OrbActivation.cs` | The click on the orb (US1.6; ADR 0010): a single click publishes `ActivationRequested(Click)` after the double-click delay of the host, a double click publishes `TaskFanToggleRequested` (see [task-fan.md](task-fan.md)) |
 | `OrbSlice.cs` | Registration |
 
 ### Inputs and outputs of the `Orb` component
@@ -145,7 +145,8 @@ animated idle look (to try only: forbidden on Windows). A counter shows the "cli
 - Unit: `OrbMotionTests` (speed of each look in both versions, animated idle as an option only, reduced
   motion), `OrbGeometryTests` and `OrbGyroscopeGeometryTests` (paths, ring speeds, numbers independent of the
   culture), `OrbQualityKeeperTests` (high quality by default, saved choice, change announced once, unknown
-  value refused), `OrbActivationTests` (the click goes through the state machine).
+  value refused), `OrbActivationTests` (the click goes through the state machine), `OrbDoubleClickTests` (delayed
+  single click, double click that is never a single click).
 - Playwright (`OrbTests`): each look in `data-look`; light version: listening = three rotations, idle,
   muted and error = none, animated idle as an option, reduced motion from the system and the option; high
   quality: listening = seven rotations and a running drawing loop, idle, muted and error = no rotation and a

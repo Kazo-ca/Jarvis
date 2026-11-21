@@ -30,3 +30,9 @@ public sealed record ConversationWindowRequested : IEvent;
 /// greys the menu entry out.
 /// </summary>
 public sealed record FirstRunWizardRequested : IEvent;
+
+/// <summary>
+/// A double click on the orb (ADR 0010, section 3): the fan slice opens the task fan, or puts it away when it is
+/// open. Never also a single click: the orb slice waits for the double-click delay before it treats a click.
+/// </summary>
+public sealed record TaskFanToggleRequested : IEvent;

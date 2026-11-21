@@ -145,8 +145,8 @@ lists the allowed folders, those of the sessions seen and those already set.
 ## Deviations from ADR 0021
 
 1. **ADR 0024 is not accepted yet.** The whole work item rests on its recommended choice.
-2. **The amber badge of the orb** during the silence (ADR 0021, section 9) is not in this work item: it comes
-   with the fan (work item 14), which shows the tasks that wait.
+2. **The amber badge of the orb** during the silence (ADR 0021, section 9) was not in this work item: it
+   came with the fan (work item 14, [task-fan.md](task-fan.md)), which counts the tasks that wait.
 3. **"I am going to sleep" goes through the description of the tool**, not through code: the local model
    recognizes the sentence and makes the offer. No spike with the real model measured whether it does it well.
 4. **The announcement of a session started by Jarvis is said at the end of its turn** (status `idle`), not at

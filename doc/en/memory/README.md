@@ -309,11 +309,24 @@ Resume point for any agent. Update it in the same change as what it describes.
   for a session started by Jarvis or seen through its hooks; choice per folder; quiet hours, none by default;
   quiet period kept in memory only; tools `start_quiet_period` and `get_claude_sessions`; "Announcements"
   page, order 55). The end summary left aside in work item 12 is said here. **Deviations: the amber badge of
-  the orb during the silence waits for work item 14; "I am going to sleep" rests on the description of the
+  the orb during the silence came with work item 14; "I am going to sleep" rests on the description of the
   tool, hence on the local model.** Provisional choices to be confirmed by Benoit
   ([details](../dev/session-announcements.md#provisional-choices-of-this-work-item)). **No announcement said
   by a real voice; Windows tests pending** ([list](../dev/session-announcements.md#windows-checks)).
-- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item 14 (`stage2/14-task-fan`) of the [plan](../dev/plans/stage-2.md) (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap`, `stage2/11` (its two parts, `stage2/11-tasks-and-sessions` and `stage2/11-hook-server`) and `stage2/12` (its two parts, `stage2/12-claude-code-launch` and `stage2/12-claude-code-tasks`) and `stage2/13-session-announcements` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
+- **Work item `stage2/14-task-fan`** (see [dev/task-fan.md](../dev/task-fan.md)): the fan of ADR 0010. Kernel:
+  `TaskFanToggleRequested`, `IPointerTimings` (double-click delay given by the host), `ITaskFanSurface` and
+  `FanAnchor`, `IOpenConfirmations` (the open confirmation request, implemented by the confirmation desk),
+  `TaskId` on `ConfirmationRequest` and `SessionAction`. Orb: `OrbActivation` delays the single click by the
+  double-click delay and publishes the double click; `OrbView` feeds the amber badge. Slice `Tasks/Fan`
+  (`TaskFan`, `FanContent`, `FanLayout`, `TaskFanView`: an SVG whose origin is the orb, five panels at most,
+  sub-tasks inside the panel, the request of a session in the panel of its task with Allow, Refuse and Details,
+  stepped animation at 30 images per second at most). `Tasks/Board` now publishes `DelegatedTaskCountChanged`
+  (`TaskCount`). Windows host: `FanWindow` created once after the orb and kept hidden, `SystemPointerTimings`.
+  Web host: the orb is in a corner of the page. Provisional choices to be confirmed by Benoit
+  ([details](../dev/task-fan.md#provisional-choices-of-this-work-item)). **Nothing ran on Windows; the measures
+  of ADR 0010 are not redone on the real host; Windows tests pending**
+  ([list](../dev/task-fan.md#windows-checks)).
+- **Next step:** series `stage2`, branch `stage2/base` started from `main`, work item 15 (`stage2/15-acceptance`, acceptance on Benoit's PC, with him) of the [plan](../dev/plans/stage-2.md); work item `stage2/14-task-fan` is done (work items `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap`, `stage2/11` (its two parts, `stage2/11-tasks-and-sessions` and `stage2/11-hook-server`) and `stage2/12` (its two parts, `stage2/12-claude-code-launch` and `stage2/12-claude-code-tasks`) and `stage2/13-session-announcements` are done; ADRs 0017 to 0022 are all accepted). Work item `stage2/1-spikes` (spikes E11 to E14) is done. `stage1/base` was merged into `main` on November 20, 2026 **without acceptance** (Benoit's decision): work item `stage1/17-acceptance` remains (acceptance on Benoit's PC, with him), and its fixes will go through a small separate series. The pending Windows tests (work items 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, [list](../dev/hosts.md#windows-checks)) are done at the next session with Benoit. Plan: the [stage 1 series plan](../dev/plans/stage-1.md),
   **validated** by Benoit on November 19, 2026 (17 work items `stage1/<n>-<topic>`). Build and test:
   [dev/build.md](../dev/build.md).
 - **Benoit's answers of November 19, 2026 on the plan:** GitHub Actions continuous integration on Linux

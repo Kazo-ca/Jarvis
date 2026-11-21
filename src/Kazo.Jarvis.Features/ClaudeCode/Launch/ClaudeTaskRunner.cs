@@ -396,7 +396,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
             decision = await decisions.DecideAsync(
                 new ActionRequest(new ActionRequester(RequesterKind.Session, session.Name), request.ToolName, request.Input)
                 {
-                    Session = new SessionAction(verdict.Class, Summary(verdict, request.ToolName, session)),
+                    Session = new SessionAction(verdict.Class, Summary(verdict, request.ToolName, session), session.TaskId),
                 },
                 linked.Token).ConfigureAwait(false);
         }

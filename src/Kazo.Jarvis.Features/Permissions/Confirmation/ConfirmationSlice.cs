@@ -23,6 +23,7 @@ public static class ConfirmationSlice
     {
         services.TryAddSingleton<ConfirmationDesk>();
         services.TryAddSingleton<IConfirmation>(provider => provider.GetRequiredService<ConfirmationDesk>());
+        services.TryAddSingleton<IOpenConfirmations>(provider => provider.GetRequiredService<ConfirmationDesk>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConfirmationAnswerHeard>, ConfirmationDesk>(
             provider => provider.GetRequiredService<ConfirmationDesk>()));
 

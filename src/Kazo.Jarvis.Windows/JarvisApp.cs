@@ -6,6 +6,7 @@ using Kazo.Jarvis.Adapters.Logging;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Windows.Desktop;
 using Kazo.Jarvis.Windows.Dialogs;
+using Kazo.Jarvis.Windows.Fan;
 using Kazo.Jarvis.Windows.Orb;
 using Kazo.Jarvis.Windows.Tray;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +39,7 @@ internal sealed partial class JarvisApp : Application
     private readonly ILogger<JarvisApp> logger;
     private readonly OrbWindowService orb;
     private readonly WindowDialogService dialogs;
+    private readonly FanWindowService fan;
     private readonly TrayIcon tray;
     private readonly FileLoggerProvider log;
     private DispatcherTimer? desktopWait;
@@ -54,6 +56,7 @@ internal sealed partial class JarvisApp : Application
         logger = host.Services.GetRequiredService<ILogger<JarvisApp>>();
         orb = host.Services.GetRequiredService<OrbWindowService>();
         dialogs = host.Services.GetRequiredService<WindowDialogService>();
+        fan = host.Services.GetRequiredService<FanWindowService>();
         tray = host.Services.GetRequiredService<TrayIcon>();
         log = host.Services.GetRequiredService<FileLoggerProvider>();
 
@@ -85,6 +88,9 @@ internal sealed partial class JarvisApp : Application
         host.Services.GetRequiredService<QuitSignal>().Requested += (_, _) => Dispatcher.BeginInvoke(() => Quit(0));
         tray.Show();
         orb.Rendered += (_, _) => StartBackgroundServices();
+
+        // The fan window after the orb, never before it: the orb is what the user waits for (ADR 0010, section 5).
+        orb.Rendered += (_, _) => Dispatcher.BeginInvoke(fan.Prepare, DispatcherPriority.Background);
         instance.OnShowRequested(() => Dispatcher.BeginInvoke(() =>
         {
             LogSecondLaunch();
@@ -170,6 +176,7 @@ internal sealed partial class JarvisApp : Application
         desktopWait?.Stop();
         tray.Hide();
         dialogs.CloseAll();
+        fan.Close();
         orb.Close();
 
         try
@@ -222,6 +229,7 @@ internal sealed partial class JarvisApp : Application
             // sleep). Drop the window and open a new one once the desktop is back, instead of dying.
             e.Handled = true;
             LogDesktopLost(e.Exception);
+            fan.Drop();
             orb.Close();
             Dispatcher.BeginInvoke(OpenOrbWhenDesktopIsReady, DispatcherPriority.Background);
             return;
