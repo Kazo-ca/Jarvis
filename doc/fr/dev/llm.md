@@ -68,7 +68,9 @@ octet, pour couvrir le chargement d'un modèle de 9 Go) :
 - **Valeurs par défaut :** un fournisseur `local`, Ollama sur `http://127.0.0.1:11434` avec `qwen3:14b`,
   réflexion coupée, contexte 4096, température 0,3, préchargé et gardé en mémoire (ADR 0007, section 5).
 - **Le fournisseur par défaut doit être local à l'étape 1** (règle de validation) ; un fournisseur cloud se
-  configure et se teste, son bouton « par défaut » est grisé.
+  configure et se teste, son bouton « par défaut » est grisé. Il ne répond que par le passage de main, une
+  fois choisi comme cible ([hand-off.md](hand-off.md)) ; `ILlmProviderList` donne la liste des fournisseurs
+  aux autres tranches.
 - **Préchargement :** au démarrage, puis après chaque changement du fournisseur par défaut. En cas d'échec
   (Docker qui démarre Ollama après l'ouverture de session, par exemple), nouvel essai après 15 s, 30 s, 1 min,
   2 min et 5 min, puis attente d'un tour ou d'un changement de réglage.

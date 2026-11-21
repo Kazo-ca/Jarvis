@@ -1,0 +1,38 @@
+.handoff-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.handoff-warning {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-amber);
+}
+
+.handoff-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.handoff-list {
+    width: 100%;
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.handoff-switch {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.handoff-select {
+    min-width: 16rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}

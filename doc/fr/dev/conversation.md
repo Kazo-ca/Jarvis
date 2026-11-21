@@ -54,6 +54,9 @@ appels par le point de décision des permissions : voir [tools.md](tools.md).
   contexte du fournisseur (3 caractères par jeton), 20 tours au plus et, quand la mémoire est en service,
   aucun tour d'avant un silence de 2 heures. Le bloc de la mémoire s'ajoute au message système après les
   règles fixes ([conversation-memory.md](conversation-memory.md)).
+- **Passage de main** : une demande qui commence par « Demande à Claude… », ou un appel de l'outil
+  `hand_off_to_claude` par le modèle local, fait répondre la cible cloud dans la même boucle ; le tour garde
+  qui a répondu et pourquoi ([hand-off.md](hand-off.md)).
 - **`ConversationJournal`** : les tours de la collection `Conversation.Turns` (lus une fois, au premier
   besoin) et le tour en cours. Un tour est enregistré **quand il finit** : répondu, interrompu (avec ce qui
   était écrit) ou en échec (avec la cause). Ce qui est enregistré (ADR 0007, section 7) : demande, réponse,

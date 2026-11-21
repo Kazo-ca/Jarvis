@@ -36,6 +36,11 @@ namespace Kazo.Jarvis.Features.Conversation.Dialogue;
 /// recall to the model and after which silence an exchange is old, and tells it by messages which exchanges left
 /// the history (<see cref="ExchangesLeftHistory"/>) and what the user said in a stored turn (<see cref="TurnRecorded"/>).
 /// </para>
+/// <para>
+/// The hand-off (ADR 0020) is another slice too. Through <see cref="IHandOff"/> this one learns that a request
+/// starts with « Demande à Claude… », or that the local model called the hand-off tool, and who answers then; the
+/// answer of the target runs in the same loop and is said straight to the user.
+/// </para>
 /// </summary>
 public sealed partial class ConversationEngine :
     IEventHandler<TurnStarted>,
@@ -64,6 +69,7 @@ public sealed partial class ConversationEngine :
     private readonly TimeProvider time;
     private readonly ILogger<ConversationEngine> logger;
     private readonly IConversationMemory? memory;
+    private readonly IHandOff? handOff;
     private readonly Lock gate = new();
     private Answering? current;
 
@@ -81,6 +87,7 @@ public sealed partial class ConversationEngine :
     /// <param name="time">Clock of the durations.</param>
     /// <param name="logger">Logs the timings and the failures, never the text (ADR 0004, section 6).</param>
     /// <param name="memory">What to recall to the model, when a memory slice is there.</param>
+    /// <param name="handOff">The targets of the hand-off, when a hand-off slice is there.</param>
     public ConversationEngine(
         IAssistantModel model,
         SystemPrompt prompt,
@@ -91,9 +98,11 @@ public sealed partial class ConversationEngine :
         IMessageBus bus,
         TimeProvider time,
         ILogger<ConversationEngine> logger,
-        IConversationMemory? memory = null)
+        IConversationMemory? memory = null,
+        IHandOff? handOff = null)
     {
         this.memory = memory;
+        this.handOff = handOff;
         this.model = model;
         this.prompt = prompt;
         this.journal = journal;
@@ -321,7 +330,6 @@ public sealed partial class ConversationEngine :
     private async Task AnswerAsync(Answering answering, AssistantLanguage turnLanguage)
     {
         var token = answering.Cancel.Token;
-        var speak = answering.Input == TurnInput.Voice;
         var started = time.GetTimestamp();
         try
         {
@@ -330,24 +338,24 @@ public sealed partial class ConversationEngine :
             var history = journal.Turns;
             journal.Show(answering.Update(turn => turn));
 
-            // When Ollama freed the model, this announces the loading (the window says so) and waits for it.
-            await model.EnsureLoadedAsync(token).ConfigureAwait(false);
-            var client = model.Client ?? throw new LlmException(LlmFailure.NotConfigured, "No default provider is configured.");
+            // « Demande à Claude… » goes straight to the target (ADR 0020, section 3): the local model is neither
+            // loaded nor asked.
+            var forced = handOff?.Forced(answering.Snapshot.Request);
             var provider = model.Provider;
-            journal.Show(answering.Update(turn => turn with { Provider = provider?.Name, Model = provider?.Model }));
+            IChatClient? client = null;
+            if (forced is null)
+            {
+                // When Ollama freed the model, this announces the loading (the window says so) and waits for it.
+                await model.EnsureLoadedAsync(token).ConfigureAwait(false);
+                client = model.Client ?? throw new LlmException(LlmFailure.NotConfigured, "No default provider is configured.");
+                provider = model.Provider;
+                journal.Show(answering.Update(turn => turn with { Provider = provider?.Name, Model = provider?.Model }));
+            }
 
+            // A target gets the same window of history as the local model (ADR 0020, section 4).
             var contextLength = provider?.Tuning.ContextLength ?? new LlmTuning().ContextLength;
             var recall = await RecallAsync(answering.Turn, turnLanguage, contextLength, token).ConfigureAwait(false);
             var recent = Recent(history, contextLength, answering.Snapshot.At, recall.OldAfter);
-            var messages = Messages(recent).ToList();
-            messages.Add(new ChatMessage(ChatRole.User, answering.Snapshot.Request));
-
-            // Only the enabled tools are offered (ADR 0017, section 4), described in the language of the turn.
-            var offered = Declarations(turnLanguage);
-            var requester = new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model");
-            var denied = new HashSet<string>(StringComparer.Ordinal);
-            var callsMade = 0;
-            var outside = new OutsideContent();
 
             // What left the history is told to whoever keeps a summary of it; never a reason to hold the answer.
             if (memory is not null && Left(history, recent) is { Count: > 0 } left)
@@ -355,104 +363,56 @@ public sealed partial class ConversationEngine :
                 await bus.PublishAsync(new ExchangesLeftHistory(left, turnLanguage), CancellationToken.None).ConfigureAwait(false);
             }
 
-            var splitter = new SentenceSplitter();
-            var answer = new StringBuilder();
-            string? answeredBy = null;
-            long? inputTokens = null;
-            long? outputTokens = null;
+            var run = new TurnRun(answering, turnLanguage, recent, recall);
+            Usage? local = null;
             started = time.GetTimestamp();
-            for (var round = 0; ; round++)
+            if (forced is not null)
             {
-                // At the bound of the calls the model gets no tool any more: it answers with what it has.
-                var withTools = offered.Count > 0 && callsMade < MostToolCalls && round <= MostToolCalls;
-                var options = new ChatOptions
+                try
                 {
-                    Instructions = prompt.Build(turnLanguage, offered.Count > 0, recall.Block),
-                    Tools = withTools ? offered : null,
-                };
-                var calls = new List<FunctionCallContent>();
-                var roundText = new StringBuilder();
-                await foreach (var update in client.GetStreamingResponseAsync(messages, options, token).ConfigureAwait(false))
-                {
-                    token.ThrowIfCancellationRequested();
-                    answeredBy = update.ModelId ?? answeredBy;
-                    foreach (var content in update.Contents)
-                    {
-                        switch (content)
-                        {
-                            case UsageContent usage:
-                                // Each round is a request: the tokens of the turn are their sum.
-                                inputTokens = Sum(inputTokens, usage.Details.InputTokenCount);
-                                outputTokens = Sum(outputTokens, usage.Details.OutputTokenCount);
-                                break;
-                            case FunctionCallContent call:
-                                calls.Add(call);
-                                break;
-                        }
-                    }
-
-                    var text = update.Text;
-                    if (string.IsNullOrEmpty(text))
-                    {
-                        continue;
-                    }
-
-                    if (roundText.Length == 0 && answer.Length > 0 && !char.IsWhiteSpace(answer[^1]))
-                    {
-                        // What the model wrote before a tool call and what it writes after are two sentences.
-                        answer.Append(' ');
-                    }
-
-                    roundText.Append(text);
-                    answer.Append(text);
-                    var written = answer.ToString();
-                    journal.Show(answering.Update(turn => turn with { Answer = written }));
-                    if (speak)
-                    {
-                        await SayAsync(answering.Turn, splitter.Push(text)).ConfigureAwait(false);
-                    }
+                    await HandOffAsync(run, new HandOffCall(forced.Kind, null), forced.Request, token).ConfigureAwait(false);
                 }
-
-                if (calls.Count == 0 || !withTools)
+                catch (ToolException exception)
                 {
-                    break;
-                }
-
-                if (speak)
-                {
-                    // What was written before the calls is said now, not after their results.
-                    await SayAsync(answering.Turn, splitter.Flush()).ConfigureAwait(false);
-                }
-
-                // The calls run one by one, in the order asked, each through the decision point.
-                messages.Add(new ChatMessage(ChatRole.Assistant, [.. Preface(roundText), .. calls]));
-                foreach (var call in calls)
-                {
-                    var result = await CallAsync(answering, call, requester, turnLanguage, denied, outside, callsMade++, token).ConfigureAwait(false);
-                    messages.Add(new ChatMessage(ChatRole.Tool, [new FunctionResultContent(call.CallId, result)]));
+                    // Jarvis says why and does not answer in the place of the target (ADR 0020, section 3).
+                    await WriteAsync(run, exception.Message).ConfigureAwait(false);
                 }
             }
-
-            if (speak)
+            else
             {
-                await SayAsync(answering.Turn, splitter.Flush()).ConfigureAwait(false);
+                var messages = Messages(recent).ToList();
+                messages.Add(new ChatMessage(ChatRole.User, answering.Snapshot.Request));
+
+                // Only the enabled tools are offered (ADR 0017, section 4), described in the language of the turn.
+                var speaker = new Speaker(client!, new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model"), Declarations(turnLanguage, tools.Enabled), recall.Block);
+                local = await RunAsync(run, speaker, messages, token).ConfigureAwait(false);
             }
 
+            if (run.Speak)
+            {
+                await SayAsync(answering.Turn, run.Splitter.Flush()).ConfigureAwait(false);
+            }
+
+            // The tokens of the turn are those of who answered; after a hand-off, those of the local model are kept apart.
             var elapsed = time.GetElapsedTime(started);
+            var answered = run.Handed ?? local;
             var finished = answering.Update(turn => turn with
             {
-                Answer = answer.ToString().Trim(),
-                Model = answeredBy ?? turn.Model,
-                InputTokens = inputTokens,
-                OutputTokens = outputTokens,
+                Answer = run.Answer.ToString().Trim(),
+                Model = answered?.Model ?? turn.Model,
+                InputTokens = answered?.Input,
+                OutputTokens = answered?.Output,
                 Duration = elapsed,
+                HandOff = turn.HandOff is { } entry && run.Handed is not null && local is not null
+                    ? entry with { FromInputTokens = local.Input, FromOutputTokens = local.Output }
+                    : turn.HandOff,
             });
             journal.Show(finished);
-            LogAnswered(answering.Turn, finished.Provider, finished.Model, (long)elapsed.TotalMilliseconds, inputTokens, outputTokens);
+            LogAnswered(answering.Turn, finished.Provider, finished.Model, (long)elapsed.TotalMilliseconds, finished.InputTokens, finished.OutputTokens);
 
             token.ThrowIfCancellationRequested();
             await bus.PublishAsync<IEvent>(
-                speak ? new AnswerSentencesEnded(answering.Turn) : new AnswerFinishedWithoutSpeech(answering.Turn),
+                run.Speak ? new AnswerSentencesEnded(answering.Turn) : new AnswerFinishedWithoutSpeech(answering.Turn),
                 CancellationToken.None).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
@@ -476,6 +436,114 @@ public sealed partial class ConversationEngine :
             await bus.PublishAsync<AssistantInput>(
                 new TurnFailed(answering.Turn, new AssistantFault(FaultCause.ModelUnreachable, exception.GetType().Name, FaultOrigin.LanguageModel)),
                 CancellationToken.None).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
+    /// One model answering in a turn: its text arrives in a stream, is shown and, for a spoken turn, said sentence
+    /// by sentence; its tool calls run one by one through the decision point and their results go back to it. The
+    /// local model and a target of the hand-off answer through this same loop (ADR 0020, section 4).
+    /// </summary>
+    /// <returns>The tokens of this model in the turn. After a hand-off that answered, the loop of the local model stops: the tool is terminal.</returns>
+    private async Task<Usage> RunAsync(TurnRun run, Speaker speaker, List<ChatMessage> messages, CancellationToken token)
+    {
+        var answering = run.Answering;
+        var usage = new Usage();
+        var callsMade = 0;
+        for (var round = 0; ; round++)
+        {
+            // At the bound of the calls the model gets no tool any more: it answers with what it has.
+            var withTools = speaker.Offered.Count > 0 && callsMade < MostToolCalls && round <= MostToolCalls;
+            var options = new ChatOptions
+            {
+                Instructions = prompt.Build(run.Language, speaker.Offered.Count > 0, speaker.Memory),
+                Tools = withTools ? speaker.Offered : null,
+            };
+            var calls = new List<FunctionCallContent>();
+            var roundText = new StringBuilder();
+            await foreach (var update in speaker.Client.GetStreamingResponseAsync(messages, options, token).ConfigureAwait(false))
+            {
+                token.ThrowIfCancellationRequested();
+                usage.Model = update.ModelId ?? usage.Model;
+                foreach (var content in update.Contents)
+                {
+                    switch (content)
+                    {
+                        case UsageContent used:
+                            // Each round is a request: the tokens of the turn are their sum.
+                            usage.Input = Sum(usage.Input, used.Details.InputTokenCount);
+                            usage.Output = Sum(usage.Output, used.Details.OutputTokenCount);
+                            break;
+                        case FunctionCallContent call:
+                            calls.Add(call);
+                            break;
+                    }
+                }
+
+                var text = update.Text;
+                if (string.IsNullOrEmpty(text))
+                {
+                    continue;
+                }
+
+                speaker.FirstText?.Invoke();
+                if (roundText.Length == 0 && run.Answer.Length > 0 && !char.IsWhiteSpace(run.Answer[^1]))
+                {
+                    // What a model wrote before a tool call and what is written after are two sentences.
+                    run.Answer.Append(' ');
+                }
+
+                roundText.Append(text);
+                run.Answer.Append(text);
+                var written = run.Answer.ToString();
+                journal.Show(answering.Update(turn => turn with { Answer = written }));
+                if (run.Speak)
+                {
+                    await SayAsync(answering.Turn, run.Splitter.Push(text)).ConfigureAwait(false);
+                }
+            }
+
+            if (calls.Count == 0 || !withTools)
+            {
+                return usage;
+            }
+
+            if (run.Speak)
+            {
+                // What was written before the calls is said now, not after their results.
+                await SayAsync(answering.Turn, run.Splitter.Flush()).ConfigureAwait(false);
+            }
+
+            // The calls run one by one, in the order asked, each through the decision point.
+            messages.Add(new ChatMessage(ChatRole.Assistant, [.. Preface(roundText), .. calls]));
+            foreach (var call in calls)
+            {
+                var result = await CallAsync(run, speaker, call, callsMade++, token).ConfigureAwait(false);
+                if (run.Handed is not null && speaker.Target is null)
+                {
+                    // The target answered the user: nothing goes back to the local model (ADR 0020, section 2).
+                    return usage;
+                }
+
+                messages.Add(new ChatMessage(ChatRole.Tool, [new FunctionResultContent(call.CallId, result)]));
+            }
+        }
+    }
+
+    /// <summary>A sentence of Jarvis itself, written in the answer and said when the turn is spoken.</summary>
+    private async Task WriteAsync(TurnRun run, string sentence)
+    {
+        if (run.Answer.Length > 0 && !char.IsWhiteSpace(run.Answer[^1]))
+        {
+            run.Answer.Append(' ');
+        }
+
+        run.Answer.Append(sentence);
+        var written = run.Answer.ToString();
+        journal.Show(run.Answering.Update(turn => turn with { Answer = written }));
+        if (run.Speak)
+        {
+            await SayAsync(run.Answering.Turn, run.Splitter.Push(sentence)).ConfigureAwait(false);
         }
     }
 
@@ -585,12 +653,6 @@ public sealed partial class ConversationEngine :
 
     [LoggerMessage(Level = LogLevel.Error, Message = "{Turn}: the answer failed.")]
     private partial void LogAnswerFailed(Exception exception, TurnId turn);
-
-    /// <summary>Whether the turn already holds the result of a tool that reads a content from outside.</summary>
-    private sealed class OutsideContent
-    {
-        public bool Read { get; set; }
-    }
 
     /// <summary>A turn being answered: its entry in the journal, its generation and its cancellation.</summary>
     private sealed class Answering(TurnId turn, TurnInput input, ConversationTurn entry)

@@ -43,6 +43,7 @@ public sealed partial class ConversationEngineTests
     private PermissionDecisionPoint permissions = null!;
     private ConversationEngine engine = null!;
     private FakeMemory memory = null!;
+    private FakeHandOff handOff = null!;
     private List<IEvent> published = null!;
     private IDisposable[] subscriptions = [];
 
@@ -74,7 +75,8 @@ public sealed partial class ConversationEngineTests
             Bus,
             TimeProvider.System,
             NullLogger<ConversationEngine>.Instance,
-            memory = new FakeMemory());
+            memory = new FakeMemory(),
+            handOff = new FakeHandOff());
         published = [];
         subscriptions =
         [
@@ -110,6 +112,7 @@ public sealed partial class ConversationEngineTests
         engine.Dispose();
         registry.Dispose();
         client.Dispose();
+        cloud?.Dispose();
         provider.Dispose();
         Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
         folder.Dispose();

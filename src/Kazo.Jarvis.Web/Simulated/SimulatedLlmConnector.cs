@@ -21,7 +21,8 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// for <c>web_search</c>, « lis la page … » for <c>fetch_url</c>, « cours de l'action … », « envoie le message … » and
 /// « lance le dé » for the tools of the simulated tool servers (<c>lookup_stock</c>, <c>send_message</c>, <c>roll_dice</c>),
 /// « allume … », « éteins … » (« tout dans la pièce … » for a room) and « lance le script … » for the simulated Home Assistant,
-/// « souviens-toi que … », « oublie que … » and « que sais-tu sur … » for the tools of the memory, « que retiens-tu »
+/// « souviens-toi que … », « oublie que … » and « que sais-tu sur … » for the tools of the memory, « question difficile »
+/// for <c>hand_off_to_claude</c> (a simulated cloud provider then says back what it received), « que retiens-tu »
 /// to hear back the memory block the model received, and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
@@ -182,6 +183,7 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
 
             var result = last?.Role == ChatRole.Tool ? last.Contents.OfType<FunctionResultContent>().LastOrDefault()?.Result?.ToString() : null;
             var answer = result is not null ? "Résultat de l'outil, Monsieur : " + result
+                : !provider.Kind.IsLocal() ? CloudAnswer(provider, messages, options)
                 : last?.Role == ChatRole.User && RecallRequest().IsMatch(last.Text) ? Recalled(options?.Instructions)
                 : Answer;
             foreach (var word in answer.Split(' '))
@@ -232,6 +234,18 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
             return AssistantLanguage.Supported.Any(language => instructions == MemoryPrompts.Summary(language))
                 ? $"Résumé simulé : {ExchangeLine().Matches(request).Count} échange(s) résumé(s)."
                 : null;
+        }
+
+        /// <summary>
+        /// What a simulated cloud model answers (stage2/9-hand-off): it names its model and says back the request, how
+        /// many messages of the history it received and whether the memory block came with them, so the tests see
+        /// what left for the target.
+        /// </summary>
+        private static string CloudAnswer(LlmProvider provider, IEnumerable<ChatMessage> messages, ChatOptions? options)
+        {
+            var all = messages.ToList();
+            var memory = options?.Instructions is { } instructions && (instructions.Contains("[Mémoire]", StringComparison.Ordinal) || instructions.Contains("[Memory]", StringComparison.Ordinal));
+            return $"Ici {provider.Model}, dans le cloud. Demande reçue : {all.LastOrDefault()?.Text} Historique : {all.Count - 1} message(s). Mémoire : {(memory ? "oui" : "non")}.";
         }
 
         /// <summary>What the memory block of the system message holds, said back: the tests see what the model received.</summary>
@@ -353,6 +367,12 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_turn_on", on, HomeTarget(turnOn.Groups[1].Value));
             }
 
+            // The hand-off (stage2/9-hand-off): offered only while a target is set.
+            if (HardRequest().IsMatch(request) && Offered("hand_off_to_claude"))
+            {
+                return new FunctionCallContent("call_hand_off", "hand_off_to_claude", new Dictionary<string, object?> { ["kind"] = "question", ["reason"] = "Cette question demande un raisonnement long." });
+            }
+
             // A tool the registry does not know: only when tools are offered, as a real model could invent one.
             return options?.Tools is { Count: > 0 } && request.Contains("outil inconnu", StringComparison.OrdinalIgnoreCase)
                 ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
@@ -419,6 +439,9 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
 
     [GeneratedRegex(@"(?:que sais-tu sur|what do you know about)\s+(.+)$", RegexOptions.IgnoreCase)]
     private static partial Regex KnownRequest();
+
+    [GeneratedRegex(@"question difficile|hard question", RegexOptions.IgnoreCase)]
+    private static partial Regex HardRequest();
 
     [GeneratedRegex(@"que retiens-tu|what do you remember", RegexOptions.IgnoreCase)]
     private static partial Regex RecallRequest();

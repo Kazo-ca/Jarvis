@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
 
 namespace Kazo.Jarvis.Features.Conversation.Dialogue;
@@ -66,6 +67,44 @@ public sealed record ToolCallEntry
 }
 
 /// <summary>
+/// The hand-off of a turn to a target (ADR 0020, section 5): what the window shows next to who answered, and
+/// what is stored with the turn.
+/// </summary>
+public sealed record HandOffEntry
+{
+    /// <summary>A question or a task.</summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<HandOffKind>))]
+    public HandOffKind Kind { get; init; }
+
+    /// <summary>Why the local model handed over, in its words; absent from a forced hand-off.</summary>
+    public string? Reason { get; init; }
+
+    /// <summary>Whether the first words of the request forced it (« Demande à Claude… »).</summary>
+    public bool Forced { get; init; }
+
+    /// <summary>The name said for the target (« Claude », « ChatGPT »); absent when there was none.</summary>
+    public string? Target { get; init; }
+
+    /// <summary>Name of the local provider that handed over; absent from a forced hand-off.</summary>
+    public string? FromProvider { get; init; }
+
+    /// <summary>The local model that handed over.</summary>
+    public string? FromModel { get; init; }
+
+    /// <summary>Tokens sent to the local model before it handed over.</summary>
+    public long? FromInputTokens { get; init; }
+
+    /// <summary>Tokens written by the local model before it handed over.</summary>
+    public long? FromOutputTokens { get; init; }
+
+    /// <summary>From the hand-off to the first text of the target.</summary>
+    public TimeSpan? FirstText { get; init; }
+
+    /// <summary>Why the hand-off did not happen (a <c>HandOffRefusal</c> or an <c>LlmFailure</c> name); the local model then answered, or nobody after a forced one.</summary>
+    public string? Failure { get; init; }
+}
+
+/// <summary>
 /// One turn of the conversation (US1.14), as the window shows it and as the collection <c>Conversation.Turns</c>
 /// keeps it (ADR 0004, section 3), with what is recorded at each answer (ADR 0007, section 7).
 /// </summary>
@@ -89,6 +128,9 @@ public sealed record ConversationTurn
 
     /// <summary>The tool calls of the turn, in the order they were made (ADR 0017, section 5). Empty for most turns.</summary>
     public IReadOnlyList<ToolCallEntry> ToolCalls { get; init; } = [];
+
+    /// <summary>The hand-off of the turn, when one was asked (ADR 0020). After one that answered, <see cref="Provider"/>, <see cref="Model"/> and the tokens are those of the target.</summary>
+    public HandOffEntry? HandOff { get; init; }
 
     /// <summary>Code of the language of the turn (<c>fr</c>, <c>en</c>).</summary>
     public string Language { get; init; } = string.Empty;

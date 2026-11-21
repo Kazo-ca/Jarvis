@@ -132,4 +132,52 @@
   <data name="SeePage" xml:space="preserve">
     <value>Voir la page</value>
   </data>
+  <data name="HandOff" xml:space="preserve">
+    <value>Passage de main</value>
+  </data>
+  <data name="HandOff_Asked" xml:space="preserve">
+    <value>Passé à {0} : {1}</value>
+  </data>
+  <data name="HandOff_AskedNoReason" xml:space="preserve">
+    <value>Passé à {0}</value>
+  </data>
+  <data name="HandOff_Forced" xml:space="preserve">
+    <value>Demandé directement à {0}, à votre demande</value>
+  </data>
+  <data name="HandOff_Failed" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu ({0})</value>
+  </data>
+  <data name="HandOff_Cause_NoQuestionsTarget" xml:space="preserve">
+    <value>aucune cible pour les questions</value>
+  </data>
+  <data name="HandOff_Cause_NoTasksTarget" xml:space="preserve">
+    <value>pas encore de cible pour les tâches</value>
+  </data>
+  <data name="HandOff_Cause_NotConfigured" xml:space="preserve">
+    <value>fournisseur non configuré</value>
+  </data>
+  <data name="HandOff_Cause_InvalidAddress" xml:space="preserve">
+    <value>adresse non valide</value>
+  </data>
+  <data name="HandOff_Cause_Unreachable" xml:space="preserve">
+    <value>injoignable</value>
+  </data>
+  <data name="HandOff_Cause_ModelMissing" xml:space="preserve">
+    <value>modèle inconnu</value>
+  </data>
+  <data name="HandOff_Cause_KeyMissing" xml:space="preserve">
+    <value>pas de clé dans le coffre</value>
+  </data>
+  <data name="HandOff_Cause_KeyRejected" xml:space="preserve">
+    <value>clé refusée</value>
+  </data>
+  <data name="HandOff_Cause_TimedOut" xml:space="preserve">
+    <value>pas de réponse à temps</value>
+  </data>
+  <data name="HandOff_Cause_ServerError" xml:space="preserve">
+    <value>erreur du serveur</value>
+  </data>
+  <data name="HandOff_Cause_Other" xml:space="preserve">
+    <value>cause inconnue</value>
+  </data>
 </root>

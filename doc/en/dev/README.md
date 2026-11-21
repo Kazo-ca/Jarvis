@@ -24,6 +24,7 @@
 | [llm.md](llm.md) | Language models: providers, adapters, default model, connection test |
 | [first-run.md](first-run.md) | First run: setup wizard, "Voice models" page (checked downloads), Ollama search |
 | [conversation-memory.md](conversation-memory.md) | Conversation memory: facts and summary, extraction by the local model from the words of the user only, block sent to the model, tools `remember_fact`, `forget_fact`, `search_memory`, "Memory" page |
+| [hand-off.md](hand-off.md) | Hand-off: target for questions among the cloud providers, terminal tool `hand_off_to_claude`, "ask Claude" recognized by code, what leaves for the target, who answers, "Hand-off" page |
 | [faults.md](faults.md) | Faults: named causes, corrective action, link to the right setting, "Jarvis problem" window |
 | [updates.md](updates.md) | Updates: check, download, updater, publishing |
 | [pitfalls.md](pitfalls.md) | Pitfalls met and how they were solved |

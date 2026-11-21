@@ -242,7 +242,19 @@ ce qu'il décrit.
   `Conversation.MemoryFacts` et `Conversation.MemorySummary`, résumé limité à la moitié du budget, pas de
   limite d'âge quand la mémoire est coupée, `forget_fact` n'efface rien en cas d'ambiguïté, 500 faits au plus.
   **Tests Windows en attente** ([liste](../dev/conversation-memory.md#vérifications-sur-windows)).
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/9-hand-off` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant` et `stage2/8-memory` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/9-hand-off`** (voir [dev/hand-off.md](../dev/hand-off.md)), selon l'ADR 0020, sections 1
+  à 5 : contrats du noyau `IHandOff` (`Kernel/Conversation`) et `ILlmProviderList` (`Kernel/Llm`) ; tranche
+  `Llm/HandOff` (`HandOffTargets`, `HandOffTool` `hand_off_to_claude`, `HandOffPhrases`, section `Llm.HandOff`,
+  page « Passage de main », ordre 11) ; dans `Conversation/Dialogue`, la boucle `RunAsync` sert au modèle
+  local et à la cible, `ConversationTurn.HandOff` garde qui a répondu et pourquoi. Aucune cible au départ ;
+  l'outil n'est au registre que quand une cible est réglée ; la mémoire ne part que si la case est cochée ;
+  une cible qui échoue est une cause dite, jamais une panne. La cible des tâches (Claude Code) attend le
+  chantier 12. **Aucun appel n'est parti vers une vraie API cloud, et aucun plafond ne borne encore la
+  dépense** (chantier 10). Choix provisoires à confirmer par Benoit
+  ([détail](../dev/hand-off.md#choix-provisoires-de-ce-chantier)) : motif montré mais pas dit, nom dit d'après
+  le genre du fournisseur, formules sur « Claude » seulement, huit appels d'outils propres à la cible.
+  **Tests Windows en attente** ([liste](../dev/hand-off.md#vérifications-sur-windows)).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/10-spend-cap` du [plan](../dev/plans/stage-2.md) (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory` et `stage2/9-hand-off` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux

@@ -207,3 +207,16 @@
     font-size: 0.8rem;
     overflow-wrap: anywhere;
 }
+
+.conversation-handoff {
+    margin: 0;
+    padding-left: 0.8rem;
+    border-left: 2px solid var(--jarvis-cyan);
+    color: var(--jarvis-text-muted);
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+}
+
+.conversation-handoff:not([data-handoff-failure=""]) {
+    border-left-color: var(--jarvis-red);
+}

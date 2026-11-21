@@ -26,6 +26,7 @@ public static class LlmProvidersSlice
         services.TryAddSingleton<AssistantModelKeeper>();
         services.TryAddSingleton<IAssistantModel>(provider => provider.GetRequiredService<AssistantModelKeeper>());
         services.AddHostedService(provider => provider.GetRequiredService<AssistantModelKeeper>());
+        services.TryAddSingleton<ILlmProviderList, LlmProviderList>();
         services.TryAddTransient<ProviderEditor>();
 
         // The faults of the language model outside a turn (stage1/15-faults).

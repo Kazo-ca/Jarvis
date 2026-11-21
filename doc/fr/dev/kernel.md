@@ -24,7 +24,7 @@ src/Kazo.Jarvis.Kernel/
   Storage/                               contrat de la base de documents (voir storage.md)
   Secrets/                               contrat du coffre de secrets (voir storage.md)
   Tools/                                 outil, registre des outils, interrupteurs (voir tools.md)
-  Conversation/                          ce que la mémoire rappelle au modèle (voir conversation-memory.md)
+  Conversation/                          ce que la mémoire rappelle au modèle (voir conversation-memory.md), passage de main (voir hand-off.md)
   Messages/Conversation/                 TurnRecorded, ExchangesLeftHistory
   Tools/Servers/                         serveur d'outils : connexion, outils, appel (voir mcp.md), classement par type de serveur (voir home-assistant.md)
   Files/                                 fichiers locaux en lecture (voir basic-tools.md)
