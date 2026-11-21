@@ -121,7 +121,8 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetServices<Kazo.Jarvis.Kernel.LocalServer.ILocalRoute>(),
             provider.GetService<ISecretVault>(),
             provider.GetService<ILogger<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>>(),
-            provider.GetService<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeApprovals>()));
+            // Resolved at the first request, not here: IClaudeApprovals needs IClaudeCode, which needs this server.
+            () => provider.GetService<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeApprovals>()));
         services.TryAddSingleton<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
         services.AddHostedService(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
 
