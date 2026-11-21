@@ -298,8 +298,10 @@ public sealed class KestrelLocalServerTests
 
     private static async Task<(int Code, string Output)> RunAsync(string command, string input)
     {
+        // cmd.exe reads its line as it is: given as a list, the arguments would be quoted again with \", which cmd.exe
+        // does not understand, and the headers of the hook would be cut in pieces (seen on Windows).
         var start = OperatingSystem.IsWindows()
-            ? new System.Diagnostics.ProcessStartInfo("cmd.exe", ["/c", command])
+            ? new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c " + command)
             : new System.Diagnostics.ProcessStartInfo("/bin/sh", ["-c", command]);
         start.RedirectStandardInput = true;
         start.RedirectStandardOutput = true;

@@ -32,6 +32,7 @@ internal sealed partial class JarvisApp : Application
 
     private static readonly TimeSpan DesktopPollInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan SettleDelay = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan BackgroundStartWarning = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan StopTimeout = TimeSpan.FromSeconds(10);
 
     private readonly IHost host;
@@ -161,6 +162,19 @@ internal sealed partial class JarvisApp : Application
                 LogBackgroundStartFailed(exception);
             }
         });
+
+        // A start that never ends throws nothing and writes nothing (a wait on a lock, acceptance of stage 2):
+        // say it in the log, where the cause is looked for first.
+        var start = backgroundStart;
+        _ = Task.Delay(BackgroundStartWarning).ContinueWith(
+            _ =>
+            {
+                if (!start.IsCompleted)
+                {
+                    LogBackgroundStartSlow((int)BackgroundStartWarning.TotalSeconds);
+                }
+            },
+            TaskScheduler.Default);
     }
 
     /// <summary>Quit: hides everything, stops the background services within 10 seconds, then ends.</summary>
@@ -292,6 +306,9 @@ internal sealed partial class JarvisApp : Application
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Second launch: showing the orb of this instance.")]
     private partial void LogSecondLaunch();
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "The background services have not finished starting after {Seconds} s: the wake word, the tool servers and the local server may not work.")]
+    private partial void LogBackgroundStartSlow(int seconds);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Background services started.")]
     private partial void LogBackgroundStarted();

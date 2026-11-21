@@ -43,7 +43,7 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
     private readonly ISettingsStore settings;
     private readonly Dictionary<string, ILocalRoute> routes;
     private readonly ISecretVault? vault;
-    private readonly IClaudeApprovals? approvals;
+    private readonly Func<IClaudeApprovals?> approvals;
     private readonly ILogger<KestrelLocalServer>? logger;
     private readonly int? fixedPort;
     private readonly SemaphoreSlim turn = new(1, 1);
@@ -52,6 +52,7 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
     private WebApplication? app;
     private volatile LocalServerStatus status;
     private bool stopped;
+    private int disposed;
 
     /// <summary>Creates the server; it listens once started.</summary>
     /// <param name="settings">The settings, for <see cref="LocalServerOptions.Section"/>.</param>
@@ -59,14 +60,21 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
     /// <param name="vault">The vault, for the token of the user's hooks; without it no such hook is accepted.</param>
     /// <param name="logger">The log. A token is never written to it.</param>
     /// <param name="approvals">Who decides the requests of the <c>approve</c> tool; without it every request is denied.</param>
-    public KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault = null, ILogger<KestrelLocalServer>? logger = null, IClaudeApprovals? approvals = null)
+    public KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault = null, ILogger<KestrelLocalServer>? logger = null, Func<IClaudeApprovals?>? approvals = null)
         : this(settings, routes, vault, logger, null, approvals)
     {
     }
 
-    internal KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault, ILogger<KestrelLocalServer>? logger, int? fixedPort, IClaudeApprovals? approvals = null)
+    internal KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault, ILogger<KestrelLocalServer>? logger, int? fixedPort, IClaudeApprovals? approvals)
+        : this(settings, routes, vault, logger, fixedPort, () => approvals)
     {
-        this.approvals = approvals;
+    }
+
+    internal KestrelLocalServer(ISettingsStore settings, IEnumerable<ILocalRoute> routes, ISecretVault? vault, ILogger<KestrelLocalServer>? logger, int? fixedPort, Func<IClaudeApprovals?>? approvals = null)
+    {
+        // Asked at each request, never at construction: who decides (the runner of the sessions) needs Claude Code,
+        // which needs this server. Taking it here closed that circle and the host never started (acceptance of stage 2).
+        this.approvals = approvals ?? (() => null);
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(routes);
         this.settings = settings;
@@ -130,6 +138,13 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
+        // The container disposes this object once per registration that hands it out (itself, ILocalServer, the hosted
+        // service): only the first call does the work.
+        if (Interlocked.Exchange(ref disposed, 1) != 0)
+        {
+            return;
+        }
+
         await StopAsync(CancellationToken.None).ConfigureAwait(false);
         turn.Dispose();
     }
@@ -217,9 +232,9 @@ public sealed partial class KestrelLocalServer : ILocalServer, IHostedService, I
             ClaudeApproval answer;
             try
             {
-                answer = approvals is null
+                answer = approvals() is not { } deciding
                     ? ClaudeApproval.Deny("Jarvis cannot decide permissions right now.")
-                    : await approvals.AskAsync(new ClaudeApprovalRequest(task, tool_name, input.Clone(), tool_use_id), cancellationToken).ConfigureAwait(false);
+                    : await deciding.AskAsync(new ClaudeApprovalRequest(task, tool_name, input.Clone(), tool_use_id), cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {

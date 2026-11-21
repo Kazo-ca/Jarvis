@@ -139,3 +139,19 @@ absent de la 1.32 : Piper et Silero ne se chargent plus (« Unable to load share
 **1.28.0** (la partie .NET seule) et s'appuie sur le moteur natif 1.28.2 de sherpa-onnx ; un seul
 `onnxruntime` dans le processus. Une version managée plus récente que le natif échoue (`GetApi` rend null) :
 monter l'une demande de monter l'autre.
+
+## Un cercle de dépendances par fabriques fige le démarrage sans erreur (recette de l'étape 2)
+
+Le conteneur ne détecte un cercle qu'entre des constructeurs. Avec des fabriques
+(`provider => new X(provider.GetRequiredService<Y>())`), il descend jusqu'à saturer la pile, passe sur un
+autre fil et attend le verrou du premier : `host.StartAsync()` ne rend jamais la main, sans exception ni ligne
+au journal. Vu à la recette : serveur local → `IClaudeApprovals` → lanceur des sessions → `IClaudeCode` →
+serveur local. Ni le mot d'éveil, ni les serveurs MCP, ni le premier lancement ne démarraient, alors que l'orbe
+répondait. L'hôte Web ne le voyait pas : son `IClaudeCode` simulé n'a pas besoin du serveur local.
+
+Règle : un adaptateur qui a besoin d'un service fourni par une tranche le demande **au moment de l'appel**
+(`Func<T?>`), pas à sa construction. Le test `AdaptersRegistrationTests` construit les services de fond avec les
+vrais adaptateurs et une limite de temps.
+
+Même source : un objet rendu par plusieurs inscriptions à fabrique (lui-même, son interface, le service de
+fond) est libéré une fois par inscription. Son `DisposeAsync` doit supporter plusieurs appels.

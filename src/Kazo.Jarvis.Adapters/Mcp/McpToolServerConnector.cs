@@ -23,6 +23,9 @@ public sealed class McpToolServerConnector : IToolServerConnector
     /// <summary>The longest wait for the opening exchange.</summary>
     internal static readonly TimeSpan ConnectionDeadline = TimeSpan.FromSeconds(20);
 
+    /// <summary>The extensions cmd.exe tries when PATHEXT is not set.</summary>
+    private const string DefaultPathExtensions = ".COM;.EXE;.BAT;.CMD";
+
     private readonly Func<HttpMessageHandler>? handlerFactory;
 
     /// <summary>Creates the connector.</summary>
@@ -73,6 +76,17 @@ public sealed class McpToolServerConnector : IToolServerConnector
             throw new ToolServerException(ToolServerFailure.CommandNotFound);
         }
 
+        // Under Windows the package starts the command through cmd.exe, which starts even when the program does not
+        // exist and only dies afterwards: the user would read "closed" instead of "program not found". The command
+        // is looked up first, the way the shell would find it.
+        if (!CommandExists(
+                endpoint.Command,
+                Environment.GetEnvironmentVariable("PATH"),
+                OperatingSystem.IsWindows() ? Environment.GetEnvironmentVariable("PATHEXT") ?? DefaultPathExtensions : null))
+        {
+            throw new ToolServerException(ToolServerFailure.CommandNotFound);
+        }
+
         var stdio = new StdioClientTransport(new StdioClientTransportOptions
         {
             Command = endpoint.Command,
@@ -80,6 +94,61 @@ public sealed class McpToolServerConnector : IToolServerConnector
             Name = endpoint.Name,
         });
         return await ConnectAsync(stdio, endpoint.Name, cancellationToken, byCommand: true).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Whether <paramref name="command"/> names a program that can be started: a path to an existing file, or a name
+    /// found in one of the folders of <paramref name="path"/>. With <paramref name="extensions"/> (Windows), a name
+    /// without one of these extensions is also tried with each of them, as cmd.exe does (<c>npx</c> is <c>npx.cmd</c>).
+    /// </summary>
+    /// <param name="command">The command of the settings.</param>
+    /// <param name="path">The folders to look in, separated by <see cref="Path.PathSeparator"/>.</param>
+    /// <param name="extensions">The extensions of PATHEXT, separated by ';'; <see langword="null"/> outside Windows.</param>
+    /// <returns><see langword="true"/> when a file is found.</returns>
+    internal static bool CommandExists(string command, string? path, string? extensions)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        var name = command.Trim().Trim('"');
+        if (name.Length == 0)
+        {
+            return false;
+        }
+
+        var suffixes = (extensions ?? string.Empty)
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+        var candidates = suffixes.Count == 0 || suffixes.Any(suffix => name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            ? [name]
+            : (string[])[name, .. suffixes.Select(suffix => name + suffix)];
+
+        if (Path.IsPathRooted(name) || name.Contains(Path.DirectorySeparatorChar, StringComparison.Ordinal) || name.Contains(Path.AltDirectorySeparatorChar, StringComparison.Ordinal))
+        {
+            return candidates.Any(File.Exists);
+        }
+
+        var folders = (path ?? string.Empty).Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        // cmd.exe also looks in the current folder first.
+        IEnumerable<string> searched = extensions is null ? folders : [Environment.CurrentDirectory, .. folders];
+        foreach (var folder in searched)
+        {
+            foreach (var candidate in candidates)
+            {
+                try
+                {
+                    if (File.Exists(Path.Combine(folder.Trim('"'), candidate)))
+                    {
+                        return true;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // A folder of the PATH with characters a path cannot hold: skipped, as the shell does.
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Does the opening exchange over a transport. Internal so that a test can give a transport in memory.</summary>

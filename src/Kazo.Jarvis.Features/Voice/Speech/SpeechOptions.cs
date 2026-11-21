@@ -48,7 +48,8 @@ public sealed record SpeechOptions
             }
             else if (!double.IsFinite(choice.Speed) || choice.Speed < VoiceChoice.MinimumSpeed || choice.Speed > VoiceChoice.MaximumSpeed)
             {
-                problems.Add($"The speed of '{code}' is outside {VoiceChoice.MinimumSpeed} to {VoiceChoice.MaximumSpeed}.");
+                // The problems go to the log and to the tests: the same text whatever the culture of the computer.
+                problems.Add(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"The speed of '{code}' is outside {VoiceChoice.MinimumSpeed} to {VoiceChoice.MaximumSpeed}."));
             }
         }
 
