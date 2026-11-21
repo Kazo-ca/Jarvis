@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Search_Description" xml:space="preserve">
+    <value>Cherche sur le web et rend quelques résultats : titre, adresse et court extrait. À utiliser pour un fait récent ou ce que tu ne sais pas. Lire un résultat avec fetch_url quand l'extrait ne suffit pas.</value>
+  </data>
+  <data name="Search_Query" xml:space="preserve">
+    <value>The words to search, as a person would type them in a search engine.</value>
+  </data>
+  <data name="Search_Discloses" xml:space="preserve">
+    <value>Les mots de la recherche partent vers le moteur de recherche, ou vers Brave Search quand sa clé est réglée.</value>
+  </data>
+  <data name="Fetch_Description" xml:space="preserve">
+    <value>Lit le texte d'une page web à partir de son adresse. Une longue page vient en plusieurs parties : rappeler l'outil avec « start » égal au « next_start » du résultat précédent. Les adresses de cet ordinateur et du réseau local sont refusées.</value>
+  </data>
+  <data name="Fetch_Url" xml:space="preserve">
+    <value>The address of the page, starting with https:// or http://.</value>
+  </data>
+  <data name="Fetch_Start" xml:space="preserve">
+    <value>Position of the first character to read, 0 by default.</value>
+  </data>
+  <data name="Fetch_Discloses" xml:space="preserve">
+    <value>L'adresse de la page part vers son site, qui voit une requête venue de cet ordinateur.</value>
+  </data>
+</root>

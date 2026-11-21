@@ -9,6 +9,8 @@ using Kazo.Jarvis.Adapters.Speech;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Adapters.Updates;
 using Kazo.Jarvis.Adapters.Voice;
+using Kazo.Jarvis.Adapters.Web;
+using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Hardware;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Models;
@@ -18,6 +20,7 @@ using Kazo.Jarvis.Kernel.Speech;
 using Kazo.Jarvis.Kernel.Storage;
 using Kazo.Jarvis.Kernel.Updates;
 using Kazo.Jarvis.Kernel.Voice;
+using Kazo.Jarvis.Kernel.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -100,6 +103,14 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetService<ILogger<HttpModelInstaller>>()));
         services.TryAddSingleton<IGraphicsCardProbe>(provider => new NvidiaSmiGraphicsCardProbe(
             provider.GetService<ILogger<NvidiaSmiGraphicsCardProbe>>()));
+
+        // Basic tools (ADR 0017, section 3): the disk, read only, for the file tools; Brave Search for the web search,
+        // called only when the tool is on and a key is in the vault. 20 s bound one search.
+        services.TryAddSingleton<ILocalFiles, LocalFiles>();
+        services.TryAddSingleton<IWebSearchApi>(provider => new BraveSearchApi(
+            new HttpClient { Timeout = TimeSpan.FromSeconds(20) },
+            provider.GetService<ISecretVault>(),
+            provider.GetService<ILogger<BraveSearchApi>>()));
 
         // Both vaults need Windows (Credential Manager, DPAPI). The Windows host is the only one to load Adapters.
         if (OperatingSystem.IsWindows())

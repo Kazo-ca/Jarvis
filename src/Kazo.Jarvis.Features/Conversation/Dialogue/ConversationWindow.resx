@@ -129,4 +129,7 @@
   <data name="ToolOutcome_Interrupted" xml:space="preserve">
     <value>interrupted</value>
   </data>
+  <data name="SeePage" xml:space="preserve">
+    <value>See the page</value>
+  </data>
 </root>

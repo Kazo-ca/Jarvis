@@ -4,6 +4,7 @@
 @inject IMessageBus Bus
 @inject IAssistantStateReader State
 @inject IStringLocalizer<ConversationWindow> T
+@inject IServiceProvider Services
 
 @* The conversation window (US1.14): the history kept in the store, the turn in progress as the model writes it, the
    model that answered each turn, a field to type a request (a written answer only), and « Tout effacer » (ADR 0004).
@@ -37,6 +38,19 @@
                                     <span class="conversation-who">@T["ToolResult"]</span>
                                     <code class="conversation-tool-text" data-conversation-tool-result>@result</code>
                                 </p>
+                                @if (browser is not null && call.Outcome == ToolCallOutcome.Done && ToolResultPages.In(result) is { Count: > 0 } pages)
+                                {
+                                    @* The pages read or found, each opened on request in the browser of Jarvis (ADR 0022, section 1). *@
+                                    <ul class="conversation-tool-pages" data-conversation-tool-pages>
+                                        @foreach (var address in pages)
+                                        {
+                                            <li class="conversation-tool-page">
+                                                <span class="conversation-tool-address">@address.AbsoluteUri</span>
+                                                <button type="button" class="conversation-button" data-conversation-see-page="@address.AbsoluteUri" @onclick="() => SeePageAsync(address)">@T["SeePage"]</button>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
                             }
                         </details>
                     }
@@ -89,6 +103,7 @@
     private string? problem;
     private IDisposable? stateSubscription;
     private IDisposable? loadSubscription;
+    private Kazo.Jarvis.Kernel.Web.IReadingBrowser? browser;
 
     private bool IsIdle => State.Current.Phase == AssistantPhase.Idle;
 
@@ -99,6 +114,7 @@
     protected override void OnInitialized()
     {
         Journal.Changed += OnChanged;
+        browser = Services.GetService(typeof(Kazo.Jarvis.Kernel.Web.IReadingBrowser)) as Kazo.Jarvis.Kernel.Web.IReadingBrowser;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
         loadSubscription = Bus.Subscribe<AssistantModelLoadChanged>((message, _) => new ValueTask(InvokeAsync(() =>
         {
@@ -115,6 +131,14 @@
         Journal.Changed -= OnChanged;
         stateSubscription?.Dispose();
         loadSubscription?.Dispose();
+    }
+
+    private async Task SeePageAsync(Uri page)
+    {
+        if (browser is not null)
+        {
+            await browser.ShowAsync(page);
+        }
     }
 
     private async Task LoadAsync()

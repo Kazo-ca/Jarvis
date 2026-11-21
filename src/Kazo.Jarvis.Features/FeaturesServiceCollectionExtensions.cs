@@ -15,7 +15,10 @@ using Kazo.Jarvis.Features.Setup.Models;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
 using Kazo.Jarvis.Features.Tools.Calculator;
+using Kazo.Jarvis.Features.Tools.Catalog;
 using Kazo.Jarvis.Features.Tools.Clock;
+using Kazo.Jarvis.Features.Tools.Files;
+using Kazo.Jarvis.Features.Tools.Web;
 using Kazo.Jarvis.Features.Voice.Speech;
 using Kazo.Jarvis.Features.Voice.TestVoice;
 using Kazo.Jarvis.Features.Voice.Transcription;
@@ -96,6 +99,13 @@ public static class FeaturesServiceCollectionExtensions
         services.AddConfirmationSlice();
         services.AddClockToolSlice();
         services.AddCalculatorToolSlice();
+
+        // Basic tools (stage2/5-basic-tools, ADR 0017 section 3, ADR 0022): the tools page with one switch per tool;
+        // the file tools read the allowed folders only (the disk comes from the host); the web tools search and read
+        // a page in the browser of Jarvis (from the host) and are off until the user turns them on.
+        services.AddToolCatalogSlice();
+        services.AddFileToolsSlice();
+        services.AddWebToolsSlice();
 
         // Other slices arrive with the next work items.
         return services;
