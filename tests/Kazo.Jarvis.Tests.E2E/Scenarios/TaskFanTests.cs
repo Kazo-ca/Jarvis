@@ -42,7 +42,23 @@ public sealed class TaskFanTests : PageTest
     }
 
     [TearDown]
-    public Task Restore() => RestoreAsync();
+    public async Task Restore()
+    {
+        if (TestContext.CurrentContext.Result.Outcome.Status == NUnit.Framework.Interfaces.TestStatus.Failed)
+        {
+            // What the host was doing when the scenario stopped: a failure seen only on the build machine
+            // (the request window missing, or its panel) could not be explained without it.
+            TestContext.Out.WriteLine(await Page.EvaluateAsync<string>(
+                """
+                () => ['#jarvis-root', '#claude-code', '#confirmation', '#task-fan', '[data-fan]', '.dialog-layer [data-dialog-key]']
+                    .flatMap(selector => [...document.querySelectorAll(selector)])
+                    .map(element => element.cloneNode(false).outerHTML + ' ' + (element.id === 'jarvis-root' ? '' : element.textContent.trim().slice(0, 1500)))
+                    .join('\n')
+                """));
+        }
+
+        await RestoreAsync();
+    }
 
     [Test]
     public async Task A_right_click_on_the_orb_opens_the_fan_and_never_starts_listening()
