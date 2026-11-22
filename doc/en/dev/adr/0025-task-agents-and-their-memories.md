@@ -3,7 +3,7 @@
 ## Status
 
 Proposed on 2026-11-21 (work item `stage2/adr-0025-task-agents`), from Benoit's five answers of the same day,
-during the stage 2 acceptance. **Not accepted yet**: four points are still open (section 9).
+during the stage 2 acceptance. Completed the same evening by his answers to the four open points, the Jarvis agent and the "Call" mode (sections 9 to 12). **Not accepted yet**: three points are still open (section 13).
 
 - **Completes:** [ADR 0017](0017-tools-classes-and-decision-point.md) (the tools and the decision point do not
   change: an agent chooses *which* tools the model sees, never what a tool is allowed to do) and
@@ -52,7 +52,7 @@ Each agent is a file `agents\<name>.md` in the folder of Jarvis, in the manner o
 | Files | `list_directory`, `read_file` | stay inside the allowed folders |
 | Claude Code | starting and following the sessions | summarize the request before starting |
 | Memory | `remember_fact`, `forget_fact`, `search_memory` | |
-| General | clock, calculation, hand-off | everyday conversation |
+| Jarvis (general) | clock, calculation, hand-off, the tools of Jarvis itself | everyday conversation; decides to hand over (section 9) |
 
 The tools of a generic MCP server go to the agent the user chooses on the page of the server; "General" by
 default.
@@ -106,11 +106,45 @@ The decision point, the classes, the confirmation, the spend cap, the permission
 - A wrong sorting gives an agent without the right tool: the agent must be able to say "this is not for me",
   and Jarvis then makes the turn again with "General".
 
-### 9. Open points
+### 9. The Jarvis agent
 
-1. How does a turn know which project it is about: a project chosen in the conversation, named by voice, or
-   deduced by the sorting?
-2. The memory of the project: a readable Markdown file in the folder (that Claude Code reads too), or the
-   database of Jarvis?
-3. The hand-off to Claude or ChatGPT: one more agent, or a tool of the "General" agent as today?
-4. By voice, can the agent be named ("Jarvis, home automation: turn off Articulé") to skip the sorting?
+There is an agent for Jarvis itself, with the tools of Jarvis. By voice, **it is always the one that gets the
+request and decides to hand over** to another agent. It says so: to "In Kazo Os, what is left for us to do?",
+it answers something like "Ok, I will check that. I am handing over to the agent that takes care of Kazo OS."
+
+- By voice, an agent is not named to skip the sorting (point 4, answer B). In the conversation window,
+  choosing the agent by hand stays possible (section 4).
+- Outside the "Call" mode, the Jarvis agent takes over again at the end of the turn.
+
+### 10. Which project a turn is about (point 1, answer A)
+
+The sorting returns the agent **and the project** together; the project can also be chosen in the
+conversation, or named in the sentence ("In Kazo Os, …"). Without a recognized project, only the memory of the
+agent is sent.
+
+### 11. Where the project memory and the hand-off live (points 2 and 3, answers A)
+
+- The memory of a project is **a readable Markdown file in the folder of the project**, that Claude Code reads
+  too.
+- The hand-off to Claude or ChatGPT stays **a tool**, as today (ADR 0020), not one more agent.
+
+### 12. The "Call" mode
+
+A sustained conversation, on the phone or in the application.
+
+- **It starts** when the user clicks the "Call" button, or says something like "We need to talk about such a
+  project" or "such a problem".
+- **During the call, the agent changes and stays**: the one of the project or of the subject keeps the turn
+  from one turn to the next, until the user asks to go back to Jarvis.
+- **It ends** when the user says goodbye.
+
+Calls in the Android application are stage 5 of the design document; this section only sets what the "Call"
+mode means for the agents.
+
+### 13. Open points
+
+1. Does the Jarvis agent do the sorting itself (it answers simple requests and hands over for the rest), or
+   does a silent sorting call always come before it (section 4)?
+2. "The agent that takes care of Kazo OS": one shared "Project" agent, loaded with the folder and the memory of
+   the project, or one agent file per project?
+3. During a call, does Jarvis listen to what follows without "Hey Jarvis"?

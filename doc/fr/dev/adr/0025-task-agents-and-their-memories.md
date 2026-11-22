@@ -3,7 +3,7 @@
 ## Statut
 
 Proposé le 2026-11-21 (chantier `stage2/adr-0025-task-agents`), d'après les cinq réponses de Benoit du même
-jour, pendant la recette de l'étape 2. **Pas encore accepté** : quatre points restent ouverts (section 9).
+jour, pendant la recette de l'étape 2. Complété le même soir par ses réponses aux quatre points ouverts, l'agent Jarvis et le mode « Appel » (sections 9 à 12). **Pas encore accepté** : trois points restent ouverts (section 13).
 
 - **Complète :** [ADR 0017](0017-tools-classes-and-decision-point.md) (les outils et le point de décision ne
   changent pas : un agent choisit *quels* outils le modèle voit, jamais ce qu'un outil a le droit de faire) et
@@ -54,7 +54,7 @@ Code : un en-tête (`name`, `description`, `tools`) puis les consignes en texte.
 | Fichiers | `list_directory`, `read_file` | rester dans les dossiers autorisés |
 | Claude Code | lancement et suivi des sessions | résumer la demande avant de lancer |
 | Mémoire | `remember_fact`, `forget_fact`, `search_memory` | |
-| Général | horloge, calcul, passage de main | la conversation courante |
+| Jarvis (général) | horloge, calcul, passage de main, les outils de Jarvis lui-même | la conversation courante ; décide de passer la main (section 9) |
 
 Les outils d'un serveur MCP générique vont à l'agent que l'utilisateur choisit sur la page du serveur ;
 « Général » par défaut.
@@ -109,12 +109,46 @@ tour d'annonce (ADR 0024) ne passe par aucun agent.
 - Un mauvais tri donne un agent sans le bon outil : l'agent doit pouvoir dire « ce n'est pas pour moi », et
   Jarvis refait alors le tour avec « Général ».
 
-### 9. Points ouverts
+### 9. L'agent Jarvis
 
-1. Comment un tour sait-il de quel projet il parle : projet choisi dans la conversation, nommé à la voix, ou
-   déduit par le tri ?
-2. La mémoire du projet : un fichier Markdown lisible dans le dossier (que Claude Code lit aussi), ou la base
-   de Jarvis ?
-3. Le passage de main vers Claude ou ChatGPT : un agent de plus, ou un outil de l'agent « Général » comme
-   aujourd'hui ?
-4. À la voix, peut-on nommer l'agent (« Jarvis, domotique : éteins Articulé ») pour sauter le tri ?
+Il y a un agent pour Jarvis lui-même, avec les outils de Jarvis. À la voix, **c'est toujours lui qui reçoit la
+demande et qui décide de passer la main** à un autre agent. Il le dit : à « Dans Kazo Os, il nous reste quoi à
+faire ? », il répond quelque chose comme « Ok, je vais vérifier cela. Je passe la main à l'agent qui s'occupe de
+Kazo OS. »
+
+- À la voix, on ne nomme pas un agent pour sauter le tri (point 4, réponse B). Dans la fenêtre de
+  conversation, le choix de l'agent à la main reste possible (section 4).
+- Hors du mode « Appel », la main revient à l'agent Jarvis à la fin du tour.
+
+### 10. De quel projet parle un tour (point 1, réponse A)
+
+Le tri rend l'agent **et le projet** en même temps ; le projet peut aussi être choisi dans la conversation, ou
+nommé dans la phrase (« Dans Kazo Os, … »). Sans projet reconnu, seule la mémoire de l'agent est envoyée.
+
+### 11. Où vivent la mémoire du projet et le passage de main (points 2 et 3, réponses A)
+
+- La mémoire d'un projet est **un fichier Markdown lisible dans le dossier du projet**, que Claude Code lit
+  aussi.
+- Le passage de main vers Claude ou ChatGPT reste **un outil**, comme aujourd'hui (ADR 0020), pas un agent de
+  plus.
+
+### 12. Le mode « Appel »
+
+Une conversation suivie, sur le téléphone ou dans l'application.
+
+- **Il commence** quand l'utilisateur clique sur le bouton « Appeler », ou dit quelque chose comme « On doit
+  discuter de tel projet » ou « de tel problème ».
+- **Pendant l'appel, l'agent change et reste** : celui du projet ou du sujet garde la main d'un tour à l'autre,
+  jusqu'à ce que l'utilisateur demande de revenir à Jarvis.
+- **Il se termine** quand l'utilisateur dit au revoir.
+
+Les appels dans l'application Android sont l'étape 5 du document de conception ; cette section fixe seulement
+ce que le mode « Appel » veut dire pour les agents.
+
+### 13. Points ouverts
+
+1. L'agent Jarvis fait-il lui-même le tri (il répond aux demandes simples et passe la main pour le reste), ou
+   un appel de tri silencieux le précède-t-il toujours (section 4) ?
+2. « L'agent qui s'occupe de Kazo OS » : un agent « Projet » commun, chargé avec le dossier et la mémoire du
+   projet, ou un fichier d'agent par projet ?
+3. Pendant un appel, Jarvis écoute-t-il la suite sans « Hey Jarvis » ?
