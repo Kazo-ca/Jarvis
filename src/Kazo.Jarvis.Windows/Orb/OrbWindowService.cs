@@ -80,6 +80,7 @@ internal sealed partial class OrbWindowService : IOrbWindow
             window.Top = area.Bottom - OrbWindow.Size - ScreenMargin;
         }
         window.Clicked += OnClicked;
+        window.RightClicked += OnRightClicked;
         window.Moved += OnMoved;
         window.ContentRendered += OnContentRendered;
         if (wanted)
@@ -163,6 +164,21 @@ internal sealed partial class OrbWindowService : IOrbWindow
         }
 
         Rendered?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnRightClicked(object? sender, EventArgs e)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await activation.RightClickAsync().ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                LogPublishFailed(exception);
+            }
+        });
     }
 
     private void OnClicked(object? sender, EventArgs e)

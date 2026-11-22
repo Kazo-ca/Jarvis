@@ -24,7 +24,7 @@ référence : sections 2 et 3 du [catalogue](ui/catalog.md) et les prototypes
 | `OrbGyroscopeGeometry.cs` | Les cinq anneaux gyroscopiques (graduation en degrés, arcs, tirets et nœuds, bande, couronne) et leurs vitesses, dans une boîte de 1 000 × 1 000 |
 | `OrbQuality.cs`, `OrbOptions.cs`, `OrbQualityKeeper.cs` | Le réglage « qualité de l'orbe » (section `Assistant.Orb` de `config.json`), surveillé pour s'appliquer sans redémarrer |
 | `OrbSettingsPage.razor` (+ `.razor.css`, `.resx`) | La page « Orbe » de la fenêtre des paramètres |
-| `OrbActivation.cs` | Le clic sur l'orbe (US1.6 ; ADR 0010) : un simple clic publie `ActivationRequested(Click)` après le délai de double-clic de l'hôte, un double-clic publie `TaskFanToggleRequested` (voir [task-fan.md](task-fan.md)) |
+| `OrbActivation.cs` | Les gestes sur l'orbe (US1.6 ; ADR 0027) : un clic gauche publie `ActivationRequested(Click)`, un clic droit publie `TaskFanToggleRequested`, un double-clic publie `ProjectsViewRequested` ; le clic gauche n'attend le délai de double-clic de l'hôte que si une tranche répond au double-clic (voir [task-fan.md](task-fan.md)) |
 | `OrbSlice.cs` | Enregistrement |
 
 ### Entrées et sorties du composant `Orb`
@@ -151,8 +151,8 @@ la sortie « clic ».
   seulement, mouvement réduit), `OrbGeometryTests` et `OrbGyroscopeGeometryTests` (tracés, vitesses des
   anneaux, nombres indépendants de la culture), `OrbQualityKeeperTests` (haute qualité par défaut, choix
   enregistré, changement annoncé une seule fois, valeur inconnue refusée), `OrbActivationTests` (le clic passe
-  par la machine à états), `OrbDoubleClickTests` (simple clic retardé, double-clic qui n'est jamais un simple
-  clic).
+  par la machine à états), `OrbDoubleClickTests` (clic droit, simple clic retardé, double-clic qui n'est jamais un simple
+  clic, clic immédiat sans vue des projets).
 - Playwright (`OrbTests`) : chaque aspect dans `data-look` ; version légère : écoute = trois rotations,
   veille, micro coupé et erreur = aucune, veille animée en option, mouvement réduit du système et de
   l'option ; haute qualité : écoute = sept rotations et boucle de dessin active, veille, micro coupé et erreur

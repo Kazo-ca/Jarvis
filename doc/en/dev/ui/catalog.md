@@ -103,9 +103,9 @@ open rings, like the dials of a combination lock.
 ## 5. The task fan
 
 Prototype: [`task-fan.html`](../../../../design/prototypes/task-fan.html) (parameters `?v=A&s=open&c=br`,
-`c` = corner `tl`, `tr`, `bl` or `br`). Decided by ADR 0010: a double click on the orb fans the windows of
+`c` = corner `tl`, `tr`, `bl` or `br`). Decided by ADR 0010, the gesture by ADR 0027: a right click on the orb fans the windows of
 running tasks out in an arc, towards the centre of the screen whichever corner the orb sits in; a second
-double click pulls them back. Desktop dimmed, thin lines from the orb to each window, a task waiting for a decision in amber with
+right click pulls them back. Desktop dimmed, thin lines from the orb to each window, a task waiting for a decision in amber with
 its buttons, animation only while opening and closing.
 
 ## 6. Full screen ("command post")

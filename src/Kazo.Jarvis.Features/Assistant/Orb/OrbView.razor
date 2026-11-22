@@ -17,7 +17,8 @@
      Fault="@current.Fault?.Cause"
      AnimateIdle="@AnimateIdle"
      ReducedMotion="@ReducedMotion"
-     OnActivate="ActivateAsync" />
+     OnActivate="ActivateAsync"
+     OnContext="ContextAsync" />
 
 @code {
     private Orb? orb;
@@ -126,4 +127,6 @@
         });
 
     private Task ActivateAsync() => Activation.ClickAsync().AsTask();
+
+    private Task ContextAsync() => Activation.RightClickAsync().AsTask();
 }
