@@ -4,8 +4,8 @@ using Microsoft.Playwright.NUnit;
 namespace Kazo.Jarvis.Tests.E2E.Scenarios;
 
 /// <summary>
-/// The task fan on the Web host (work item stage2/14-task-fan; ADR 0010; ADR 0013, section 6): a double click on
-/// the orb opens it and never starts listening, a second one, Escape or a click beside it puts it away; a task has
+/// The task fan on the Web host (work item stage2/14-task-fan; ADR 0010; ADR 0027; ADR 0013, section 6): a right
+/// click on the orb opens it and never starts listening, a second one, Escape or a click beside it puts it away; a task has
 /// its panel, amber when it waits, with its sub-tasks; the write of a session started by Jarvis is allowed from its
 /// panel; the fan opens toward the centre from any corner.
 /// </summary>
@@ -14,6 +14,8 @@ public sealed class TaskFanTests : PageTest
 {
     private const string Documents = "/home/demo/Documents";
     private const string HandTitle = "corrige le pied de page";
+
+    private static readonly LocatorClickOptions Right = new() { Button = MouseButton.Right };
 
     private ILocator Root => Page.Locator("#jarvis-root");
 
@@ -59,26 +61,23 @@ public sealed class TaskFanTests : PageTest
     }
 
     [Test]
-    public async Task A_double_click_on_the_orb_opens_the_fan_and_never_starts_listening()
+    public async Task A_right_click_on_the_orb_opens_the_fan_and_never_starts_listening()
     {
-        await Orb.DblClickAsync();
+        await Orb.ClickAsync(Right);
         await Expect(Fan).ToHaveAttributeAsync("data-fan-phase", "Open");
         await Expect(Surface).ToHaveAttributeAsync("data-shown", "true");
         await Expect(Fan.Locator("[data-fan-count]")).ToBeVisibleAsync();
         await Expect(Fan.Locator("[data-fan-dim]")).ToBeVisibleAsync();
-
-        // Well past the double-click delay of the host: the two clicks were not a single click.
-        await Page.WaitForTimeoutAsync(900);
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle");
 
-        // The orb stays above the fan: a second double click puts the fan away.
-        await Orb.DblClickAsync();
+        // The orb stays above the fan: a second right click puts the fan away.
+        await Orb.ClickAsync(Right);
         await Expect(Fan).ToHaveCountAsync(0);
         await Expect(Surface).ToHaveAttributeAsync("data-shown", "false");
-        await Page.WaitForTimeoutAsync(900);
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle");
 
-        // A single click still starts listening, after the delay, then cancels it.
+        // A left click starts listening at once, then cancels it: nothing answers a double click yet, so no click
+        // waits for one (ADR 0027, section 3).
         await Orb.ClickAsync();
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Listening");
         await Orb.ClickAsync();
@@ -89,7 +88,7 @@ public sealed class TaskFanTests : PageTest
     public async Task A_task_has_its_panel_amber_when_it_waits_with_its_sub_tasks_and_the_orb_shows_the_badge()
     {
         await PressAsync("#hand-session-work");
-        await Orb.DblClickAsync();
+        await Orb.ClickAsync(Right);
         await Expect(Fan).ToHaveAttributeAsync("data-fan-phase", "Open");
 
         // Where it comes from, its title, its state.
@@ -132,7 +131,7 @@ public sealed class TaskFanTests : PageTest
         await Expect(Window).ToHaveCountAsync(1, new() { Timeout = 10_000 });
         await IdleAsync();
 
-        await Orb.DblClickAsync();
+        await Orb.ClickAsync(Right);
 
         // Said apart, so that a failure tells which one is missing: the fan itself, the request, or its buttons.
         await Expect(Fan).ToHaveAttributeAsync("data-fan-phase", "Open");
@@ -159,7 +158,7 @@ public sealed class TaskFanTests : PageTest
     public async Task The_fan_opens_toward_the_centre_from_any_corner_and_a_click_beside_it_puts_it_away()
     {
         // Bottom right, where the orb sits by default: up and to the left.
-        await Orb.DblClickAsync();
+        await Orb.ClickAsync(Right);
         await Expect(Fan).ToHaveAttributeAsync("data-fan-horizontal", "left");
         await Expect(Fan).ToHaveAttributeAsync("data-fan-vertical", "up");
 
@@ -170,7 +169,7 @@ public sealed class TaskFanTests : PageTest
         await PressAsync("#orb-next-corner");
         await PressAsync("#orb-next-corner");
         await Expect(Surface).ToHaveAttributeAsync("data-corner", "top-left");
-        await Orb.DblClickAsync();
+        await Orb.ClickAsync(Right);
         await Expect(Fan).ToHaveAttributeAsync("data-fan-horizontal", "right");
         await Expect(Fan).ToHaveAttributeAsync("data-fan-vertical", "down");
     }

@@ -6,15 +6,17 @@ using Kazo.Jarvis.Kernel.Messaging;
 namespace Kazo.Jarvis.Features.Assistant.Orb;
 
 /// <summary>
-/// What a click on the orb does (US1.6; ADR 0010, section 3). A single click publishes an activation, and the
-/// state machine decides (start listening, cancel it, or interrupt Jarvis). A double click asks for the task fan
-/// and is never also a single click: a click waits for the double-click delay of the host before it acts, and a
-/// second click inside that delay replaces it. The wake word and the hotkey do not come through here and are not
-/// delayed.
+/// What the gestures on the orb do (US1.6; ADR 0027). A left click publishes an activation, and the state machine
+/// decides (start listening, cancel it, or interrupt Jarvis). A right click asks for the task fan, at once. A
+/// double click asks for the projects view and is never also a single click: a left click waits for the
+/// double-click delay of the host before it acts, and a second click inside that delay replaces it. As long as
+/// no slice answers <see cref="ProjectsViewRequested"/> there is neither double click nor delay. The wake word
+/// and the hotkey do not come through here and are not delayed.
 /// </summary>
 /// <remarks>
 /// The orb component calls it, and so does the Windows host, whose window catches the press itself to tell a
-/// click from a move (ADR 0003, section 2). Both call <see cref="ClickAsync"/> once per click.
+/// click from a move (ADR 0003, section 2). Both call <see cref="ClickAsync"/> once per left click and
+/// <see cref="RightClickAsync"/> once per right click.
 /// </remarks>
 public sealed class OrbActivation
 {
@@ -25,22 +27,36 @@ public sealed class OrbActivation
     private CancellationTokenSource? waiting;
 
     /// <summary>Creates the activation.</summary>
-    /// <param name="bus">Where the activation and the request for the fan are published.</param>
+    /// <param name="bus">Where the activation and the requests for the fan and the projects view are published.</param>
     /// <param name="time">The clock of the delay.</param>
     /// <param name="timings">The double-click delay of the host; without it there is no double click and a click acts at once.</param>
-    public OrbActivation(IMessageBus bus, TimeProvider time, IPointerTimings? timings = null)
+    /// <param name="projects">
+    /// The slices that answer a double click. While there is none, there is no double click either: nothing would
+    /// answer it, and every left click would wait for nothing (ADR 0027, section 3).
+    /// </param>
+    public OrbActivation(
+        IMessageBus bus,
+        TimeProvider time,
+        IPointerTimings? timings = null,
+        IEnumerable<IEventHandler<ProjectsViewRequested>>? projects = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(time);
         this.bus = bus;
         this.time = time;
-        delay = timings?.DoubleClickTime ?? TimeSpan.Zero;
+        delay = projects?.Any() == true ? timings?.DoubleClickTime ?? TimeSpan.Zero : TimeSpan.Zero;
     }
 
+    /// <summary>One right click on the orb: publishes <see cref="TaskFanToggleRequested"/> at once.</summary>
+    /// <param name="cancellationToken">Cancels the delivery.</param>
+    /// <returns>A task that completes once the request was published.</returns>
+    public ValueTask RightClickAsync(CancellationToken cancellationToken = default) =>
+        bus.PublishAsync(new TaskFanToggleRequested(), cancellationToken);
+
     /// <summary>
-    /// One click on the orb. The first click waits for the delay, then publishes <see cref="ActivationRequested"/>;
-    /// a second click inside the delay publishes <see cref="TaskFanToggleRequested"/> instead, and the first one
-    /// publishes nothing.
+    /// One left click on the orb. The first click waits for the delay, then publishes
+    /// <see cref="ActivationRequested"/>; a second click inside the delay publishes
+    /// <see cref="ProjectsViewRequested"/> instead, and the first one publishes nothing.
     /// </summary>
     /// <param name="cancellationToken">Cancels the delivery.</param>
     /// <returns>A task that completes once the click was treated: published, or replaced by a double click.</returns>
@@ -72,7 +88,7 @@ public sealed class OrbActivation
         if (second)
         {
             mine.Dispose();
-            await bus.PublishAsync(new TaskFanToggleRequested(), cancellationToken).ConfigureAwait(false);
+            await bus.PublishAsync(new ProjectsViewRequested(), cancellationToken).ConfigureAwait(false);
             return;
         }
 

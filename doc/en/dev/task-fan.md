@@ -1,15 +1,16 @@
-# Task fan and double click on the orb
+# Task fan and gestures on the orb
 
-Work item `stage2/14-task-fan`. Decisions: [ADR 0010](adr/0010-task-fan-and-orb-click.md) (the fan, the single
-click and the double click), [ADR 0013](adr/0013-relais-readiness.md), section 6 (one panel per task, its
+Work item `stage2/14-task-fan`. Decisions: [ADR 0010](adr/0010-task-fan-and-orb-click.md) (the fan),
+[ADR 0027](adr/0027-orb-gestures.md) (left click, right click and double click on the orb; replaces section 3
+of ADR 0010), [ADR 0013](adr/0013-relais-readiness.md), section 6 (one panel per task, its
 sub-tasks inside, amber when it waits), [ADR 0011](adr/0011-orb-colors-and-drawing.md) (cyan, amber, badge)
 and spike E11 ([results](../../../spikes/e11-task-fan-window/RESULTS.md)).
 
 ## What the user sees
 
-- **A double click on the orb** makes the panels of the tasks in progress come out of the orb, on an arc,
+- **A right click on the orb** makes the panels of the tasks in progress come out of the orb, on an arc,
   toward the centre of the screen. A dashed line links each panel to the orb; the desktop behind is darkened.
-- **A second double click, the Escape key or a click on the darkened desktop** puts them back in.
+- **A second right click, the Escape key or a click on the darkened desktop** puts them back in.
 - A panel shows a task: who works, on which project, who started it (Jarvis or the user), its title, its
   state, the time of its last change, its last message and its sub-tasks.
 - A panel that waits for the user is **amber**, and so is its line.
@@ -17,8 +18,11 @@ and spike E11 ([results](../../../spikes/e11-task-fan-window/RESULTS.md)).
   **Allow**, **Refuse** and **Details**. The confirmation window stays open: both do the same thing.
 - Near the orb, a line counts the tasks and the decisions that wait. Without a task, the fan opens anyway and
   says "No task in progress.".
-- **A single click on the orb** still starts listening, but after the double-click delay of Windows (half a
-  second by default). The wake word and the hotkey are not delayed.
+- **A left click on the orb** starts listening, as the wake word does; while listening, it cancels it.
+- **A double click on the orb** will ask for the projects view. It is not built yet: for now there is neither
+  double click nor delay, and the left click acts at once. Once it exists, the left click will wait for the
+  double-click delay of Windows (half a second by default); the wake word, the hotkey and the right click are
+  never delayed.
 - **The amber badge of the orb** gives the number of decisions that wait, fan open or closed. The orb takes the
   "long task" look as long as a task works.
 
@@ -28,7 +32,8 @@ The fan is not a state of the assistant: Jarvis can listen, think or speak while
 
 | Element | Role |
 | --- | --- |
-| `TaskFanToggleRequested` (`Kernel/Messages/Desktop`) | The double click on the orb: the fan slice opens the fan or puts it away |
+| `TaskFanToggleRequested` (`Kernel/Messages/Desktop`) | The right click on the orb: the fan slice opens the fan or puts it away |
+| `ProjectsViewRequested` (`Kernel/Messages/Desktop`) | The double click on the orb: the slice of the projects view will answer it; nothing answers it yet |
 | `IPointerTimings` (`Kernel/Desktop`) | The double-click delay, given by the host; without it, no double click and no delay |
 | `ITaskFanSurface`, `FanAnchor` (`Kernel/Desktop`) | The surface the fan is drawn on: where the centre of the orb is, show, hide |
 | `IOpenConfirmations`, `OpenConfirmation` (`Kernel/Permissions`) | The open confirmation request and its click, for whoever shows it besides the window |
@@ -37,13 +42,17 @@ The fan is not a state of the assistant: Jarvis can listen, think or speak while
 
 ## The click on the orb (`Assistant/Orb`)
 
-`OrbActivation.ClickAsync` is called once per click, by the component (Web host) or by the orb window (Windows
-host).
+`OrbActivation.ClickAsync` is called once per left click and `OrbActivation.RightClickAsync` once per right
+click, by the component (Web host) or by the orb window (Windows host).
+
+- A right click publishes `TaskFanToggleRequested` at once. The component holds the menu of the browser back;
+  the orb window keeps the right click for itself, the web view does not receive it.
 
 - The first click waits for the delay of `IPointerTimings`, then publishes `ActivationRequested(Click)`.
-- A second click inside that delay publishes `TaskFanToggleRequested`; the first one publishes nothing. **A
+- A second click inside that delay publishes `ProjectsViewRequested`; the first one publishes nothing. **A
   double click is never also a single click.**
-- Without `IPointerTimings` (mobile), the click acts at once.
+- Without `IPointerTimings` (mobile), or as long as no slice is registered for `ProjectsViewRequested`,
+  there is no delay: the click acts at once.
 - `OrbView` computes the badge: the tasks that wait for the user, plus the open confirmation request when it
   does not come from one of those tasks.
 
@@ -51,7 +60,7 @@ host).
 
 | File | Role |
 | --- | --- |
-| `TaskFan` | Open, closing or closed; receives the double click; shows and hides the surface |
+| `TaskFan` | Open, closing or closed; receives the right click; shows and hides the surface |
 | `FanContent` | What the fan shows, from the board of the tasks and the open request |
 | `FanLayout` | Where the panels go: the side of the centre of the screen, angles per number of panels |
 | `TaskFanView` | The drawing, in one surface |
@@ -126,7 +135,8 @@ others.
 
 ## Tests
 
-- Unit: `OrbDoubleClickTests` (delayed single click, double click, two clicks apart), `TaskFanTests` (opening
+- Unit: `OrbDoubleClickTests` (right click, delayed single click, double click, two clicks apart, immediate click
+  without a projects view), `TaskFanTests` (opening
   and closing, opening again while closing, corners, panels that never overlap, content, request in the panel
   of its task, request apart, more than five tasks, count of the tasks that work).
 - End to end: `TaskFanTests` (4 scenarios on the Web host).
@@ -135,14 +145,14 @@ others.
 
 To do with Benoit, on his PC:
 
-1. Double click on the orb: the fan comes out with no visible delay, the desktop darkens, Jarvis does not
+1. Right click on the orb: the fan comes out with no visible delay, the desktop darkens, Jarvis does not
    listen.
-2. Second double click, Escape, click on the darkened desktop: the fan goes back in; the application below does
+2. Second right click, Escape, click on the darkened desktop: the fan goes back in; the application below does
    not receive the click.
 3. Fan closed: clicks reach the application below, anywhere on the screen.
-4. Click on a panel, then double click on the orb: the orb stayed above.
+4. Click on a panel, then right click on the orb: the orb stayed above.
 5. A session started by Jarvis asks for a write: "Allow" in its panel lets it go on.
 6. The orb in each of the four corners, then on another screen: the fan opens toward the centre.
-7. Single click: listening starts after the double-click delay.
+7. Left click: listening starts at once; no menu opens on a right click.
 8. Cost (method of spike E6): fan closed, open and still, while opening and closing.
 9. At start-up, the prepared fan window is not seen and takes no click.
