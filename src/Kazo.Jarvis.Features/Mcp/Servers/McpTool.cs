@@ -87,9 +87,17 @@ internal sealed class McpTool : ITool
             return Classify(arguments);
         }
 
-        var call = new ToolServerCall(session.Name, ServerTool, arguments, (tool, asked, cancellation) => session.CallAsync(tool, asked, cancellation));
+        // Classed on the arguments that will be sent (the names matched to the ones of the server), not on what the
+        // model wrote: the class and the call always speak of the same devices.
+        var call = Call(await ResolvedAsync(arguments, cancellationToken).ConfigureAwait(false));
         return Higher(await classifier.ClassifyAsync(call, cancellationToken).ConfigureAwait(false), Raised);
     }
+
+    private ToolServerCall Call(JsonElement arguments) =>
+        new(session.Name, ServerTool, arguments, (tool, asked, cancellation) => session.CallAsync(tool, asked, cancellation));
+
+    private async ValueTask<JsonElement> ResolvedAsync(JsonElement arguments, CancellationToken cancellationToken) =>
+        classifier is null ? arguments : await classifier.ResolveAsync(Call(arguments), cancellationToken).ConfigureAwait(false);
 
     private static ActionClass Higher(ActionClass first, ActionClass second) => first > second ? first : second;
 
@@ -108,6 +116,7 @@ internal sealed class McpTool : ITool
         ToolServerResult result;
         try
         {
+            arguments = await ResolvedAsync(arguments, cancellationToken).ConfigureAwait(false);
             result = await session.CallAsync(ServerTool.Name, arguments, cancellationToken).ConfigureAwait(false);
         }
         catch (ToolServerException exception)
@@ -125,10 +134,29 @@ internal sealed class McpTool : ITool
 
         if (result.IsError)
         {
-            throw new ToolException(result.Text.Length == 0 ? "The tool reported a failure without a message." : result.Text);
+            var failure = result.Text.Length == 0 ? "The tool reported a failure without a message." : result.Text;
+            throw new ToolException(await HintAsync(arguments, cancellationToken).ConfigureAwait(false) is { Length: > 0 } hint ? failure + " " + hint : failure);
         }
 
         return result.Text;
+    }
+
+    /// <summary>What the kind of the server adds to a failure; a hint that cannot be had is no reason to hide the failure.</summary>
+    private async ValueTask<string?> HintAsync(JsonElement arguments, CancellationToken cancellationToken)
+    {
+        if (classifier is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return await classifier.HintAsync(Call(arguments), cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is ToolServerException or InvalidOperationException)
+        {
+            return null;
+        }
     }
 }
 

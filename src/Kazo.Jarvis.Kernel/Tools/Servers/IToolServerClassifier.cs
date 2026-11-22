@@ -23,6 +23,25 @@ public interface IToolServerClassifier
     /// <param name="cancellationToken">Cancels the classification.</param>
     /// <returns>The class of this call.</returns>
     ValueTask<ActionClass> ClassifyAsync(ToolServerCall call, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The arguments to send for <paramref name="call"/>, once what the model wrote is matched to what the server
+    /// knows: the model writes « lumière articulée » where the device is named « Articulé ». The class of the call
+    /// is asked on the arguments this returns, and they are the ones sent. Unchanged by default.
+    /// </summary>
+    /// <param name="call">The call the model asked for.</param>
+    /// <param name="cancellationToken">Cancels the question to the server.</param>
+    /// <returns>The arguments to class and to send.</returns>
+    ValueTask<JsonElement> ResolveAsync(ToolServerCall call, CancellationToken cancellationToken = default) => ValueTask.FromResult(call.Arguments);
+
+    /// <summary>
+    /// What to add to the failure the server gave for <paramref name="call"/>, so that the model can try again: for
+    /// instance the names the server knows. Nothing by default.
+    /// </summary>
+    /// <param name="call">The call that failed.</param>
+    /// <param name="cancellationToken">Cancels the question to the server.</param>
+    /// <returns>A text for the model, in English, or <see langword="null"/>.</returns>
+    ValueTask<string?> HintAsync(ToolServerCall call, CancellationToken cancellationToken = default) => ValueTask.FromResult<string?>(null);
 }
 
 /// <summary>A call to class.</summary>

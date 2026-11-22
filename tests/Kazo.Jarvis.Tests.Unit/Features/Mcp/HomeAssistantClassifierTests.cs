@@ -71,6 +71,92 @@ public sealed class HomeAssistantClassifierTests
         return classifier.ClassifyAsync(call);
     }
 
+    private ToolServerCall CallOf(string tool, string arguments)
+    {
+        using var document = JsonDocument.Parse(arguments);
+        return new ToolServerCall("maison", Tool(tool), document.RootElement.Clone(), (name, _, _) =>
+        {
+            asked.Add(name);
+            return ValueTask.FromResult(name == liveTool && live is not null ? new ToolServerResult(live, IsError: false) : new ToolServerResult("Unknown tool", IsError: true));
+        });
+    }
+
+    private async Task<string?> ResolvedNameAsync(string arguments, string tool = "intent__HassTurnOff")
+    {
+        var resolved = await classifier.ResolveAsync(CallOf(tool, arguments));
+        return resolved.TryGetProperty("name", out var name) ? name.GetString() : null;
+    }
+
+    /// <summary>
+    /// Seen at the acceptance: « Éteins la lumière articulée » gave the name « lumière articulée » for the light
+    /// named « Articulé », and Home Assistant found nothing. The name is written as Home Assistant writes it when
+    /// one device only carries the words said.
+    /// </summary>
+    [Test]
+    public async Task A_name_said_with_its_kind_and_another_ending_is_written_as_home_assistant_writes_it()
+    {
+        live = JsonSerializer.Serialize(new { success = true, result = Live + "- names: Articulé\n  domain: light\n  state: 'on'\n  areas: Salon\n" });
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await ResolvedNameAsync("""{"name":"lumière articulée","domain":["light"]}"""), Is.EqualTo("Articulé"));
+            Assert.That(await ResolvedNameAsync("""{"name":"la lampe articulé"}"""), Is.EqualTo("Articulé"));
+            Assert.That(await ResolvedNameAsync("""{"name":"ARTICULE"}"""), Is.EqualTo("Articulé"));
+            Assert.That(await ResolvedNameAsync("""{"name":"lampe du salon"}"""), Is.EqualTo("lampe du salon"), "an exact name is left alone");
+            Assert.That(await ResolvedNameAsync("""{"name":"la lumière de la télé","domain":["light"]}"""), Is.EqualTo("Lumière télé"));
+            Assert.That(await ResolvedNameAsync("""{"name":"prises du sapin"}"""), Is.EqualTo("Prise du sapin"));
+        });
+
+        // The other arguments are kept as they were.
+        var resolved = await classifier.ResolveAsync(CallOf("intent__HassTurnOff", """{"name":"lumière articulée","domain":["light"]}"""));
+        Assert.That(resolved.GetProperty("domain")[0].GetString(), Is.EqualTo("light"));
+    }
+
+    [Test]
+    public async Task A_name_that_fits_no_device_or_several_stays_as_the_model_wrote_it()
+    {
+        live = JsonSerializer.Serialize(new { success = true, result = Live + "- names: Lampe salon\n  domain: light\n  state: 'on'\n  areas: Cuisine\n" });
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await ResolvedNameAsync("""{"name":"le truc"}"""), Is.EqualTo("le truc"));
+            Assert.That(await ResolvedNameAsync("""{"name":"lumière du bureau","domain":["light"]}"""), Is.EqualTo("lumière du bureau"), "the shade of the office is not a light");
+            Assert.That(await ResolvedNameAsync("""{"name":"lampes salon"}"""), Is.EqualTo("lampes salon"), "two lights carry these words");
+            Assert.That(await ResolvedNameAsync("""{"name":"lampes salon","area":"Cuisine"}"""), Is.EqualTo("Lampe salon"), "the area leaves one");
+        });
+    }
+
+    /// <summary>An approximate name never reaches a lock or a garage door: those are named as they are written, or not at all.</summary>
+    [Test]
+    public async Task An_approximate_name_never_reaches_a_security_device()
+    {
+        await WriteAsync(new HomeAssistantOptions { SecurityEntities = ["Prise du sapin"] });
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await ResolvedNameAsync("""{"name":"serrures de l'entrée"}"""), Is.EqualTo("serrures de l'entrée"));
+            Assert.That(await ResolvedNameAsync("""{"name":"portes du garage"}"""), Is.EqualTo("portes du garage"));
+            Assert.That(await ResolvedNameAsync("""{"name":"prises du sapin"}"""), Is.EqualTo("prises du sapin"), "marked by the user");
+            Assert.That(await ClassAsync("intent__HassTurnOff", """{"name":"serrures de l'entrée"}"""), Is.EqualTo(ActionClass.Critical), "not found: the highest class it could have");
+        });
+    }
+
+    [Test]
+    public async Task After_a_name_that_is_not_found_the_model_is_told_the_names_it_can_use()
+    {
+        var hint = await classifier.HintAsync(CallOf("intent__HassTurnOff", """{"name":"le truc","domain":["light"]}"""));
+        var known = await classifier.HintAsync(CallOf("intent__HassTurnOff", """{"name":"Lampe du salon"}"""));
+        var scripted = await classifier.HintAsync(CallOf("script__depart", """{"name":"le truc"}"""));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(hint, Does.Contain("\"Lampe du salon\" (Salon)").And.Contain("\"Lampe d'appoint\" (Entrée)").And.Contain("le truc"));
+            Assert.That(hint, Does.Not.Contain("Serrure").And.Not.Contain("Prise"), "only the lights were asked for");
+            Assert.That(known, Is.Null, "the name exists: the failure is about something else");
+            Assert.That(scripted, Is.Null);
+        });
+    }
+
     private Task WriteAsync(HomeAssistantOptions options) => settings.WriteAsync(HomeAssistantOptions.Section, options).AsTask();
 
     [Test]
