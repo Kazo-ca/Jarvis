@@ -117,6 +117,10 @@ public sealed class TaskFanTests : PageTest
         await IdleAsync();
 
         await Orb.DblClickAsync();
+
+        // Said apart, so that a failure tells which one is missing: the fan itself, the request, or its buttons.
+        await Expect(Fan).ToHaveAttributeAsync("data-fan-phase", "Open");
+        await Expect(Window).ToHaveCountAsync(1);
         var panel = Fan.Locator("[data-fan-panel]").Filter(new() { Has = Page.Locator("[data-fan-allow]") });
         await Expect(panel).ToHaveCountAsync(1);
         await Expect(panel).ToHaveAttributeAsync("data-fan-amber", "true");
