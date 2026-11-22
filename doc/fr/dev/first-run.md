@@ -41,9 +41,10 @@ enregistre elle-même ses choix, comme dans la fenêtre des paramètres.
 | Piper Tom (fr), Alan (en) | `models\vits-piper-…\` | Version `tts-models` de sherpa-onnx sur GitHub | 67 Mo chacune |
 | Kokoro | `models\kokoro-multi-lang-v1_0\` | Version `tts-models` de sherpa-onnx sur GitHub | 350 Mo |
 
-- **`ModelAdvice`** : ce qui convient à la carte trouvée. Carte NVIDIA d'au moins 10 Go : Whisper turbo sur la carte
-  et `qwen3:14b`. Moins de 10 Go : Whisper `small` sur la carte et un modèle de langage de 7 à 8 milliards de
-  paramètres (par exemple `qwen3:8b`). Aucune carte NVIDIA : Whisper `base` sur le processeur, et le même conseil.
+- **`ModelAdvice`** : ce qui convient à la carte trouvée. Carte NVIDIA d'au moins 15 Go : Whisper turbo sur la carte
+  et `qwen3:14b`. De 10 à 15 Go : Whisper turbo sur la carte et un modèle de langage de 7 à 8 milliards de
+  paramètres (par exemple `qwen3:8b`). Moins de 10 Go : Whisper `small` sur la carte et le même conseil. Aucune
+  carte NVIDIA : Whisper `base` sur le processeur, et le même conseil.
 - **`ModelsKeeper`** : un lot de téléchargements à la fois, un fichier après l'autre ; l'état de chaque modèle
   (absent, en attente, téléchargement avec pourcentage, installé, échec avec la cause) ; « Arrêter » supprime le
   fichier en cours et garde ceux déjà posés. Le lot continue si la page se ferme. À la fin, si le Whisper choisi
@@ -82,9 +83,12 @@ Un bouton « Chercher Ollama sur ce PC » relance la recherche pour tout fournis
 
 À confirmer par Benoit ; chacun se change en une ligne :
 
-1. **Seuils du conseil** : 10 Go de mémoire graphique pour la chaîne complète ; en dessous, Whisper `small` sur la
-   carte ; sans carte NVIDIA, Whisper `base` sur le processeur. Modèle de repli conseillé : `qwen3:8b` (en attendant
-   la mesure du chantier 11).
+1. **Seuils du conseil** : 15 Go de mémoire graphique pour la chaîne complète ; de 10 à 15 Go, Whisper turbo et un
+   modèle de langage plus petit ; en dessous, Whisper `small` sur la carte ; sans carte NVIDIA, Whisper `base` sur
+   le processeur. Modèle de repli conseillé : `qwen3:8b`. Le premier seuil était de 10 Go ; il a été relevé à la
+   recette de l'étape 2 (21 novembre 2026) : sur la carte de 12 Go de Benoit, `qwen3:14b` à côté de Whisper turbo
+   ne tenait plus une fois les outils dans la consigne (lecture à 7 jetons par seconde), et Benoit a choisi
+   `qwen3:8b` plutôt qu'un Whisper plus léger, qui entend moins bien.
 2. **Empreinte SHA-1 pour Whisper** : whisper.cpp ne publie que celle-là. Les autres modèles sont vérifiés en SHA-256.
 3. **Nouvelle dépendance SharpZipLib 1.4.2** (MIT), seulement pour le bzip2 des voix de sherpa-onnx, dans `Adapters`.
 4. **Ordre des étapes** : langue, audio, modèles vocaux, modèle de langage (le conseil des modèles vocaux sert au
@@ -111,7 +115,7 @@ Un bouton « Chercher Ollama sur ce PC » relance la recherche pour tout fournis
 
 1. Renommer `%USERPROFILE%\.kazo\jarvis` (par exemple en `jarvis.bak`), lancer Jarvis : l'assistant s'ouvre.
 2. Choisir le français, le micro et la sortie ; la page « Modèles vocaux » dit « NVIDIA GeForce RTX 3060, 12 Go » et
-   conseille Whisper turbo. Télécharger la sélection : tout passe à « Installé », **Whisper compris** (Hugging Face).
+   conseille Whisper turbo, avec un modèle de langage plus petit (`qwen3:8b`). Télécharger la sélection : tout passe à « Installé », **Whisper compris** (Hugging Face).
 3. Page « Modèles de langage » : « Ollama répond sur le port 11435 ; son adresse est enregistrée. »
 4. Terminer, dire « Hey Jarvis » et poser une question : la chaîne complète marche sans rien copier à la main.
 5. Fermer l'assistant à mi-chemin sur un profil vide : il revient au démarrage suivant.
