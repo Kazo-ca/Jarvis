@@ -87,6 +87,9 @@ project for home automation.
   project is then where the session is started.
 - The memory of the project is **complementary**: it is added to that of the agent when the turn is about this
   project. It lives in the folder of the project, so that the external session can read it.
+- **A folder without a project**: when a Claude session (followed by Jarvis, ADR 0021) makes a request in a
+  folder that belongs to no project, Jarvis shows a request: assign it to an existing project, or create a new
+  project. Jarvis never chooses in the user's place, and the request has no time limit (as in ADR 0023).
 - Creating a project on a folder does not add it to the allowed folders without saying so: the page offers it,
   and the user confirms (ADR 0021).
 

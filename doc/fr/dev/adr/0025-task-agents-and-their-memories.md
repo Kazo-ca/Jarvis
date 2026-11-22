@@ -89,6 +89,10 @@ pour la domotique.
   main : le projet devient alors l'endroit où la session est lancée.
 - La mémoire du projet est **complémentaire** : elle s'ajoute à celle de l'agent quand le tour porte sur ce
   projet. Elle vit dans le dossier du projet, pour que la session externe puisse la lire.
+- **Un dossier sans projet** : quand une session Claude (suivie par Jarvis, ADR 0021) fait une demande dans un
+  dossier qui n'appartient à aucun projet, Jarvis affiche une demande : l'assigner à un projet existant, ou
+  créer un nouveau projet. Jarvis ne choisit jamais à la place de l'utilisateur, et la demande n'a pas de délai
+  (comme l'ADR 0023).
 - Créer un projet sur un dossier ne l'ajoute pas aux dossiers autorisés sans le dire : la page le propose, et
   l'utilisateur confirme (ADR 0021).
 
