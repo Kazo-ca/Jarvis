@@ -11,8 +11,8 @@ about the mockups. **Not accepted yet**: three points are still open (section 11
   agent and its memory).
 - **Changes:** the full screen of the [UI catalog](../ui/catalog.md) (the "À traiter" column becomes a rail
   entry, section 7).
-- **Partly supersedes:** [ADR 0010](0010-task-fan-and-orb-click.md): the double click on the orb no longer
-  opens the task fan, it opens the projects view; the fan moves to the right click (section 8).
+- **Builds on:** [ADR 0027](0027-orb-gestures.md) (the double click on the orb asks for the projects view, the
+  right click opens the task fan).
 - **Built:** right after ADR 0025 (answer 6), which defines the project.
 
 ## Context
@@ -108,22 +108,14 @@ the thread. The "folder without a project" request of ADR 0025 (section 6) has i
 
 ### 8. Opening the view from the orb
 
-Benoit, 22 November 2026: "right click shows the fan, double click shows the projects view, one left click
-acts like the wake word, Jarvis listens to everything we say".
-
-| Gesture on the orb | Effect |
-| --- | --- |
-| One left click | Jarvis listens, as after "Hey Jarvis" (US1.6) |
-| Double click | Opens the full screen on the projects view; a second double click closes it |
-| Right click | Opens or closes the task fan (before: double click, ADR 0010) |
-
-The single left click is still delayed by the system double-click time (ADR 0010), so listening does not start
-before a double click.
+The gestures are set by [ADR 0027](0027-orb-gestures.md): a double click on the orb sends
+`ProjectsViewRequested`, and the slice of this view answers by opening the full screen on the last open
+project (provisional). The right click opens the task fan, the left click starts listening.
 
 ### 9. What does not change
 
 The Relais model (statuses, automatic attachment of a session to a subject), the approval requests
-(ADR 0023), the content of the task fan (ADR 0010) and the orb badge.
+(ADR 0023), the task fan (ADR 0010, opened by the right click since ADR 0027) and the orb badge.
 
 ### 10. Consequences
 

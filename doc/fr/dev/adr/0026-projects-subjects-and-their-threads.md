@@ -11,8 +11,8 @@ jour sur les maquettes. **Pas encore accepté** : trois points restent ouverts (
   son agent et sa mémoire).
 - **Modifie :** le plein écran du [catalogue de l'interface](../ui/catalog.md)
   (la colonne « À traiter » devient une entrée du rail, section 7).
-- **Remplace en partie :** [ADR 0010](0010-task-fan-and-orb-click.md) : le double-clic sur l'orbe n'ouvre
-  plus l'éventail, il ouvre la vue des projets ; l'éventail passe au clic droit (section 8).
+- **S'appuie sur :** [ADR 0027](0027-orb-gestures.md) (le double-clic sur l'orbe demande la vue des projets,
+  le clic droit ouvre l'éventail).
 - **Construction :** juste après l'ADR 0025 (réponse 6), qui définit le projet.
 
 ## Contexte
@@ -111,22 +111,14 @@ sous-tâches, le dernier mot du fil. La demande « dossier sans projet » de l'A
 
 ### 8. Ouvrir la vue depuis l'orbe
 
-Benoit, le 22 novembre 2026 : « clic droit affiche l'éventail, double-clic affiche la vue projets, un clic
-gauche fait comme le mot d'éveil, Jarvis écoute tout ce que l'on dit ».
-
-| Geste sur l'orbe | Effet |
-| --- | --- |
-| Un clic gauche | Jarvis écoute, comme après « Hey Jarvis » (US1.6) |
-| Double-clic | Ouvre le plein écran sur la vue des projets ; un second double-clic le referme |
-| Clic droit | Ouvre ou ferme l'éventail des tâches (avant : double-clic, ADR 0010) |
-
-Le clic gauche simple reste retardé du délai de double-clic du système (ADR 0010), pour ne pas lancer
-l'écoute avant un double-clic.
+Les gestes sont fixés par l'[ADR 0027](0027-orb-gestures.md) : un double-clic sur l'orbe envoie
+`ProjectsViewRequested`, et la tranche de cette vue y répond en ouvrant le plein écran sur le dernier projet
+ouvert (provisoire). Le clic droit ouvre l'éventail, le clic gauche lance l'écoute.
 
 ### 9. Ce qui ne change pas
 
 Le modèle de Relais (statuts, rattachement automatique d'une session à un sujet), les demandes d'accord
-(ADR 0023), le contenu de l'éventail (ADR 0010) et le badge de l'orbe.
+(ADR 0023), l'éventail (ADR 0010, ouvert au clic droit par l'ADR 0027) et le badge de l'orbe.
 
 ### 10. Conséquences
 
