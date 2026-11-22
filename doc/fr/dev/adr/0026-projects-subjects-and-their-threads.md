@@ -3,7 +3,7 @@
 ## Statut
 
 Proposé le 2026-11-22 (chantier `stage2/adr-0026-projects-view`), d'après les six réponses de Benoit du même
-jour sur les maquettes. **Pas encore accepté** : trois points restent ouverts (section 10).
+jour sur les maquettes. **Pas encore accepté** : trois points restent ouverts (section 11).
 
 - **Complète :** [ADR 0013](0013-relais-readiness.md) (la hiérarchie Projet → Sujet → Tâche → Sous-tâche de
   Relais ne change pas ; cet ADR dit comment l'écran la montre et où l'on parle) et
@@ -11,6 +11,8 @@ jour sur les maquettes. **Pas encore accepté** : trois points restent ouverts (
   son agent et sa mémoire).
 - **Modifie :** le plein écran du [catalogue de l'interface](../ui/catalog.md)
   (la colonne « À traiter » devient une entrée du rail, section 7).
+- **Remplace en partie :** [ADR 0010](0010-task-fan-and-orb-click.md) : le double-clic sur l'orbe n'ouvre
+  plus l'éventail, il ouvre la vue des projets ; l'éventail passe au clic droit (section 8).
 - **Construction :** juste après l'ADR 0025 (réponse 6), qui définit le projet.
 
 ## Contexte
@@ -107,12 +109,26 @@ Le plein écran garde la barre d'état et prend quatre colonnes :
 « Tous les projets » montre une carte par projet : ce qui attend, ce qui tourne avec l'avancement des
 sous-tâches, le dernier mot du fil. La demande « dossier sans projet » de l'ADR 0025 (section 6) y a sa carte.
 
-### 8. Ce qui ne change pas
+### 8. Ouvrir la vue depuis l'orbe
+
+Benoit, le 22 novembre 2026 : « clic droit affiche l'éventail, double-clic affiche la vue projets, un clic
+gauche fait comme le mot d'éveil, Jarvis écoute tout ce que l'on dit ».
+
+| Geste sur l'orbe | Effet |
+| --- | --- |
+| Un clic gauche | Jarvis écoute, comme après « Hey Jarvis » (US1.6) |
+| Double-clic | Ouvre le plein écran sur la vue des projets ; un second double-clic le referme |
+| Clic droit | Ouvre ou ferme l'éventail des tâches (avant : double-clic, ADR 0010) |
+
+Le clic gauche simple reste retardé du délai de double-clic du système (ADR 0010), pour ne pas lancer
+l'écoute avant un double-clic.
+
+### 9. Ce qui ne change pas
 
 Le modèle de Relais (statuts, rattachement automatique d'une session à un sujet), les demandes d'accord
-(ADR 0023), l'éventail (ADR 0010) et le badge de l'orbe.
+(ADR 0023), le contenu de l'éventail (ADR 0010) et le badge de l'orbe.
 
-### 9. Conséquences
+### 10. Conséquences
 
 - Les tâches de Jarvis prennent la forme de Relais dès maintenant : chaque `WorkTask` a un projet et un sujet ;
   ce qui n'en a pas va dans Général.
@@ -120,7 +136,7 @@ Le modèle de Relais (statuts, rattachement automatique d'une session à un suje
   ses sous-tâches.
 - Le plein écran devient une page Razor de plus (tranche à part) ; l'éventail ne change pas.
 
-### 10. Points ouverts
+### 11. Points ouverts
 
 1. Le fil du sujet montre-t-il les messages des agents entre eux, ou seulement ce qui s'adresse à
    l'utilisateur plus le début et la fin des tâches (proposé) ?

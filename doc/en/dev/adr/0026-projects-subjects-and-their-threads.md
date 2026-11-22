@@ -3,7 +3,7 @@
 ## Status
 
 Proposed on 2026-11-22 (work item `stage2/adr-0026-projects-view`), from Benoit's six answers of the same day
-about the mockups. **Not accepted yet**: three points are still open (section 10).
+about the mockups. **Not accepted yet**: three points are still open (section 11).
 
 - **Completes:** [ADR 0013](0013-relais-readiness.md) (the Relais hierarchy Project → Subject → Task → Sub-task
   does not change; this ADR says how the screen shows it and where people talk) and
@@ -11,6 +11,8 @@ about the mockups. **Not accepted yet**: three points are still open (section 10
   agent and its memory).
 - **Changes:** the full screen of the [UI catalog](../ui/catalog.md) (the "À traiter" column becomes a rail
   entry, section 7).
+- **Partly supersedes:** [ADR 0010](0010-task-fan-and-orb-click.md): the double click on the orb no longer
+  opens the task fan, it opens the projects view; the fan moves to the right click (section 8).
 - **Built:** right after ADR 0025 (answer 6), which defines the project.
 
 ## Context
@@ -104,12 +106,26 @@ The full screen keeps the status bar and takes four columns:
 "All projects" shows one card per project: what waits, what runs with the sub-task progress, the last word of
 the thread. The "folder without a project" request of ADR 0025 (section 6) has its card there.
 
-### 8. What does not change
+### 8. Opening the view from the orb
+
+Benoit, 22 November 2026: "right click shows the fan, double click shows the projects view, one left click
+acts like the wake word, Jarvis listens to everything we say".
+
+| Gesture on the orb | Effect |
+| --- | --- |
+| One left click | Jarvis listens, as after "Hey Jarvis" (US1.6) |
+| Double click | Opens the full screen on the projects view; a second double click closes it |
+| Right click | Opens or closes the task fan (before: double click, ADR 0010) |
+
+The single left click is still delayed by the system double-click time (ADR 0010), so listening does not start
+before a double click.
+
+### 9. What does not change
 
 The Relais model (statuses, automatic attachment of a session to a subject), the approval requests
-(ADR 0023), the task fan (ADR 0010) and the orb badge.
+(ADR 0023), the content of the task fan (ADR 0010) and the orb badge.
 
-### 9. Consequences
+### 10. Consequences
 
 - Jarvis tasks take the Relais shape now: each `WorkTask` has a project and a subject; what has none goes to
   Général.
@@ -117,7 +133,7 @@ The Relais model (statuses, automatic attachment of a session to a subject), the
   sub-tasks.
 - The full screen becomes one more Razor page (its own slice); the task fan does not change.
 
-### 10. Open points
+### 11. Open points
 
 1. Does the subject thread show the agents' messages to each other, or only what is addressed to the user plus
    the start and end of tasks (proposed)?
