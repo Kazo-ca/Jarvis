@@ -60,7 +60,7 @@ public sealed class AgentsTests : PageTest
         await OpenSettingsAsync("Agents.Catalog");
 
         await Expect(Settings.Locator("[data-agents-folder]")).ToContainTextAsync("agents");
-        await Expect(Settings.Locator("[data-agent]")).ToHaveCountAsync(6);
+        await Expect(Settings.Locator("[data-agent]")).ToHaveCountAsync(7);
         await Expect(Settings.Locator("[data-agent]").First).ToHaveAttributeAsync("data-agent", "jarvis");
         await Expect(Settings.Locator("[data-agents-issues]")).ToHaveCountAsync(0);
 
@@ -151,7 +151,7 @@ public sealed class AgentsTests : PageTest
     {
         await AllowDocumentsAsync();
         await Page.ClickAsync("#open-conversation");
-        await Expect(Choice.Locator("option")).ToHaveCountAsync(6);
+        await Expect(Choice.Locator("option")).ToHaveCountAsync(7);
         await Choice.SelectOptionAsync("files");
 
         await SendAsync($"Lis le fichier {Documents}/notes.txt");

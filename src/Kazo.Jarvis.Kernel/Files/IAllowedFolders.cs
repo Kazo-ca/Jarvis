@@ -14,6 +14,15 @@ public interface IAllowedFolders
     /// <param name="path">The path a model wrote.</param>
     /// <returns>The verdict, and the resolved path when it is usable.</returns>
     CheckedPath Check(string? path);
+
+    /// <summary>
+    /// Adds a folder to the allowed ones, after the user asked for it in so many words on a page (ADR 0025,
+    /// section 6: creating a project on a folder never allows it without saying so).
+    /// </summary>
+    /// <param name="folder">The folder.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>Whether the folder is allowed now.</returns>
+    ValueTask<bool> AllowAsync(string folder, CancellationToken cancellationToken = default) => new(false);
 }
 
 /// <summary>What the allowed folders say of one path.</summary>

@@ -62,8 +62,8 @@ public sealed class AgentCatalogTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(files.Written, Is.EquivalentTo(new[] { "jarvis", "home-automation", "web", "files", "claude-code", "memory" }));
-            Assert.That(catalog.Agents.Select(agent => agent.Name), Is.EqualTo(new[] { "Jarvis", "Claude Code", "Domotique", "Fichiers", "Mémoire", "Web" }), "The Jarvis agent first, then by name.");
+            Assert.That(files.Written, Is.EquivalentTo(new[] { "jarvis", "home-automation", "web", "files", "claude-code", "memory", "project" }));
+            Assert.That(catalog.Agents.Select(agent => agent.Name), Is.EqualTo(new[] { "Jarvis", "Claude Code", "Domotique", "Fichiers", "Mémoire", "Projet", "Web" }), "The Jarvis agent first, then by name.");
             Assert.That(catalog.Main.Id, Is.EqualTo(AgentIds.Main));
             Assert.That(catalog.Find("web")!.Tools, Is.EqualTo(new[] { "web_search", "fetch_url" }));
             Assert.That(catalog.Issues, Is.Empty);
@@ -86,7 +86,7 @@ public sealed class AgentCatalogTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(files.Written, Is.EquivalentTo(new[] { "jarvis", "home-automation", "files", "claude-code" }), "The untouched files follow; the user's two do not.");
+            Assert.That(files.Written, Is.EquivalentTo(new[] { "jarvis", "home-automation", "files", "claude-code", "project" }), "The untouched files follow; the user's two do not.");
             Assert.That(restarted.Find("web")!.Name, Is.EqualTo("Toile"));
             Assert.That(restarted.Find("web")!.Instructions, Is.EqualTo("Mes consignes."));
             Assert.That(restarted.Find("memory"), Is.Null, "A deleted agent stays deleted.");
@@ -172,7 +172,7 @@ public sealed class AgentCatalogTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(names, Is.EqualTo(new[] { "Fichiers", "Web" }));
+            Assert.That(names, Is.EqualTo(new[] { "Fichiers", "Projet", "Web" }));
             Assert.That(description, Does.Contain("\n- Web: Chercher sur le web et lire une page."));
             Assert.That(description, Does.Contain("\n- Fichiers: "));
             Assert.That(description, Does.Not.Contain("Domotique"), "An agent without a tool is not listed.");

@@ -48,6 +48,8 @@ public sealed partial class ConversationEngineTests
     private Agents.FakeAgentFiles? agentFiles;
     private Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog? agents;
     private AgentChoice? agentChoice;
+    private Projects.FakeLocalFiles? projectFiles;
+    private Kazo.Jarvis.Features.Projects.Catalog.ProjectCatalog? projects;
     private List<IEvent> published = null!;
     private IDisposable[] subscriptions = [];
 
@@ -75,14 +77,16 @@ public sealed partial class ConversationEngineTests
         {
             agentFiles = new Agents.FakeAgentFiles();
             agents = new Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog(agentFiles, registry, settings, language, Bus, NullLogger<Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog>.Instance);
-            registry.Register(new Kazo.Jarvis.Features.Agents.Catalog.HandToAgentTool(() => agents));
+            projectFiles = new Projects.FakeLocalFiles();
+            projects = new Kazo.Jarvis.Features.Projects.Catalog.ProjectCatalog(settings, projectFiles);
+            registry.Register(new Kazo.Jarvis.Features.Agents.Catalog.HandToAgentTool(() => agents, () => projects));
             registry.Register(new Kazo.Jarvis.Features.Agents.Catalog.ReturnToJarvisTool());
             agents.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
             agentChoice = new AgentChoice();
         }
         else
         {
-            (agentFiles, agents, agentChoice) = (null, null, null);
+            (agentFiles, agents, agentChoice, projectFiles, projects) = (null, null, null, null, null);
         }
 
         engine = new ConversationEngine(
@@ -101,7 +105,8 @@ public sealed partial class ConversationEngineTests
             // Only the tests of the work handed to Claude Code have the slice of its sessions.
             claudeTasks = TestContext.CurrentContext.Test.Properties.ContainsKey(WithClaudeTasks) ? new FakeClaudeTasks() : null,
             agents,
-            agentChoice);
+            agentChoice,
+            projects);
         published = [];
         subscriptions =
         [
@@ -136,6 +141,7 @@ public sealed partial class ConversationEngineTests
 
         engine.Dispose();
         agents?.Dispose();
+        projects?.Dispose();
         registry.Dispose();
         client.Dispose();
         cloud?.Dispose();

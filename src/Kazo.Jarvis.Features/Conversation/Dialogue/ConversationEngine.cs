@@ -1,5 +1,6 @@
 using System.Text;
 using Kazo.Jarvis.Kernel.Agents;
+using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.Conversation;
@@ -76,6 +77,7 @@ public sealed partial class ConversationEngine :
     private readonly IClaudeTasks? claudeTasks;
     private readonly IAgentCatalog? agents;
     private readonly AgentChoice? choice;
+    private readonly IProjectCatalog? projects;
     private readonly Lock gate = new();
     private Answering? current;
 
@@ -97,6 +99,7 @@ public sealed partial class ConversationEngine :
     /// <param name="claudeTasks">Who starts the Claude Code sessions, when that slice is there: the target of the tasks.</param>
     /// <param name="agents">The agents, when that slice is there: who answers a turn, and with which tools (ADR 0025).</param>
     /// <param name="choice">The agent the user chose in the conversation window, if any.</param>
+    /// <param name="projects">The projects, when that slice is there: what a turn about one is told (ADR 0025, section 10).</param>
     public ConversationEngine(
         IAssistantModel model,
         SystemPrompt prompt,
@@ -111,10 +114,12 @@ public sealed partial class ConversationEngine :
         IHandOff? handOff = null,
         IClaudeTasks? claudeTasks = null,
         IAgentCatalog? agents = null,
-        AgentChoice? choice = null)
+        AgentChoice? choice = null,
+        IProjectCatalog? projects = null)
     {
         this.agents = agents;
         this.choice = choice;
+        this.projects = projects;
         this.memory = memory;
         this.handOff = handOff;
         this.claudeTasks = claudeTasks;
@@ -421,6 +426,7 @@ public sealed partial class ConversationEngine :
                 // with agents, only those of the agent that answers (ADR 0025, section 1).
                 var requester = new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model");
                 var agent = FirstAgent(answering);
+                run.Project = FirstProject(answering);
                 local = new Usage();
                 while (true)
                 {
@@ -431,6 +437,7 @@ public sealed partial class ConversationEngine :
                     }
 
                     var remembered = await RecallAsync(answering.Turn, agent, recall.Block, turnLanguage, contextLength, token).ConfigureAwait(false);
+                    remembered = await WithProjectAsync(run, agent, remembered, contextLength, token).ConfigureAwait(false);
                     var speaker = new Speaker(client!, requester, Declarations(turnLanguage, ToolsFor(run, agent)), remembered, Agent: agent);
                     local.Add(await RunAsync(run, speaker, [.. messages], token).ConfigureAwait(false));
                     if (run.Next is not { } next || run.Handed is not null || run.Delegated)
@@ -669,6 +676,30 @@ public sealed partial class ConversationEngine :
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             LogRecallFailed(exception, turn);
+            return block;
+        }
+    }
+
+    /// <summary>
+    /// When the turn is about a project, the agent that answers is told its folder and its memory, after its own
+    /// memory (ADR 0025, sections 6 and 10). The Jarvis agent is not: its request stays short, and it hands over.
+    /// </summary>
+    private async ValueTask<string?> WithProjectAsync(TurnRun run, AgentDefinition? agent, string? block, int contextLength, CancellationToken token)
+    {
+        if (projects is null || agents is null || agent is null || agent.Id == agents.Main.Id || run.Project is not { } project)
+        {
+            return block;
+        }
+
+        try
+        {
+            var told = await projects.RecallAsync(project, run.Language, contextLength, token).ConfigureAwait(false);
+            journal.Show(run.Answering.Update(turn => turn with { Project = project.Name }));
+            return string.IsNullOrWhiteSpace(block) ? told : block + "\n\n" + told;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            LogRecallFailed(exception, run.Answering.Turn);
             return block;
         }
     }

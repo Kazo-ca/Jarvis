@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Projets</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Un projet est un nom et un dossier de ce PC. Quand une demande porte sur un projet, l'agent qui répond reçoit son dossier et ce que dit son fichier de mémoire.</value>
+  </data>
+  <data name="ListLabel" xml:space="preserve">
+    <value>Vos projets</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Aucun projet pour le moment.</value>
+  </data>
+  <data name="Memory" xml:space="preserve">
+    <value>Mémoire : {0}</value>
+  </data>
+  <data name="NoMemory" xml:space="preserve">
+    <value>Pas encore de mémoire : écrivez un fichier {0} dans le dossier, à la main ou avec Claude Code.</value>
+  </data>
+  <data name="Allowed" xml:space="preserve">
+    <value>Jarvis peut lire ce dossier.</value>
+  </data>
+  <data name="NotAllowed" xml:space="preserve">
+    <value>Jarvis ne peut pas lire ce dossier : il n'est pas dans les dossiers autorisés.</value>
+  </data>
+  <data name="Allow" xml:space="preserve">
+    <value>Autoriser ce dossier</value>
+  </data>
+  <data name="AllowConfirm" xml:space="preserve">
+    <value>Jarvis pourra lister et lire les fichiers de {0}.</value>
+  </data>
+  <data name="AllowYes" xml:space="preserve">
+    <value>Autoriser</value>
+  </data>
+  <data name="AllowNo" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="AllowFailed" xml:space="preserve">
+    <value>Le dossier n'a pas pu être autorisé.</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="RemoveHint" xml:space="preserve">
+    <value>Retirer un projet laisse son dossier et son fichier de mémoire comme ils sont.</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Nouveau projet</value>
+  </data>
+  <data name="NameLabel" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="NamePlaceholder" xml:space="preserve">
+    <value>Kazo OS</value>
+  </data>
+  <data name="FolderLabel" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="FolderPlaceholder" xml:space="preserve">
+    <value>C:\Projets\KazoOs</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="Add_BadName" xml:space="preserve">
+    <value>Le nom doit avoir une lettre ou un chiffre, et 60 caractères au plus.</value>
+  </data>
+  <data name="Add_NameTaken" xml:space="preserve">
+    <value>Un autre projet porte ce nom.</value>
+  </data>
+  <data name="Add_BadFolder" xml:space="preserve">
+    <value>Ce n'est pas un chemin de dossier utilisable.</value>
+  </data>
+  <data name="Add_Full" xml:space="preserve">
+    <value>Il y a déjà 50 projets.</value>
+  </data>
+  <data name="Add_NotSaved" xml:space="preserve">
+    <value>Le projet n'a pas pu être enregistré.</value>
+  </data>
+</root>

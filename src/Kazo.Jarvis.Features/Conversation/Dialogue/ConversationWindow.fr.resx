@@ -204,4 +204,16 @@
   <data name="AgentChoice_Hint" xml:space="preserve">
     <value>Une demande écrite va droit à l'agent choisi, sans passer par l'agent Jarvis.</value>
   </data>
+  <data name="Project" xml:space="preserve">
+    <value>Projet {0}</value>
+  </data>
+  <data name="ProjectChoice" xml:space="preserve">
+    <value>Projet :</value>
+  </data>
+  <data name="ProjectChoice_Auto" xml:space="preserve">
+    <value>Nommé dans la demande</value>
+  </data>
+  <data name="ProjectChoice_Hint" xml:space="preserve">
+    <value>Le projet dont parle une demande écrite. Une demande dite nomme son projet elle-même.</value>
+  </data>
 </root>

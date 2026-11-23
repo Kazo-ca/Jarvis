@@ -49,4 +49,5 @@ public interface IAgentCatalog
 /// <summary>What a model wrote when it handed the turn to an agent.</summary>
 /// <param name="Agent">The agent, or <see langword="null"/> when the name is unknown: the hand is then refused.</param>
 /// <param name="Asked">The name as the model wrote it.</param>
-public sealed record AgentHand(AgentDefinition? Agent, string? Asked);
+/// <param name="Project">The project the model named with the agent, as it wrote it (ADR 0025, section 10), or <see langword="null"/>.</param>
+public sealed record AgentHand(AgentDefinition? Agent, string? Asked, string? Project = null);

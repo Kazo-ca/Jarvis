@@ -31,7 +31,7 @@ public static class AgentsSlice
         services.AddHostedService(provider => provider.GetRequiredService<AgentCatalog>());
 
         // The catalog reads the registry these tools are in: it is asked when a tool is described, not when it is built.
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, HandToAgentTool>(provider => new HandToAgentTool(provider.GetRequiredService<AgentCatalog>)));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, HandToAgentTool>(provider => new HandToAgentTool(provider.GetRequiredService<AgentCatalog>, provider.GetService<Kazo.Jarvis.Kernel.Projects.IProjectCatalog>)));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, ReturnToJarvisTool>());
 
         // Right after the memory (16): who answers, before what the tools may do.

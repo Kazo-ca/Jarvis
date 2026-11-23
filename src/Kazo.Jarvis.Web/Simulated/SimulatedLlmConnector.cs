@@ -25,7 +25,7 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// for <c>hand_off_to_claude</c> (a simulated cloud provider then says back what it received), « que retiens-tu »
 /// « où en est Claude sur … » for <c>get_claude_sessions</c> and « silence pendant N heures » for <c>start_quiet_period</c>,
 /// to hear back the memory block the model received, « passe la main à X » for <c>hand_to_agent</c> (the Jarvis agent
-/// also hands over by itself when the words ask for a tool only another agent sees), « pas pour toi » for
+/// also hands over by itself when the words ask for a tool only another agent sees), « il reste quoi à faire dans X » for the agent of the projects (stage2/19-projects), « pas pour toi » for
 /// <c>return_to_jarvis</c>, and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
@@ -195,7 +195,7 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
             var result = last?.Role == ChatRole.Tool ? last.Contents.OfType<FunctionResultContent>().LastOrDefault()?.Result?.ToString() : null;
             var answer = result is not null ? "Résultat de l'outil, Monsieur : " + result
                 : !provider.Kind.IsLocal() ? CloudAnswer(provider, messages, options)
-                : last?.Role == ChatRole.User && RecallRequest().IsMatch(last.Text) ? Recalled(options?.Instructions)
+                : last?.Role == ChatRole.User && (RecallRequest().IsMatch(last.Text) || LeftToDoRequest().IsMatch(last.Text)) ? Recalled(options?.Instructions)
                 : Answer;
             foreach (var word in answer.Split(' '))
             {
@@ -266,13 +266,16 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
             // agent that answers (stage2/18-agent-memory).
             var user = Between(instructions, ("[Mémoire]", "[Fin de la mémoire]"), ("[Memory]", "[End of memory]"));
             var agent = Between(instructions, ("[Mémoire de l'agent]", "[Fin de la mémoire de l'agent]"), ("[Agent memory]", "[End of the agent memory]"));
-            return (user, agent) switch
+            // The project the turn is about (stage2/19-projects), as the agent that answers was told.
+            var project = Between(instructions, ("[Projet]", "[Fin du projet]"), ("[Project]", "[End of the project]"));
+            var remembered = (user, agent) switch
             {
                 (null, null) => "Je ne retiens rien, Monsieur.",
                 (_, null) => "Je retiens ceci, Monsieur : " + user,
                 (null, _) => "Je retiens ceci pour mon travail, Monsieur : " + agent,
                 _ => "Je retiens ceci, Monsieur : " + user + " Et pour mon travail : " + agent,
             };
+            return project is null ? remembered : remembered + " Le projet : " + project;
         }
 
         private static string? Between(string? instructions, params (string Opening, string Closing)[] marks)
@@ -425,7 +428,14 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
             // the agent that has it, by the name the hand tool lists; « passe la main à X » names any agent.
             if (Offered("hand_to_agent") && AgentFor(request, options) is { } agent)
             {
-                return new FunctionCallContent("call_hand", "hand_to_agent", new Dictionary<string, object?> { ["agent"] = agent, ["reason"] = "Cette demande est pour cet agent." });
+                var arguments = new Dictionary<string, object?> { ["agent"] = agent, ["reason"] = "Cette demande est pour cet agent." };
+                if (ProjectIn(request, options) is { } project)
+                {
+                    // The project is named with the agent (ADR 0025, section 10).
+                    arguments["project"] = project;
+                }
+
+                return new FunctionCallContent("call_hand", "hand_to_agent", arguments);
             }
 
             // A tool the registry does not know: only when tools are offered, as a real model could invent one.
@@ -442,6 +452,13 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return Sentence(named.Groups[1].Value);
             }
 
+            if (LeftToDoRequest().IsMatch(request))
+            {
+                // « il reste quoi à faire dans X » (stage2/19-projects): for the one agent of the projects.
+                var hand = options?.Tools?.OfType<AIFunctionDeclaration>().FirstOrDefault(tool => tool.Name == "hand_to_agent")?.JsonSchema.GetRawText() ?? string.Empty;
+                return new[] { "Projet", "Project" }.FirstOrDefault(name => hand.Contains("\"" + name + "\"", StringComparison.Ordinal));
+            }
+
             var schema = options?.Tools?.OfType<AIFunctionDeclaration>().FirstOrDefault(tool => tool.Name == "hand_to_agent")?.JsonSchema.GetRawText() ?? string.Empty;
             string? Listed(params string[] names) => names.FirstOrDefault(name => schema.Contains("\"" + name + "\"", StringComparison.Ordinal));
 
@@ -450,6 +467,16 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 : RememberRequest().IsMatch(request) || ForgetRequest().IsMatch(request) || KnownRequest().IsMatch(request) ? Listed("Mémoire", "M\\u00E9moire", "Memory")
                 : ScriptRequest().IsMatch(request) || TurnOffRequest().IsMatch(request) || TurnOnRequest().IsMatch(request) ? Listed("Domotique", "Home")
                 : SessionsRequest().IsMatch(request) ? Listed("Claude Code")
+                : null;
+        }
+
+        /// <summary>The project of the hand tool the words of <paramref name="request"/> name, if any.</summary>
+        private static string? ProjectIn(string request, ChatOptions? options)
+        {
+            var schema = options?.Tools?.OfType<AIFunctionDeclaration>().FirstOrDefault(tool => tool.Name == "hand_to_agent")?.JsonSchema;
+            return schema is { } hand && hand.TryGetProperty("properties", out var properties) && properties.TryGetProperty("project", out var project)
+                && project.TryGetProperty("enum", out var names)
+                ? names.EnumerateArray().Select(name => name.GetString()).FirstOrDefault(name => name is not null && request.Contains(name, StringComparison.OrdinalIgnoreCase))
                 : null;
         }
 
@@ -468,6 +495,9 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         {
         }
     }
+
+    [GeneratedRegex(@"(?:reste (?:quoi )?à faire|left to do)", RegexOptions.IgnoreCase)]
+    private static partial Regex LeftToDoRequest();
 
     [GeneratedRegex(@"(?:pas pour toi|not for you)", RegexOptions.IgnoreCase)]
     private static partial Regex NotForMeRequest();

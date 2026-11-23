@@ -1,0 +1,76 @@
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.projects-entry {
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+}
+
+.projects-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+}
+
+.projects-name {
+    flex: 1 1 auto;
+    font-weight: 600;
+}
+
+.projects-folder {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.projects-note {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+    color: var(--jarvis-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.projects-add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.projects-input {
+    flex: 1 1 10rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.projects-input-folder {
+    flex: 2 1 16rem;
+}
+
+.projects-button {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--jarvis-line);
+    background: transparent;
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.projects-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.projects-problem {
+    margin: 0.4rem 0 0;
+    color: var(--jarvis-amber);
+}
