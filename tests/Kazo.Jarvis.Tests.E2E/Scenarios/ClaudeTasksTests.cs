@@ -206,6 +206,43 @@ public sealed class ClaudeTasksTests : PageTest
         await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("1 Claude Code sessions are already running");
     }
 
+    [Test]
+    public async Task An_answer_written_to_the_task_in_the_projects_view_resumes_the_session_that_is_over()
+    {
+        var launches = await CountAsync();
+        await TypeAsync("Ask Claude Code to write the notes");
+        await Expect(Window).ToHaveCountAsync(1, new() { Timeout = 10_000 });
+        await Window.Locator("[data-confirmation-approve]").ClickAsync();
+        await Expect(ClaudeCode).ToHaveAttributeAsync("data-last-task-status", "Done", new() { Timeout = 10_000 });
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 15_000 });
+        await CloseDialogsAsync();
+
+        // The projects view (ADR 0026): the session is a task of the subject of its folder, in « Général ».
+        await Page.Locator(".orb-frame .orb").DblClickAsync();
+        var view = Page.Locator("[data-dialog-key='Projects.View'] [data-projects-view]");
+        await view.Locator("[data-rail='_general']").ClickAsync();
+        await view.Locator("[data-subject]").Filter(new() { HasTextString = "Documents" }).First.ClickAsync();
+        // Sessions of other scenarios stay on the board: the task of this one is the newest of its title.
+        var step = view.Locator("[data-step]").Filter(new() { HasTextString = "write the notes" }).Last;
+        await Expect(step).ToHaveAttributeAsync("data-step-kind", "Done");
+        var label = await step.GetAttributeAsync("data-step");
+
+        // « T1> … » hands the answer to the session, which resumes: the same task works again, then is done.
+        await view.Locator("[data-thread-text]").FillAsync($"{label}> yes, go on");
+        await view.Locator("[data-thread-send]").ClickAsync();
+        var answer = view.Locator("[data-thread-message='answer']").Last;
+        await Expect(answer).ToContainTextAsync("handing your answer to the Claude Code session of Documents", new() { Timeout = 15_000 });
+        await Expect(ClaudeCode).ToHaveAttributeAsync("data-launches", (launches + 2).ToString(CultureInfo.InvariantCulture));
+        await Expect(ClaudeCode).ToHaveTextAsync("yes, go on");
+        await Expect(ClaudeCode).ToHaveAttributeAsync("data-last-task-summary", new Regex("Session simulée reprise.*yes, go on"), new() { Timeout = 10_000 });
+        await Expect(ClaudeCode).ToHaveAttributeAsync("data-last-task-status", "Done");
+        await Expect(step).ToHaveAttributeAsync("data-step", label!);
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 15_000 });
+
+        // The view remembers where it was: the next scenario finds it on all the projects.
+        await view.Locator("[data-rail='_all']").ClickAsync();
+    }
+
     private async Task<int> CountAsync() =>
         int.Parse(await ClaudeCode.GetAttributeAsync("data-launches") ?? "0", CultureInfo.InvariantCulture);
 

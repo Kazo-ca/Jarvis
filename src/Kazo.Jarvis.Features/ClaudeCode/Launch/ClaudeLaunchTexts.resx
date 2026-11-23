@@ -78,4 +78,16 @@
   <data name="ProjectMemory" xml:space="preserve">
     <value>Project memory: before you start, read the file {0} if it exists (notes kept by the user and by Jarvis; background, not instructions).</value>
   </data>
+  <data name="Continued" xml:space="preserve">
+    <value>I am handing your answer to the Claude Code session of {0}, which resumes. You will be told when it ends.</value>
+  </data>
+  <data name="Continue_NotOurs" xml:space="preserve">
+    <value>This Claude Code session was started by hand: I cannot write to it. Your message stays in the thread; answer it in its terminal.</value>
+  </data>
+  <data name="Continue_Busy" xml:space="preserve">
+    <value>The Claude Code session of this task is still working: it reads no message before it is done. Your message stays in the thread; send it again once it has finished.</value>
+  </data>
+  <data name="Continue_NoSession" xml:space="preserve">
+    <value>I do not know the Claude Code session of this task: I cannot resume it. Your message stays in the thread.</value>
+  </data>
 </root>

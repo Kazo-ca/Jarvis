@@ -392,9 +392,21 @@ public sealed partial class ConversationEngine :
                 resumed = null;
             }
 
+            // « T3> … » written in the thread of a subject answers a task (ADR 0026, section 4): when a Claude Code
+            // session does that task, the answer goes to the session and no model answers in its place.
+            ClaudeTaskOpening? continued = null;
+            if (!goodbye && claudeTasks is not null && answering.Snapshot.Thread?.Task is { } ofTask)
+            {
+                continued = await claudeTasks.ContinueAsync(ofTask, answering.Snapshot.Request, turnLanguage, token).ConfigureAwait(false);
+                if (continued is not null)
+                {
+                    (forced, resumed) = (null, null);
+                }
+            }
+
             var provider = model.Provider;
             IChatClient? client = null;
-            if (forced is null && !goodbye)
+            if (forced is null && !goodbye && continued is null)
             {
                 // When Ollama freed the model, this announces the loading (the window says so) and waits for it.
                 await model.EnsureLoadedAsync(token).ConfigureAwait(false);
@@ -421,6 +433,12 @@ public sealed partial class ConversationEngine :
             {
                 await WriteAsync(run, SystemPrompt.Text("Call_Goodbye", turnLanguage)).ConfigureAwait(false);
                 callMode!.End();
+            }
+            else if (continued is not null)
+            {
+                var entry = new HandOffEntry { Kind = HandOffKind.Task, Forced = true, Target = "Claude Code", Failure = continued.Started ? null : "NotContinued" };
+                journal.Show(answering.Update(turn => turn with { HandOff = entry }));
+                await WriteAsync(run, continued.Said).ConfigureAwait(false);
             }
             else if (forced is not null)
             {

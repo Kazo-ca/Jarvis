@@ -152,7 +152,7 @@ public sealed class ProjectsViewTests : PageTest
     }
 
     [Test]
-    public async Task A_message_written_in_the_thread_of_a_subject_is_answered_there_and_T1_answers_a_task()
+    public async Task A_message_written_in_the_thread_of_a_subject_is_answered_there_and_T1_names_a_task_of_a_session_started_by_hand()
     {
         await PressAsync("#hand-session-work");
         await Orb.DblClickAsync();
@@ -193,6 +193,9 @@ public sealed class ProjectsViewTests : PageTest
         await Expect(requests.Last).ToContainTextAsync("oui, on fait comme ça");
         await Expect(requests.Last).Not.ToContainTextAsync(">");
         await Expect(answers.Last).ToHaveAttributeAsync("data-thread-pending", "false", new() { Timeout = 20_000 });
+
+        // Its session was started by hand: Jarvis does not write to it, says so, and keeps the message.
+        await Expect(answers.Last).ToContainTextAsync("started by hand");
         await requests.Last.Locator("[data-thread-tag]").ClickAsync();
         await Expect(View.Locator("[data-task-thread] [data-task-messages]")).ToContainTextAsync("oui, on fait comme ça");
     }

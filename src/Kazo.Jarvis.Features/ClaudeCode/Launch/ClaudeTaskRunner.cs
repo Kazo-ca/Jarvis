@@ -314,6 +314,123 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
     }
 
     /// <inheritdoc />
+    public async ValueTask<ClaudeTaskOpening?> ContinueAsync(string taskId, string message, AssistantLanguage language, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(taskId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(message);
+        if (board.Find(taskId) is not { } task || task.Operator.Account != TaskOperator.ClaudeCode)
+        {
+            return null;
+        }
+
+        // A session started by hand belongs to its terminal: Jarvis follows it, it does not write to it.
+        if (task.Source != TaskSource.Harness)
+        {
+            return Refused("Continue_NotOurs", language);
+        }
+
+        if (claude is null)
+        {
+            return Refused("NoClaudeCode", language);
+        }
+
+        if (task.Operator.Session is not { Length: > 0 } sessionId || task.Folder is not { } worked)
+        {
+            return Refused("Continue_NoSession", language);
+        }
+
+        if (Folders.FirstOrDefault(root => SameFolder(root, worked)) is not { } folder)
+        {
+            return Refused("FolderNotAllowed", language, FolderChoice.NameOf(worked));
+        }
+
+        var name = FolderChoice.NameOf(folder);
+        var options = settings.Read(ClaudeLaunchOptions.Section);
+        lock (gate)
+        {
+            // One run per session: a session that still works reads no message (headless mode).
+            if (sessions.ContainsKey(taskId) || opening.ContainsKey(taskId))
+            {
+                return Refused("Continue_Busy", language);
+            }
+
+            if (closing || sessions.Count + starting >= options.MostSessions)
+            {
+                return Refused("TooMany", language, sessions.Count + starting);
+            }
+
+            starting++;
+        }
+
+        try
+        {
+            var install = await claude.FindAsync(cancellationToken).ConfigureAwait(false);
+            if (!install.Found)
+            {
+                return Refused("NotInstalled", language);
+            }
+
+            var budget = spend?.SessionBudget(options.SessionBudgetUsd) ?? options.SessionBudgetUsd;
+            if (budget <= 0)
+            {
+                return Refused("CapReached", language);
+            }
+
+            var launch = new ClaudeLaunch(task.Id, folder, message.Trim())
+            {
+                Trusted = options.IsTrusted(folder),
+                BudgetUsd = budget,
+                Model = options.Model,
+                ResumeSession = sessionId,
+            };
+            var opened = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            lock (gate)
+            {
+                opening[task.Id] = opened;
+            }
+
+            Session session;
+            try
+            {
+                var run = await claude.StartAsync(launch, cancellationToken).ConfigureAwait(false);
+                session = new Session(task.Id, folder, name, language, run, time.GetUtcNow());
+                lock (gate)
+                {
+                    sessions[task.Id] = session;
+                }
+            }
+            finally
+            {
+                lock (gate)
+                {
+                    opening.Remove(task.Id);
+                }
+
+                opened.TrySetResult();
+            }
+
+            // The task comes back only once its session runs again: a launch that fails leaves it as it ended.
+            await board.ChangeAsync(task.Id, new TaskChange(WorkTaskStatus.Working) { Reopen = true }, CancellationToken.None).ConfigureAwait(false);
+            LogStarted(task.Id, launch.Trusted);
+            session.Following = Task.Run(() => FollowAsync(session));
+            Changed?.Invoke();
+            return new ClaudeTaskOpening(true, Text("Continued", language, name), task.Id);
+        }
+        catch (ClaudeCodeException exception)
+        {
+            LogStartFailed(exception, task.Id);
+            return Refused("StartFailed", language);
+        }
+        finally
+        {
+            lock (gate)
+            {
+                starting--;
+            }
+        }
+    }
+
+    /// <inheritdoc />
     public async ValueTask<bool> StopAsync(string taskId)
     {
         Session? session;

@@ -221,6 +221,18 @@ internal sealed class FakeClaudeTasks : Kazo.Jarvis.Kernel.ClaudeCode.IClaudeTas
 
     public List<string> Resumed { get; } = [];
 
+    /// <summary>What <see cref="ContinueAsync"/> answers for a task; a task that is not here is not the work of a session.</summary>
+    public Dictionary<string, Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskOpening> Sessions { get; } = [];
+
+    public List<(string Task, string Message)> Continued { get; } = [];
+
+    public ValueTask<Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskOpening?> ContinueAsync(
+        string taskId, string message, Kazo.Jarvis.Kernel.Localization.AssistantLanguage language, CancellationToken cancellationToken = default)
+    {
+        Continued.Add((taskId, message));
+        return ValueTask.FromResult(Sessions.GetValueOrDefault(taskId));
+    }
+
     public IReadOnlyList<string> Running => [];
 
     public Kazo.Jarvis.Kernel.ClaudeCode.ClaudeTaskRequest? Resume(string request)

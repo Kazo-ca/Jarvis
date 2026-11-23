@@ -33,6 +33,22 @@ public interface IClaudeTasks
     /// <returns>Whether a session started, and the sentence that tells what happened.</returns>
     ValueTask<ClaudeTaskOpening> StartAsync(ClaudeTaskRequest request, Func<string, ValueTask> announce, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Hands an answer of the user to the session of a task (ADR 0026, section 4, « T3&gt; … »): a session Jarvis
+    /// started and that is over is resumed with the message, and its task goes back to work. A session started
+    /// by hand is not Jarvis's to write to, and a session that still runs takes no message: both are said.
+    /// </summary>
+    /// <param name="taskId">The task the user answers.</param>
+    /// <param name="message">The answer, word for word.</param>
+    /// <param name="language">The language of the turn, for what Jarvis says.</param>
+    /// <param name="cancellationToken">An interruption by the user, until the session started.</param>
+    /// <returns>
+    /// Whether the session was resumed and the sentence to say; <see langword="null"/> when the task is not the
+    /// work of a Claude Code session, so the message is answered like any other.
+    /// </returns>
+    ValueTask<ClaudeTaskOpening?> ContinueAsync(string taskId, string message, AssistantLanguage language, CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult<ClaudeTaskOpening?>(null);
+
     /// <summary>Stops the session of a task: the task becomes <c>abandoned</c>.</summary>
     /// <param name="taskId">The task.</param>
     /// <returns>Whether a session was running for it.</returns>

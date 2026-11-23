@@ -525,6 +525,102 @@ public sealed class ClaudeTaskRunnerTests
         });
     }
 
+    // ----- An answer of the user resumes the session of a task (ADR 0026, section 4) -----
+
+    private async Task<(ClaudeTaskOpening Opening, FakeRun Run)> DoneSessionAsync()
+    {
+        var opening = await StartAsync("corrige le menu");
+        var run = claude.Runs.Single();
+        run.Emit(new ClaudeStarted("s-1", "claude-sonnet-5-5"));
+        await UntilAsync(() => board.Find(opening.TaskId!)!.Operator.Session == "s-1");
+        run.Emit(new ClaudeTurnEnded("Deux façons de faire : laquelle ?", 0.10m, false, 0));
+        run.Exit(0);
+        await EndedAsync(1);
+        return (opening, run);
+    }
+
+    [Test]
+    public async Task An_answer_resumes_the_session_that_is_over_with_the_message_and_the_task_goes_back_to_work()
+    {
+        var (opening, _) = await DoneSessionAsync();
+        var done = board.Find(opening.TaskId!)!.Status;
+
+        var continued = await runner.ContinueAsync(opening.TaskId!, " la première ", AssistantLanguage.French);
+
+        var launch = claude.Launches[1];
+        var again = board.Find(opening.TaskId!)!;
+        claude.Runs[1].Emit(new ClaudeTurnEnded("C'est fait.", 0.20m, false, 0));
+        claude.Runs[1].Exit(0);
+        await EndedAsync(2);
+        var after = board.Find(opening.TaskId!)!;
+        Assert.Multiple(() =>
+        {
+            Assert.That(done, Is.EqualTo(WorkTaskStatus.Done));
+            Assert.That(continued, Is.EqualTo(new ClaudeTaskOpening(true, "Je transmets votre réponse à la session Claude Code de kazo-bar, qui reprend. Vous serez prévenu à la fin.", opening.TaskId)));
+            Assert.That((launch.TaskId, launch.Folder, launch.FirstMessage, launch.ResumeSession), Is.EqualTo((opening.TaskId, Bar, "la première", "s-1")));
+            Assert.That(again.Status, Is.EqualTo(WorkTaskStatus.Working));
+            Assert.That(board.Tasks, Has.Count.EqualTo(1), "The same task, not a new one.");
+            Assert.That((after.Status, after.Summary), Is.EqualTo((WorkTaskStatus.Done, "C'est fait.")));
+        });
+    }
+
+    [Test]
+    public async Task A_session_that_still_works_takes_no_message()
+    {
+        var opening = await StartAsync("corrige le menu");
+        claude.Runs.Single().Emit(new ClaudeStarted("s-1", "claude-sonnet-5-5"));
+        await UntilAsync(() => board.Find(opening.TaskId!)!.Operator.Session == "s-1");
+
+        var continued = await runner.ContinueAsync(opening.TaskId!, "la première", AssistantLanguage.French);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(continued!.Started, Is.False);
+            Assert.That(continued.Said, Does.Contain("travaille encore"));
+            Assert.That(claude.Launches, Has.Count.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task A_session_started_by_hand_is_not_written_to_and_another_kind_of_task_is_not_a_session()
+    {
+        var byHand = await board.CreateAsync(new NewWorkTask("corrige le pied de page", TaskKeys.Project(null, Bar), TaskKeys.Inbox, new TaskOperator(TaskOperator.ClaudeCode, "s-hand"), TaskSource.Hook, Bar));
+        var other = await board.CreateAsync(new NewWorkTask("note", TaskKeys.Project(null, Bar), TaskKeys.Inbox, new TaskOperator("someone"), TaskSource.Mcp, Bar));
+
+        var refused = await runner.ContinueAsync(byHand.Id, "oui", AssistantLanguage.French);
+        var notASession = await runner.ContinueAsync(other.Id, "oui", AssistantLanguage.French);
+        var unknown = await runner.ContinueAsync("no-such-task", "oui", AssistantLanguage.French);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(refused!.Started, Is.False);
+            Assert.That(refused.Said, Does.Contain("lancée à la main"));
+            Assert.That(notASession, Is.Null);
+            Assert.That(unknown, Is.Null);
+            Assert.That(claude.Launches, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task A_resume_that_cannot_start_leaves_the_task_as_it_ended()
+    {
+        var (opening, _) = await DoneSessionAsync();
+        claude.StartFailure = new ClaudeCodeException("no");
+
+        var failed = await runner.ContinueAsync(opening.TaskId!, "la première", AssistantLanguage.French);
+        claude.StartFailure = null;
+        budget.Left = 0m;
+        var capped = await runner.ContinueAsync(opening.TaskId!, "la première", AssistantLanguage.French);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(failed!.Started, Is.False);
+            Assert.That(capped!.Said, Does.Contain("plafond"));
+            Assert.That(board.Find(opening.TaskId!)!.Status, Is.EqualTo(WorkTaskStatus.Done));
+            Assert.That(runner.Running, Is.Empty);
+        });
+    }
+
     private sealed class FakeProjects(string folder, string memory) : IProjectCatalog
     {
         public event Action? Changed
