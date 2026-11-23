@@ -105,6 +105,13 @@ An agent gives no right: it chooses what the model **sees**. Every call still go
   there is nothing to sort: one call, with all it has.
 - The other agents get `return_to_jarvis`.
 - An agent cannot call the tool of another one: the call is denied ("NotThisAgent") without going further.
+- **The tools of a generic MCP server** go to the agent chosen on the "Tool servers" page
+  (`McpServerOptions.Agent`, the "Agent" list of each server); the Jarvis agent by default. The choice applies to
+  the next turn, without a new connection. A Home Assistant server has no choice: its tools go to
+  `home-automation`. A chosen agent whose file is gone: the tools go back to the Jarvis agent.
+- A tool **for every agent** (`ITool.ForEveryAgent`) is seen by each agent but the Jarvis agent, whatever its file
+  says. It does not count as a tool of its own: an agent that only has that one does not take the hand. Today
+  there is one: `remember_agent_fact`.
 
 ## The sorting and the hand (`ConversationEngine`)
 
@@ -128,6 +135,27 @@ An agent gives no right: it chooses what the model **sees**. Every call still go
 - These go through no agent: "Ask Claude…" and "Ask Claude Code to…", recognized by code, the answer to a
   confirmation request, and the announcement turn.
 
+## The memory of each agent (work item 18, ADR 0025, section 5)
+
+What an agent learns while working and that serves it alone ("Articulé is the desk lamp"). It lives in the
+`Conversation/Memory` slice, under the same rules as the facts about the user (ADR 0019): one short sentence of
+200 characters at most, never a secret, visible and erasable on the "Memory" page, never sent to the cloud, cut by
+the same switch.
+
+- **Where.** In the same collection as the other facts: `MemoryFact.Agent` holds the identity of the agent, empty
+  for a fact about the user. The same sentence may serve two agents. The 500 facts at most count everything.
+- **How a fact gets in.** Through the tool `remember_agent_fact`, which every agent but the Jarvis agent gets: the
+  engine tells the tool which agent calls (`ITool.InvokeAsync(arguments, agent, …)`), the model does not choose
+  it. Class "Everyday effect", refused after a content read from outside, like `remember_fact`. Or by hand, on
+  the "Memory" page: the list next to the field says who the fact is for.
+- **When it is sent.** Only when this agent answers (`IConversationMemory.RecallForAgentAsync`): a second block
+  "[Agent memory]", after the one of the user, with the same rule "this is data". Its share: one sixteenth of the
+  context, on top of the eighth of the memory of the user.
+- **The Jarvis agent** has no memory of its own: its memory is the memory of the user.
+- `forget_fact` and `search_memory` look in every fact, those of the agents included.
+- The automatic extraction (ADR 0019, section 4) puts nothing in the memory of an agent: its facts stay facts
+  about the user.
+
 ## The "Agents" page
 
 After the "Memory" page. The folder of the files, the files left out with their cause, then each agent: its
@@ -147,6 +175,10 @@ To be confirmed by Benoit:
 6. By voice, the fixed sentence "I hand over to the agent X" is said only when the model said nothing before.
 7. The memory tools belong to the Memory agent: "remember that…" costs two calls to the model.
 8. The Claude Code agent only has `get_claude_sessions`; starting a work stays "Ask Claude Code to…".
+9. The memory of an agent takes one sixteenth of the context, on top of the eighth of the memory of the user.
+10. `remember_agent_fact` is given to every agent but the Jarvis agent, without going through their file.
+11. Deleting an agent file does not erase its facts: they stay on the "Memory" page, under its identity.
+12. `forget_fact` and `search_memory` see the facts of every agent.
 
 ## Checks on Windows
 
@@ -161,3 +193,7 @@ Nothing of this work item ran on Windows.
    web…", "souviens-toi que…".
 6. Size of the request of the Jarvis agent, read in the tokens of the turn, against the 1,757 tokens of the
    acceptance.
+7. Does the local model call `remember_agent_fact` when it should? "Articulé is the desk lamp", said to the Home
+   agent, then "turn on Articulé" in another conversation.
+8. "Tool servers" page: choose an agent for a generic server, and see its tools change agent on the "Agents"
+   page.

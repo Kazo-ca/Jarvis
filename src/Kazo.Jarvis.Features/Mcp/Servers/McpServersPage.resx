@@ -177,4 +177,10 @@
   <data name="ScriptWarning" xml:space="preserve">
     <value>A script can actuate anything, and runs without a question. Mark it &quot;security&quot; on the Home Assistant page if it must ask for a click.</value>
   </data>
+  <data name="Agent" xml:space="preserve">
+    <value>Agent</value>
+  </data>
+  <data name="AgentLabel" xml:space="preserve">
+    <value>Agent that sees the tools of {0}</value>
+  </data>
 </root>

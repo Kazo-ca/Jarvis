@@ -117,6 +117,89 @@ public sealed class RememberFactTool : ITool
 }
 
 /// <summary>
+/// The tool <c>remember_agent_fact</c> (ADR 0025, section 5): what an agent learns while working and that serves
+/// it alone (« Articulé est la lampe du bureau »). Every agent but the Jarvis agent sees it; the fact goes to the
+/// memory of the agent that calls. Same guards as <see cref="RememberFactTool"/>.
+/// </summary>
+public sealed class RememberAgentFactTool : ITool
+{
+    /// <summary>The name given to the model.</summary>
+    public const string ToolName = "remember_agent_fact";
+
+    private readonly MemoryBook book;
+    private readonly ISettingsStore settings;
+
+    /// <summary>Creates the tool.</summary>
+    /// <param name="book">What is kept.</param>
+    /// <param name="settings">The settings, for the general switch.</param>
+    public RememberAgentFactTool(MemoryBook book, ISettingsStore settings)
+    {
+        this.book = book;
+        this.settings = settings;
+    }
+
+    /// <inheritdoc />
+    public string Name => ToolName;
+
+    /// <inheritdoc />
+    public string Origin => ToolOrigins.BuiltIn;
+
+    /// <inheritdoc />
+    public bool EnabledByDefault => true;
+
+    /// <inheritdoc />
+    public ActionClass DeclaredClass => ActionClass.EverydayEffect;
+
+    /// <inheritdoc />
+    public bool RefusedAfterOutsideContent => true;
+
+    /// <inheritdoc />
+    public bool ForEveryAgent => true;
+
+    /// <inheritdoc />
+    public JsonElement Schema { get; } = MemoryToolSupport.TextSchema("text", "The fact, in one sentence.");
+
+    /// <inheritdoc />
+    public string Describe(AssistantLanguage language)
+    {
+        ArgumentNullException.ThrowIfNull(language);
+        return MemoryRecaller.Text("RememberAgent_Description", language);
+    }
+
+    /// <inheritdoc />
+    public ActionClass Classify(JsonElement arguments) => ActionClass.EverydayEffect;
+
+    /// <inheritdoc />
+    public ValueTask<string> InvokeAsync(JsonElement arguments, CancellationToken cancellationToken) =>
+        throw new ToolException("No agent is answering: there is no agent memory to write.");
+
+    /// <inheritdoc />
+    public async ValueTask<string> InvokeAsync(JsonElement arguments, string? agent, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(agent))
+        {
+            throw new ToolException("No agent is answering: there is no agent memory to write.");
+        }
+
+        if (!settings.Read(MemoryOptions.Section).Enabled)
+        {
+            throw new ToolException("The memory is turned off in the settings: nothing was kept.");
+        }
+
+        return await book.AddForAgentAsync(agent, MemoryToolSupport.Text(arguments, "text"), FactSource.Asked, cancellationToken).ConfigureAwait(false) switch
+        {
+            FactOutcome.Added => MemoryToolSupport.Result(new { remembered = true }),
+            FactOutcome.AlreadyKnown => MemoryToolSupport.Result(new { remembered = true, already_known = true }),
+            FactOutcome.Empty => throw new ToolException("The fact is missing."),
+            FactOutcome.TooLong => throw new ToolException($"The fact is longer than {MemoryFact.MostCharacters} characters: say it in one short sentence."),
+            FactOutcome.LooksLikeSecret => throw new ToolException("This looks like a password, a key or a card number: Jarvis never keeps one."),
+            FactOutcome.Full => throw new ToolException($"The memory holds {MemoryBook.MostFacts} facts: the user must erase some on the memory page."),
+            _ => throw new ToolException("The memory cannot be written right now."),
+        };
+    }
+}
+
+/// <summary>
 /// The tool <c>forget_fact</c> (ADR 0019, section 2): « oublie que… ». It erases the one fact that matches the
 /// words best; when several match as well, none is erased and they are returned.
 /// </summary>

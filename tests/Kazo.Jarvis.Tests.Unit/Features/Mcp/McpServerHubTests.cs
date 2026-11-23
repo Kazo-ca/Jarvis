@@ -56,6 +56,30 @@ public sealed class McpServerHubTests
 
     private static ToolServerTool Tool(string name, string description = "Does something.", bool readOnly = false) => new(name, description, NoParameters, readOnly);
 
+    [Test]
+    public async Task The_tools_of_a_server_go_to_the_agent_chosen_on_its_page()
+    {
+        connector.Tools = [Tool("lookup", readOnly: true)];
+        await StartWithAsync(ByAddress("home"), ByAddress("maison", "https://maison.example/mcp") with { Kind = McpServerKind.HomeAssistant, Agent = "web" });
+        await WaitUntil(() => registry.Tools.Count(tool => tool.Origin.StartsWith("mcp:", StringComparison.Ordinal)) == 2);
+        var general = registry.Tools.Single(tool => tool.Origin == ToolOrigins.Mcp("home"));
+        var house = registry.Tools.Single(tool => tool.Origin == ToolOrigins.Mcp("maison"));
+        var before = general.Agent;
+
+        var saved = await hub.ChangeAsync("home", server => server with { Agent = "web" });
+        var chosen = registry.Tools.Single(tool => tool.Origin == ToolOrigins.Mcp("home")).Agent;
+        var tooLong = await hub.ChangeAsync("home", server => server with { Agent = new string('a', 101) });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(before, Is.Null, "The Jarvis agent by default (ADR 0025, section 3).");
+            Assert.That(saved.Outcome, Is.EqualTo(Kazo.Jarvis.Kernel.Settings.SettingsWriteOutcome.Saved));
+            Assert.That(chosen, Is.EqualTo("web"), "The choice applies without a new connection.");
+            Assert.That(house.Agent, Is.EqualTo(Kazo.Jarvis.Kernel.Agents.AgentIds.HomeAutomation), "A Home Assistant server ignores the choice.");
+            Assert.That(tooLong.Outcome, Is.Not.EqualTo(Kazo.Jarvis.Kernel.Settings.SettingsWriteOutcome.Saved));
+        });
+    }
+
     private async Task StartWithAsync(params McpServerOptions[] servers)
     {
         foreach (var server in servers)

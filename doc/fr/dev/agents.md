@@ -107,6 +107,13 @@ décision.
   trier : un seul appel, avec tout ce qu'il a.
 - Les autres agents reçoivent `return_to_jarvis`.
 - Un agent ne peut pas appeler l'outil d'un autre : l'appel est refusé (« NotThisAgent ») sans aller plus loin.
+- **Les outils d'un serveur MCP générique** vont à l'agent choisi sur la page « Serveurs d'outils »
+  (`McpServerOptions.Agent`, liste « Agent » de chaque serveur) ; l'agent Jarvis par défaut. Le choix s'applique
+  au tour suivant, sans nouvelle connexion. Un serveur Home Assistant n'a pas le choix : ses outils vont à
+  `home-automation`. Un agent choisi dont le fichier a disparu : les outils reviennent à l'agent Jarvis.
+- Un outil **pour tous les agents** (`ITool.ForEveryAgent`) est vu par chaque agent sauf l'agent Jarvis, quoi que
+  dise son fichier. Il ne compte pas comme un outil à lui : un agent qui n'a que celui-là ne reçoit pas la main.
+  Aujourd'hui, un seul : `remember_agent_fact`.
 
 ## Le tri et la main (`ConversationEngine`)
 
@@ -130,6 +137,27 @@ décision.
 - Ne passent par aucun agent : « Demande à Claude… » et « Demande à Claude Code de… », reconnus par du code, la
   réponse à une demande de confirmation, et le tour d'annonce.
 
+## La mémoire de chaque agent (chantier 18, ADR 0025, section 5)
+
+Ce qu'un agent apprend en travaillant et qui ne sert qu'à lui (« Articulé est la lampe du bureau »). Elle vit
+dans la tranche `Conversation/Memory`, avec les mêmes règles que les faits sur l'utilisateur (ADR 0019) : une
+phrase courte de 200 caractères au plus, jamais un secret, visible et effaçable dans la page « Mémoire », jamais
+envoyée au cloud, coupée par le même interrupteur.
+
+- **Où.** Dans la même collection que les autres faits : `MemoryFact.Agent` porte l'identité de l'agent, vide pour
+  un fait sur l'utilisateur. La même phrase peut servir deux agents. Les 500 faits au plus comptent tout.
+- **Comment un fait y entre.** Par l'outil `remember_agent_fact`, que chaque agent sauf l'agent Jarvis reçoit : le
+  moteur dit à l'outil quel agent appelle (`ITool.InvokeAsync(arguments, agent, …)`), le modèle ne le choisit pas.
+  Classe « Effet courant », refusé après un contenu lu de l'extérieur, comme `remember_fact`. Ou à la main, dans
+  la page « Mémoire » : la liste à côté du champ dit à qui sert le fait.
+- **Quand elle est envoyée.** Seulement quand cet agent répond (`IConversationMemory.RecallForAgentAsync`) : un
+  second bloc « [Mémoire de l'agent] », après celui de l'utilisateur, avec la même règle « c'est une donnée ». Sa
+  part : un seizième du contexte, en plus du huitième de la mémoire de l'utilisateur.
+- **L'agent Jarvis** n'a pas de mémoire à lui : la sienne est celle de l'utilisateur.
+- `forget_fact` et `search_memory` cherchent dans tous les faits, ceux des agents compris.
+- L'extraction automatique (ADR 0019, section 4) ne range rien dans la mémoire d'un agent : ses faits restent des
+  faits sur l'utilisateur.
+
 ## La page « Agents »
 
 Après la page « Mémoire ». Le dossier des fichiers, les fichiers laissés de côté avec leur cause, puis chaque
@@ -149,6 +177,10 @@ sont coupés ou absents, et un bouton « Ouvrir le fichier » (l'éditeur que Wi
 6. À la voix, la phrase fixe « Je passe la main à l'agent X » n'est dite que si le modèle n'a rien dit avant.
 7. Les outils de la mémoire sont à l'agent Mémoire : « souviens-toi que… » coûte deux appels au modèle.
 8. L'agent Claude Code a seulement `get_claude_sessions` ; lancer un travail reste « Demande à Claude Code de… ».
+9. La mémoire d'un agent prend un seizième du contexte, en plus du huitième de la mémoire de l'utilisateur.
+10. `remember_agent_fact` est donné d'office à tous les agents sauf l'agent Jarvis, sans passer par leur fichier.
+11. Supprimer un fichier d'agent n'efface pas ses faits : ils restent dans la page « Mémoire », sous son identité.
+12. `forget_fact` et `search_memory` voient les faits de tous les agents.
 
 ## Vérifications sur Windows
 
@@ -162,3 +194,7 @@ Rien de ce chantier n'a tourné sur Windows.
 5. Le modèle local (`qwen3:8b`) passe-t-il la main au bon agent ? « Éteins la lumière Articulé », « cherche sur
    le web… », « souviens-toi que… ».
 6. Taille de la demande de l'agent Jarvis, à lire dans les jetons du tour, contre les 1 757 jetons de la recette.
+7. Le modèle local appelle-t-il `remember_agent_fact` à bon escient ? « Articulé, c'est la lampe du bureau », dit à
+   l'agent Domotique, puis « allume Articulé » dans une autre conversation.
+8. Page « Serveurs d'outils » : choisir un agent pour un serveur générique, et voir ses outils changer d'agent
+   dans la page « Agents ».

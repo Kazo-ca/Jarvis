@@ -25,7 +25,10 @@
             var isMain = agent.Id == AgentIds.Main;
             var seen = Catalog.ToolsOf(agent).Where(tool => tool.Name != Catalog.HandToolName && tool.Name != Catalog.ReturnToolName).ToList();
             var off = agent.Tools.Where(name => seen.All(tool => tool.Name != name)).ToList();
-            <li class="agents-entry" data-agent="@agent.Id" data-agent-available="@(isMain || seen.Count > 0 ? "true" : "false")" @key="agent.Id">
+
+            // A tool every agent has is shown, but it is no reason to hand a request over (ADR 0025, section 5).
+            var own = seen.Count(tool => !tool.ForEveryAgent || agent.Tools.Contains(tool.Name, StringComparer.Ordinal));
+            <li class="agents-entry" data-agent="@agent.Id" data-agent-available="@(isMain || own > 0 ? "true" : "false")" @key="agent.Id">
                 <div class="agents-head">
                     <span class="agents-name" data-agent-name>@agent.Name</span>
                     <span class="agents-id">@(agent.Id).md</span>
@@ -50,7 +53,7 @@
                         }
                     </p>
                 }
-                else
+                @if (own == 0)
                 {
                     <p class="agents-note" data-agent-no-tools>@T[isMain ? "NoToolsMain" : "NoTools"]</p>
                 }

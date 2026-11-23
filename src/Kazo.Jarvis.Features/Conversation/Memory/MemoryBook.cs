@@ -57,7 +57,19 @@ public sealed partial class MemoryBook
     /// <param name="turn">The stored turn it comes from.</param>
     /// <param name="cancellationToken">Cancels the write.</param>
     /// <returns>What happened.</returns>
-    public async ValueTask<FactOutcome> AddAsync(string? text, FactSource source, Guid? turn = null, CancellationToken cancellationToken = default)
+    public ValueTask<FactOutcome> AddAsync(string? text, FactSource source, Guid? turn = null, CancellationToken cancellationToken = default) =>
+        AddAsync(null, text, source, turn, cancellationToken);
+
+    /// <summary>Keeps a fact for one agent (ADR 0025, section 5), under the same rules as a fact about the user.</summary>
+    /// <param name="agent">The identity of the agent, or <see langword="null"/> for a fact about the user.</param>
+    /// <param name="text">The sentence.</param>
+    /// <param name="source">Where it comes from.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>What happened.</returns>
+    public ValueTask<FactOutcome> AddForAgentAsync(string? agent, string? text, FactSource source, CancellationToken cancellationToken = default) =>
+        AddAsync(string.IsNullOrWhiteSpace(agent) ? null : agent.Trim(), text, source, null, cancellationToken);
+
+    private async ValueTask<FactOutcome> AddAsync(string? agent, string? text, FactSource source, Guid? turn, CancellationToken cancellationToken)
     {
         var clean = Clean(text);
         if (clean.Length == 0)
@@ -79,7 +91,8 @@ public sealed partial class MemoryBook
         try
         {
             var known = await Facts().ReadPeriodAsync(DateTimeOffset.UnixEpoch, time.GetUtcNow().AddDays(1), cancellationToken).ConfigureAwait(false);
-            if (known.Any(document => Same(document.Content.Text, clean)))
+            // The same sentence may serve two agents: it is known only where it was kept.
+            if (known.Any(document => document.Content.Agent == agent && Same(document.Content.Text, clean)))
             {
                 return FactOutcome.AlreadyKnown;
             }
@@ -90,7 +103,7 @@ public sealed partial class MemoryBook
             }
 
             var now = time.GetUtcNow();
-            await Facts().AddAsync(new MemoryFact { Text = clean, Source = source, At = now, Turn = turn }, now, cancellationToken).ConfigureAwait(false);
+            await Facts().AddAsync(new MemoryFact { Text = clean, Source = source, At = now, Turn = turn, Agent = agent }, now, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {

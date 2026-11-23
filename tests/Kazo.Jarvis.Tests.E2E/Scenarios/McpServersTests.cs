@@ -122,6 +122,61 @@ public sealed class McpServersTests : PageTest
     }
 
     [Test]
+    public async Task The_tools_of_a_server_go_to_the_agent_chosen_on_its_page()
+    {
+        await OpenServersAsync();
+        await AddByAddressAsync("demo", Open);
+        var server = Server("demo");
+        await TurnOnAsync(server, "lookup_stock");
+        await Expect(server.Locator("[data-mcp-agent]")).ToHaveValueAsync(string.Empty);
+        await server.Locator("[data-mcp-agent]").SelectOptionAsync("web");
+        await Expect(Settings.Locator("[data-mcp-problem]")).ToHaveCountAsync(0);
+
+        // The choice is kept: the page shows it again when it comes back.
+        await OpenServersAsync();
+        await Expect(Server("demo").Locator("[data-mcp-agent]")).ToHaveValueAsync("web");
+
+        // The Jarvis agent no longer sees the tool (ADR 0025, section 3) ...
+        var turns = Conversation.Locator("[data-conversation-turn]");
+        await TypeAsync(string.Empty);
+        var before = await turns.CountAsync();
+        await SendAsync("Cours de l'action kazo");
+        await Expect(turns).ToHaveCountAsync(before + 1);
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 15_000 });
+        await Expect(Newest.Locator("[data-conversation-tool='lookup_stock']")).ToHaveCountAsync(0);
+        await ExpectIdleAsync();
+
+        // ... and the agent chosen does.
+        var choice = Conversation.Locator("[data-conversation-agent-choice]");
+        try
+        {
+            await choice.SelectOptionAsync("web");
+            await Expect(choice).ToHaveValueAsync("web");
+            await SendAsync("Cours de l'action kazo");
+            await Expect(turns).ToHaveCountAsync(before + 2);
+            await Expect(Newest.Locator("[data-conversation-tool='lookup_stock']")).ToHaveAttributeAsync("data-tool-outcome", "Done", new() { Timeout = 10_000 });
+            await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-agent", "Web");
+            await ExpectIdleAsync();
+        }
+        finally
+        {
+            await choice.SelectOptionAsync(string.Empty);
+        }
+    }
+
+    /// <summary>Types in the conversation window already open, and sends once the window can take the request.</summary>
+    private async Task SendAsync(string request)
+    {
+        var text = Conversation.Locator("[data-conversation-text]");
+        await text.FillAsync(request);
+        await Expect(text).ToHaveValueAsync(request);
+
+        // The button is on once the window knows the text and Jarvis is idle: Enter before that is lost.
+        await Expect(Conversation.Locator("[data-conversation-send]")).ToBeEnabledAsync();
+        await text.PressAsync("Enter");
+    }
+
+    [Test]
     public async Task The_class_of_a_tool_can_be_raised_and_then_a_read_asks_for_a_click()
     {
         await OpenServersAsync();

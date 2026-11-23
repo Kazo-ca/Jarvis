@@ -34,6 +34,10 @@ Un fait identique à un autre, sans égard à la casse ni aux espaces, n'est pas
 Rien n'est gardé en mémoire vive entre deux lectures : « Tout effacer » de la fenêtre de conversation vide tout
 le magasin, donc aussi les faits et le résumé.
 
+Depuis le chantier 18 (ADR 0025, section 5), un fait peut servir **un agent seul** (`MemoryFact.Agent`) : il est
+alors envoyé seulement quand cet agent répond, dans un second bloc. Voir
+[agents.md](agents.md#la-mémoire-de-chaque-agent-chantier-18-adr-0025-section-5).
+
 ### Un secret n'est pas un fait (`SecretShapes`)
 
 Rejeté par du code, quelle que soit la consigne donnée au modèle : une clé connue (`sk-…`, `ghp_…`, `AKIA…`,

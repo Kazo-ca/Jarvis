@@ -220,7 +220,7 @@ public sealed partial class ConversationEngine
             }
 
             // WaitAsync: a tool that ignores its cancellation does not hold the turn.
-            var result = await tool.InvokeAsync(arguments.Value, both.Token).AsTask().WaitAsync(both.Token).ConfigureAwait(false) ?? string.Empty;
+            var result = await tool.InvokeAsync(arguments.Value, speaker.Agent?.Id, both.Token).AsTask().WaitAsync(both.Token).ConfigureAwait(false) ?? string.Empty;
             if (result.Length > MostResultCharacters)
             {
                 result = result[..MostResultCharacters] + "\n" + SystemPrompt.Text("Truncated", turnLanguage, MostResultCharacters);

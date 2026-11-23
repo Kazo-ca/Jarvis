@@ -93,12 +93,25 @@ public interface ITool
     /// </summary>
     string? Agent => null;
 
+    /// <summary>
+    /// Whether every agent other than the Jarvis agent sees this tool, whatever its file lists (ADR 0025,
+    /// section 5): what an agent needs to keep its own memory.
+    /// </summary>
+    bool ForEveryAgent => false;
+
     /// <summary>Runs the call. Only called after the decision point allowed it.</summary>
     /// <param name="arguments">The arguments of the call, a JSON object.</param>
     /// <param name="cancellationToken">Cancelled by an interruption or by the time limit of a call.</param>
     /// <returns>The result, returned to the model as data.</returns>
     /// <exception cref="ToolException">The call cannot be done; its message is returned to the model as the result.</exception>
     ValueTask<string> InvokeAsync(JsonElement arguments, CancellationToken cancellationToken);
+
+    /// <summary>Runs the tool for the agent that called it. Most tools do not care who calls.</summary>
+    /// <param name="arguments">The arguments of the call.</param>
+    /// <param name="agent">The identity of the agent that answers, or <see langword="null"/> without agents.</param>
+    /// <param name="cancellationToken">Cancels the run.</param>
+    /// <returns>The result given back to the model.</returns>
+    ValueTask<string> InvokeAsync(JsonElement arguments, string? agent, CancellationToken cancellationToken) => InvokeAsync(arguments, cancellationToken);
 }
 
 /// <summary>The origins of a tool (ADR 0017, section 1).</summary>

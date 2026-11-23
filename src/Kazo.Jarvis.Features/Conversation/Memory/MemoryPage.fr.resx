@@ -129,4 +129,13 @@
   <data name="SaveFailed" xml:space="preserve">
     <value>Le fichier des réglages ne peut pas être écrit.</value>
   </data>
+  <data name="ForAgent" xml:space="preserve">
+    <value>Agent {0}</value>
+  </data>
+  <data name="ForEveryone" xml:space="preserve">
+    <value>Sur vous, pour tous les agents</value>
+  </data>
+  <data name="AddAgentLabel" xml:space="preserve">
+    <value>À qui sert le fait</value>
+  </data>
 </root>

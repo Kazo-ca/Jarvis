@@ -98,6 +98,10 @@ For each server: type, state with the cause, address or command, what leaves the
 tool with its whole description, its class and its switch, and the estimate in tokens of the tools that are
 on. At the bottom, adding by address or by local command.
 
+Since work item 18 (ADR 0025, section 3), each generic server has an "Agent" list on the page
+(`McpServerOptions.Agent`): its tools go to that agent, the Jarvis agent by default. See
+[agents.md](agents.md#the-tools-of-an-agent-agentcatalogtoolsof).
+
 ## Web host
 
 `SimulatedToolServers`: `https://mcp.jarvis.example` (`lookup_stock` read-only, `send_message`),

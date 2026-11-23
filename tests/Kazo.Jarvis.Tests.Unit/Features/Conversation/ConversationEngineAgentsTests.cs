@@ -225,4 +225,62 @@ public sealed partial class ConversationEngineTests
             Assert.That(call.Options?.Instructions, Does.Contain("Réponds en alexandrins."));
         });
     }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task An_agent_gets_its_own_memory_after_the_memory_of_the_user_and_no_other()
+    {
+        RegisterClockAndSearch();
+        memory.Recall = new Kazo.Jarvis.Kernel.Conversation.MemoryRecall("[Mémoire]\n- L'utilisateur s'appelle Benoit.\n[Fin de la mémoire]", null);
+        memory.OfAgents["web"] = "[Mémoire de l'agent]\n- L'utilisateur préfère Météo-Média.\n[Fin de la mémoire de l'agent]";
+        memory.OfAgents["files"] = "[Mémoire de l'agent]\n- Le dossier des factures est D:\\Factures.\n[Fin de la mémoire de l'agent]";
+        client.Rounds.Enqueue([Call("hand_to_agent", "call_1", ("agent", "web"))]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Cherche la météo à Paris."));
+        await TurnStoredAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(client.Calls[0].Options?.Instructions, Does.Contain("Benoit").And.Not.Contain("Météo-Média"), "The Jarvis agent has the memory of the user only.");
+            Assert.That(client.Calls[1].Options?.Instructions, Does.Contain("Benoit").And.Contain("Météo-Média"), "The agent that answers gets its own memory too (section 5).");
+            Assert.That(client.Calls[1].Options?.Instructions, Does.Not.Contain("Factures"), "Never the memory of another agent.");
+            Assert.That(client.Calls[1].Options?.Instructions?.IndexOf("Benoit", StringComparison.Ordinal),
+                Is.LessThan(client.Calls[1].Options?.Instructions?.IndexOf("Météo-Média", StringComparison.Ordinal)));
+        });
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task An_agent_memory_that_fails_never_holds_the_answer()
+    {
+        RegisterClockAndSearch();
+        memory.AgentFailure = new InvalidOperationException("no store");
+        client.Rounds.Enqueue([Call("hand_to_agent", "call_1", ("agent", "web"))]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Cherche la météo à Paris."));
+        await TurnStoredAsync();
+
+        Assert.That(journal.Turns.Single().Agent, Is.EqualTo("Web"));
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task A_tool_made_for_every_agent_is_offered_to_the_others_and_knows_who_calls()
+    {
+        RegisterClockAndSearch();
+        var note = new FakeTool("remember_agent_fact") { ForEveryAgent = true };
+        registry.Register(note);
+        client.Rounds.Enqueue([Call("hand_to_agent", "call_1", ("agent", "web"))]);
+        client.Rounds.Enqueue([Call("remember_agent_fact", "call_2", ("text", "L'utilisateur préfère Météo-Média."))]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Pour la météo, prends toujours Météo-Média."));
+        await TurnStoredAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(Offered(client.Calls[0]), Has.None.EqualTo("remember_agent_fact"), "The memory of the Jarvis agent is the memory of the user.");
+            Assert.That(Offered(client.Calls[1]), Is.EqualTo(new[] { "web_search", "remember_agent_fact", "return_to_jarvis" }));
+            Assert.That(note.Agents, Is.EqualTo(new[] { "web" }), "The fact goes to the memory of the agent that calls.");
+        });
+    }
 }

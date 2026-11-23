@@ -430,7 +430,8 @@ public sealed partial class ConversationEngine :
                         journal.Show(answering.Update(turn => turn with { Agent = name }));
                     }
 
-                    var speaker = new Speaker(client!, requester, Declarations(turnLanguage, ToolsFor(run, agent)), recall.Block, Agent: agent);
+                    var remembered = await RecallAsync(answering.Turn, agent, recall.Block, turnLanguage, contextLength, token).ConfigureAwait(false);
+                    var speaker = new Speaker(client!, requester, Declarations(turnLanguage, ToolsFor(run, agent)), remembered, Agent: agent);
                     local.Add(await RunAsync(run, speaker, [.. messages], token).ConfigureAwait(false));
                     if (run.Next is not { } next || run.Handed is not null || run.Delegated)
                     {
@@ -649,6 +650,26 @@ public sealed partial class ConversationEngine :
         {
             LogRecallFailed(exception, turn);
             return MemoryRecall.Nothing;
+        }
+    }
+
+    /// <summary>The memory of the turn, then what the agent that answers kept for itself (ADR 0025, section 5).</summary>
+    private async ValueTask<string?> RecallAsync(TurnId turn, AgentDefinition? agent, string? block, AssistantLanguage turnLanguage, int contextLength, CancellationToken token)
+    {
+        if (memory is null || agent is null)
+        {
+            return block;
+        }
+
+        try
+        {
+            var own = await memory.RecallForAgentAsync(agent.Id, turnLanguage, contextLength, token).ConfigureAwait(false);
+            return string.IsNullOrWhiteSpace(own) ? block : string.IsNullOrWhiteSpace(block) ? own : block + "\n\n" + own;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            LogRecallFailed(exception, turn);
+            return block;
         }
     }
 
