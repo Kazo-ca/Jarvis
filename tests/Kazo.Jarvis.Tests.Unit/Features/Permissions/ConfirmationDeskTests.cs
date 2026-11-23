@@ -259,6 +259,33 @@ public sealed class ConfirmationDeskTests
     }
 
     [Test]
+    public async Task The_window_closed_by_the_user_is_a_refusal()
+    {
+        var asking = Ask(ActionClass.Sensitive, Typed);
+        await OpenAsync();
+
+        // The user closes the window: the host says so, the desk did not ask for it.
+        dialogs.Close(ConfirmationDesk.DialogKey);
+
+        Assert.That(await asking, Is.EqualTo(new ConfirmationOutcome(ConfirmationAnswer.Refused, ConfirmationChannels.Click)));
+        Assert.That(desk.Current, Is.Null);
+    }
+
+    [Test]
+    public async Task Another_window_closing_answers_nothing()
+    {
+        var asking = Ask(ActionClass.Sensitive, Typed);
+        var open = await OpenAsync();
+
+        dialogs.Open(new DialogRequest("Settings.Window", typeof(ConfirmationWindow), "Settings"));
+        dialogs.Close("Settings.Window");
+
+        Assert.That(asking.IsCompleted, Is.False);
+        desk.Click(open.Id, true);
+        Assert.That((await asking).Answer, Is.EqualTo(ConfirmationAnswer.Approved));
+    }
+
+    [Test]
     public async Task An_interruption_closes_the_request()
     {
         using var turn = new CancellationTokenSource();
@@ -331,6 +358,8 @@ public sealed class ConfirmationDeskTests
 
         public List<DialogRequest> Opened { get; } = [];
 
+        public event Action<string>? Closed;
+
         public void Open(DialogRequest request)
         {
             lock (gate)
@@ -342,9 +371,15 @@ public sealed class ConfirmationDeskTests
 
         public void Close(string key)
         {
+            bool removed;
             lock (gate)
             {
-                open.Remove(key);
+                removed = open.Remove(key);
+            }
+
+            if (removed)
+            {
+                Closed?.Invoke(key);
             }
         }
 

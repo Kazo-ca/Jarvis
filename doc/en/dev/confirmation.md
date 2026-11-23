@@ -52,7 +52,7 @@ tool, or one sentence that says why the call is denied.
 | Spoken turn, "Sensitive", microphone not muted | Question said, one listening, answer by voice or click. |
 | Spoken turn, "Sensitive", microphone muted | Question said ("Approve or refuse in the window"), click only. |
 | Spoken turn, "Critical" | The sentence says voice is not enough; click only. |
-| Window closed by the user | Refusal. |
+| Window closed by the user | Refusal. The desk hears it from `IDialogService.Closed`, not from the end of the component: a view that goes away (a page of the Web host leaving, a content built again for another language) answers nothing. |
 | No answer | The request stays open, the turn waits. |
 | Request outside a turn | The window only, nothing is said. |
 | Wake word, hotkey or click on the orb | The turn is cancelled (ADR 0005), the request closes, cause `Interrupted`. |

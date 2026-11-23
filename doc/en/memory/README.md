@@ -351,7 +351,7 @@ Resume point for any agent. Update it in the same change as what it describes.
   openWakeWord models (CC BY-NC-SA 4.0), the license of each voice (ADR 0006).
 - **Public repository:** Benoit confirmed on November 19, 2026 that `Kazo-ca/Jarvis` is public ([ADR 0014](../dev/adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). The
   version check (US1.18) therefore needs no token; the ADR 0001 consequence about it no longer applies.
-- **Known test failures:** none.
+- **Known test failures:** none. The fan test that failed on CI only (`TaskFanTests`, the write allowed from its panel) is explained and fixed (work item `stage2/17-confirmation-survives-other-views`): the confirmation window refused its request when a component ended, and the server ended the pages of earlier tests at that moment; the refusal now comes from `IDialogService.Closed` ([pitfalls](../dev/pitfalls.md)).
 - **Windows check of work item 1: done** on November 19, 2026 by an agent on Benoit's PC (SDK 10.0.402):
   build without warnings, unit tests 29/29, Playwright 1/1, Web host HTTP 200, Windows host opened,
   responsive and closed without error. Started on a locked session, the Windows host died: fixed in work

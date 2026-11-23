@@ -155,3 +155,17 @@ vrais adaptateurs et une limite de temps.
 
 Même source : un objet rendu par plusieurs inscriptions à fabrique (lui-même, son interface, le service de
 fond) est libéré une fois par inscription. Son `DisposeAsync` doit supporter plusieurs appels.
+
+## La fin d'un composant n'est pas un geste de l'utilisateur (étape 2, test de l'éventail en échec sur l'intégration continue seulement)
+
+La fenêtre de confirmation refusait sa demande dans `Dispose`, en lisant la fin du composant comme « l'utilisateur
+a fermé la fenêtre ». Dans l'hôte Web, les dialogues vivent dans l'hôte : **chaque** page connectée les dessine,
+même une page dont le navigateur est parti et dont le serveur n'a pas encore abandonné la connexion. Quand le
+serveur mettait fin à une telle connexion pendant qu'une demande était ouverte, ses composants étaient libérés
+et la demande était refusée sans aucun clic. Sur GitHub, les pages des tests précédents étaient abandonnées plus
+tard que sur un poste, donc un test n'échouait que là : la fenêtre « n'apparaissait jamais » ou avait disparu un
+instant plus tard. La même chose arriverait quand `LanguageScope` reconstruit le contenu pour une autre langue.
+
+Règle : un composant ne répond jamais à la place de l'utilisateur dans `Dispose`. Ce que l'utilisateur ferme est
+dit par l'hôte (`IDialogService.Closed`). Et dans l'hôte Web, se rappeler qu'un composant peut exister une fois
+par page connectée.

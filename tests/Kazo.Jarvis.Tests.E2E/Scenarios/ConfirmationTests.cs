@@ -127,6 +127,34 @@ public sealed class ConfirmationTests : PageTest
     }
 
     [Test]
+    public async Task A_request_stays_open_when_another_view_of_the_host_goes_away()
+    {
+        // The dialogs live in the host: every page connected to it draws the confirmation window. A page that
+        // goes away (a tab closed, a connection the server drops) is not the user refusing.
+        var other = await Context.NewPageAsync();
+        await other.GotoAsync(WebHost.BaseAddress.ToString());
+        await Expect(other.Locator("#jarvis-root")).ToHaveAttributeAsync("data-interactive", "true");
+
+        var note = "arroser les plantes " + Guid.NewGuid().ToString("N")[..6];
+        await TypeAsync("Écris une note " + note);
+        await Expect(Window).ToHaveCountAsync(1, new() { Timeout = 10_000 });
+        await Expect(other.Locator("[data-dialog-key='Permissions.Confirmation'] [data-confirmation-approve]")).ToBeVisibleAsync();
+
+        // Leaving the page tells the server at once, which ends that view and its components.
+        await other.GotoAsync("about:blank");
+        await Page.WaitForTimeoutAsync(2_000);
+        await other.CloseAsync();
+
+        await Expect(Window).ToHaveCountAsync(1);
+        await Expect(Pending).ToHaveAttributeAsync("data-pending", "true");
+        await Expect(Notes).Not.ToHaveTextAsync(note);
+
+        await Window.Locator("[data-confirmation-approve]").ClickAsync();
+        await Expect(Notes).ToHaveTextAsync(note);
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 10_000 });
+    }
+
+    [Test]
     public async Task A_spoken_request_hears_the_question_and_a_spoken_yes_approves()
     {
         var note = "appeler le garage " + Guid.NewGuid().ToString("N")[..6];

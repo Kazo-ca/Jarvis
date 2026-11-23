@@ -14,6 +14,9 @@ public sealed class OverlayDialogService : IDialogService
     /// <summary>Raised after a dialog opened or closed, on any thread.</summary>
     public event EventHandler? Changed;
 
+    /// <inheritdoc />
+    public event Action<string>? Closed;
+
     /// <summary>The open dialogs, oldest first.</summary>
     public IReadOnlyList<DialogRequest> OpenDialogs
     {
@@ -54,6 +57,7 @@ public sealed class OverlayDialogService : IDialogService
 
         if (removed > 0)
         {
+            Closed?.Invoke(key);
             Changed?.Invoke(this, EventArgs.Empty);
         }
     }
