@@ -19,6 +19,7 @@ Their on-screen labels are in French. The written description is the UI catalog
 | [prototypes/projects-subject-thread.html](prototypes/projects-subject-thread.html) | Subject thread, task strip, "T3>" answers, task thread (ADR 0026, proposed) |
 | [prototypes/projects-general-to-project.html](prototypes/projects-general-to-project.html) | Jarvis offers to make a project of a Général subject (ADR 0026, proposed) |
 | [images/](images/) | Still captures of the three main designs |
+| [screenshots/](screenshots/README.md) | Screenshots of the application as built, taken on the Web host, shown in the root readmes |
 
 The high-quality prototype also contains earlier binary-layer modes (1 to 4); mode 5 (`window.BIN=5`) is the
 validated one.

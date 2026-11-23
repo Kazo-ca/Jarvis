@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve">
+    <value>Projets</value>
+  </data>
+  <data name="RailLabel" xml:space="preserve">
+    <value>Projets</value>
+  </data>
+  <data name="Attention" xml:space="preserve">
+    <value>À traiter</value>
+  </data>
+  <data name="AllProjects" xml:space="preserve">
+    <value>Tous les projets</value>
+  </data>
+  <data name="NewProject" xml:space="preserve">
+    <value>Nouveau projet</value>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="General_Note" xml:space="preserve">
+    <value>Ce qui n'appartient à aucun projet</value>
+  </data>
+  <data name="Agent" xml:space="preserve">
+    <value>Agent : Projet</value>
+  </data>
+  <data name="NothingWaits" xml:space="preserve">
+    <value>Rien ne vous attend.</value>
+  </data>
+  <data name="OneWaiting" xml:space="preserve">
+    <value>{0} vous attend</value>
+  </data>
+  <data name="Waiting" xml:space="preserve">
+    <value>{0} vous attendent</value>
+  </data>
+  <data name="NoSubject" xml:space="preserve">
+    <value>Aucun sujet pour l'instant.</value>
+  </data>
+  <data name="NoSubjectName" xml:space="preserve">
+    <value>Sans sujet</value>
+  </data>
+  <data name="FolderWithoutProject" xml:space="preserve">
+    <value>Dossier sans projet</value>
+  </data>
+  <data name="FolderWithoutProject_Choose" xml:space="preserve">
+    <value>Une session Claude y travaille : choisir son projet</value>
+  </data>
+  <data name="ProjectThread" xml:space="preserve">
+    <value>Fil du projet</value>
+  </data>
+  <data name="ActiveSubjects" xml:space="preserve">
+    <value>Sujets actifs · {0}</value>
+  </data>
+  <data name="EndedSubjects" xml:space="preserve">
+    <value>Sujets terminés · 7 jours</value>
+  </data>
+  <data name="Counts" xml:space="preserve">
+    <value>{0} faites · {1} en cours · {2} prévues</value>
+  </data>
+  <data name="SubjectTasks" xml:space="preserve">
+    <value>Tâches du sujet</value>
+  </data>
+  <data name="ShowAll" xml:space="preserve">
+    <value>Tout voir ({0})</value>
+  </data>
+  <data name="ShowLess" xml:space="preserve">
+    <value>Voir moins</value>
+  </data>
+  <data name="ReadOnly" xml:space="preserve">
+    <value>Pour l'instant, ce fil montre seulement le début et la fin de chaque tâche. Y écrire vient ensuite.</value>
+  </data>
+  <data name="TaskThread" xml:space="preserve">
+    <value>Fil de la tâche</value>
+  </data>
+  <data name="BackToSubject" xml:space="preserve">
+    <value>Retour au sujet</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Résumé</value>
+  </data>
+  <data name="SubTasks" xml:space="preserve">
+    <value>Sous-tâches · lecture seule</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="Find" xml:space="preserve">
+    <value>Retrouver</value>
+  </data>
+  <data name="Find_Hint" xml:space="preserve">
+    <value>Une tâche de {0}</value>
+  </data>
+  <data name="Line_Opened" xml:space="preserve">
+    <value>{0} ouvre {1}</value>
+  </data>
+  <data name="Line_Waiting" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Line_Ended" xml:space="preserve">
+    <value>{0} : {1}</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="Hours" xml:space="preserve">
+    <value>{0} h {1} min</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>Prévue</value>
+  </data>
+  <data name="Status_Working" xml:space="preserve">
+    <value>En cours</value>
+  </data>
+  <data name="Status_Paused" xml:space="preserve">
+    <value>En pause</value>
+  </data>
+  <data name="Status_Idle" xml:space="preserve">
+    <value>Son tour est fini</value>
+  </data>
+  <data name="Status_WaitingAnswer" xml:space="preserve">
+    <value>A une question pour vous</value>
+  </data>
+  <data name="Status_WaitingApproval" xml:space="preserve">
+    <value>Attend votre permission</value>
+  </data>
+  <data name="Status_Blocked" xml:space="preserve">
+    <value>Bloquée</value>
+  </data>
+  <data name="Status_Done" xml:space="preserve">
+    <value>Terminée</value>
+  </data>
+  <data name="Status_Abandoned" xml:space="preserve">
+    <value>Arrêtée</value>
+  </data>
+</root>

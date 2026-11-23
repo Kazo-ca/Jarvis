@@ -1,5 +1,6 @@
 using Kazo.Jarvis.Features.Agents.Catalog;
 using Kazo.Jarvis.Features.Projects.Catalog;
+using Kazo.Jarvis.Features.Projects.View;
 using Kazo.Jarvis.Features.Assistant.Faults;
 using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
@@ -160,6 +161,10 @@ public static class FeaturesServiceCollectionExtensions
         // Task fan (stage2/14-task-fan, ADR 0010): a double click on the orb shows the tasks in progress around
         // it, with the decision that waits; a host without a fan surface has no fan.
         services.AddTaskFanSlice();
+
+        // Projects view (stage2/24-projects-view, ADR 0026): a double click on the orb opens the projects, their
+        // subjects and their tasks over the whole screen.
+        services.AddProjectsViewSlice();
 
         // Other slices arrive with the next work items.
         return services;

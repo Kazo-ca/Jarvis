@@ -1,0 +1,394 @@
+@implements IDisposable
+@inject ITaskBoard Board
+@inject ProjectsViewState State
+@inject IMessageBus Bus
+@inject IServiceProvider Services
+@inject TimeProvider Time
+@inject IStringLocalizer<ProjectsView> T
+
+@* The projects view (ADR 0026, section 7): a rail, the panel of the project, the thread of the subject with the
+   band of its tasks, and on the right the thread of the open task or a search. Everything is read from the task
+   board and the catalog of projects; nothing is written here yet. *@
+<div class="pv" data-projects-view data-projects-rail="@State.Rail">
+    <nav class="pv-rail" aria-label="@T["RailLabel"]">
+        <button type="button" class="pv-rail-item" data-rail="@ProjectsViewState.Attention" aria-current="@Current(ProjectsViewState.Attention)"
+                title="@T["Attention"]" @onclick="() => State.Show(ProjectsViewState.Attention)">
+            ◆@if (overview.Waiting > 0)
+            {
+                <span class="pv-badge" data-rail-badge>@overview.Waiting</span>
+            }
+        </button>
+        <button type="button" class="pv-rail-item" data-rail="@ProjectsViewState.All" aria-current="@Current(ProjectsViewState.All)"
+                title="@T["AllProjects"]" @onclick="() => State.Show(ProjectsViewState.All)">▦</button>
+        <span class="pv-rail-separator"></span>
+        @foreach (var project in overview.Projects)
+        {
+            <button type="button" class="pv-rail-item" @key="project.Id" data-rail="@project.Id" aria-current="@Current(project.Id)"
+                    title="@NameOf(project)" @onclick="() => State.Show(project.Id)">
+                @(project.General ? "💬" : Initials(project.Name))@if (project.Waiting > 0)
+                {
+                    <span class="pv-badge" data-rail-badge>@project.Waiting</span>
+                }
+            </button>
+        }
+        <button type="button" class="pv-rail-item pv-rail-add" data-rail-new title="@T["NewProject"]" @onclick="NewProjectAsync">+</button>
+    </nav>
+
+    @if (State.Rail == ProjectsViewState.Attention)
+    {
+        <section class="pv-wide" data-projects-attention>
+            <h2 class="pv-heading">@T["Attention"]</h2>
+            @if (overview.Attention.Count == 0)
+            {
+                <p class="pv-empty" data-projects-nothing>@T["NothingWaits"]</p>
+            }
+            <ul class="pv-list">
+                @foreach (var item in overview.Attention)
+                {
+                    <li @key="item.Step.Task.Id">
+                        <button type="button" class="pv-row pv-amber" data-attention="@item.Step.Task.Id"
+                                @onclick="() => State.Show(item.Project.Id, item.Subject.Key, item.Step.Task.Id)">
+                            <span class="pv-row-title">@item.Step.Task.Title</span>
+                            <span class="pv-row-note">@NameOf(item.Project) › @NameOf(item.Subject) · @T["Status_" + item.Step.Task.Status] · @Clock(item.Step.Task.UpdatedAt)</span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
+    else if (Selected is not { } project)
+    {
+        <section class="pv-wide" data-projects-all>
+            <h2 class="pv-heading">@T["AllProjects"]</h2>
+            <div class="pv-cards">
+                @foreach (var card in overview.Projects)
+                {
+                    <button type="button" class="pv-card @(card.Waiting > 0 ? "pv-amber" : null)" @key="card.Id" data-project-card="@card.Id" @onclick="() => State.Show(card.Id)">
+                        <span class="pv-card-name">@NameOf(card)</span>
+                        @if (card.Folder is { } folder)
+                        {
+                            <span class="pv-card-folder">@folder</span>
+                        }
+                        <span class="pv-card-line" data-card-waiting>@T[card.Waiting == 1 ? "OneWaiting" : "Waiting", card.Waiting]</span>
+                        @foreach (var running in Running(card))
+                        {
+                            <span class="pv-card-line" data-card-running="@running.Task.Id">● @running.Task.Title@(running.SubTasks.Count > 0 ? $" · {running.SubTasksEnded}/{running.SubTasks.Count}" : null)</span>
+                        }
+                        @if (card.Last is { } last)
+                        {
+                            <span class="pv-card-last" data-card-last>@Clock(last.Line.At) · @Sentence(last.Line)</span>
+                        }
+                        else
+                        {
+                            <span class="pv-card-last">@T["NoSubject"]</span>
+                        }
+                    </button>
+                }
+                @foreach (var folder in overview.FoldersWithoutProject)
+                {
+                    <button type="button" class="pv-card pv-amber" @key="@("folder:" + folder)" data-folder-card="@folder" @onclick="NewProjectAsync">
+                        <span class="pv-card-name">@T["FolderWithoutProject"]</span>
+                        <span class="pv-card-folder">@folder</span>
+                        <span class="pv-card-line">@T["FolderWithoutProject_Choose"]</span>
+                    </button>
+                }
+            </div>
+        </section>
+    }
+    else
+    {
+        var subject = SubjectOf(project);
+        var opened = subject?.Steps.FirstOrDefault(step => step.Task.Id == State.Task);
+        <aside class="pv-panel" data-project-panel="@project.Id">
+            <header class="pv-panel-head">
+                <h2 class="pv-panel-name">@NameOf(project)</h2>
+                <p class="pv-panel-folder" data-project-folder>@(project.Folder ?? T["General_Note"])</p>
+                @if (!project.General)
+                {
+                    <p class="pv-panel-agent">◈ @T["Agent"]</p>
+                }
+            </header>
+            <div class="pv-project-thread" data-project-thread>
+                <p class="pv-label">@T["ProjectThread"]</p>
+                @if (project.Last is { } last)
+                {
+                    <p class="pv-project-last">@Clock(last.Line.At) · @NameOf(last.Subject) : @Sentence(last.Line)</p>
+                }
+                else
+                {
+                    <p class="pv-project-last">@T["NoSubject"]</p>
+                }
+            </div>
+            <p class="pv-label">@T["ActiveSubjects", project.Subjects.Count(item => !item.Ended)]</p>
+            @foreach (var item in project.Subjects.Where(item => !item.Ended))
+            {
+                @SubjectRow(project, item, subject)
+            }
+            @if (Finished(project) is { Count: > 0 } finished)
+            {
+                <p class="pv-label">@T["EndedSubjects"]</p>
+                @foreach (var item in finished)
+                {
+                    @SubjectRow(project, item, subject)
+                }
+            }
+        </aside>
+
+        <section class="pv-centre" data-subject-thread="@subject?.Key">
+            @if (subject is null)
+            {
+                <p class="pv-empty" data-projects-nothing>@T["NoSubject"]</p>
+            }
+            else
+            {
+                <header class="pv-centre-head">
+                    <p class="pv-crumb"><b>@NameOf(project)</b> › @NameOf(subject)</p>
+                    <h2 class="pv-centre-title" data-subject-title>@NameOf(subject)</h2>
+                </header>
+                <div class="pv-steps" data-steps>
+                    <p class="pv-label">@T["SubjectTasks"]
+                        @if (subject.Steps.Count > MostSteps)
+                        {
+                            <button type="button" class="pv-link" data-steps-all aria-expanded="@Flag(allSteps)" @onclick="() => allSteps = !allSteps">@T[allSteps ? "ShowLess" : "ShowAll", subject.Steps.Count]</button>
+                        }
+                    </p>
+                    <div class="pv-step-row">
+                        @foreach (var step in Shown(subject))
+                        {
+                            <button type="button" class="pv-step" @key="step.Task.Id" data-step="@step.Label" data-step-kind="@step.Kind" data-step-amber="@Flag(step.Waits)"
+                                    aria-pressed="@Flag(step.Task.Id == State.Task)" @onclick="() => State.Open(step.Task.Id)">
+                                <b>@Mark(step.Kind) @step.Label</b> @step.Task.Title
+                            </button>
+                        }
+                    </div>
+                    @foreach (var step in subject.Steps.Where(step => step.Kind == StepKind.Active && step.SubTasks.Count > 0))
+                    {
+                        <p class="pv-subs" @key="@("subs:" + step.Task.Id)" data-step-subtasks="@step.Label">
+                            <span>@step.Label ›</span>
+                            @foreach (var child in step.SubTasks)
+                            {
+                                <span data-subtask-status="@child.Status"><i class="pv-dot" data-dot="@Dot(child)"></i>@child.Title</span>
+                            }
+                        </p>
+                    }
+                </div>
+                <ol class="pv-thread" data-thread>
+                    @foreach (var line in subject.Lines)
+                    {
+                        <li class="pv-line" data-thread-line="@line.Kind" data-thread-step="@line.Step.Label">
+                            <span class="pv-time">@Clock(line.At)</span>
+                            <span class="pv-who">@(line.Kind == ThreadLineKind.Opened ? "*" : Worker(line.Step.Task))</span>
+                            <span class="pv-text">
+                                <button type="button" class="pv-tag" data-thread-tag data-step-kind="@line.Step.Kind" @onclick="() => State.Open(line.Step.Task.Id)">@line.Step.Label</button>
+                                @Sentence(line)
+                            </span>
+                        </li>
+                    }
+                </ol>
+                <p class="pv-note" data-thread-note>@T["ReadOnly"]</p>
+            }
+        </section>
+
+        <aside class="pv-side">
+            @if (opened is not null)
+            {
+                <div data-task-thread="@opened.Task.Id">
+                    <p class="pv-label">@T["TaskThread"] <button type="button" class="pv-link" data-task-close @onclick="() => State.Open(null)">@T["BackToSubject"]</button></p>
+                    <h3 class="pv-side-title">@opened.Label · @opened.Task.Title</h3>
+                    <p class="pv-side-status" data-task-status>@T["Status_" + opened.Task.Status] · @Worker(opened.Task) · @Duration(opened.Task)</p>
+                    @if (!string.IsNullOrWhiteSpace(opened.Task.Summary))
+                    {
+                        <p class="pv-label">@T["Summary"]</p>
+                        <p class="pv-side-text" data-task-summary>@opened.Task.Summary</p>
+                    }
+                    @if (opened.SubTasks.Count > 0)
+                    {
+                        <p class="pv-label">@T["SubTasks"]</p>
+                        <ul class="pv-side-list" data-task-subtasks>
+                            @foreach (var child in opened.SubTasks)
+                            {
+                                <li @key="child.Id"><i class="pv-dot" data-dot="@Dot(child)"></i>@child.Title · @T["Status_" + child.Status]</li>
+                            }
+                        </ul>
+                    }
+                    @if (opened.Task.Folder is { } folder)
+                    {
+                        <p class="pv-label">@T["Folder"]</p>
+                        <p class="pv-side-text">@folder</p>
+                    }
+                </div>
+            }
+            else
+            {
+                <div data-projects-find>
+                    <label class="pv-label" for="pv-find">@T["Find"]</label>
+                    <input id="pv-find" class="pv-find" type="search" placeholder="@T["Find_Hint", NameOf(project)]" @bind="find" @bind:event="oninput" />
+                    <ul class="pv-list">
+                        @foreach (var hit in Found(project))
+                        {
+                            <li @key="hit.Step.Task.Id">
+                                <button type="button" class="pv-row" data-find-hit="@hit.Step.Task.Id" @onclick="() => State.Show(project.Id, hit.Subject.Key, hit.Step.Task.Id)">
+                                    <span class="pv-row-title">@hit.Step.Label · @hit.Step.Task.Title</span>
+                                    <span class="pv-row-note">@NameOf(hit.Subject) · @T["Status_" + hit.Step.Task.Status]</span>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </aside>
+    }
+</div>
+
+@code {
+    // How many tasks the band shows before « Tout voir »; the tasks in progress are always shown (section 3).
+    private const int MostSteps = 6;
+    private const int MostHits = 12;
+    private static readonly TimeSpan Recent = TimeSpan.FromDays(7);
+
+    private IProjectCatalog? catalog;
+    private ProjectsOverview overview = new([new ProjectBoard(ProjectsOverview.GeneralId, string.Empty, null, [])], []);
+    private bool allSteps;
+    private string find = string.Empty;
+
+    private ProjectBoard? Selected => overview.Find(State.Rail);
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        catalog = Services.GetService<IProjectCatalog>();
+        Board.Changed += OnChanged;
+        State.Changed += OnChanged;
+        if (catalog is not null)
+        {
+            catalog.Changed += OnChanged;
+        }
+
+        Read();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Board.Changed -= OnChanged;
+        State.Changed -= OnChanged;
+        if (catalog is not null)
+        {
+            catalog.Changed -= OnChanged;
+        }
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Read();
+        StateHasChanged();
+    });
+
+    private void Read() => overview = ProjectsOverview.From(Board.Tasks, catalog);
+
+    // A new project is made on the page of the projects (ADR 0025): the view only leads there.
+    private async Task NewProjectAsync() => await Bus.PublishAsync(new SettingsWindowRequested(IProjectCatalog.SettingsPageKey));
+
+    private SubjectBoard? SubjectOf(ProjectBoard project) =>
+        project.Subjects.FirstOrDefault(subject => subject.Key == State.Subject) ?? project.Subjects.FirstOrDefault();
+
+    private List<SubjectBoard> Finished(ProjectBoard project)
+    {
+        var since = Time.GetUtcNow() - Recent;
+        return [.. project.Subjects.Where(subject => subject.Ended && subject.UpdatedAt >= since)];
+    }
+
+    private IEnumerable<TaskStep> Shown(SubjectBoard subject)
+    {
+        if (allSteps || subject.Steps.Count <= MostSteps)
+        {
+            return subject.Steps;
+        }
+
+        // The newest ones, and every task in progress whatever its age.
+        var from = subject.Steps.Count - MostSteps;
+        return subject.Steps.Where((step, index) => index >= from || step.Kind == StepKind.Active);
+    }
+
+    private static IEnumerable<TaskStep> Running(ProjectBoard project) =>
+        project.Subjects.SelectMany(subject => subject.Steps).Where(step => step.Kind == StepKind.Active).Take(3);
+
+    private IEnumerable<(SubjectBoard Subject, TaskStep Step)> Found(ProjectBoard project)
+    {
+        var words = find.Trim();
+        return project.Subjects
+            .SelectMany(subject => subject.Steps.Select(step => (subject, step)))
+            .Where(item => words.Length == 0
+                || item.step.Task.Title.Contains(words, StringComparison.CurrentCultureIgnoreCase)
+                || item.step.Task.Summary?.Contains(words, StringComparison.CurrentCultureIgnoreCase) == true)
+            .OrderByDescending(item => item.step.Task.UpdatedAt)
+            .Take(MostHits);
+    }
+
+    private RenderFragment SubjectRow(ProjectBoard project, SubjectBoard item, SubjectBoard? shown) =>
+        @<button type="button" class="pv-subject @(item.Waiting > 0 ? "pv-amber" : null)" @key="item.Key" data-subject="@item.Key" data-subject-ended="@Flag(item.Ended)"
+                 aria-current="@(ReferenceEquals(item, shown) ? "true" : null)" @onclick="() => State.Show(project.Id, item.Key)">
+            <span class="pv-subject-name">@NameOf(item)</span>
+            <span class="pv-bar" aria-hidden="true">
+                @foreach (var step in item.Steps)
+                {
+                    <i data-step-kind="@step.Kind" data-step-amber="@Flag(step.Waits)"></i>
+                }
+            </span>
+            <span class="pv-subject-count" data-subject-count>@T["Counts", item.Done, item.Active, item.Planned]</span>
+        </button>;
+
+    private string? Current(string rail) => State.Rail == rail ? "page" : null;
+
+    private string NameOf(ProjectBoard project) => project.General ? T["General"] : project.Name;
+
+    private string NameOf(SubjectBoard subject) => subject.Name ?? T["NoSubjectName"];
+
+    private string Sentence(ThreadLine line) => line.Kind switch
+    {
+        ThreadLineKind.Opened => T["Line_Opened", Worker(line.Step.Task), line.Step.Task.Title],
+        ThreadLineKind.Waiting => T["Line_Waiting", T["Status_" + line.Step.Task.Status].Value],
+        _ when string.IsNullOrWhiteSpace(line.Step.Task.Summary) => T["Status_" + line.Step.Task.Status],
+        _ => T["Line_Ended", T["Status_" + line.Step.Task.Status].Value, line.Step.Task.Summary!.Trim()],
+    };
+
+    private string Duration(WorkTask task)
+    {
+        var span = (task.Ended ? task.UpdatedAt : Time.GetUtcNow()) - task.CreatedAt;
+        return span < TimeSpan.FromHours(1)
+            ? T["Minutes", Math.Max(1, (int)Math.Ceiling(span.TotalMinutes))]
+            : T["Hours", (int)span.TotalHours, span.Minutes];
+    }
+
+    private string Clock(DateTimeOffset moment) =>
+        TimeZoneInfo.ConvertTime(moment, Time.LocalTimeZone).ToString("t", System.Globalization.CultureInfo.CurrentCulture);
+
+    private static string Worker(WorkTask task) => task.Operator.Account == TaskOperator.ClaudeCode ? "Claude Code" : task.Operator.Account;
+
+    private static string Mark(StepKind kind) => kind switch
+    {
+        StepKind.Done => "✓",
+        StepKind.Active => "●",
+        StepKind.Planned => "○",
+        _ => "✕",
+    };
+
+    private static string Dot(WorkTask task) => task.Status switch
+    {
+        WorkTaskStatus.Done => "done",
+        WorkTaskStatus.Abandoned => "stopped",
+        WorkTaskStatus.Pending => "planned",
+        _ when task.WaitsForHuman => "amber",
+        _ => "active",
+    };
+
+    // Two letters for the rail: the first letters of the first two words, or the first two letters.
+    private static string Initials(string name)
+    {
+        var words = name.Split([' ', '.', '-', '_'], StringSplitOptions.RemoveEmptyEntries);
+        var text = words.Length >= 2 ? string.Concat(words[0][..1], words[1][..1]) : name.Trim();
+        return (text.Length > 2 ? text[..2] : text).ToUpperInvariant();
+    }
+
+    private static string Flag(bool value) => value ? "true" : "false";
+}

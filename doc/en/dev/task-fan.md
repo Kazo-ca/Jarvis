@@ -22,10 +22,10 @@ and spike E11 ([results](../../../spikes/e11-task-fan-window/RESULTS.md)).
 - Near the orb, a line counts the tasks and the decisions that wait. Without a task, the fan opens anyway and
   says "No task in progress.".
 - **A left click on the orb** starts listening, as the wake word does; while listening, it cancels it.
-- **A double click on the orb** will ask for the projects view. It is not built yet: for now there is neither
-  double click nor delay, and the left click acts at once. Once it exists, the left click will wait for the
-  double-click delay of Windows (half a second by default); the wake word, the hotkey and the right click are
-  never delayed.
+- **A double click on the orb** opens the projects view ([projects-view.md](projects-view.md)). The left click
+  therefore waits for the double-click delay of Windows (half a second by default) before it starts listening;
+  the wake word, the hotkey and the right click are never delayed. In a host with no projects view there is
+  neither double click nor delay.
 - **The amber badge of the orb** gives the number of decisions that wait, fan open or closed. The orb takes the
   "long task" look as long as a task works.
 
@@ -36,7 +36,7 @@ The fan is not a state of the assistant: Jarvis can listen, think or speak while
 | Element | Role |
 | --- | --- |
 | `TaskFanToggleRequested` (`Kernel/Messages/Desktop`) | The right click on the orb: the fan slice opens the fan or puts it away |
-| `ProjectsViewRequested` (`Kernel/Messages/Desktop`) | The double click on the orb: the slice of the projects view will answer it; nothing answers it yet |
+| `ProjectsViewRequested` (`Kernel/Messages/Desktop`) | The double click on the orb: the slice `Projects/View` answers it by opening the projects view |
 | `IPointerTimings` (`Kernel/Desktop`) | The double-click delay, given by the host; without it, no double click and no delay |
 | `ITaskFanSurface`, `FanAnchor` (`Kernel/Desktop`) | The surface the fan is drawn on: where the centre of the orb is, show, hide |
 | `IOpenConfirmations`, `OpenConfirmation` (`Kernel/Permissions`) | The open confirmation request and its click, for whoever shows it besides the window |
