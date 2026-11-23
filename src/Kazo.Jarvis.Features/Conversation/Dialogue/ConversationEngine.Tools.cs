@@ -6,6 +6,7 @@ using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Permissions;
+using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Tools;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,21 @@ public sealed partial class ConversationEngine
         // By voice nobody is named to skip the Jarvis agent (section 9).
         var chosen = answering.Input == TurnInput.Text ? agents.Find(choice?.Chosen) : null;
         return chosen ?? agents.Main;
+    }
+
+    /// <summary>
+    /// The project a turn starts with (ADR 0025, section 10): the one the user chose in the window for a typed
+    /// request, else the one the request names in its words. The Jarvis agent may name another when it hands over.
+    /// </summary>
+    private ProjectDefinition? FirstProject(Answering answering)
+    {
+        if (projects is null || agents is null)
+        {
+            return null;
+        }
+
+        var chosen = answering.Input == TurnInput.Text ? projects.Find(choice?.Project) : null;
+        return chosen ?? projects.NamedIn(answering.Snapshot.Request);
     }
 
     /// <summary>
@@ -96,6 +112,12 @@ public sealed partial class ConversationEngine
         {
             var known = string.Join(", ", agents.Agents.Where(agent => agent.Id != current.Id && agents.ToolsOf(agent).Any(tool => tool.Name != agents.ReturnToolName)).Select(agent => agent.Name));
             return (ToolCallOutcome.Failed, SystemPrompt.Text("Agent_Unknown", run.Language, hand.Asked ?? string.Empty, known));
+        }
+
+        // The Jarvis agent names the project with the agent (section 10); a name no project has changes nothing.
+        if (projects?.Find(hand.Project) is { } named)
+        {
+            run.Project = named;
         }
 
         run.HandedToAgent = true;

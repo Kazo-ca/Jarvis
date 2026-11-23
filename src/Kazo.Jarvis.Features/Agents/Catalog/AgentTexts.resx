@@ -80,4 +80,18 @@ Repeat in one sentence what you kept or forgot.</value>
   <data name="Return_Description" xml:space="preserve">
     <value>Call it when the request is not for you: it goes back to Jarvis, who answers it.</value>
   </data>
+  <data name="Project_Name" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="Project_Description" xml:space="preserve">
+    <value>Work on one of the projects of the user: what is left to do, its files, its Claude Code sessions.</value>
+  </data>
+  <data name="Project_Instructions" xml:space="preserve">
+    <value>You receive the project asked in a block "[Project]": its folder and its memory.
+Answer from this block and from the files of the folder.
+When no project is given, ask which one.</value>
+  </data>
+  <data name="Hand_Projects" xml:space="preserve">
+    <value>Projects of the user: {0}. When the request is about one, name it in "project".</value>
+  </data>
 </root>

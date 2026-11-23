@@ -20,4 +20,7 @@ public static class AgentIds
 
     /// <summary>The agent that gets the tools of the Home Assistant servers.</summary>
     public const string HomeAutomation = "home-automation";
+
+    /// <summary>The one agent that works on a project: it is loaded with the folder and the memory of the project asked (section 13, point 2).</summary>
+    public const string Project = "project";
 }

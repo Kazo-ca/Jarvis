@@ -204,4 +204,16 @@
   <data name="AgentChoice_Hint" xml:space="preserve">
     <value>A typed request goes straight to the chosen agent, without the Jarvis agent.</value>
   </data>
+  <data name="Project" xml:space="preserve">
+    <value>Project {0}</value>
+  </data>
+  <data name="ProjectChoice" xml:space="preserve">
+    <value>Project:</value>
+  </data>
+  <data name="ProjectChoice_Auto" xml:space="preserve">
+    <value>Named in the request</value>
+  </data>
+  <data name="ProjectChoice_Hint" xml:space="preserve">
+    <value>The project a typed request is about. A spoken request names its project itself.</value>
+  </data>
 </root>

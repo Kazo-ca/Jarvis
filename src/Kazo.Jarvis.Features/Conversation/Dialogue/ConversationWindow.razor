@@ -70,7 +70,7 @@
                         <span class="conversation-who conversation-jarvis">Jarvis</span>
                         <span class="conversation-body" data-conversation-answer>@turn.Answer</span>
                     </p>
-                    <p class="conversation-meta" data-conversation-meta data-conversation-model="@(turn.Model ?? "")" data-conversation-agent="@(turn.Agent ?? "")">@Meta(turn)</p>
+                    <p class="conversation-meta" data-conversation-meta data-conversation-model="@(turn.Model ?? "")" data-conversation-agent="@(turn.Agent ?? "")" data-conversation-project="@(turn.Project ?? "")">@Meta(turn)</p>
                 </li>
             }
         </ol>
@@ -100,6 +100,20 @@
                 @foreach (var agent in agents.Agents.Where(agent => agent.Id != Kazo.Jarvis.Kernel.Agents.AgentIds.Main))
                 {
                     <option value="@agent.Id">@agent.Name</option>
+                }
+            </select>
+        </label>
+    }
+    @if (projects is { Projects.Count: > 0 } && agentChoice is not null)
+    {
+        @* The project a typed request is about (ADR 0025, section 10), unless the request names it itself. *@
+        <label class="conversation-agent" title="@T["ProjectChoice_Hint"]">
+            <span class="conversation-who">@T["ProjectChoice"]</span>
+            <select class="conversation-agent-select" data-conversation-project-choice value="@(agentChoice.Project ?? "")" @onchange="e => agentChoice.Project = e.Value as string">
+                <option value="">@T["ProjectChoice_Auto"]</option>
+                @foreach (var project in projects.Projects)
+                {
+                    <option value="@project.Id">@project.Name</option>
                 }
             </select>
         </label>
@@ -140,6 +154,7 @@
     private Kazo.Jarvis.Kernel.Web.IReadingBrowser? browser;
     private Kazo.Jarvis.Kernel.Agents.IAgentCatalog? agents;
     private AgentChoice? agentChoice;
+    private Kazo.Jarvis.Kernel.Projects.IProjectCatalog? projects;
 
     private bool IsIdle => State.Current.Phase == AssistantPhase.Idle;
 
@@ -159,6 +174,12 @@
 
         agents = Services.GetService(typeof(Kazo.Jarvis.Kernel.Agents.IAgentCatalog)) as Kazo.Jarvis.Kernel.Agents.IAgentCatalog;
         agentChoice = Services.GetService(typeof(AgentChoice)) as AgentChoice;
+        projects = Services.GetService(typeof(Kazo.Jarvis.Kernel.Projects.IProjectCatalog)) as Kazo.Jarvis.Kernel.Projects.IProjectCatalog;
+        if (projects is not null)
+        {
+            projects.Changed += OnSpendChanged;
+        }
+
         if (agents is not null)
         {
             agents.Changed += OnSpendChanged;
@@ -181,6 +202,11 @@
         if (spend is not null)
         {
             spend.Changed -= OnSpendChanged;
+        }
+
+        if (projects is not null)
+        {
+            projects.Changed -= OnSpendChanged;
         }
 
         if (agents is not null)
@@ -263,6 +289,12 @@
         {
             // Who answered (ADR 0025, section 4).
             parts.Add(T["Agent", agent]);
+        }
+
+        if (turn.Project is { Length: > 0 } project)
+        {
+            // What the turn was about (ADR 0025, section 10).
+            parts.Add(T["Project", project]);
         }
 
         if (turn.Duration is { } duration)

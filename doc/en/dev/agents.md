@@ -5,9 +5,9 @@ Work item `stage2/17-agents`. Decision: [ADR 0025](adr/0025-task-agents-and-thei
 [tools.md](tools.md), the faults in [faults.md](faults.md).
 
 This work item builds the agents, their files, the sorting by the Jarvis agent and the choice of the agent in the
-conversation. **Still to build** (next work items): the memory of each agent (section 5), the projects, their
-memory and the "Project" agent (sections 6, 10 and 11), the choice of the agent of an MCP server on its page
-(section 3), the "Call" mode (section 12).
+conversation. Work item 18 added the memory of each agent and the choice of the agent of an MCP server (below), work item 19
+the projects and the "Project" agent ([projects.md](projects.md)). **Still to build:** the "Call" mode
+(section 12).
 
 ## What is built
 
@@ -79,8 +79,7 @@ Written at the first launch, in the language of the assistant:
 | `files` | Fichiers / Files | `list_directory`, `read_file` |
 | `claude-code` | Claude Code | `get_claude_sessions` |
 | `memory` | Mémoire / Memory | `remember_fact`, `forget_fact`, `search_memory` |
-
-The "Project" agent of the ADR comes with the projects.
+| `project` | Projet / Project | `list_directory`, `read_file`, `get_claude_sessions` (work item 19, see [projects.md](projects.md)) |
 
 **A file the user changed is never overwritten.** Jarvis keeps the SHA-256 fingerprint of each file it wrote
 (section `Agents.Files` of `config.json`). At start:

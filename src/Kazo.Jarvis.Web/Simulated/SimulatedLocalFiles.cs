@@ -18,15 +18,19 @@ public sealed class SimulatedLocalFiles : ILocalFiles
     /// <summary>A link inside <see cref="Documents"/> whose target is <see cref="Private"/>.</summary>
     public const string LinkToPrivate = Documents + "/lien-prive";
 
+    /// <summary>The folder of a project that has a memory file (stage2/19-projects).</summary>
+    public const string KazoOs = "/home/demo/Projets/kazo-os";
+
     private static readonly Dictionary<string, string> Texts = new(StringComparer.OrdinalIgnoreCase)
     {
         [Documents + "/notes.txt"] = "Liste de courses : farine, œufs, lait.\nAppeler le garage mardi.",
         [Documents + "/recettes/crepes.txt"] = "Crêpes : 250 g de farine, 4 œufs, 500 ml de lait. Laisser reposer une heure.",
         [Documents + "/long.txt"] = string.Concat(Enumerable.Range(1, 400).Select(line => $"Ligne {line} du long fichier.\n")),
+        [KazoOs + "/JARVIS.md"] = "# Kazo OS\nReste à faire : le pilote réseau, puis l'écran de démarrage.",
         [Private + "/secret.txt"] = "Ne doit jamais être lu par un outil.",
     };
 
-    private static readonly string[] Folders = ["/", "/home", "/home/demo", Documents, Documents + "/recettes", Private];
+    private static readonly string[] Folders = ["/", "/home", "/home/demo", Documents, Documents + "/recettes", Private, "/home/demo/Projets", KazoOs];
 
     /// <inheritdoc />
     public string? Resolve(string path)

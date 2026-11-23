@@ -138,6 +138,9 @@ public sealed record ConversationTurn
     /// </summary>
     public string? Agent { get; init; }
 
+    /// <summary>The name of the project the turn was about, when the agent that answered was told of one (ADR 0025, section 10).</summary>
+    public string? Project { get; init; }
+
     /// <summary>Code of the language of the turn (<c>fr</c>, <c>en</c>).</summary>
     public string Language { get; init; } = string.Empty;
 

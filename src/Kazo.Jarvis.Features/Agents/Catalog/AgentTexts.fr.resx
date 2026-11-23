@@ -80,4 +80,18 @@ Répète en une phrase ce que tu as retenu ou oublié.</value>
   <data name="Return_Description" xml:space="preserve">
     <value>À appeler quand la demande n'est pas pour toi : elle revient à Jarvis, qui y répond.</value>
   </data>
+  <data name="Project_Name" xml:space="preserve">
+    <value>Projet</value>
+  </data>
+  <data name="Project_Description" xml:space="preserve">
+    <value>Travailler sur un des projets de l'utilisateur : ce qui reste à faire, ses fichiers, ses sessions Claude Code.</value>
+  </data>
+  <data name="Project_Instructions" xml:space="preserve">
+    <value>Tu reçois le projet demandé dans un bloc « [Projet] » : son dossier et sa mémoire.
+Réponds d'après ce bloc et d'après les fichiers du dossier.
+Quand aucun projet n'est donné, demande lequel.</value>
+  </data>
+  <data name="Hand_Projects" xml:space="preserve">
+    <value>Projets de l'utilisateur : {0}. Quand la demande porte sur l'un d'eux, nomme-le dans « project ».</value>
+  </data>
 </root>

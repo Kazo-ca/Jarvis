@@ -146,7 +146,10 @@ public sealed partial class AgentCatalog : IAgentCatalog, IHostedService, IDispo
 
         // Only an agent that has a tool of its own now takes the hand: the others are not in the list the model got.
         var found = Find(asked);
-        return new AgentHand(found is not null && Others.Any(agent => agent.Id == found.Id) ? found : null, asked);
+        var project = arguments.ValueKind == JsonValueKind.Object && arguments.TryGetProperty("project", out var named) && named.ValueKind == JsonValueKind.String
+            ? named.GetString()?.Trim()
+            : null;
+        return new AgentHand(found is not null && Others.Any(agent => agent.Id == found.Id) ? found : null, asked, string.IsNullOrEmpty(project) ? null : project);
     }
 
     /// <summary>Opens the file of an agent in the editor of the user.</summary>

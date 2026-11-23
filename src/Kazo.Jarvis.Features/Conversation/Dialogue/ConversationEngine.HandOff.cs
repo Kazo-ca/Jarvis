@@ -316,6 +316,9 @@ public sealed partial class ConversationEngine
         /// <summary>The agent the turn continues with, set by a call that changed the hand (ADR 0025, section 4).</summary>
         public AgentDefinition? Next { get; set; }
 
+        /// <summary>The project the turn is about, when there is one (ADR 0025, section 10).</summary>
+        public Kazo.Jarvis.Kernel.Projects.ProjectDefinition? Project { get; set; }
+
         /// <summary>Whether the Jarvis agent already handed this turn over: it does so once.</summary>
         public bool HandedToAgent { get; set; }
 

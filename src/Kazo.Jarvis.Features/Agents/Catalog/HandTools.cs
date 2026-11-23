@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Permissions;
+using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Tools;
 
 namespace Kazo.Jarvis.Features.Agents.Catalog;
@@ -22,12 +23,15 @@ public sealed class HandToAgentTool : ITool
     public const string ToolName = "hand_to_agent";
 
     private readonly Func<AgentCatalog> catalog;
+    private readonly Func<IProjectCatalog?>? projects;
 
     /// <summary>Creates the tool.</summary>
     /// <param name="catalog">The catalog, asked late: it reads the registry this tool is in.</param>
-    public HandToAgentTool(Func<AgentCatalog> catalog)
+    /// <param name="projects">The projects, asked the same way; <see langword="null"/> without that slice.</param>
+    public HandToAgentTool(Func<AgentCatalog> catalog, Func<IProjectCatalog?>? projects = null)
     {
         this.catalog = catalog;
+        this.projects = projects;
     }
 
     /// <inheritdoc />
@@ -43,16 +47,35 @@ public sealed class HandToAgentTool : ITool
     public ActionClass DeclaredClass => ActionClass.Read;
 
     /// <summary>The names of the agents that can take the hand now are the only values of <c>agent</c>.</summary>
-    public JsonElement Schema => JsonSerializer.SerializeToElement(new Dictionary<string, object>
+    public JsonElement Schema
     {
-        ["type"] = "object",
-        ["properties"] = new Dictionary<string, object>
+        get
         {
-            ["agent"] = new Dictionary<string, object> { ["type"] = "string", ["enum"] = catalog().Others.Select(agent => agent.Name).ToArray() },
-            ["reason"] = new { type = "string", description = "One short sentence: why this agent." },
-        },
-        ["required"] = new[] { "agent" },
-    });
+            var properties = new Dictionary<string, object>
+            {
+                ["agent"] = new Dictionary<string, object> { ["type"] = "string", ["enum"] = catalog().Others.Select(agent => agent.Name).ToArray() },
+                ["reason"] = new { type = "string", description = "One short sentence: why this agent." },
+            };
+
+            // The project is named with the agent (ADR 0025, section 10), only while there is one to name.
+            if (Projects() is { Count: > 0 } known)
+            {
+                properties["project"] = new Dictionary<string, object>
+                {
+                    ["type"] = "string",
+                    ["enum"] = known.Select(project => project.Name).ToArray(),
+                    ["description"] = "The project the request is about, when it names one.",
+                };
+            }
+
+            return JsonSerializer.SerializeToElement(new Dictionary<string, object>
+            {
+                ["type"] = "object",
+                ["properties"] = properties,
+                ["required"] = new[] { "agent" },
+            });
+        }
+    }
 
     /// <inheritdoc />
     public string Describe(AssistantLanguage language)
@@ -64,6 +87,11 @@ public sealed class HandToAgentTool : ITool
             text.Append('\n').Append("- ").Append(agent.Name).Append(": ").Append(agent.Description);
         }
 
+        if (Projects() is { Count: > 0 } known)
+        {
+            text.Append('\n').Append(StartingAgents.Text("Hand_Projects", language, string.Join(", ", known.Select(project => project.Name))));
+        }
+
         return text.ToString();
     }
 
@@ -73,6 +101,8 @@ public sealed class HandToAgentTool : ITool
     /// <inheritdoc />
     public ValueTask<string> InvokeAsync(JsonElement arguments, CancellationToken cancellationToken) =>
         throw new ToolException("The hand only changes inside a turn of the conversation.");
+
+    private IReadOnlyList<ProjectDefinition> Projects() => projects?.Invoke()?.Projects ?? [];
 }
 
 /// <summary>

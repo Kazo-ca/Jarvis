@@ -1,0 +1,135 @@
+@inject ProjectCatalog Catalog
+@inject IStringLocalizer<ProjectsPage> T
+@inject IServiceProvider Services
+@implements IDisposable
+
+@* The « Projets » page (ADR 0025, section 6): a project is a name and a local folder. Each one shows whether it has
+   a memory file and whether Jarvis may read its folder; allowing the folder is asked in so many words, never done
+   by creating the project. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["ListLabel"]" Hint="@T["RemoveHint"]">
+        @if (projects.Count == 0)
+        {
+            <p class="projects-note" data-projects-none>@T["None"]</p>
+        }
+        else
+        {
+            <ul class="projects-list" data-projects-list>
+                @foreach (var project in projects)
+                {
+                    var hasMemory = memories.TryGetValue(project.Id, out var memory) && memory is not null;
+                    var isAllowed = allowed.Contains(project.Id);
+                    <li class="projects-entry" data-project="@project.Id" data-project-memory="@(hasMemory ? "true" : "false")" data-project-allowed="@(isAllowed ? "true" : "false")" @key="project.Id">
+                        <div class="projects-head">
+                            <span class="projects-name" data-project-name>@project.Name</span>
+                            <button type="button" class="projects-button" data-project-remove @onclick="() => RemoveAsync(project)">@T["Remove"]</button>
+                        </div>
+                        <p class="projects-folder" data-project-folder>@project.Folder</p>
+                        <p class="projects-note" data-project-memory-text>@(hasMemory ? T["Memory", memory!] : T["NoMemory", IProjectCatalog.MemoryFileName])</p>
+                        @if (folders is not null)
+                        {
+                            <p class="projects-note">@T[isAllowed ? "Allowed" : "NotAllowed"]</p>
+                            @if (!isAllowed && allowing == project.Id)
+                            {
+                                <span class="projects-note" role="alert">@T["AllowConfirm", project.Folder]</span>
+                                <button type="button" class="projects-button" data-project-allow-confirm @onclick="() => AllowAsync(project)">@T["AllowYes"]</button>
+                                <button type="button" class="projects-button" data-project-allow-cancel @onclick="() => allowing = null">@T["AllowNo"]</button>
+                            }
+                            else if (!isAllowed)
+                            {
+                                <button type="button" class="projects-button" data-project-allow @onclick="() => allowing = project.Id">@T["Allow"]</button>
+                            }
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["AddLabel"]">
+        <div class="projects-add">
+            <input type="text" class="projects-input" data-project-add-name maxlength="@ProjectsOptions.MostNameCharacters" aria-label="@T["NameLabel"]"
+                   placeholder="@T["NamePlaceholder"]" @bind="name" @bind:event="oninput" />
+            <input type="text" class="projects-input projects-input-folder" data-project-add-folder aria-label="@T["FolderLabel"]"
+                   placeholder="@T["FolderPlaceholder"]" @bind="folder" @bind:event="oninput" />
+            <button type="button" class="projects-button" data-project-add disabled="@(string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(folder))" @onclick="AddAsync">@T["Add"]</button>
+        </div>
+        @if (problem is not null)
+        {
+            <p class="projects-problem" role="alert" data-projects-problem>@problem</p>
+        }
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    // How much of a memory file the page shows.
+    private const int MemoryShown = 300;
+
+    private readonly Dictionary<string, string?> memories = new(StringComparer.Ordinal);
+    private readonly HashSet<string> allowed = new(StringComparer.Ordinal);
+    private IReadOnlyList<ProjectDefinition> projects = [];
+    private IAllowedFolders? folders;
+    private string? name;
+    private string? folder;
+    private string? problem;
+    private string? allowing;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        // Without the file tools, nothing reads a folder: the page then says nothing about allowed folders.
+        folders = Services.GetService(typeof(IAllowedFolders)) as IAllowedFolders;
+        Catalog.Changed += OnChanged;
+        await ReadAsync();
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Catalog.Changed -= OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(async () =>
+    {
+        await ReadAsync();
+        StateHasChanged();
+    });
+
+    private async Task ReadAsync()
+    {
+        projects = Catalog.Projects;
+        memories.Clear();
+        allowed.Clear();
+        foreach (var project in projects)
+        {
+            memories[project.Id] = await Catalog.MemoryAsync(project, MemoryShown);
+            if (folders?.Check(project.Folder).Verdict == PathVerdict.Allowed)
+            {
+                allowed.Add(project.Id);
+            }
+        }
+    }
+
+    private async Task AddAsync()
+    {
+        var outcome = await Catalog.AddAsync(name, folder);
+        problem = outcome == ProjectOutcome.Added ? null : T["Add_" + outcome].Value;
+        if (outcome == ProjectOutcome.Added)
+        {
+            name = null;
+            folder = null;
+        }
+
+        await ReadAsync();
+    }
+
+    private async Task RemoveAsync(ProjectDefinition project)
+    {
+        await Catalog.RemoveAsync(project.Id);
+        await ReadAsync();
+    }
+
+    private async Task AllowAsync(ProjectDefinition project)
+    {
+        allowing = null;
+        problem = folders is not null && await folders.AllowAsync(project.Folder) ? null : T["AllowFailed"].Value;
+        await ReadAsync();
+    }
+}

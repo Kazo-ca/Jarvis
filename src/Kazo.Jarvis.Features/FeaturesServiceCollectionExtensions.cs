@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Features.Agents.Catalog;
+using Kazo.Jarvis.Features.Projects.Catalog;
 using Kazo.Jarvis.Features.Assistant.Faults;
 using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
@@ -105,6 +106,7 @@ public static class FeaturesServiceCollectionExtensions
         // Agents (stage2/17-agents, ADR 0025): one agent per kind of task, read from Markdown files (the folder
         // comes from the host); the conversation asks it who answers a turn and with which tools.
         services.AddAgentsSlice();
+        services.AddProjectsSlice();
         services.AddConversationSlice();
 
         // First run (stage1/14-first-run): the models page downloads the models (installer and graphics card from the

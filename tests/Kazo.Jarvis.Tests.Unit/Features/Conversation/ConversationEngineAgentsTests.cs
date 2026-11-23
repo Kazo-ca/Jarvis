@@ -283,4 +283,96 @@ public sealed partial class ConversationEngineTests
             Assert.That(note.Agents, Is.EqualTo(new[] { "web" }), "The fact goes to the memory of the agent that calls.");
         });
     }
+
+    // ----- The project of a turn (ADR 0025, sections 6 and 10) -----
+
+    private async Task CreateKazoOsAsync()
+    {
+        registry.Register(new FakeTool("read_file"));
+        await projects!.AddAsync("Kazo OS", "/projets/kazo-os");
+        await projects.AddAsync("Maison", "/projets/maison");
+        projectFiles!.Texts["/projets/kazo-os/JARVIS.md"] = "Reste à faire : le pilote réseau.";
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task The_Jarvis_agent_names_the_project_with_the_agent_and_that_agent_is_told_its_folder_and_memory()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+        client.Rounds.Enqueue([Call("hand_to_agent", "call_1", ("agent", "Projet"), ("project", "kazo os"))]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Il nous reste quoi à faire dans le système ?"));
+        await TurnStoredAsync();
+
+        var hand = client.Calls[0].Options!.Tools!.Single(tool => tool.Name == "hand_to_agent");
+        Assert.Multiple(() =>
+        {
+            Assert.That(hand.Description, Does.Contain("Projets de l'utilisateur : Kazo OS, Maison."));
+            Assert.That(client.Calls[0].Options?.Instructions, Does.Not.Contain("[Projet]\n"), "The request of the Jarvis agent stays short.");
+            Assert.That(client.Calls[1].Options?.Instructions, Does.Contain("[Projet]\nNom : Kazo OS\nDossier : /projets/kazo-os\n").And.Contain("Reste à faire : le pilote réseau."));
+            Assert.That(client.Calls[1].Options?.Instructions, Does.Contain("Tu reçois le projet demandé"), "The instructions of the one « Projet » agent.");
+            Assert.That(journal.Turns.Single().Agent, Is.EqualTo("Projet"));
+            Assert.That(journal.Turns.Single().Project, Is.EqualTo("Kazo OS"));
+        });
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task A_project_named_in_the_request_is_told_to_the_agent_even_when_the_hand_names_none_or_an_unknown_one()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+        client.Rounds.Enqueue([Call("hand_to_agent", "call_1", ("agent", "Projet"), ("project", "Jardin"))]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Dans Kazo Os, il nous reste quoi à faire ?"));
+        await TurnStoredAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(client.Calls[1].Options?.Instructions, Does.Contain("Nom : Kazo OS"), "A name no project has changes nothing.");
+            Assert.That(journal.Turns.Single().Project, Is.EqualTo("Kazo OS"));
+        });
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task Without_a_project_named_only_the_memory_of_the_agent_is_sent()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+        memory.OfAgents["project"] = "[Mémoire de l'agent]\n- L'utilisateur veut des réponses courtes.\n[Fin de la mémoire de l'agent]";
+        client.Rounds.Enqueue([Call("hand_to_agent", "call_1", ("agent", "Projet"))]);
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Il nous reste quoi à faire ?"));
+        await TurnStoredAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(client.Calls[1].Options?.Instructions, Does.Contain("réponses courtes").And.Not.Contain("[Projet]\n"), "Section 10: no block without a project.");
+            Assert.That(journal.Turns.Single().Project, Is.Null);
+        });
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task The_project_chosen_in_the_window_applies_to_a_typed_request_after_the_memory_of_the_agent()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+        memory.OfAgents["project"] = "[Mémoire de l'agent]\n- L'utilisateur veut des réponses courtes.\n[Fin de la mémoire de l'agent]";
+        agentChoice!.Chosen = "project";
+        agentChoice.Project = "maison";
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Il nous reste quoi à faire ?"));
+        await TurnStoredAsync();
+
+        var instructions = client.Calls.Single().Options?.Instructions;
+        Assert.Multiple(() =>
+        {
+            Assert.That(instructions, Does.Contain("Nom : Maison").And.Contain("Le projet n'a pas encore de mémoire"));
+            Assert.That(instructions?.IndexOf("réponses courtes", StringComparison.Ordinal), Is.LessThan(instructions?.IndexOf("[Projet]\n", StringComparison.Ordinal)));
+            Assert.That(journal.Turns.Single().Project, Is.EqualTo("Maison"));
+        });
+    }
 }

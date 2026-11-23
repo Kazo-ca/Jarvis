@@ -151,7 +151,7 @@ public sealed class AgentsTests : PageTest
     {
         await AllowDocumentsAsync();
         await Page.ClickAsync("#open-conversation");
-        await Expect(Choice.Locator("option")).ToHaveCountAsync(6);
+        await Expect(Choice.Locator("option")).ToHaveCountAsync(7);
         await Choice.SelectOptionAsync("files");
 
         await SendAsync($"Lis le fichier {Documents}/notes.txt");

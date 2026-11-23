@@ -5,9 +5,9 @@ Chantier `stage2/17-agents`. Décision : [ADR 0025](adr/0025-task-agents-and-the
 [tools.md](tools.md), les pannes dans [faults.md](faults.md).
 
 Ce chantier construit les agents, leurs fichiers, le tri par l'agent Jarvis et le choix de l'agent dans la
-conversation. **Restent à construire** (chantiers suivants) : la mémoire de chaque agent (section 5), les projets,
-leur mémoire et l'agent « Projet » (sections 6, 10 et 11), le choix de l'agent d'un serveur MCP sur sa page
-(section 3), le mode « Appel » (section 12).
+conversation. Le chantier 18 a ajouté la mémoire de chaque agent et le choix de l'agent d'un serveur MCP (plus bas), le
+chantier 19 les projets et l'agent « Projet » ([projects.md](projects.md)). **Reste à construire :** le mode
+« Appel » (section 12).
 
 ## Ce qui est construit
 
@@ -80,8 +80,7 @@ regroupées sur 400 ms). Le changement vaut pour le tour suivant.
 | `files` | Fichiers / Files | `list_directory`, `read_file` |
 | `claude-code` | Claude Code | `get_claude_sessions` |
 | `memory` | Mémoire / Memory | `remember_fact`, `forget_fact`, `search_memory` |
-
-L'agent « Projet » de l'ADR arrive avec les projets.
+| `project` | Projet / Project | `list_directory`, `read_file`, `get_claude_sessions` (chantier 19, voir [projects.md](projects.md)) |
 
 **Un fichier modifié par l'utilisateur n'est jamais écrasé.** Jarvis garde l'empreinte SHA-256 de chaque fichier
 qu'il a écrit (section `Agents.Files` de `config.json`). Au démarrage :

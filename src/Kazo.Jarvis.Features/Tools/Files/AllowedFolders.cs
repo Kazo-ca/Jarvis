@@ -36,6 +36,25 @@ public sealed class AllowedFolders : IAllowedFolders
     public int ResultCharacters => settings.Read(FileToolsOptions.Section).ResultCharacters;
 
     /// <inheritdoc />
+    /// <inheritdoc />
+    public async ValueTask<bool> AllowAsync(string folder, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(folder) || files.Resolve(folder.Trim()) is not { } resolved)
+        {
+            return false;
+        }
+
+        if (Roots.Any(root => IsInside(root, Trim(resolved))))
+        {
+            return true;
+        }
+
+        var options = settings.Read(FileToolsOptions.Section);
+        var result = await settings.WriteAsync(FileToolsOptions.Section, options with { Folders = [.. options.Folders, folder.Trim()] }, cancellationToken).ConfigureAwait(false);
+        return result.Outcome == SettingsWriteOutcome.Saved;
+    }
+
+    /// <inheritdoc />
     public CheckedPath Check(string? path)
     {
         if (string.IsNullOrWhiteSpace(path) || files.Resolve(path.Trim()) is not { } resolved)
