@@ -80,7 +80,7 @@ regroupées sur 400 ms). Le changement vaut pour le tour suivant.
 | `files` | Fichiers / Files | `list_directory`, `read_file` |
 | `claude-code` | Claude Code | `get_claude_sessions` |
 | `memory` | Mémoire / Memory | `remember_fact`, `forget_fact`, `search_memory` |
-| `project` | Projet / Project | `list_directory`, `read_file`, `get_claude_sessions` (chantier 19, voir [projects.md](projects.md)) |
+| `project` | Projet / Project | `list_directory`, `read_file`, `get_claude_sessions`, `remember_project_fact` (chantiers 19 et 21, voir [projects.md](projects.md)) |
 
 **Un fichier modifié par l'utilisateur n'est jamais écrasé.** Jarvis garde l'empreinte SHA-256 de chaque fichier
 qu'il a écrit (section `Agents.Files` de `config.json`). Au démarrage :

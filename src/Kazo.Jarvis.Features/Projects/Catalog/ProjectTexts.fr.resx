@@ -33,4 +33,10 @@
   <data name="Block_NoMemory" xml:space="preserve">
     <value>Le projet n'a pas encore de mémoire (pas de fichier {0} dans son dossier).</value>
   </data>
+  <data name="Remember_Description" xml:space="preserve">
+    <value>Écrit un fait dans la mémoire d'un projet (son fichier {0}), quand l'utilisateur demande de le retenir pour ce projet. Une phrase courte, jamais un mot de passe ni une clé.</value>
+  </data>
+  <data name="Remember_Summary" xml:space="preserve">
+    <value>Écrire dans la mémoire du projet {0} : « {1} »</value>
+  </data>
 </root>

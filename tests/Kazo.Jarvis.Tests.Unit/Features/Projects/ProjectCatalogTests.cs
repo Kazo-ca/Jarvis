@@ -174,4 +174,60 @@ public sealed class ProjectCatalogTests
             "travail", "projet", "sujet", new Kazo.Jarvis.Kernel.Tasks.TaskOperator(Kazo.Jarvis.Kernel.Tasks.TaskOperator.ClaudeCode),
             Kazo.Jarvis.Kernel.Tasks.TaskSource.Hook, where, Status: Kazo.Jarvis.Kernel.Tasks.WorkTaskStatus.Working);
     }
+
+    [Test]
+    public async Task A_fact_is_written_as_one_line_at_the_end_of_the_memory_file_and_a_secret_never_is()
+    {
+        await catalog.AddAsync("Kazo OS", "/projets/kazo-os");
+        await catalog.AddAsync("Maison", "/projets/maison");
+        var os = catalog.Find("Kazo OS")!;
+        var home = catalog.Find("Maison")!;
+        files.Texts["/projets/kazo-os/JARVIS.md"] = "# Kazo OS\n- Le pilote réseau reste à faire.";
+        var changes = 0;
+        catalog.Changed += () => Interlocked.Increment(ref changes);
+
+        var added = await catalog.RememberAsync(os, "  - La cible est\n ARM64. ");
+        var again = await catalog.RememberAsync(os, "la cible est arm64.");
+        var created = await catalog.RememberAsync(home, "Le plombier vient mardi.");
+        var empty = await catalog.RememberAsync(os, " \n ");
+        var tooLong = await catalog.RememberAsync(os, new string('a', ProjectCatalog.MostFactCharacters + 1));
+        var secret = await catalog.RememberAsync(os, "Le mot de passe du serveur est hunter2");
+        files.ReadOnly = true;
+        var refused = await catalog.RememberAsync(os, "Un autre fait.");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(new[] { added, again, created, empty, tooLong, secret, refused }, Is.EqualTo(new[]
+            {
+                ProjectFactOutcome.Added, ProjectFactOutcome.AlreadyKnown, ProjectFactOutcome.Added, ProjectFactOutcome.Empty,
+                ProjectFactOutcome.TooLong, ProjectFactOutcome.LooksLikeSecret, ProjectFactOutcome.NotWritten,
+            }));
+            Assert.That(files.Texts["/projets/kazo-os/JARVIS.md"], Is.EqualTo("# Kazo OS\n- Le pilote réseau reste à faire.\n- La cible est ARM64.\n"), "What was there is kept, on its own line.");
+            Assert.That(files.Texts["/projets/maison/JARVIS.md"], Is.EqualTo("# Maison\n\n- Le plombier vient mardi.\n"), "A new file starts with the name of the project.");
+            Assert.That(changes, Is.EqualTo(2), "The page reads the memory again.");
+        });
+    }
+
+    [Test]
+    public async Task The_tool_asks_a_confirmation_names_what_it_writes_and_refuses_a_project_nobody_has()
+    {
+        await catalog.AddAsync("Kazo OS", "/projets/kazo-os");
+        var tool = new RememberProjectFactTool(catalog);
+        var arguments = System.Text.Json.JsonSerializer.SerializeToElement(new { project = "kazo os", text = "La cible est ARM64." });
+        var unknown = System.Text.Json.JsonSerializer.SerializeToElement(new { project = "Jardin", text = "x" });
+
+        var result = await tool.InvokeAsync(arguments, CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That((tool.DeclaredClass, tool.Classify(arguments)), Is.EqualTo((Kazo.Jarvis.Kernel.Permissions.ActionClass.Sensitive, Kazo.Jarvis.Kernel.Permissions.ActionClass.Sensitive)));
+            Assert.That(tool.RefusedAfterOutsideContent, Is.True);
+            Assert.That(tool.Summarize(arguments, AssistantLanguage.French), Is.EqualTo("Écrire dans la mémoire du projet Kazo OS : « La cible est ARM64. »"));
+            Assert.That(tool.Summarize(unknown, AssistantLanguage.French), Is.Null);
+            Assert.That(tool.Schema.GetRawText(), Does.Contain("\"enum\":[\"Kazo OS\"]"));
+            Assert.That(result, Is.EqualTo("{\"remembered\":true,\"project\":\"Kazo OS\"}"));
+            Assert.That(files.Texts["/projets/kazo-os/JARVIS.md"], Does.EndWith("- La cible est ARM64.\n"));
+            Assert.ThrowsAsync<Kazo.Jarvis.Kernel.Tools.ToolException>(async () => await tool.InvokeAsync(unknown, CancellationToken.None));
+        });
+    }
 }

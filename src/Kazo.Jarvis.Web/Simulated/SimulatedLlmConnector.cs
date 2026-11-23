@@ -368,6 +368,20 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_dice", dice, new Dictionary<string, object?>());
             }
 
+            // « retiens pour le projet X que … » (stage2/21-project-memory-writing): the agent of the projects writes it.
+            if (ProjectFactRequest().Match(request) is { Success: true } projectFact && Offered("remember_project_fact"))
+            {
+                var names = options?.Tools?.OfType<AIFunctionDeclaration>().First(tool => tool.Name == "remember_project_fact").JsonSchema
+                    .GetProperty("properties").GetProperty("project").GetProperty("enum").EnumerateArray().Select(name => name.GetString()).ToList() ?? [];
+                var said = projectFact.Groups[1].Success ? projectFact.Groups[1].Value : projectFact.Groups[3].Value;
+                var fact = projectFact.Groups[2].Success ? projectFact.Groups[2].Value : projectFact.Groups[4].Value;
+                return new FunctionCallContent("call_project_fact", "remember_project_fact", new Dictionary<string, object?>
+                {
+                    ["project"] = names.FirstOrDefault(name => string.Equals(name, said.Trim(), StringComparison.OrdinalIgnoreCase)) ?? said.Trim(),
+                    ["text"] = fact.Trim(),
+                });
+            }
+
             // Tools of the memory (stage2/8-memory).
             if (RememberRequest().Match(request) is { Success: true } remember && Offered("remember_fact"))
             {
@@ -452,7 +466,7 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return Sentence(named.Groups[1].Value);
             }
 
-            if (LeftToDoRequest().IsMatch(request))
+            if (LeftToDoRequest().IsMatch(request) || ProjectFactRequest().IsMatch(request))
             {
                 // « il reste quoi à faire dans X » (stage2/19-projects): for the one agent of the projects.
                 var hand = options?.Tools?.OfType<AIFunctionDeclaration>().FirstOrDefault(tool => tool.Name == "hand_to_agent")?.JsonSchema.GetRawText() ?? string.Empty;
@@ -495,6 +509,9 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         {
         }
     }
+
+    [GeneratedRegex(@"(?:retiens|note) pour (?:le projet )?(.+?) que\s+(.+)$|remember for (?:the project )?(.+?) that\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex ProjectFactRequest();
 
     [GeneratedRegex(@"(?:reste (?:quoi )?à faire|left to do)", RegexOptions.IgnoreCase)]
     private static partial Regex LeftToDoRequest();

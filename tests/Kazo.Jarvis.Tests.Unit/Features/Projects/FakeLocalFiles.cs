@@ -17,4 +17,18 @@ internal sealed class FakeLocalFiles : ILocalFiles
         Texts.TryGetValue(file, out var text)
             ? ValueTask.FromResult(new FileExcerpt(text[Math.Min(start, text.Length)..Math.Min(text.Length, start + most)], start, text.Length))
             : throw new LocalFileException(LocalFileFailure.NotFound);
+
+    /// <summary>Makes every write fail, as a folder the user may not write in.</summary>
+    public bool ReadOnly { get; set; }
+
+    public ValueTask AppendTextAsync(string file, string text, CancellationToken cancellationToken = default)
+    {
+        if (ReadOnly)
+        {
+            throw new LocalFileException(LocalFileFailure.AccessDenied);
+        }
+
+        Texts[file] = (Texts.TryGetValue(file, out var known) ? known : string.Empty) + text;
+        return ValueTask.CompletedTask;
+    }
 }

@@ -41,6 +41,7 @@ public sealed class ProjectsTests : PageTest
     {
         // The host keeps its settings between the tests: no choice, no project, no allowed folder.
         await CloseDialogsAsync();
+        await Page.Locator("#project-memory-reset").DispatchEventAsync("click");
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 15_000 });
         await Page.ClickAsync("#open-conversation");
         await Conversation.Locator("[data-conversation-agent-choice]").SelectOptionAsync(string.Empty);
@@ -252,6 +253,43 @@ public sealed class ProjectsTests : PageTest
         await call.Locator("[data-conversation-call-end]").ClickAsync();
         await Expect(call).ToHaveAttributeAsync("data-conversation-call", "false");
         await ExpectIdleAsync();
+    }
+
+    [Test]
+    public async Task A_fact_is_written_in_the_memory_of_a_project_only_after_the_user_confirms()
+    {
+        await OpenSettingsAsync("Projects.Catalog");
+        await AddAsync("Recettes", "/home/demo/Documents/recettes");
+        var recettes = Settings.Locator("[data-project='recettes']");
+        await Expect(recettes).ToHaveAttributeAsync("data-project-memory", "false");
+
+        // Refused: nothing is written, and the model is told so.
+        await OpenConversationAsync();
+        var before = await Turns.CountAsync();
+        var confirmation = Page.Locator("[data-dialog-key='Permissions.Confirmation']");
+        await SendAsync("Retiens pour le projet Recettes que la tarte se cuit à 180 degrés.");
+        await Expect(confirmation.Locator("[data-confirmation-summary]")).ToHaveTextAsync(new Regex("Recettes.*la tarte se cuit à 180 degrés"), new() { Timeout = 15_000 });
+        await confirmation.Locator("[data-confirmation-refuse]").ClickAsync();
+        await Expect(Turns).ToHaveCountAsync(before + 1);
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 15_000 });
+        await Expect(Newest.Locator("[data-conversation-tool='remember_project_fact']")).Not.ToHaveAttributeAsync("data-tool-outcome", "Done");
+        await ExpectIdleAsync();
+        await OpenSettingsAsync("Projects.Catalog");
+        await Expect(recettes).ToHaveAttributeAsync("data-project-memory", "false");
+
+        // Approved: the file of the folder is created, with the fact.
+        await OpenConversationAsync();
+        await SendAsync("Retiens pour le projet Recettes que la tarte se cuit à 180 degrés.");
+        await Expect(confirmation.Locator("[data-confirmation-approve]")).ToBeVisibleAsync(new() { Timeout = 15_000 });
+        await confirmation.Locator("[data-confirmation-approve]").ClickAsync();
+        await Expect(Turns).ToHaveCountAsync(before + 2);
+        await Expect(Newest.Locator("[data-conversation-tool='remember_project_fact']")).ToHaveAttributeAsync("data-tool-outcome", "Done", new() { Timeout = 15_000 });
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 15_000 });
+        await ExpectIdleAsync();
+        await OpenSettingsAsync("Projects.Catalog");
+        await Expect(recettes).ToHaveAttributeAsync("data-project-memory", "true");
+        await Expect(recettes.Locator("[data-project-memory-text]")).ToContainTextAsync("la tarte se cuit à 180 degrés");
+        await Page.Locator("#project-memory-reset").DispatchEventAsync("click");
     }
 
     private async Task AddAsync(string name, string folder)

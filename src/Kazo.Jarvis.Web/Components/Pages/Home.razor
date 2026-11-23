@@ -74,6 +74,7 @@
         <button type="button" id="reset-claude-sessions" @onclick="ClaudeSessions.Reset">Put the Claude Code sessions back</button>
         <button type="button" id="break-claude-settings" @onclick="ClaudeSettings.Break">Make the Claude Code settings unreadable</button>
         <button type="button" id="reset-claude-settings" @onclick="ClaudeSettings.Reset">Put the Claude Code settings back</button>
+        <button type="button" id="project-memory-reset" @onclick="@(() => SimulatedLocalFiles.Restore("/home/demo/Documents/recettes/JARVIS.md", null))">Remove the memory file written for a project</button>
         <button type="button" id="hand-session-work" @onclick="HandSession.WorkAsync">Make a session started by hand work</button>
         <button type="button" id="hand-session-wait" @onclick="HandSession.WaitAsync">Make it wait for a permission</button>
         <button type="button" id="hand-session-stop" @onclick="HandSession.StopAsync">Make it end its turn</button>

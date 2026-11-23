@@ -4,6 +4,7 @@ using System.Text;
 using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Projects;
+using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Tasks;
 
@@ -29,6 +30,28 @@ public enum ProjectOutcome
 
     /// <summary>The settings could not be written.</summary>
     NotSaved,
+}
+
+/// <summary>What happened to a fact asked to be kept in the memory of a project.</summary>
+public enum ProjectFactOutcome
+{
+    /// <summary>Written at the end of the memory file.</summary>
+    Added,
+
+    /// <summary>The file already holds this line.</summary>
+    AlreadyKnown,
+
+    /// <summary>Nothing to write.</summary>
+    Empty,
+
+    /// <summary>Longer than <see cref="ProjectCatalog.MostFactCharacters"/> characters.</summary>
+    TooLong,
+
+    /// <summary>Shaped like a password, a key or a card number: never written.</summary>
+    LooksLikeSecret,
+
+    /// <summary>The file could not be written.</summary>
+    NotWritten,
 }
 
 /// <summary>
@@ -115,6 +138,12 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
             ? null
             : new ProjectDefinition(entry.Id, entry.Name, entry.Folder);
 
+    /// <summary>Longest fact written in the memory of a project, in characters.</summary>
+    public const int MostFactCharacters = 300;
+
+    // How much of a memory file is read to see whether a line is already there.
+    private const int MostMemoryCharacters = 200_000;
+
     /// <summary>The characters a project may take in a context of <paramref name="contextLength"/> tokens: one sixteenth, at about 3 characters per token.</summary>
     /// <param name="contextLength">The context of the model, in tokens.</param>
     /// <returns>The budget, in characters.</returns>
@@ -188,6 +217,77 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
             // No file yet, or one that does not read: the project is known by its name and its folder.
             return null;
         }
+    }
+
+    /// <summary>
+    /// Writes one fact at the end of the memory file of a project (ADR 0025, section 6), as a line of a Markdown
+    /// list; the file is created with the name of the project as its title when there is none. A text shaped
+    /// like a secret is never written: a session that works in the folder reads this file, and a repository may
+    /// keep it.
+    /// </summary>
+    /// <param name="project">The project.</param>
+    /// <param name="fact">The fact, in one sentence.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>What happened.</returns>
+    public async ValueTask<ProjectFactOutcome> RememberAsync(ProjectDefinition project, string? fact, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(project);
+        var clean = FactLine(fact);
+        if (clean.Length == 0)
+        {
+            return ProjectFactOutcome.Empty;
+        }
+
+        if (clean.Length > MostFactCharacters)
+        {
+            return ProjectFactOutcome.TooLong;
+        }
+
+        if (SecretShapes.LooksLikeSecret(clean))
+        {
+            return ProjectFactOutcome.LooksLikeSecret;
+        }
+
+        if (files is null || files.Resolve(MemoryPath(project)) is not { } path)
+        {
+            return ProjectFactOutcome.NotWritten;
+        }
+
+        string? known;
+        try
+        {
+            known = (await files.ReadTextAsync(path, 0, MostMemoryCharacters, cancellationToken).ConfigureAwait(false)).Text;
+        }
+        catch (LocalFileException exception) when (exception.Failure == LocalFileFailure.NotFound)
+        {
+            known = null;
+        }
+        catch (LocalFileException)
+        {
+            // A file that does not read is not written over.
+            return ProjectFactOutcome.NotWritten;
+        }
+
+        var line = "- " + clean;
+        if (known is not null && known.Split('\n').Any(written => string.Equals(written.Trim(), line, StringComparison.OrdinalIgnoreCase)))
+        {
+            return ProjectFactOutcome.AlreadyKnown;
+        }
+
+        var start = known is null ? "# " + FactLine(project.Name) + "\n\n"
+            : known.Length == 0 || known.EndsWith('\n') ? string.Empty
+            : "\n";
+        try
+        {
+            await files.AppendTextAsync(path, start + line + "\n", cancellationToken).ConfigureAwait(false);
+        }
+        catch (LocalFileException)
+        {
+            return ProjectFactOutcome.NotWritten;
+        }
+
+        Changed?.Invoke();
+        return ProjectFactOutcome.Added;
     }
 
     /// <summary>The path of the file of the memory of a project.</summary>
@@ -355,6 +455,10 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
         var text = Texts.GetString(key, language.Culture) ?? key;
         return arguments.Length == 0 ? text : string.Format(CultureInfo.InvariantCulture, text, arguments);
     }
+
+    // One line: a fact never starts a title or a second entry of the list.
+    private static string FactLine(string? text) =>
+        string.Join(' ', (text ?? string.Empty).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).TrimStart('-', '#', '*', ' ').Trim();
 
     // No bracket of a file or of a name closes the block the model reads as data.
     private static string Safe(string text) => text.Replace('[', '(').Replace(']', ')');

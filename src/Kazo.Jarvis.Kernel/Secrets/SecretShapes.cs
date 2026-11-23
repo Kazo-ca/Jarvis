@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Kazo.Jarvis.Features.Conversation.Memory;
+namespace Kazo.Jarvis.Kernel.Secrets;
 
 /// <summary>
 /// The shapes a secret has (ADR 0019, section 3): a fact that looks like a key, a token, a password or a card

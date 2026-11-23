@@ -33,4 +33,10 @@
   <data name="Block_NoMemory" xml:space="preserve">
     <value>The project has no memory yet (no file {0} in its folder).</value>
   </data>
+  <data name="Remember_Description" xml:space="preserve">
+    <value>Writes a fact in the memory of a project (its {0} file), when the user asks to remember it for that project. One short sentence, never a password or a key.</value>
+  </data>
+  <data name="Remember_Summary" xml:space="preserve">
+    <value>Write in the memory of the project {0}: "{1}"</value>
+  </data>
 </root>

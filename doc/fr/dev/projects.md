@@ -1,13 +1,14 @@
 # Projets : un nom, un dossier, une mémoire, et l'agent « Projet »
 
-Chantiers `stage2/19-projects` et `stage2/19-project-sessions`. Décision : [ADR 0025](adr/0025-task-agents-and-their-memories.md), sections 6, 10,
+Chantiers `stage2/19-projects`, `stage2/19-project-sessions` et `stage2/21-project-memory-writing`. Décision : [ADR 0025](adr/0025-task-agents-and-their-memories.md), sections 6, 10,
 11 et 13 (point 2). Les agents sont décrits dans [agents.md](agents.md), la mémoire de conversation dans
 [conversation-memory.md](conversation-memory.md).
 
 Le premier chantier construit les projets, leur page, leur mémoire lue dans le dossier, l'agent « Projet » et le
 projet d'un tour. Le second ajoute la demande d'assigner à un projet un dossier qui n'en a pas (quand une
 session Claude Code y travaille) et le lancement d'une session Claude Code dans le dossier du projet.
-**Restent à construire :** l'écriture de la mémoire d'un projet par Jarvis, puis la vue des projets (ADR 0026).
+Le troisième ajoute l'écriture de la mémoire d'un projet par Jarvis, sur demande et après confirmation.
+**Reste à construire :** la vue des projets (ADR 0026).
 
 ## Ce qui est construit
 
@@ -38,7 +39,7 @@ Les tranches `Projects/Catalog`, `Agents/Catalog` et `Conversation/Dialogue` ne 
 
 **Le fichier `JARVIS.md` à la racine du dossier du projet.** C'est du Markdown lisible, que l'utilisateur ou une
 session Claude Code écrit ; Jarvis le **lit** à chaque tour qui porte sur le projet, sans rien garder entre deux
-lectures. Jarvis ne l'écrit pas encore.
+lectures. Jarvis y **ajoute une ligne** quand l'utilisateur le demande (plus bas).
 
 - Lu par `ILocalFiles`, sans passer par les dossiers autorisés : c'est l'utilisateur qui a donné ce dossier au
   projet, et seul ce fichier est lu. Les outils `list_directory` et `read_file` gardent leur règle : l'agent ne
@@ -46,6 +47,24 @@ lectures. Jarvis ne l'écrit pas encore.
 - Sa part : un seizième du contexte (`ProjectCatalog.Budget`). Un fichier plus long est coupé, avec « … ».
 - Un crochet du fichier devient une parenthèse : il ne peut pas fermer le bloc.
 - Jamais envoyé au cloud par ce chemin : le bloc va au modèle local, avec la mémoire.
+
+## Écrire dans la mémoire d'un projet (`remember_project_fact`)
+
+« Retiens pour le projet Kazo OS que la cible est ARM64. » Décision de Benoit du 2026-11-23 : Jarvis peut écrire
+dans `JARVIS.md`, sur demande, avec confirmation.
+
+- L'outil `remember_project_fact(project, text)` appartient à l'agent « Projet ». Sa classe est **« Sensible »** :
+  Jarvis demande une confirmation à chaque fois (ADR 0023), et la demande dit le projet et la phrase.
+- Il **ajoute une ligne** `- <fait>` à la fin du fichier, sans rien changer de ce qui s'y trouve. Sans fichier, il
+  le crée avec le nom du projet en titre. Une ligne déjà présente n'est pas écrite deux fois.
+- Un fait tient en une ligne de 300 caractères au plus. **Un texte qui ressemble à un mot de passe, une clé ou un
+  numéro de carte n'est jamais écrit** (`SecretShapes`, passé au noyau) : une session lit ce fichier, et un dépôt
+  peut le garder.
+- Refusé dès que le tour contient un contenu lu à l'extérieur (page web, fichier) : le texte vient du modèle.
+- C'est la seule écriture de Jarvis dans un dossier de l'utilisateur : `ILocalFiles.AppendTextAsync`. Les outils
+  de fichiers du modèle restent en lecture seule (ADR 0009). L'écriture ne passe pas par les dossiers
+  autorisés : l'utilisateur a donné ce dossier au projet, et il confirme chaque ligne.
+- Jarvis n'efface et ne corrige rien dans ce fichier : l'utilisateur le fait à la main.
 
 ## Le projet d'un tour (`ConversationEngine`)
 
@@ -102,7 +121,8 @@ Jarvis le dit, avec le nom du dossier et la page où l'autoriser.
 
 1. Le fichier de mémoire s'appelle `JARVIS.md`, à la racine du dossier. Claude Code ne le lit pas de lui-même :
    il faudra le lui dire au lancement d'une session, ou le nommer depuis `CLAUDE.md`.
-2. Jarvis lit la mémoire d'un projet et ne l'écrit pas.
+2. Tranché par Benoit le 2026-11-23 : le fichier s'appelle `JARVIS.md` (point 1), et Jarvis y écrit sur demande,
+   avec confirmation. Jarvis n'y efface rien.
 3. Le fichier de mémoire est lu même quand le dossier n'est pas dans les dossiers autorisés.
 4. L'agent Jarvis ne reçoit pas le bloc du projet.
 5. Le projet choisi dans la fenêtre passe avant celui que la phrase nomme, et s'oublie à l'arrêt de Jarvis.
