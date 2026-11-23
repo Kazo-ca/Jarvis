@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed on 2026-11-22 (work item `stage2/adr-0026-projects-view`), from Benoit's six answers of the same day
-about the mockups. **Not accepted yet**: three points are still open (section 11).
+**Accepted** by Benoit on 2026-11-22 (work item `stage2/adr-0026-projects-view`), from his six answers of the
+same day about the mockups, then his answer "ça me va" (fine by me) to the last three points (section 11).
 
 - **Completes:** [ADR 0013](0013-relais-readiness.md) (the Relais hierarchy Project → Subject → Task → Sub-task
   does not change; this ADR says how the screen shows it and where people talk) and
@@ -125,11 +125,11 @@ The Relais model (statuses, automatic attachment of a session to a subject), the
   sub-tasks.
 - The full screen becomes one more Razor page (its own slice); the task fan does not change.
 
-### 11. Open points
+### 11. The last three points (answer "ça me va", recommendations taken)
 
-1. Does the subject thread show the agents' messages to each other, or only what is addressed to the user plus
-   the start and end of tasks (proposed)?
-2. Who creates a subject: Jarvis alone from the branch or the request (proposed, as in Relais), or the user too
-   with "+ Nouveau sujet"?
-3. From when does Jarvis offer to make a project of a Général subject (proposed: 4 tasks or 30 messages in a
-   week, adjustable)?
+1. **The subject thread** shows only what is addressed to the user, plus the start and end of each task.
+   What the agents say to each other stays in each task's thread.
+2. **A subject** is created by Jarvis, from the branch or the request (as in Relais), and also by the user with
+   "+ Nouveau sujet".
+3. **Jarvis offers to make a project** of a Général subject from 4 tasks or 30 messages in a week. The
+   threshold is adjustable.

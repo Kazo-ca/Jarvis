@@ -2,8 +2,8 @@
 
 ## Statut
 
-Proposé le 2026-11-22 (chantier `stage2/adr-0026-projects-view`), d'après les six réponses de Benoit du même
-jour sur les maquettes. **Pas encore accepté** : trois points restent ouverts (section 11).
+**Accepté** par Benoit le 2026-11-22 (chantier `stage2/adr-0026-projects-view`), d'après ses six réponses du
+même jour sur les maquettes, puis sa réponse « ça me va » aux trois derniers points (section 11).
 
 - **Complète :** [ADR 0013](0013-relais-readiness.md) (la hiérarchie Projet → Sujet → Tâche → Sous-tâche de
   Relais ne change pas ; cet ADR dit comment l'écran la montre et où l'on parle) et
@@ -128,11 +128,11 @@ Le modèle de Relais (statuts, rattachement automatique d'une session à un suje
   ses sous-tâches.
 - Le plein écran devient une page Razor de plus (tranche à part) ; l'éventail ne change pas.
 
-### 11. Points ouverts
+### 11. Les trois derniers points (réponse « ça me va », recommandations prises)
 
-1. Le fil du sujet montre-t-il les messages des agents entre eux, ou seulement ce qui s'adresse à
-   l'utilisateur plus le début et la fin des tâches (proposé) ?
-2. Qui crée un sujet : Jarvis seul d'après la branche ou la demande (proposé, comme Relais), ou l'utilisateur
-   aussi avec « + Nouveau sujet » ?
-3. À partir de quand Jarvis propose-t-il de faire un projet d'un sujet de Général (proposé : 4 tâches ou
-   30 messages en une semaine, réglable) ?
+1. **Le fil du sujet** ne montre que ce qui s'adresse à l'utilisateur, plus le début et la fin de chaque tâche.
+   Ce que les agents se disent entre eux reste dans le fil de chaque tâche.
+2. **Un sujet** est créé par Jarvis, d'après la branche ou la demande (comme Relais), et aussi par
+   l'utilisateur avec « + Nouveau sujet ».
+3. **Jarvis propose de faire un projet** d'un sujet de Général à partir de 4 tâches ou 30 messages en une
+   semaine. Le seuil est réglable.
