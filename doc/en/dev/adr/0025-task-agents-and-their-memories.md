@@ -2,8 +2,10 @@
 
 ## Status
 
-Proposed on 2026-11-21 (work item `stage2/adr-0025-task-agents`), from Benoit's five answers of the same day,
-during the stage 2 acceptance. Completed the same evening by his answers to the four open points, the Jarvis agent and the "Call" mode (sections 9 to 12). **Not accepted yet**: three points are still open (section 13).
+Accepted by Benoit on 2026-11-22 (proposed on 2026-11-21, work item `stage2/adr-0025-task-agents`), from his
+five answers of 21 November during the stage 2 acceptance, his answers of the same evening to the four open
+points, the Jarvis agent and the "Call" mode (sections 9 to 12), and his "ok" of 22 November to the last three
+points (section 13).
 
 - **Completes:** [ADR 0017](0017-tools-classes-and-decision-point.md) (the tools and the decision point do not
   change: an agent chooses *which* tools the model sees, never what a tool is allowed to do) and
@@ -52,21 +54,24 @@ Each agent is a file `agents\<name>.md` in the folder of Jarvis, in the manner o
 | Files | `list_directory`, `read_file` | stay inside the allowed folders |
 | Claude Code | starting and following the sessions | summarize the request before starting |
 | Memory | `remember_fact`, `forget_fact`, `search_memory` | |
-| Jarvis (general) | clock, calculation, hand-off, the tools of Jarvis itself | everyday conversation; decides to hand over (section 9) |
+| Project | those needed to work in the folder of a project: files, Claude Code sessions | loaded with the folder and the memory of the project asked for (section 13, point 2) |
+| Jarvis (general) | clock, calculation, hand-off, the tools of Jarvis itself | everyday conversation; does the sorting and decides to hand over (sections 4 and 9) |
 
-The tools of a generic MCP server go to the agent the user chooses on the page of the server; "General" by
-default.
+The tools of a generic MCP server go to the agent the user chooses on the page of the server; the Jarvis agent
+by default.
 
-### 4. Sorting (answer 2)
+### 4. Sorting (answer 2, and section 13, point 1)
 
-Before each request, **one sorting call** to the local model: it gets the request and the list of the agents
-(name and description), and returns the name of an agent. Then the turn is made with that agent: its
-instructions, its tools, its memories.
+**The Jarvis agent does the sorting itself.** It gets the request, with its own tools and the list of the other
+agents (name and description). It answers a simple request itself: one call to the model. For the rest, it
+hands over: it names an agent, and the turn goes on with that agent, its instructions, its tools and its
+memories. No silent sorting call comes before it.
 
-- The sorting request is short and has no tool: it is what makes the second one shorter.
-- An answer that names no known agent loads "General".
-- **In the conversation window, the user can choose the agent**: the sorting is then skipped. The choice holds
-  until the user removes it.
+- Handing over is a tool of the Jarvis agent: the name of a known agent, and the project when there is one
+  (section 10). An unknown name is refused, and the Jarvis agent keeps the turn.
+- The request of the Jarvis agent stays short: its tools and one line per agent, never the tools of the others.
+- **In the conversation window, the user can choose the agent**: the turn then goes straight to that agent,
+  without going through the Jarvis agent. The choice holds until the user removes it.
 - A confirmation request that waits does not go through the sorting: the answer belongs to the turn that asked
   (ADR 0023).
 - The conversation shows the agent of each turn.
@@ -100,11 +105,12 @@ The decision point, the classes, the confirmation, the spend cap, the permission
 
 ### 8. Consequences
 
-- Two calls to the local model per request instead of one, unless the agent is chosen by hand. To be measured
-  on Benoit's PC: the delay before the first sound must not exceed today's for a simple request.
-- The request sent is shorter: only the tools of the agent are in it.
+- A simple request keeps a single call to the local model. A request handed over to another agent makes two.
+  To be measured on Benoit's PC: the delay before the first sound must not exceed today's for a simple
+  request.
+- The request sent is shorter: only the tools of the loaded agent are in it.
 - A wrong sorting gives an agent without the right tool: the agent must be able to say "this is not for me",
-  and Jarvis then makes the turn again with "General".
+  and the Jarvis agent then takes over again.
 
 ### 9. The Jarvis agent
 
@@ -112,13 +118,13 @@ There is an agent for Jarvis itself, with the tools of Jarvis. By voice, **it is
 request and decides to hand over** to another agent. It says so: to "In Kazo Os, what is left for us to do?",
 it answers something like "Ok, I will check that. I am handing over to the agent that takes care of Kazo OS."
 
-- By voice, an agent is not named to skip the sorting (point 4, answer B). In the conversation window,
+- By voice, an agent is not named to skip the Jarvis agent (point 4, answer B). In the conversation window,
   choosing the agent by hand stays possible (section 4).
 - Outside the "Call" mode, the Jarvis agent takes over again at the end of the turn.
 
 ### 10. Which project a turn is about (point 1, answer A)
 
-The sorting returns the agent **and the project** together; the project can also be chosen in the
+When it hands over, the Jarvis agent names the agent **and the project** together; the project can also be chosen in the
 conversation, or named in the sentence ("In Kazo Os, …"). Without a recognized project, only the memory of the
 agent is sent.
 
@@ -136,15 +142,19 @@ A sustained conversation, on the phone or in the application.
   project" or "such a problem".
 - **During the call, the agent changes and stays**: the one of the project or of the subject keeps the turn
   from one turn to the next, until the user asks to go back to Jarvis.
+- **During the call, Jarvis listens to what follows without "Hey Jarvis"**, as on the phone (section 13,
+  point 3). The microphone mute and the orb keep their rules (ADR 0005): the orb shows listening as long as it
+  lasts.
 - **It ends** when the user says goodbye.
 
 Calls in the Android application are stage 5 of the design document; this section only sets what the "Call"
 mode means for the agents.
 
-### 13. Open points
+### 13. The last three points (Benoit's "ok" of 2026-11-22, the three recommendations)
 
-1. Does the Jarvis agent do the sorting itself (it answers simple requests and hands over for the rest), or
-   does a silent sorting call always come before it (section 4)?
-2. "The agent that takes care of Kazo OS": one shared "Project" agent, loaded with the folder and the memory of
-   the project, or one agent file per project?
-3. During a call, does Jarvis listen to what follows without "Hey Jarvis"?
+1. **The Jarvis agent does the sorting itself**: it answers simple requests and hands over for the rest. No
+   silent sorting call comes before it (section 4).
+2. **"The agent that takes care of Kazo OS" is one "Project" agent**, loaded with the folder and the memory of
+   the project asked for. There is no agent file per project: creating a project requires writing no agent
+   (section 3).
+3. **During a call, Jarvis listens to what follows without "Hey Jarvis"**, until "goodbye" (section 12).

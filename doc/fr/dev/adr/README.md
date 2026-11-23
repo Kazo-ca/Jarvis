@@ -30,7 +30,7 @@ libre est indiqué dans la [mémoire du projet](../../memory/README.md).
 | [0022](0022-in-app-browser-for-web-search.md) | Recherche web dans un navigateur interne à Jarvis (remplace en partie 0017) | Accepté |
 | [0023](0023-confirmation-request-in-a-turn.md) | La demande de confirmation dans un tour : condition et aspect « interaction requise », réponse vocale par liste fermée, aucun délai (complète 0005) | Accepté |
 | [0024](0024-announcement-turn.md) | Le tour d'annonce : une ligne de plus dans la table des transitions, pour dire à voix haute ce que personne n'a demandé (complète 0005) | Accepté |
-| [0025](0025-task-agents-and-their-memories.md) | Un agent par genre de tâche : fichiers Markdown, appel de tri, mémoire par agent et par projet (complète 0017 et 0019) | Proposé |
+| [0025](0025-task-agents-and-their-memories.md) | Un agent par genre de tâche : fichiers Markdown, tri par l'agent Jarvis, mémoire par agent et par projet (complète 0017 et 0019) | Accepté |
 | [0026](0026-projects-subjects-and-their-threads.md) | La vue des projets, des sujets et de leurs fils : rail des projets, fil du sujet et fil de la tâche, réponse « T3> », projet Général, ouverte par le double-clic de l'ADR 0027 (complète 0013 et 0025) | Accepté |
 | [0027](0027-orb-gestures.md) | Les gestes sur l'orbe : clic gauche pour écouter, clic droit pour l'éventail, double-clic pour la vue des projets (remplace la section 3 de 0010) | Accepté |
 

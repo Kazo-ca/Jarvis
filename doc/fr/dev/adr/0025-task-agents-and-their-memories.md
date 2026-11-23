@@ -2,8 +2,10 @@
 
 ## Statut
 
-Proposé le 2026-11-21 (chantier `stage2/adr-0025-task-agents`), d'après les cinq réponses de Benoit du même
-jour, pendant la recette de l'étape 2. Complété le même soir par ses réponses aux quatre points ouverts, l'agent Jarvis et le mode « Appel » (sections 9 à 12). **Pas encore accepté** : trois points restent ouverts (section 13).
+Accepté par Benoit le 2026-11-22 (proposé le 2026-11-21, chantier `stage2/adr-0025-task-agents`), d'après ses
+cinq réponses du 21 novembre pendant la recette de l'étape 2, ses réponses du même soir aux quatre points
+ouverts, à l'agent Jarvis et au mode « Appel » (sections 9 à 12), et son « ok » du 22 novembre aux trois
+derniers points (section 13).
 
 - **Complète :** [ADR 0017](0017-tools-classes-and-decision-point.md) (les outils et le point de décision ne
   changent pas : un agent choisit *quels* outils le modèle voit, jamais ce qu'un outil a le droit de faire) et
@@ -54,21 +56,24 @@ Code : un en-tête (`name`, `description`, `tools`) puis les consignes en texte.
 | Fichiers | `list_directory`, `read_file` | rester dans les dossiers autorisés |
 | Claude Code | lancement et suivi des sessions | résumer la demande avant de lancer |
 | Mémoire | `remember_fact`, `forget_fact`, `search_memory` | |
-| Jarvis (général) | horloge, calcul, passage de main, les outils de Jarvis lui-même | la conversation courante ; décide de passer la main (section 9) |
+| Projet | ceux qu'il faut pour travailler dans le dossier d'un projet : fichiers, sessions Claude Code | chargé avec le dossier et la mémoire du projet demandé (section 13, point 2) |
+| Jarvis (général) | horloge, calcul, passage de main, les outils de Jarvis lui-même | la conversation courante ; fait le tri et décide de passer la main (sections 4 et 9) |
 
 Les outils d'un serveur MCP générique vont à l'agent que l'utilisateur choisit sur la page du serveur ;
-« Général » par défaut.
+l'agent Jarvis par défaut.
 
-### 4. Le tri (réponse 2)
+### 4. Le tri (réponse 2, et section 13, point 1)
 
-Avant chaque demande, **un appel de tri** au modèle local : il reçoit la demande et la liste des agents (nom
-et description), et rend un nom d'agent. Puis le tour se fait avec cet agent : ses consignes, ses outils, ses
-mémoires.
+**L'agent Jarvis fait lui-même le tri.** Il reçoit la demande, avec ses propres outils et la liste des autres
+agents (nom et description). Il répond lui-même à une demande simple : un seul appel au modèle. Pour le reste,
+il passe la main : il nomme un agent, et le tour continue avec cet agent, ses consignes, ses outils et ses
+mémoires. Aucun appel de tri silencieux ne le précède.
 
-- La demande de tri est courte et sans outil : c'est elle qui rend la seconde plus courte.
-- Une réponse qui ne nomme aucun agent connu charge « Général ».
-- **Dans la fenêtre de conversation, l'utilisateur peut choisir l'agent** : le tri est alors sauté. Le choix
-  vaut jusqu'à ce qu'il le retire.
+- Passer la main est un outil de l'agent Jarvis : le nom d'un agent connu, et le projet quand il y en a un
+  (section 10). Un nom inconnu est refusé, et l'agent Jarvis garde la main.
+- La demande de l'agent Jarvis reste courte : ses outils et une ligne par agent, jamais les outils des autres.
+- **Dans la fenêtre de conversation, l'utilisateur peut choisir l'agent** : le tour va alors droit à cet agent,
+  sans passer par l'agent Jarvis. Le choix vaut jusqu'à ce qu'il le retire.
 - Une demande de confirmation en attente ne passe pas par le tri : la réponse appartient au tour qui a demandé
   (ADR 0023).
 - La conversation affiche l'agent de chaque tour.
@@ -103,11 +108,12 @@ tour d'annonce (ADR 0024) ne passe par aucun agent.
 
 ### 8. Conséquences
 
-- Deux appels au modèle local par demande au lieu d'un, sauf agent choisi à la main. À mesurer sur le PC de
-  Benoit : le délai avant le premier son ne doit pas dépasser celui d'aujourd'hui pour une demande simple.
-- La demande envoyée est plus courte : seuls les outils de l'agent y sont.
+- Une demande simple garde un seul appel au modèle local. Une demande passée à un autre agent en fait deux.
+  À mesurer sur le PC de Benoit : le délai avant le premier son ne doit pas dépasser celui d'aujourd'hui pour
+  une demande simple.
+- La demande envoyée est plus courte : seuls les outils de l'agent chargé y sont.
 - Un mauvais tri donne un agent sans le bon outil : l'agent doit pouvoir dire « ce n'est pas pour moi », et
-  Jarvis refait alors le tour avec « Général ».
+  la main revient alors à l'agent Jarvis.
 
 ### 9. L'agent Jarvis
 
@@ -116,13 +122,13 @@ demande et qui décide de passer la main** à un autre agent. Il le dit : à « 
 faire ? », il répond quelque chose comme « Ok, je vais vérifier cela. Je passe la main à l'agent qui s'occupe de
 Kazo OS. »
 
-- À la voix, on ne nomme pas un agent pour sauter le tri (point 4, réponse B). Dans la fenêtre de
+- À la voix, on ne nomme pas un agent pour sauter l'agent Jarvis (point 4, réponse B). Dans la fenêtre de
   conversation, le choix de l'agent à la main reste possible (section 4).
 - Hors du mode « Appel », la main revient à l'agent Jarvis à la fin du tour.
 
 ### 10. De quel projet parle un tour (point 1, réponse A)
 
-Le tri rend l'agent **et le projet** en même temps ; le projet peut aussi être choisi dans la conversation, ou
+En passant la main, l'agent Jarvis nomme l'agent **et le projet** en même temps ; le projet peut aussi être choisi dans la conversation, ou
 nommé dans la phrase (« Dans Kazo Os, … »). Sans projet reconnu, seule la mémoire de l'agent est envoyée.
 
 ### 11. Où vivent la mémoire du projet et le passage de main (points 2 et 3, réponses A)
@@ -140,15 +146,18 @@ Une conversation suivie, sur le téléphone ou dans l'application.
   discuter de tel projet » ou « de tel problème ».
 - **Pendant l'appel, l'agent change et reste** : celui du projet ou du sujet garde la main d'un tour à l'autre,
   jusqu'à ce que l'utilisateur demande de revenir à Jarvis.
+- **Pendant l'appel, Jarvis écoute la suite sans « Hey Jarvis »**, comme au téléphone (section 13, point 3).
+  La coupure du micro et l'orbe gardent leurs règles (ADR 0005) : l'orbe montre l'écoute tant qu'elle dure.
 - **Il se termine** quand l'utilisateur dit au revoir.
 
 Les appels dans l'application Android sont l'étape 5 du document de conception ; cette section fixe seulement
 ce que le mode « Appel » veut dire pour les agents.
 
-### 13. Points ouverts
+### 13. Les trois derniers points (« ok » de Benoit du 2026-11-22, les trois recommandations)
 
-1. L'agent Jarvis fait-il lui-même le tri (il répond aux demandes simples et passe la main pour le reste), ou
-   un appel de tri silencieux le précède-t-il toujours (section 4) ?
-2. « L'agent qui s'occupe de Kazo OS » : un agent « Projet » commun, chargé avec le dossier et la mémoire du
-   projet, ou un fichier d'agent par projet ?
-3. Pendant un appel, Jarvis écoute-t-il la suite sans « Hey Jarvis » ?
+1. **L'agent Jarvis fait lui-même le tri** : il répond aux demandes simples et passe la main pour le reste.
+   Aucun appel de tri silencieux ne le précède (section 4).
+2. **« L'agent qui s'occupe de Kazo OS » est un seul agent « Projet »**, chargé avec le dossier et la mémoire
+   du projet demandé. Il n'y a pas de fichier d'agent par projet : créer un projet ne demande d'écrire aucun
+   agent (section 3).
+3. **Pendant un appel, Jarvis écoute la suite sans « Hey Jarvis »**, jusqu'à « au revoir » (section 12).

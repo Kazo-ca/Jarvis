@@ -30,7 +30,7 @@ free number is given in the [project memory](../../memory/README.md).
 | [0022](0022-in-app-browser-for-web-search.md) | Web search in a browser internal to Jarvis (partly supersedes 0017) | Accepted |
 | [0023](0023-confirmation-request-in-a-turn.md) | The confirmation request within a turn: "interaction required" condition and look, voice answer by a closed list, no timeout (completes 0005) | Accepted |
 | [0024](0024-announcement-turn.md) | The announcement turn: one more row in the transition table, to say aloud what nobody asked for (completes 0005) | Accepted |
-| [0025](0025-task-agents-and-their-memories.md) | One agent per kind of task: Markdown files, sorting call, memory per agent and per project (completes 0017 and 0019) | Proposed |
+| [0025](0025-task-agents-and-their-memories.md) | One agent per kind of task: Markdown files, sorting by the Jarvis agent, memory per agent and per project (completes 0017 and 0019) | Accepted |
 | [0026](0026-projects-subjects-and-their-threads.md) | The view of projects, subjects and their threads: project rail, subject thread and task thread, "T3>" answers, Général project, opened by the double click of ADR 0027 (completes 0013 and 0025) | Accepted |
 | [0027](0027-orb-gestures.md) | Gestures on the orb: left click to listen, right click for the fan, double click for the projects view (replaces section 3 of 0010) | Accepted |
 
