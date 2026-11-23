@@ -60,7 +60,7 @@ public sealed class AgentsTests : PageTest
         await OpenSettingsAsync("Agents.Catalog");
 
         await Expect(Settings.Locator("[data-agents-folder]")).ToContainTextAsync("agents");
-        await Expect(Settings.Locator("[data-agent]")).ToHaveCountAsync(6);
+        await Expect(Settings.Locator("[data-agent]")).ToHaveCountAsync(7);
         await Expect(Settings.Locator("[data-agent]").First).ToHaveAttributeAsync("data-agent", "jarvis");
         await Expect(Settings.Locator("[data-agents-issues]")).ToHaveCountAsync(0);
 
