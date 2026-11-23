@@ -129,4 +129,49 @@ public sealed class ProjectCatalogTests
             Assert.That(told, Does.Contain("\naaaaaaaaaaaa…\n[Fin du projet]"));
         });
     }
+
+    [Test]
+    public async Task A_folder_where_a_session_works_and_that_belongs_to_no_project_waits_until_the_user_says_where_it_belongs()
+    {
+        var store = new Kazo.Jarvis.Adapters.Storage.SqliteDocumentStore(folder.Paths, TimeProvider.System);
+        var board = new Kazo.Jarvis.Features.Tasks.Board.TaskBoard(store, TimeProvider.System, Microsoft.Extensions.Logging.Abstractions.NullLogger<Kazo.Jarvis.Features.Tasks.Board.TaskBoard>.Instance);
+        using var followed = new ProjectCatalog(settings, files, board);
+        var changes = 0;
+        followed.Changed += () => Interlocked.Increment(ref changes);
+        await followed.AddAsync("Kazo OS", @"C:\Projets\KazoOs");
+
+        var inside = await board.CreateAsync(Session(@"c:/projets/kazoos/src"));
+        var bar = await board.CreateAsync(Session(@"C:\Projets\KazoBar"));
+        await board.CreateAsync(Session(@"C:\Projets\KazoBar\"));
+        var notes = await board.CreateAsync(Session(@"C:\Notes"));
+        await board.CreateAsync(Session(null));
+        var waiting = followed.Unassigned;
+        var seen = changes;
+
+        // Assigned to a project, or a project created on it: the request is gone. An ended session asks nothing.
+        var assigned = await followed.AssignAsync("kazo-os", @"C:\Projets\KazoBar");
+        var unknown = await followed.AssignAsync("nobody", @"C:\Notes");
+        var afterAssign = followed.Unassigned;
+        await board.ChangeAsync(notes.Id, new Kazo.Jarvis.Kernel.Tasks.TaskChange(Kazo.Jarvis.Kernel.Tasks.WorkTaskStatus.Done));
+        var afterEnd = followed.Unassigned;
+        await followed.UnassignAsync("kazo-os", @"c:\projets\kazobar");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(waiting, Is.EquivalentTo(new[] { @"C:\Projets\KazoBar", @"C:\Notes" }), "Once per folder, whatever the slash and the case.");
+            Assert.That(seen, Is.GreaterThanOrEqualTo(5), "The page is told when the board moves.");
+            Assert.That((assigned, unknown), Is.EqualTo((true, false)));
+            Assert.That(afterAssign, Is.EqualTo(new[] { @"C:\Notes" }));
+            Assert.That(afterEnd, Is.Empty);
+            Assert.That(followed.OwnerOf(inside.Folder)?.Name, Is.EqualTo("Kazo OS"));
+            Assert.That(followed.Unassigned, Is.EqualTo(new[] { @"C:\Projets\KazoBar" }), "Taken back: the request returns.");
+            Assert.That(followed.MoreFoldersOf("kazo-os"), Is.Empty);
+            Assert.That(catalog.Unassigned, Is.Empty, "Without the board nothing is ever asked.");
+            Assert.That(bar.Folder, Is.Not.Null);
+        });
+
+        static Kazo.Jarvis.Kernel.Tasks.NewWorkTask Session(string? where) => new(
+            "travail", "projet", "sujet", new Kazo.Jarvis.Kernel.Tasks.TaskOperator(Kazo.Jarvis.Kernel.Tasks.TaskOperator.ClaudeCode),
+            Kazo.Jarvis.Kernel.Tasks.TaskSource.Hook, where, Status: Kazo.Jarvis.Kernel.Tasks.WorkTaskStatus.Working);
+    }
 }

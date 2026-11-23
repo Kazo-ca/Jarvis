@@ -1,6 +1,7 @@
 using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Settings;
+using Kazo.Jarvis.Kernel.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -17,7 +18,7 @@ public static class ProjectsSlice
     /// <returns>The same services.</returns>
     public static IServiceCollection AddProjectsSlice(this IServiceCollection services)
     {
-        services.TryAddSingleton(provider => new ProjectCatalog(provider.GetRequiredService<ISettingsStore>(), provider.GetService<ILocalFiles>()));
+        services.TryAddSingleton(provider => new ProjectCatalog(provider.GetRequiredService<ISettingsStore>(), provider.GetService<ILocalFiles>(), provider.GetService<ITaskBoard>()));
         services.TryAddSingleton<IProjectCatalog>(provider => provider.GetRequiredService<ProjectCatalog>());
 
         // Right after the agents (17): what the « Projet » agent is loaded with.

@@ -5,6 +5,7 @@ using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Settings;
+using Kazo.Jarvis.Kernel.Tasks;
 
 namespace Kazo.Jarvis.Features.Projects.Catalog;
 
@@ -42,17 +43,24 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
 
     private readonly ISettingsStore settings;
     private readonly ILocalFiles? files;
+    private readonly ITaskBoard? board;
     private readonly IDisposable watch;
 
     /// <summary>Creates the catalog.</summary>
     /// <param name="settings">The settings, for <see cref="ProjectsOptions.Section"/>.</param>
     /// <param name="files">The files of the PC; without them a project has no memory.</param>
-    public ProjectCatalog(ISettingsStore settings, ILocalFiles? files = null)
+    /// <param name="board">The tasks Jarvis follows; without them no folder is ever found without a project.</param>
+    public ProjectCatalog(ISettingsStore settings, ILocalFiles? files = null, ITaskBoard? board = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         this.settings = settings;
         this.files = files;
+        this.board = board;
         watch = settings.Watch(ProjectsOptions.Section, _ => Changed?.Invoke());
+        if (board is not null)
+        {
+            board.Changed += OnBoardChanged;
+        }
     }
 
     /// <inheritdoc />
@@ -61,6 +69,51 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
     /// <inheritdoc />
     public IReadOnlyList<ProjectDefinition> Projects =>
         [.. (settings.Read(ProjectsOptions.Section).Projects ?? []).Select(project => new ProjectDefinition(project.Id, project.Name, project.Folder))];
+
+    /// <summary>
+    /// The folders where a session Jarvis follows works now and that belong to no project (ADR 0025, section 6),
+    /// in the order of the board. Each one stays until the user assigns it to a project or creates one for it, or
+    /// until its sessions end: Jarvis never chooses.
+    /// </summary>
+    public IReadOnlyList<string> Unassigned
+    {
+        get
+        {
+            if (board is null)
+            {
+                return [];
+            }
+
+            var entries = settings.Read(ProjectsOptions.Section).Projects ?? [];
+            var found = new List<string>();
+            foreach (var task in board.Tasks.Reverse())
+            {
+                if (!task.Ended && !string.IsNullOrWhiteSpace(task.Folder) && OwnerOf(task.Folder, entries) is null
+                    && !found.Any(folder => SamePath(folder, task.Folder)))
+                {
+                    // Without the last slash a hook may add, but a root (« C:\ ») keeps its own.
+                    var trimmed = task.Folder.Trim().TrimEnd('/', '\\');
+                    found.Add(trimmed.Length == 0 || trimmed[^1] == ':' ? task.Folder.Trim() : trimmed);
+                }
+            }
+
+            return found;
+        }
+    }
+
+    /// <summary>The folders assigned to a project besides its own.</summary>
+    /// <param name="id">The identity of the project.</param>
+    /// <returns>The folders, in the order they were assigned.</returns>
+    public IReadOnlyList<string> MoreFoldersOf(string id) =>
+        (settings.Read(ProjectsOptions.Section).Projects ?? []).FirstOrDefault(project => project.Id == id)?.MoreFolders ?? [];
+
+    /// <summary>The project a folder belongs to: the folder of a project, one assigned to it, or a folder under one of them.</summary>
+    /// <param name="folder">A local path.</param>
+    /// <returns>The project, or <see langword="null"/>.</returns>
+    public ProjectDefinition? OwnerOf(string? folder) =>
+        string.IsNullOrWhiteSpace(folder) || OwnerOf(folder, settings.Read(ProjectsOptions.Section).Projects ?? []) is not { } entry
+            ? null
+            : new ProjectDefinition(entry.Id, entry.Name, entry.Folder);
 
     /// <summary>The characters a project may take in a context of <paramref name="contextLength"/> tokens: one sixteenth, at about 3 characters per token.</summary>
     /// <param name="contextLength">The context of the model, in tokens.</param>
@@ -189,6 +242,48 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
         return result.Outcome == SettingsWriteOutcome.Saved ? ProjectOutcome.Added : ProjectOutcome.NotSaved;
     }
 
+    /// <summary>Assigns one more folder to a project: the sessions that work there belong to it.</summary>
+    /// <param name="id">The identity of the project.</param>
+    /// <param name="folder">The folder.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>Whether the settings were written.</returns>
+    public async ValueTask<bool> AssignAsync(string id, string? folder, CancellationToken cancellationToken = default)
+    {
+        var path = (folder ?? string.Empty).Trim();
+        var options = settings.Read(ProjectsOptions.Section);
+        var known = options.Projects ?? [];
+        if (path.Length == 0 || known.FirstOrDefault(project => project.Id == id) is not { } entry
+            || (entry.MoreFolders ?? []).Count >= ProjectsOptions.MostMoreFolders)
+        {
+            return false;
+        }
+
+        if (OwnerOf(path, [entry]) is not null)
+        {
+            return true;
+        }
+
+        var changed = entry with { MoreFolders = [.. entry.MoreFolders ?? [], path] };
+        var result = await settings.WriteAsync(ProjectsOptions.Section, options with { Projects = [.. known.Select(project => project.Id == id ? changed : project)] }, cancellationToken).ConfigureAwait(false);
+        return result.Outcome == SettingsWriteOutcome.Saved;
+    }
+
+    /// <summary>Takes a folder back from a project. The folder itself is left as it is.</summary>
+    /// <param name="id">The identity of the project.</param>
+    /// <param name="folder">The folder, as it was assigned.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>Whether the settings were written.</returns>
+    public async ValueTask<bool> UnassignAsync(string id, string folder, CancellationToken cancellationToken = default)
+    {
+        var options = settings.Read(ProjectsOptions.Section);
+        var known = options.Projects ?? [];
+        var result = await settings.WriteAsync(
+            ProjectsOptions.Section,
+            options with { Projects = [.. known.Select(project => project.Id == id ? project with { MoreFolders = [.. (project.MoreFolders ?? []).Where(more => !SamePath(more, folder))] } : project)] },
+            cancellationToken).ConfigureAwait(false);
+        return result.Outcome == SettingsWriteOutcome.Saved;
+    }
+
     /// <summary>Removes a project. Its folder and its memory file are left as they are.</summary>
     /// <param name="id">Its identity.</param>
     /// <param name="cancellationToken">Cancels the write.</param>
@@ -201,7 +296,34 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
     }
 
     /// <inheritdoc />
-    public void Dispose() => watch.Dispose();
+    public void Dispose()
+    {
+        watch.Dispose();
+        if (board is not null)
+        {
+            board.Changed -= OnBoardChanged;
+        }
+    }
+
+    private void OnBoardChanged() => Changed?.Invoke();
+
+    private static ProjectEntry? OwnerOf(string folder, IReadOnlyList<ProjectEntry> entries)
+    {
+        var path = Path(folder);
+        return entries.FirstOrDefault(entry => Holds(entry.Folder, path) || (entry.MoreFolders ?? []).Any(more => Holds(more, path)));
+    }
+
+    // Windows paths do not tell cases apart, and a hook may write the same folder with either slash.
+    private static string Path(string folder) => folder.Trim().Replace('\\', '/').TrimEnd('/');
+
+    private static bool SamePath(string one, string other) => string.Equals(Path(one), Path(other), StringComparison.OrdinalIgnoreCase);
+
+    private static bool Holds(string root, string path)
+    {
+        var start = Path(root);
+        return start.Length > 0
+            && (string.Equals(start, path, StringComparison.OrdinalIgnoreCase) || path.StartsWith(start + "/", StringComparison.OrdinalIgnoreCase));
+    }
 
     /// <summary>Lower case, without accents, words joined by hyphens: « Kazo OS » and « kazo os » are one name.</summary>
     internal static string Plain(string name)

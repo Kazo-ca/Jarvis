@@ -11,6 +11,9 @@ public sealed record ProjectsOptions
     /// <summary>Longest name of a project, in characters.</summary>
     public const int MostNameCharacters = 60;
 
+    /// <summary>Most folders assigned to one project besides its own.</summary>
+    public const int MostMoreFolders = 20;
+
     /// <summary>The section of the settings.</summary>
     public static SettingsSection<ProjectsOptions> Section { get; } = new("Projects.List", () => new ProjectsOptions(), Validate);
 
@@ -62,4 +65,10 @@ public sealed record ProjectEntry
 
     /// <summary>Its local folder.</summary>
     public string Folder { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The other folders the user assigned to it (ADR 0025, section 6): a session that works there belongs to the
+    /// project. The memory stays in <see cref="Folder"/>.
+    /// </summary>
+    public IReadOnlyList<string> MoreFolders { get; init; } = [];
 }

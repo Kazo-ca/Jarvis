@@ -90,4 +90,34 @@
   <data name="Add_NotSaved" xml:space="preserve">
     <value>Le projet n'a pas pu être enregistré.</value>
   </data>
+  <data name="RequestsLabel" xml:space="preserve">
+    <value>Dossiers sans projet</value>
+  </data>
+  <data name="RequestsHint" xml:space="preserve">
+    <value>Jarvis ne choisit jamais à votre place : la demande reste là tant que la session travaille dans ce dossier.</value>
+  </data>
+  <data name="Request" xml:space="preserve">
+    <value>Une session Claude travaille dans {0}, qui n'appartient à aucun projet.</value>
+  </data>
+  <data name="RequestProjectLabel" xml:space="preserve">
+    <value>Projet</value>
+  </data>
+  <data name="RequestChoose" xml:space="preserve">
+    <value>Choisir un projet…</value>
+  </data>
+  <data name="RequestAssign" xml:space="preserve">
+    <value>Assigner à ce projet</value>
+  </data>
+  <data name="RequestCreate" xml:space="preserve">
+    <value>Créer un projet sur ce dossier</value>
+  </data>
+  <data name="RequestFailed" xml:space="preserve">
+    <value>Le dossier n'a pas pu être assigné.</value>
+  </data>
+  <data name="MoreFolder" xml:space="preserve">
+    <value>Aussi : {0}</value>
+  </data>
+  <data name="MoreFolderRemove" xml:space="preserve">
+    <value>Retirer ce dossier</value>
+  </data>
 </root>

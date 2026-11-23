@@ -173,20 +173,20 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
 
         // 1. The folder: one the request names, the only one there is, or a question.
         var roots = Folders;
-        if (roots.Count == 0)
-        {
-            return Refused("NoFolder", language);
-        }
-
         string folder;
         if (request.Folder is { } chosen)
         {
-            if (!roots.Contains(chosen, StringComparer.OrdinalIgnoreCase))
+            // The folder of a project (ADR 0025, section 6) or the answer to the question: an allowed folder, or nothing starts.
+            if (roots.FirstOrDefault(root => SameFolder(root, chosen)) is not { } known)
             {
-                return Refused("NoFolder", language);
+                return Refused("FolderNotAllowed", language, FolderChoice.NameOf(chosen));
             }
 
-            folder = chosen;
+            folder = known;
+        }
+        else if (roots.Count == 0)
+        {
+            return Refused("NoFolder", language);
         }
         else if (FolderChoice.Named(request.Request, roots) is [var named])
         {
@@ -487,6 +487,9 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         var names = roots.Select(FolderChoice.NameOf).ToList();
         return names.Count == 1 ? names[0] : string.Join(", ", names.Take(names.Count - 1)) + Text("Or", language) + names[^1];
     }
+
+    private static bool SameFolder(string one, string other) =>
+        string.Equals(one.TrimEnd('/', '\\'), other.Trim().TrimEnd('/', '\\'), StringComparison.OrdinalIgnoreCase);
 
     private static ClaudeTaskOpening Refused(string key, AssistantLanguage language, params object[] arguments) =>
         new(false, Text(key, language, arguments));

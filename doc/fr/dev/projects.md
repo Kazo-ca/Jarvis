@@ -1,13 +1,13 @@
 # Projets : un nom, un dossier, une mémoire, et l'agent « Projet »
 
-Chantier `stage2/19-projects`. Décision : [ADR 0025](adr/0025-task-agents-and-their-memories.md), sections 6, 10,
+Chantiers `stage2/19-projects` et `stage2/19-project-sessions`. Décision : [ADR 0025](adr/0025-task-agents-and-their-memories.md), sections 6, 10,
 11 et 13 (point 2). Les agents sont décrits dans [agents.md](agents.md), la mémoire de conversation dans
 [conversation-memory.md](conversation-memory.md).
 
-Ce chantier construit les projets, leur page, leur mémoire lue dans le dossier, l'agent « Projet » et le projet
-d'un tour. **Restent à construire :** la demande d'assigner à un projet un dossier qui n'en a pas (quand une
-session Claude Code y travaille), le lancement d'une session Claude Code dans le dossier du projet, l'écriture
-de la mémoire d'un projet par Jarvis, puis la vue des projets (ADR 0026).
+Le premier chantier construit les projets, leur page, leur mémoire lue dans le dossier, l'agent « Projet » et le
+projet d'un tour. Le second ajoute la demande d'assigner à un projet un dossier qui n'en a pas (quand une
+session Claude Code y travaille) et le lancement d'une session Claude Code dans le dossier du projet.
+**Restent à construire :** l'écriture de la mémoire d'un projet par Jarvis, puis la vue des projets (ADR 0026).
 
 ## Ce qui est construit
 
@@ -73,7 +73,30 @@ Après la page « Agents ». Chaque projet montre son nom, son dossier, le débu
 écrire une), et si Jarvis peut lire le dossier. **« Autoriser ce dossier »** demande une confirmation, puis ajoute
 le dossier aux dossiers autorisés (`IAllowedFolders.AllowAsync`) : créer un projet ne le fait jamais seul.
 
-## Choix provisoires de ce chantier
+## Un dossier sans projet (`ProjectCatalog.Unassigned`)
+
+Quand une session Claude Code suivie par Jarvis (une tâche du tableau, `ITaskBoard`, qui n'est pas terminée)
+travaille dans un dossier qui n'appartient à aucun projet, la page « Projets » montre une demande en tête :
+**« Une session Claude travaille dans X, qui n'appartient à aucun projet. »** L'utilisateur répond de deux façons :
+
+- **assigner le dossier à un projet qui existe** : le dossier s'ajoute aux autres dossiers du projet
+  (`ProjectEntry.MoreFolders`, 20 au plus). La mémoire reste dans le dossier principal du projet ;
+- **créer un projet sur ce dossier**, en lui donnant un nom.
+
+Jarvis ne choisit jamais, et la demande n'a pas de délai : elle reste tant qu'une session travaille dans le
+dossier. Un dossier appartient à un projet quand c'est son dossier, un de ses autres dossiers, ou un
+sous-dossier de l'un d'eux, sans tenir compte de la casse ni du sens des barres. Un dossier repris à un projet
+(« Retirer ce dossier ») redemande.
+
+## Une session Claude Code dans le dossier du projet
+
+Quand un tour porte sur un projet et qu'un travail part vers Claude Code (« Demande à Claude Code de corriger
+le pilote réseau de Kazo OS », ou l'outil de passage de main), la session est lancée **dans le dossier du
+projet** : `ClaudeTaskRequest.Folder`. La question « sur quel dossier ? » n'est alors pas posée. La règle des
+dossiers autorisés ne change pas (ADR 0021) : si le dossier du projet n'est pas autorisé, rien ne démarre et
+Jarvis le dit, avec le nom du dossier et la page où l'autoriser.
+
+## Choix provisoires de ces chantiers
 
 À confirmer par Benoit :
 
@@ -85,6 +108,13 @@ le dossier aux dossiers autorisés (`IAllowedFolders.AllowAsync`) : créer un pr
 5. Le projet choisi dans la fenêtre passe avant celui que la phrase nomme, et s'oublie à l'arrêt de Jarvis.
 6. Le projet « Domotique » de l'ADR (section 6) n'est pas créé d'office.
 7. La mémoire d'un projet prend un seizième du contexte, en plus des deux autres mémoires.
+8. La demande pour un dossier sans projet se voit **seulement à la page « Projets »** : ni l'orbe, ni l'éventail,
+   ni la voix ne la signalent encore.
+9. « Assigner à un projet existant » ajoute le dossier aux autres dossiers du projet ; le dossier principal et
+   la mémoire ne bougent pas.
+10. La demande disparaît quand les sessions du dossier sont terminées, et il n'y a pas de bouton pour l'écarter.
+11. Le projet du tour passe avant un dossier nommé dans la phrase pour choisir où lancer la session.
+12. La session lancée dans le dossier d'un projet ne reçoit pas encore la consigne de lire `JARVIS.md`.
 
 ## Vérifications sur Windows
 
@@ -94,3 +124,6 @@ Rien de ce chantier n'a tourné sur Windows.
 2. « Autoriser ce dossier », puis lire un fichier du projet par l'agent « Projet ».
 3. Le modèle local nomme-t-il le projet en passant la main ? « Dans Kazo Os, il nous reste quoi à faire ? »
 4. Taille de la demande de l'agent « Projet » avec un `JARVIS.md` long.
+5. Lancer Claude Code à la main dans un dossier sans projet : la demande apparaît-elle à la page « Projets »,
+   avec le chemin tel que le hook l'écrit ?
+6. « Demande à Claude Code de … dans Kazo OS » : la session démarre-t-elle dans le dossier du projet ?

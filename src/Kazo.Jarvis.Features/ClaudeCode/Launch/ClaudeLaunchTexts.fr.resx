@@ -72,4 +72,7 @@
   <data name="Abandoned" xml:space="preserve">
     <value>Arrêtée par l'utilisateur.</value>
   </data>
+  <data name="FolderNotAllowed" xml:space="preserve">
+    <value>Le dossier {0} n'est pas autorisé. Autorisez-le dans les réglages, à la page Projets ou à la page Dossiers autorisés.</value>
+  </data>
 </root>
