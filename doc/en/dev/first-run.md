@@ -40,9 +40,10 @@ settings window.
 | Piper Tom (fr), Alan (en) | `models\vits-piper-…\` | sherpa-onnx `tts-models` release on GitHub | 67 MB each |
 | Kokoro | `models\kokoro-multi-lang-v1_0\` | sherpa-onnx `tts-models` release on GitHub | 350 MB |
 
-- **`ModelAdvice`**: what fits the card found. NVIDIA card with at least 10 GB: Whisper turbo on the card and
-  `qwen3:14b`. Less than 10 GB: Whisper `small` on the card and a language model of 7 to 8 billion parameters (for
-  instance `qwen3:8b`). No NVIDIA card: Whisper `base` on the processor, and the same advice.
+- **`ModelAdvice`**: what fits the card found. NVIDIA card with at least 15 GB: Whisper turbo on the card and
+  `qwen3:14b`. From 10 to 15 GB: Whisper turbo on the card and a language model of 7 to 8 billion parameters (for
+  instance `qwen3:8b`). Less than 10 GB: Whisper `small` on the card and the same advice. No NVIDIA card: Whisper
+  `base` on the processor, and the same advice.
 - **`ModelsKeeper`**: one batch of downloads at a time, one file after the other; the state of each model (missing,
   waiting, downloading with a percentage, installed, failed with the cause); "Stop" deletes the file in progress and
   keeps those already in place. The batch goes on if the page closes. At the end, if the chosen Whisper is in place,
@@ -80,9 +81,12 @@ on this PC" button searches again for any Ollama provider.
 
 To be confirmed by Benoit; each one changes in one line:
 
-1. **Advice thresholds**: 10 GB of graphics memory for the full chain; below, Whisper `small` on the card; without
-   an NVIDIA card, Whisper `base` on the processor. Fallback model advised: `qwen3:8b` (until the measure of work
-   item 11).
+1. **Advice thresholds**: 15 GB of graphics memory for the full chain; from 10 to 15 GB, Whisper turbo and a
+   smaller language model; below, Whisper `small` on the card; without an NVIDIA card, Whisper `base` on the
+   processor. Fallback model advised: `qwen3:8b`. The first threshold was 10 GB; it was raised at the acceptance of
+   stage 2 (21 November 2026): on Benoit's 12 GB card, `qwen3:14b` next to Whisper turbo no longer fitted once the
+   tools were in the prompt (read at 7 tokens a second), and Benoit chose `qwen3:8b` rather than a lighter Whisper,
+   which hears less well.
 2. **SHA-1 checksum for Whisper**: whisper.cpp publishes only that one. The other models are checked with SHA-256.
 3. **New dependency SharpZipLib 1.4.2** (MIT), only for the bzip2 of the sherpa-onnx voices, in `Adapters`.
 4. **Order of the steps**: language, audio, voice models, language model (the voice models advice serves the

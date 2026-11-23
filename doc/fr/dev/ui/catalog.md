@@ -106,9 +106,9 @@ et trois anneaux ouverts, comme les disques d'un cadenas à combinaison.
 ## 5. L'éventail des tâches
 
 Prototype : [`task-fan.html`](../../../../design/prototypes/task-fan.html) (paramètres `?v=A&s=open&c=br`,
-`c` = coin `tl`, `tr`, `bl` ou `br`). Décidé par l'ADR 0010 : un double-clic sur l'orbe fait sortir en arc
+`c` = coin `tl`, `tr`, `bl` ou `br`). Décidé par l'ADR 0010, le geste par l'ADR 0027 : un clic droit sur l'orbe fait sortir en arc
 les fenêtres des tâches en cours, vers le centre de l'écran quel que soit le coin où se trouve l'orbe ; un
-second double-clic les fait rentrer. Bureau assombri, traits fins entre l'orbe et chaque fenêtre, tâche à décider
+second clic droit les fait rentrer. Bureau assombri, traits fins entre l'orbe et chaque fenêtre, tâche à décider
 en ambre avec ses boutons, animation seulement à l'ouverture et à la fermeture.
 
 ## 6. Le plein écran (« poste de commande »)

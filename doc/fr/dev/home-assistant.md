@@ -66,6 +66,24 @@ noms et alias, domaine, pièces, classe d'appareil).
   descend jamais dessous.
 - « Critique » demande le clic sur le PC : la voix ne suffit pas (ADR 0009, ADR 0023).
 
+## Nom dit, nom écrit (`EntityNames`, recette de l'étape 2)
+
+Home Assistant ne prend un nom ou un alias que tel qu'il est écrit. Le modèle écrit ce qu'il a entendu : à la
+recette, « Éteins la lumière articulée » a donné `name: "lumière articulée"` pour la lumière nommée « Articulé »,
+et Home Assistant n'a rien trouvé. Demandé par Benoit : chercher parmi les entités, puis prendre le bon nom.
+
+- **Avant l'appel** (`IToolServerClassifier.ResolveAsync`) : parmi les entités exposées que les autres arguments
+  laissent possibles (domaine, classe, pièce), le nom est réécrit quand **une seule** porte exactement les mots
+  dits. Les mots sont comparés sans accent, sans majuscule, sans article et sans marque de genre ou de nombre ;
+  le mot qui dit le genre d'appareil (« lumière », « lampe », « prise »…) est ignoré au second essai. Jamais par
+  ressemblance de lettres. Aucune, ou plusieurs : le nom reste tel quel.
+- **Jamais vers un appareil de sécurité** : une serrure, l'alarme, une porte de garage ou une entité marquée ne
+  se désignent que par leur nom écrit. Un nom approximatif n'ouvre rien.
+- **Le classement porte sur les arguments réécrits**, ceux qui partent : la classe et l'appel parlent toujours
+  des mêmes appareils.
+- **Après un échec** (`HintAsync`) : si le nom n'existe pas, le résultat rendu au modèle ajoute les noms exacts
+  possibles (40 au plus, avec leur pièce), pour qu'il réessaie ou demande lequel.
+
 ## Liste « sécurité » et page « Home Assistant »
 
 Section de réglages `Mcp.HomeAssistant` : `SecurityEntities` (noms d'entités), `SecurityScripts` (noms

@@ -61,7 +61,7 @@ public sealed class FirstRunTests : PageTest
         await Next.ClickAsync();
         await Expect(Frame).ToHaveAttributeAsync("data-step", "Setup.Models");
         await Expect(Wizard.Locator("[data-graphics-card]")).ToContainTextAsync("NVIDIA GeForce RTX 3060, 12 GB");
-        await Expect(Wizard.Locator("[data-llm-advice]")).ToHaveCountAsync(0);
+        await Expect(Wizard.Locator("[data-llm-advice]")).ToContainTextAsync("qwen3:8b");
         await Expect(Row("whisper-large-v3-turbo").Locator("[data-model-select]")).ToBeCheckedAsync();
         await Expect(Row("kokoro").Locator("[data-model-select]")).Not.ToBeCheckedAsync();
         await Expect(Row("whisper-large-v3-turbo")).ToContainTextAsync("574 MB");

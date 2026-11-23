@@ -54,6 +54,8 @@ internal sealed class OrbWindow : Window
 
         // WebView2CompositionControl receives its input through WPF, so the window sees the press first.
         PreviewMouseLeftButtonDown += OnPress;
+        PreviewMouseRightButtonDown += OnRightPress;
+        PreviewMouseRightButtonUp += OnRightRelease;
         SourceInitialized += (_, _) => NativeMethods.AddExtendedStyle(
             new WindowInteropHelper(this).Handle, NativeMethods.WsExNoActivate | NativeMethods.WsExToolWindow);
     }
@@ -79,8 +81,20 @@ internal sealed class OrbWindow : Window
     /// <summary>Raised on a press released without moving the window.</summary>
     public event EventHandler? Clicked;
 
+    /// <summary>Raised on a right click (ADR 0027, section 2). The WebView never sees it, so it shows no menu.</summary>
+    public event EventHandler? RightClicked;
+
     /// <summary>Raised after the user moved the window.</summary>
     public event EventHandler? Moved;
+
+    // Kept from the WebView, which would otherwise open its own menu on the release.
+    private void OnRightPress(object sender, MouseButtonEventArgs e) => e.Handled = true;
+
+    private void OnRightRelease(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        RightClicked?.Invoke(this, EventArgs.Empty);
+    }
 
     private void OnPress(object sender, MouseButtonEventArgs e)
     {

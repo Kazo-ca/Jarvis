@@ -9,11 +9,20 @@ namespace Kazo.Jarvis.Tests.Unit.Features.Setup;
 public sealed class ModelAdviceTests
 {
     [Test]
-    public void A_12_gb_card_gets_the_default_chain()
+    public void A_16_gb_card_gets_the_default_chain()
     {
-        var advice = ModelAdvice.For(new GraphicsCard("NVIDIA GeForce RTX 3060", 12_288));
+        var advice = ModelAdvice.For(new GraphicsCard("NVIDIA GeForce RTX 4060 Ti", 16_380));
 
         Assert.That(advice, Is.EqualTo(advice with { Whisper = WhisperModel.LargeV3Turbo, Device = ComputeDevice.Gpu, LanguageModel = LanguageModelAdvice.Default }));
+    }
+
+    [Test]
+    public void A_12_gb_card_keeps_whisper_turbo_with_a_smaller_language_model()
+    {
+        // The acceptance of stage 2: qwen3:14b next to Whisper turbo did not fit the 12 GB card once the tools were in the prompt.
+        var advice = ModelAdvice.For(new GraphicsCard("NVIDIA GeForce RTX 3060", 12_288));
+
+        Assert.That(advice, Is.EqualTo(advice with { Whisper = WhisperModel.LargeV3Turbo, Device = ComputeDevice.Gpu, LanguageModel = LanguageModelAdvice.Smaller }));
     }
 
     [Test]

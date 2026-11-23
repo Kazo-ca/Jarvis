@@ -8,6 +8,14 @@ html, body {
     overflow: hidden;
 }
 
+/* A dialog (settings, first run, confirmation) taller than its window scrolls: the page itself never does
+   (overflow hidden above), so without this the bottom of a long page could not be reached (acceptance of stage 2). */
+body.jarvis-window > #app {
+    height: 100%;
+    overflow: auto;
+    scrollbar-color: var(--jarvis-line-strong) transparent;
+}
+
 /* The orb window is transparent: only the orb's own pixels are drawn and catch clicks. */
 html:has(body.orb), body.orb {
     background: transparent;

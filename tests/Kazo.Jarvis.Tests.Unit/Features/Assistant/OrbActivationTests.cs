@@ -53,8 +53,9 @@ public sealed class OrbActivationTests
 }
 
 /// <summary>
-/// The double click on the orb (ADR 0010, section 3): it asks for the fan and is never also a single click, so a
-/// single click waits for the double-click delay of the host.
+/// The right click and the double click on the orb (ADR 0027): the right click asks for the fan at once; the
+/// double click asks for the projects view and is never also a single click, so a single click waits for the
+/// double-click delay of the host, but only once a slice answers the double click.
 /// </summary>
 [TestFixture]
 public sealed class OrbDoubleClickTests
@@ -64,19 +65,15 @@ public sealed class OrbDoubleClickTests
     private Microsoft.Extensions.Time.Testing.FakeTimeProvider time = null!;
     private ServiceProvider provider = null!;
     private int toggles;
+    private ProjectsView projects = null!;
     private IDisposable subscription = null!;
 
     [SetUp]
     public void SetUp()
     {
         time = new Microsoft.Extensions.Time.Testing.FakeTimeProvider();
-        provider = new ServiceCollection()
-            .AddSingleton<ILoggerFactory>(new ListLogger())
-            .AddSingleton<TimeProvider>(time)
-            .AddSingleton<Kazo.Jarvis.Kernel.Desktop.IPointerTimings>(new Timings(Delay))
-            .AddJarvisKernel()
-            .AddOrbSlice()
-            .BuildServiceProvider();
+        projects = new ProjectsView();
+        provider = Build(projects);
         toggles = 0;
         subscription = provider.GetRequiredService<IMessageBus>().Subscribe<Kazo.Jarvis.Kernel.Messages.Desktop.TaskFanToggleRequested>((_, _) =>
         {
@@ -109,7 +106,7 @@ public sealed class OrbDoubleClickTests
     }
 
     [Test]
-    public async Task A_double_click_asks_for_the_fan_and_is_never_also_a_single_click()
+    public async Task A_double_click_asks_for_the_projects_view_and_is_never_also_a_single_click()
     {
         var state = provider.GetRequiredService<IAssistantStateReader>();
         var activation = provider.GetRequiredService<OrbActivation>();
@@ -120,7 +117,36 @@ public sealed class OrbDoubleClickTests
         await Task.WhenAll(first, second).WaitAsync(TimeSpan.FromSeconds(5));
 
         time.Advance(TimeSpan.FromSeconds(2));
+        Assert.That(projects.Requests, Is.EqualTo(1));
+        Assert.That(toggles, Is.Zero);
+        Assert.That(state.Current.Look, Is.EqualTo(AssistantLook.Idle));
+    }
+
+    [Test]
+    public async Task A_right_click_asks_for_the_fan_at_once_and_never_starts_listening()
+    {
+        var state = provider.GetRequiredService<IAssistantStateReader>();
+
+        await provider.GetRequiredService<OrbActivation>().RightClickAsync();
+
         Assert.That(toggles, Is.EqualTo(1));
+        Assert.That(projects.Requests, Is.Zero);
+        time.Advance(TimeSpan.FromSeconds(2));
+        Assert.That(state.Current.Look, Is.EqualTo(AssistantLook.Idle));
+    }
+
+    [Test]
+    public async Task Without_a_projects_view_a_click_acts_at_once_and_two_clicks_are_two_single_clicks()
+    {
+        using var bare = Build(null);
+        var state = bare.GetRequiredService<IAssistantStateReader>();
+        var activation = bare.GetRequiredService<OrbActivation>();
+
+        // No time passes: the delay of the host is not waited for.
+        await activation.ClickAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(state.Current.Look, Is.EqualTo(AssistantLook.Listening));
+
+        await activation.ClickAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5));
         Assert.That(state.Current.Look, Is.EqualTo(AssistantLook.Idle));
     }
 
@@ -142,5 +168,33 @@ public sealed class OrbDoubleClickTests
         Assert.That(toggles, Is.Zero);
     }
 
+    private ServiceProvider Build(ProjectsView? view)
+    {
+        var services = new ServiceCollection()
+            .AddSingleton<ILoggerFactory>(new ListLogger())
+            .AddSingleton<TimeProvider>(time)
+            .AddSingleton<Kazo.Jarvis.Kernel.Desktop.IPointerTimings>(new Timings(Delay));
+        if (view is not null)
+        {
+            services.AddSingleton<IEventHandler<Kazo.Jarvis.Kernel.Messages.Desktop.ProjectsViewRequested>>(view);
+        }
+
+        return services.AddJarvisKernel().AddOrbSlice().BuildServiceProvider();
+    }
+
     private sealed record Timings(TimeSpan DoubleClickTime) : Kazo.Jarvis.Kernel.Desktop.IPointerTimings;
+
+    /// <summary>Stands in for the slice of the projects view, which does not exist yet.</summary>
+    private sealed class ProjectsView : IEventHandler<Kazo.Jarvis.Kernel.Messages.Desktop.ProjectsViewRequested>
+    {
+        private int requests;
+
+        public int Requests => Volatile.Read(ref requests);
+
+        public ValueTask HandleAsync(Kazo.Jarvis.Kernel.Messages.Desktop.ProjectsViewRequested message, CancellationToken cancellationToken)
+        {
+            Interlocked.Increment(ref requests);
+            return ValueTask.CompletedTask;
+        }
+    }
 }

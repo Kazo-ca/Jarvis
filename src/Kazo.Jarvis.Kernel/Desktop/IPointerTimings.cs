@@ -1,7 +1,7 @@
 namespace Kazo.Jarvis.Kernel.Desktop;
 
 /// <summary>
-/// The double-click delay of the system (ADR 0010, section 3): the orb waits that long before it treats a single
+/// The double-click delay of the system (ADR 0027, section 3): the orb waits that long before it treats a single
 /// click, so that a double click is never also a single click. Given by the host: Windows reads its own setting
 /// (half a second by default), the Web host gives a short one.
 /// </summary>
