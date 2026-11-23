@@ -31,9 +31,14 @@ public sealed record LlmProvider(
 /// <param name="Temperature">Sampling temperature, 0.3 by default (spike E4). Not sent to Anthropic, which refuses it.</param>
 /// <param name="KeepLoaded">Whether a local model is loaded at start and kept in memory while Jarvis runs (Ollama only).</param>
 /// <param name="MaxOutputTokens">Largest answer, in tokens. Required by Anthropic; a bound for the others.</param>
+/// <param name="TolerantToolCalls">
+/// Whether a local adapter accepts a tool call written in the text: a whole answer that is one JSON object naming a
+/// declared tool (ADR 0007, section 4). On by default; ignored by the cloud adapters.
+/// </param>
 public sealed record LlmTuning(
     bool Think = false,
     int ContextLength = 4096,
     double Temperature = 0.3,
     bool KeepLoaded = true,
-    int MaxOutputTokens = 16000);
+    int MaxOutputTokens = 16000,
+    bool TolerantToolCalls = true);

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Web</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Comment Jarvis cherche sur le web et lit une page. Les deux outils sont coupés tant que vous ne les activez pas dans la page des outils.</value>
+  </data>
+  <data name="LeavesLabel" xml:space="preserve">
+    <value>Ce qui sort de cet ordinateur</value>
+  </data>
+  <data name="Leaves" xml:space="preserve">
+    <value>Avec une recherche : les mots de la recherche, envoyés au moteur ci-dessous, ou à Brave Search quand sa clé est réglée. Avec une page : son adresse, envoyée à son site. Rien d'autre : aucun fichier, aucune partie de la conversation. Les pages reviennent comme du texte que le modèle lit comme une donnée, jamais comme des instructions.</value>
+  </data>
+  <data name="EngineLabel" xml:space="preserve">
+    <value>Moteur de recherche</value>
+  </data>
+  <data name="EngineHint" xml:space="preserve">
+    <value>Gratuit et sans clé : Jarvis lit la page de résultats de ce moteur dans son propre navigateur. Si le moteur demande de vérifier qu'un humain navigue, Jarvis le dit et ne le contourne pas.</value>
+  </data>
+  <data name="Engine_DuckDuckGo" xml:space="preserve">
+    <value>DuckDuckGo</value>
+  </data>
+  <data name="Engine_Startpage" xml:space="preserve">
+    <value>Startpage</value>
+  </data>
+  <data name="Engine_Bing" xml:space="preserve">
+    <value>Bing</value>
+  </data>
+  <data name="BraveLabel" xml:space="preserve">
+    <value>Brave Search</value>
+  </data>
+  <data name="BraveHint" xml:space="preserve">
+    <value>Facultatif. Dès qu'une clé est enregistrée, les recherches passent par l'API de Brave Search au lieu du moteur ci-dessus. Brave facture ce service ; voir sa page de prix.</value>
+  </data>
+  <data name="BraveKey" xml:space="preserve">
+    <value>Clé d'API de Brave Search</value>
+  </data>
+  <data name="ResultsLabel" xml:space="preserve">
+    <value>Résultats par recherche</value>
+  </data>
+  <data name="ResultsHint" xml:space="preserve">
+    <value>De 1 à {0}. Moins de résultats laissent plus de place à la conversation dans le contexte du modèle.</value>
+  </data>
+  <data name="SizeLabel" xml:space="preserve">
+    <value>Taille d'un résultat</value>
+  </data>
+  <data name="SizeHint" xml:space="preserve">
+    <value>Le plus grand nombre de caractères d'une page ou d'une liste de résultats donnés au modèle en un appel, de {0} à {1}. Une page plus longue est lue en plusieurs appels.</value>
+  </data>
+  <data name="ExceptionsLabel" xml:space="preserve">
+    <value>Adresses locales permises</value>
+  </data>
+  <data name="ExceptionsHint" xml:space="preserve">
+    <value>Jarvis refuse de lire cet ordinateur et le réseau local, pour qu'une page piégée ne puisse pas lui faire lire Home Assistant ou un routeur. Inscrivez ici, un par ligne, les noms ou adresses qu'il peut lire quand même.</value>
+  </data>
+  <data name="BrowserLabel" xml:space="preserve">
+    <value>Navigateur de Jarvis</value>
+  </data>
+  <data name="BrowserHint" xml:space="preserve">
+    <value>Un navigateur interne à Jarvis, séparé du vôtre : il n'ouvre jamais Edge ni Chrome. Il garde ses témoins. Si vous vous y connectez à un site, Jarvis lit ensuite les pages avec ce compte ouvert, et une page piégée peut tromper le modèle pendant qu'il lit.</value>
+  </data>
+  <data name="BrowserMissing" xml:space="preserve">
+    <value>Cet ordinateur n'a pas encore de navigateur pour Jarvis : seule Brave Search peut chercher, et les pages ne peuvent pas être lues.</value>
+  </data>
+  <data name="BrowserOpen" xml:space="preserve">
+    <value>Ouvrir le navigateur</value>
+  </data>
+  <data name="BrowserClear" xml:space="preserve">
+    <value>Effacer ses données</value>
+  </data>
+  <data name="BrowserCleared" xml:space="preserve">
+    <value>Données effacées.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Les paramètres n'ont pas pu être enregistrés.</value>
+  </data>
+</root>

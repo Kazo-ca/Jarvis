@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Passage de main</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Quand une question dépasse le modèle local, Jarvis peut la passer à un modèle du cloud. Rien n'est passé tant que vous n'avez pas choisi une cible ici.</value>
+  </data>
+  <data name="LeavesLabel" xml:space="preserve">
+    <value>Ce qui quitte cet ordinateur</value>
+  </data>
+  <data name="Leaves_Request" xml:space="preserve">
+    <value>Votre demande et la conversation récente, mot pour mot, partent vers le fournisseur choisi, par Internet.</value>
+  </data>
+  <data name="Leaves_Tools" xml:space="preserve">
+    <value>Si ce modèle utilise un outil de lecture activé (un fichier d'un dossier autorisé, une page web), le résultat lui est envoyé aussi.</value>
+  </data>
+  <data name="Leaves_Memory" xml:space="preserve">
+    <value>Les faits que Jarvis retient sur vous et le résumé des anciens échanges ne partent pas, sauf si vous cochez la case plus bas.</value>
+  </data>
+  <data name="Leaves_Never" xml:space="preserve">
+    <value>Jamais : un secret, le contenu du coffre, un son.</value>
+  </data>
+  <data name="Cost" xml:space="preserve">
+    <value>Chaque question passée est facturée par le fournisseur. Un plafond mensuel borne ces appels : il se règle à la page Dépense, avec les prix.</value>
+  </data>
+  <data name="QuestionsLabel" xml:space="preserve">
+    <value>Cible des questions</value>
+  </data>
+  <data name="QuestionsHint" xml:space="preserve">
+    <value>Pour une question que le modèle local ne sait pas traiter : raisonnement long, connaissance pointue, rédaction soignée. Un des fournisseurs cloud de la page « Modèles de langage ».</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Aucune : rien n'est passé</value>
+  </data>
+  <data name="NoProvider" xml:space="preserve">
+    <value>Aucun fournisseur cloud n'est configuré. Ajoutez d'abord un fournisseur Anthropic ou OpenAI dans la page « Modèles de langage ».</value>
+  </data>
+  <data name="NoTarget" xml:space="preserve">
+    <value>Aucune cible : rien ne part vers un fournisseur cloud.</value>
+  </data>
+  <data name="Chosen" xml:space="preserve">
+    <value>Jarvis dit « Je demande à {0} » puis donne sa réponse. Les demandes partent vers {1}.</value>
+  </data>
+  <data name="MemoryLabel" xml:space="preserve">
+    <value>Mémoire</value>
+  </data>
+  <data name="WithMemory" xml:space="preserve">
+    <value>Envoyer aussi ce que Jarvis retient sur moi</value>
+  </data>
+  <data name="WithMemoryHint" xml:space="preserve">
+    <value>Décoché : seules la demande et la conversation récente partent. Coché : les faits retenus et le résumé accompagnent chaque question.</value>
+  </data>
+  <data name="TasksLabel" xml:space="preserve">
+    <value>Cible des tâches</value>
+  </data>
+  <data name="TasksLater" xml:space="preserve">
+    <value>Un travail sur des fichiers ou en plusieurs étapes ira à Claude Code. Cette cible n'est pas encore disponible.</value>
+  </data>
+  <data name="PhrasesLabel" xml:space="preserve">
+    <value>Forcer le passage</value>
+  </data>
+  <data name="PhrasesHint" xml:space="preserve">
+    <value>Au début d'une demande, dite ou écrite, ces mots envoient la suite directement à la cible, sans passer par le modèle local.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Les réglages ne peuvent pas être écrits.</value>
+  </data>
+  <data name="Spend" xml:space="preserve">
+    <value>Cloud ce mois-ci : {0} USD sur {1} USD.</value>
+  </data>
+  <data name="SpendReached" xml:space="preserve">
+    <value>Cloud ce mois-ci : {0} USD sur {1} USD. Le plafond est atteint : rien n'est passé jusqu'au mois prochain, ou jusqu'à ce que le plafond soit relevé.</value>
+  </data>
+  <data name="NoPrice" xml:space="preserve">
+    <value>sans prix</value>
+  </data>
+  <data name="ChosenNoPrice" xml:space="preserve">
+    <value>Cette cible n'a plus de prix : rien n'est passé tant qu'un prix n'est pas entré à la page Dépense.</value>
+  </data>
+  <data name="PriceNote" xml:space="preserve">
+    <value>Un fournisseur sans prix ne peut pas être choisi : entrez son prix à la page Dépense.</value>
+  </data>
+</root>

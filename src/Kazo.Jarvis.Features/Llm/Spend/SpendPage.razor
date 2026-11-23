@@ -1,0 +1,243 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject ILlmProviderList Providers
+@inject SpendLedger Ledger
+@inject IStringLocalizer<SpendPage> T
+@implements IDisposable
+
+@* The « Dépense » page (US2.8, ADR 0020, section 6): what the cloud answers cost this month, the monthly cap, and
+   the price of each cloud provider. A cloud provider without a price is never called. A change is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["CountLabel"]" Hint="@T["CountHint"]">
+        <p class="spend-count" data-spend-count="@status.SpentUsd.ToString(CultureInfo.InvariantCulture)" data-spend-reached="@(status.Reached ? "true" : "false")">
+            @T["Count", Money(status.SpentUsd), Money(status.CapUsd), status.Month.ToString("Y", CultureInfo.CurrentCulture)]
+        </p>
+        @if (status.Reached)
+        {
+            <p class="spend-warning" data-spend-reached-note>@T["Reached"]</p>
+        }
+        else if (status.SpentUsd >= status.CapUsd * SpendStatus.WarningShare)
+        {
+            <p class="spend-warning" data-spend-near-note>@T["Near"]</p>
+        }
+        @if (entries.Count > 0)
+        {
+            <ul class="spend-entries" data-spend-entries="@entries.Count">
+                @foreach (var entry in entries.Take(MostEntriesShown))
+                {
+                    @if (entry.ProviderId == SpendLedger.ClaudeCodeId)
+                    {
+                        <li data-spend-claude-entry="@(entry.Apart ? "apart" : "counted")">@entry.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @entry.ProviderName · @entry.Model · @(entry.Apart ? T["EntryApart", Money(entry.CostUsd)] : Money(entry.CostUsd))</li>
+                    }
+                    else
+                    {
+                        <li>@entry.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @entry.ProviderName · @entry.Model · @T["Entry", entry.InputTokens, entry.OutputTokens, Money(entry.CostUsd)]</li>
+                    }
+                }
+            </ul>
+        }
+        @if (confirmingReset)
+        {
+            <p class="spend-note">@T["ResetConfirm"]</p>
+            <button type="button" class="spend-button" data-spend-reset-confirm @onclick="ResetAsync">@T["ResetYes"]</button>
+            <button type="button" class="spend-button" data-spend-reset-cancel @onclick="() => confirmingReset = false">@T["ResetNo"]</button>
+        }
+        else if (status.SpentUsd > 0 || entries.Count > 0)
+        {
+            <button type="button" class="spend-button" data-spend-reset @onclick="() => confirmingReset = true">@T["Reset"]</button>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["CapLabel"]" Hint="@T["CapHint"]">
+        <input type="number" class="spend-number" data-spend-cap aria-label="@T["CapLabel"]" min="0" max="@SpendOptions.MostUsd" step="1"
+               value="@options.MonthlyCapUsd.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeCapAsync" />
+    </SettingsField>
+
+    <SettingsField Label="@T["ClaudeCodeLabel"]" Hint="@T["ClaudeCodeHint"]">
+        <label class="spend-check">
+            <input type="checkbox" data-spend-claude-subscription checked="@options.ClaudeCodeBySubscription"
+                   @onchange="e => SaveAsync(options with { ClaudeCodeBySubscription = e.Value is true })" />
+            <span>@T["ClaudeCodeBySubscription"]</span>
+        </label>
+        @if (options.ClaudeCodeBySubscription)
+        {
+            <p class="spend-note" data-spend-claude-apart="@Ledger.ClaudeCodeApartUsd.ToString(CultureInfo.InvariantCulture)">@T["ClaudeCodeApart", Money(Ledger.ClaudeCodeApartUsd)]</p>
+        }
+        else
+        {
+            <p class="spend-note" data-spend-claude-counted>@T["ClaudeCodeCounted"]</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["PricesLabel"]" Hint="@T["PricesHint"]">
+        @if (cloud.Count == 0)
+        {
+            <p class="spend-note" data-spend-no-provider>@T["NoProvider"]</p>
+        }
+        else
+        {
+            <ul class="spend-prices">
+                @foreach (var provider in cloud)
+                {
+                    var price = options.PriceOf(provider.Id);
+                    var known = KnownPrices.For(provider);
+                    <li class="spend-price" data-spend-provider="@provider.Id" data-spend-priced="@(price is null ? "false" : "true")" @key="provider.Id">
+                        <span class="spend-provider">@provider.Name · @provider.Model</span>
+                        <label class="spend-amount">
+                            <span>@T["Input"]</span>
+                            <input type="number" class="spend-number" data-spend-input min="0" max="@SpendOptions.MostUsd" step="0.01"
+                                   value="@Draft(provider.Id).Input" @onchange="e => ChangePriceAsync(provider, e.Value?.ToString(), null)" />
+                        </label>
+                        <label class="spend-amount">
+                            <span>@T["Output"]</span>
+                            <input type="number" class="spend-number" data-spend-output min="0" max="@SpendOptions.MostUsd" step="0.01"
+                                   value="@Draft(provider.Id).Output" @onchange="e => ChangePriceAsync(provider, null, e.Value?.ToString())" />
+                        </label>
+                        @if (known is not null && known != price)
+                        {
+                            <button type="button" class="spend-button" data-spend-known @onclick="() => SavePriceAsync(provider, known)">
+                                @T["UseKnown", Amount(known.InputPerMillion), Amount(known.OutputPerMillion)]
+                            </button>
+                        }
+                        @if (price is not null)
+                        {
+                            <button type="button" class="spend-button" data-spend-remove @onclick="() => SavePriceAsync(provider, null)">@T["Remove"]</button>
+                        }
+                        else
+                        {
+                            <span class="spend-warning" data-spend-unpriced>@T["Unpriced"]</span>
+                        }
+                    </li>
+                }
+            </ul>
+            <p class="spend-note">@T["KnownAsOf", KnownPrices.AsOf.ToString("d", CultureInfo.CurrentCulture)]</p>
+        }
+        @if (problem is not null)
+        {
+            <p class="spend-problem" role="alert" data-spend-problem>@problem</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["LimitsLabel"]">
+        <ul class="spend-list" data-spend-limits>
+            <li>@T["Limit_Estimate"]</li>
+            <li>@T["Limit_Voices"]</li>
+            <li>@T["Limit_Tasks"]</li>
+        </ul>
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private const int MostEntriesShown = 20;
+
+    private readonly Dictionary<string, (string Input, string Output)> drafts = new(StringComparer.Ordinal);
+    private SpendOptions options = new();
+    private SpendStatus status = new(default, 0m, SpendOptions.DefaultCapUsd);
+    private IReadOnlyList<LlmProvider> cloud = [];
+    private IReadOnlyList<SpendEntry> entries = [];
+    private bool confirmingReset;
+    private string? problem;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        Providers.Changed += OnChanged;
+        Ledger.Changed += OnChanged;
+        await ReadAsync();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Providers.Changed -= OnChanged;
+        Ledger.Changed -= OnChanged;
+    }
+
+    // An answer counted during a conversation, or a provider added on the other page, shows without leaving the window.
+    private void OnChanged() => _ = InvokeAsync(async () =>
+    {
+        await ReadAsync();
+        StateHasChanged();
+    });
+
+    private async Task ReadAsync()
+    {
+        options = Settings.Read(SpendOptions.Section);
+        status = Ledger.Status;
+        cloud = [.. Providers.Providers.Where(provider => !provider.Kind.IsLocal())];
+        entries = await Ledger.ReadMonthAsync();
+        foreach (var provider in cloud)
+        {
+            // What is saved wins over what was being typed.
+            if (options.PriceOf(provider.Id) is { } price)
+            {
+                drafts[provider.Id] = (Amount(price.InputPerMillion), Amount(price.OutputPerMillion));
+            }
+        }
+    }
+
+    private (string Input, string Output) Draft(string id) => drafts.TryGetValue(id, out var draft) ? draft : (string.Empty, string.Empty);
+
+    private static string Amount(decimal value) => value.ToString("0.####", CultureInfo.InvariantCulture);
+
+    // Cents, and more digits for an answer that costs less than one.
+    private static string Money(decimal value) => value.ToString(value is > 0 and < 0.01m ? "0.0000" : "0.00", CultureInfo.CurrentCulture);
+
+    private async Task ChangeCapAsync(ChangeEventArgs e)
+    {
+        if (!decimal.TryParse(e.Value?.ToString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var cap))
+        {
+            problem = T["NotANumber"];
+            return;
+        }
+
+        await SaveAsync(options with { MonthlyCapUsd = cap });
+    }
+
+    private async Task ChangePriceAsync(LlmProvider provider, string? input, string? output)
+    {
+        var draft = Draft(provider.Id);
+        draft = (input ?? draft.Input, output ?? draft.Output);
+        drafts[provider.Id] = draft;
+
+        // A price is its two amounts: nothing is saved, and nothing is called, on half of it.
+        if (decimal.TryParse(draft.Input, NumberStyles.Number, CultureInfo.InvariantCulture, out var perInput)
+            && decimal.TryParse(draft.Output, NumberStyles.Number, CultureInfo.InvariantCulture, out var perOutput))
+        {
+            await SaveAsync(options.WithPrice(provider.Id, new ProviderPrice(perInput, perOutput)));
+        }
+        else
+        {
+            problem = T["BothAmounts"];
+        }
+    }
+
+    private Task SavePriceAsync(LlmProvider provider, ProviderPrice? price)
+    {
+        if (price is null)
+        {
+            drafts.Remove(provider.Id);
+        }
+
+        return SaveAsync(options.WithPrice(provider.Id, price));
+    }
+
+    private async Task SaveAsync(SpendOptions changed)
+    {
+        var result = await Settings.WriteAsync(SpendOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        await ReadAsync();
+    }
+
+    private async Task ResetAsync()
+    {
+        confirmingReset = false;
+        await Ledger.ResetAsync();
+        await ReadAsync();
+    }
+}

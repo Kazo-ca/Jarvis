@@ -105,4 +105,127 @@
   <data name="Failure_Other" xml:space="preserve">
     <value>échec</value>
   </data>
+  <data name="Tool" xml:space="preserve">
+    <value>Outil</value>
+  </data>
+  <data name="ToolArguments" xml:space="preserve">
+    <value>Arguments</value>
+  </data>
+  <data name="ToolResult" xml:space="preserve">
+    <value>Résultat</value>
+  </data>
+  <data name="ToolOutcome_Running" xml:space="preserve">
+    <value>en cours…</value>
+  </data>
+  <data name="ToolOutcome_Done" xml:space="preserve">
+    <value>fait</value>
+  </data>
+  <data name="ToolOutcome_Denied" xml:space="preserve">
+    <value>refusé</value>
+  </data>
+  <data name="ToolOutcome_Failed" xml:space="preserve">
+    <value>échoué</value>
+  </data>
+  <data name="ToolOutcome_Interrupted" xml:space="preserve">
+    <value>interrompu</value>
+  </data>
+  <data name="SeePage" xml:space="preserve">
+    <value>Voir la page</value>
+  </data>
+  <data name="HandOff" xml:space="preserve">
+    <value>Passage de main</value>
+  </data>
+  <data name="HandOff_Asked" xml:space="preserve">
+    <value>Passé à {0} : {1}</value>
+  </data>
+  <data name="HandOff_AskedNoReason" xml:space="preserve">
+    <value>Passé à {0}</value>
+  </data>
+  <data name="HandOff_Forced" xml:space="preserve">
+    <value>Demandé directement à {0}, à votre demande</value>
+  </data>
+  <data name="HandOff_Failed" xml:space="preserve">
+    <value>Le passage de main n'a pas eu lieu ({0})</value>
+  </data>
+  <data name="HandOff_Cause_NoQuestionsTarget" xml:space="preserve">
+    <value>aucune cible pour les questions</value>
+  </data>
+  <data name="HandOff_Cause_NoTasksTarget" xml:space="preserve">
+    <value>pas encore de cible pour les tâches</value>
+  </data>
+  <data name="HandOff_Cause_NotConfigured" xml:space="preserve">
+    <value>fournisseur non configuré</value>
+  </data>
+  <data name="HandOff_Cause_InvalidAddress" xml:space="preserve">
+    <value>adresse non valide</value>
+  </data>
+  <data name="HandOff_Cause_Unreachable" xml:space="preserve">
+    <value>injoignable</value>
+  </data>
+  <data name="HandOff_Cause_ModelMissing" xml:space="preserve">
+    <value>modèle inconnu</value>
+  </data>
+  <data name="HandOff_Cause_KeyMissing" xml:space="preserve">
+    <value>pas de clé dans le coffre</value>
+  </data>
+  <data name="HandOff_Cause_KeyRejected" xml:space="preserve">
+    <value>clé refusée</value>
+  </data>
+  <data name="HandOff_Cause_TimedOut" xml:space="preserve">
+    <value>pas de réponse à temps</value>
+  </data>
+  <data name="HandOff_Cause_ServerError" xml:space="preserve">
+    <value>erreur du serveur</value>
+  </data>
+  <data name="HandOff_Cause_Other" xml:space="preserve">
+    <value>cause inconnue</value>
+  </data>
+  <data name="HandOff_Cause_NoPrice" xml:space="preserve">
+    <value>la cible n'a pas de prix</value>
+  </data>
+  <data name="HandOff_Cause_CapReached" xml:space="preserve">
+    <value>le plafond de dépense du mois est atteint</value>
+  </data>
+  <data name="Spend" xml:space="preserve">
+    <value>Cloud ce mois-ci : {0} USD sur {1} USD</value>
+  </data>
+  <data name="Spend_Reached" xml:space="preserve">
+    <value>Cloud ce mois-ci : {0} USD sur {1} USD. Plafond atteint, Jarvis reste en local.</value>
+  </data>
+  <data name="Agent" xml:space="preserve">
+    <value>Agent {0}</value>
+  </data>
+  <data name="AgentChoice" xml:space="preserve">
+    <value>Agent :</value>
+  </data>
+  <data name="AgentChoice_Auto" xml:space="preserve">
+    <value>Jarvis choisit</value>
+  </data>
+  <data name="AgentChoice_Hint" xml:space="preserve">
+    <value>Une demande écrite va droit à l'agent choisi, sans passer par l'agent Jarvis.</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Projet {0}</value>
+  </data>
+  <data name="ProjectChoice" xml:space="preserve">
+    <value>Projet :</value>
+  </data>
+  <data name="ProjectChoice_Auto" xml:space="preserve">
+    <value>Nommé dans la demande</value>
+  </data>
+  <data name="ProjectChoice_Hint" xml:space="preserve">
+    <value>Le projet dont parle une demande écrite. Une demande dite nomme son projet elle-même.</value>
+  </data>
+  <data name="Call_Start" xml:space="preserve">
+    <value>Appeler</value>
+  </data>
+  <data name="Call_End" xml:space="preserve">
+    <value>Raccrocher</value>
+  </data>
+  <data name="Call_On" xml:space="preserve">
+    <value>Appel en cours avec l'agent {0}. Dites « au revoir » pour terminer.</value>
+  </data>
+  <data name="Call_Hint" xml:space="preserve">
+    <value>Pendant un appel, l'agent qui répond garde la main et Jarvis écoute la suite sans « Hey Jarvis ».</value>
+  </data>
 </root>

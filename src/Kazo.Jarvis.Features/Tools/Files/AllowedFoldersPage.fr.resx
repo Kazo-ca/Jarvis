@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Dossiers autorisés</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Les seuls dossiers que Jarvis peut lire avec ses outils de fichiers. Il les lit, il n'y écrit jamais. Tout le reste de cet ordinateur est refusé, et chaque refus est au journal des permissions.</value>
+  </data>
+  <data name="FoldersLabel" xml:space="preserve">
+    <value>Dossiers</value>
+  </data>
+  <data name="FoldersHint" xml:space="preserve">
+    <value>Un dossier donne accès à tout ce qu'il contient. Un lien ou une jonction qui pointe hors d'un dossier autorisé est refusé.</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Aucun dossier n'est autorisé : Jarvis ne peut lire aucun fichier.</value>
+  </data>
+  <data name="Unusable" xml:space="preserve">
+    <value>Ce chemin n'est pas utilisable.</value>
+  </data>
+  <data name="ResolvesTo" xml:space="preserve">
+    <value>Emplacement réel : {0}</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Chemin d'un dossier à autoriser</value>
+  </data>
+  <data name="AddPlaceholder" xml:space="preserve">
+    <value>C:\Users\moi\Documents\Notes</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Autoriser</value>
+  </data>
+  <data name="AddUnusable" xml:space="preserve">
+    <value>Écrivez le chemin complet d'un dossier, avec son lecteur.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Les paramètres n'ont pas pu être enregistrés.</value>
+  </data>
+  <data name="SizeLabel" xml:space="preserve">
+    <value>Taille d'un résultat</value>
+  </data>
+  <data name="SizeHint" xml:space="preserve">
+    <value>Le plus grand nombre de caractères d'un fichier ou d'une liste de dossier donnés au modèle en un appel, de {0} à {1}. Un fichier plus long est lu en plusieurs appels.</value>
+  </data>
+</root>

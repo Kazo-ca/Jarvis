@@ -16,6 +16,16 @@
 @inject SimulatedLlmConnector Llm
 @inject SimulatedSpeechRecognition Recognition
 @inject ISettingsStore Settings
+@inject SimulatedNotes Notes
+@inject SimulatedReadingBrowser Browser
+@inject InMemoryAgentFiles AgentFiles
+@inject SimulatedToolServers ToolServers
+@inject SimulatedClaudeSessions ClaudeSessions
+@inject SimulatedClaudeUserSettings ClaudeSettings
+@inject SimulatedClaudeCode ClaudeCode
+@inject SimulatedHandSession HandSession
+@inject SimulatedTaskFanSurface FanSurface
+@inject Kazo.Jarvis.Kernel.Tasks.ITaskBoard Board
 @inject ConfigurationFaultReporter ConfigurationCheck
 
 @* Page of the Web host: the orb fed by the state machine (stage1/6-orb), simulated hotkey and dialogs
@@ -26,7 +36,8 @@
    and the faults window of the tray menu (stage1/15-faults). The orb demonstration page, which
    drives the component directly, is /orb (US1.3). *@
 <main id="jarvis-root" data-host="web" data-phase="@State.Current.Phase" data-interactive="@(RendererInfo.IsInteractive ? "true" : "false")">
-    <div class="orb-frame" hidden="@(!Orb.IsVisible)">
+    @* The orb sits in a corner of the page, above everything, as on the desktop: the fan opens around it. *@
+    <div class="orb-frame" data-orb-corner="@FanSurface.Corner" hidden="@(!Orb.IsVisible)">
         <OrbView AnimateIdle="false" />
     </div>
     <nav class="host-controls">
@@ -36,6 +47,9 @@
         <button type="button" id="open-settings" @onclick="OpenSettings">Open the settings (tray menu)</button>
         <button type="button" id="open-conversation" @onclick="OpenConversation">Open the conversation (tray menu)</button>
         <button type="button" id="open-updates" @onclick="OpenUpdates">Open the updates window</button>
+        <button type="button" id="agent-file-break" @onclick="BreakAgentFile">Save an agent file without a header</button>
+        <button type="button" id="agent-file-write" @onclick="WriteAgentFile">Save the agent file of the kitchen</button>
+        <button type="button" id="agent-file-delete" @onclick="DeleteAgentFile">Delete the agent file of the kitchen</button>
         <button type="button" id="simulate-release" @onclick="PublishRelease">Publish version 9.9.0</button>
         <button type="button" id="simulate-offline" @onclick="ToggleNetwork">@(Releases.Reachable ? "Cut the network" : "Restore the network")</button>
         <button type="button" id="toggle-mute" @onclick="ToggleMute">@(State.Current.MicrophoneMuted ? "Unmute the microphone (tray menu)" : "Mute the microphone (tray menu)")</button>
@@ -43,6 +57,9 @@
         <button type="button" id="plug-microphones" @onclick="Microphones.PlugAll">Plug the microphones back</button>
         <button type="button" id="simulate-wake-word" @onclick="WakeWord.Say">Say “Hey Jarvis”</button>
         <button type="button" id="say-phrase" @onclick="Voice.SayPhrase">Say a phrase</button>
+        <label for="phrase-text">Phrase to say:</label>
+        <input type="text" id="phrase-text" @bind="phrase" @bind:event="oninput" />
+        <button type="button" id="say-text" @onclick="SayText">Say this phrase</button>
         <button type="button" id="simulate-answer" @onclick="SimulateAnswerAsync">Simulate a spoken answer</button>
         <button type="button" id="open-first-run" @onclick="OpenFirstRun">Open the first-run wizard (tray menu)</button>
         <button type="button" id="open-faults" @onclick="OpenFaults">Solve the problem (tray menu)</button>
@@ -52,17 +69,45 @@
         <button type="button" id="toggle-voice" @onclick="ToggleVoice">@(Speech.FailWith is null ? "Break the voice" : "Repair the voice")</button>
         <button type="button" id="break-configuration" @onclick="BreakConfigurationAsync">Restart on an unreadable config.json</button>
         <button type="button" id="repair-configuration" @onclick="RepairConfigurationAsync">Restart on a repaired config.json</button>
+        <button type="button" id="revise-tool-servers" @onclick="ToolServers.Revise">Make the tool servers change a tool</button>
+        <button type="button" id="advance-claude-sessions" @onclick="ClaudeSessions.Advance">Make the Claude Code sessions move</button>
+        <button type="button" id="reset-claude-sessions" @onclick="ClaudeSessions.Reset">Put the Claude Code sessions back</button>
+        <button type="button" id="break-claude-settings" @onclick="ClaudeSettings.Break">Make the Claude Code settings unreadable</button>
+        <button type="button" id="reset-claude-settings" @onclick="ClaudeSettings.Reset">Put the Claude Code settings back</button>
+        <button type="button" id="project-memory-reset" @onclick="@(() => SimulatedLocalFiles.Restore("/home/demo/Documents/recettes/JARVIS.md", null))">Remove the memory file written for a project</button>
+        <button type="button" id="hand-session-work" @onclick="HandSession.WorkAsync">Make a session started by hand work</button>
+        <button type="button" id="hand-session-wait" @onclick="HandSession.WaitAsync">Make it wait for a permission</button>
+        <button type="button" id="hand-session-stop" @onclick="HandSession.StopAsync">Make it end its turn</button>
+        <button type="button" id="hand-session-subtask" @onclick="HandSession.SubTaskAsync">Make it start a sub-agent</button>
+        <button type="button" id="orb-next-corner" @onclick="FanSurface.NextCorner">Move the orb to the next corner</button>
         <a id="open-orb-demo" href="orb">Orb demonstration</a>
         <output id="fault" data-cause="@(State.Current.Fault?.Cause.ToString() ?? "")" data-origin="@(State.Current.Fault?.Origin?.ToString() ?? "")">@(State.Current.Fault is { } fault ? $"{fault.Cause} ({fault.Origin})" : "No fault")</output>
         <output id="microphone-open" data-device="@(Microphones.OpenDevice?.Id ?? "")">@(Microphones.OpenDevice?.Name ?? "No microphone open")</output>
         <output id="output-played" data-count="@Speakers.PlayedCount" data-device="@(Speakers.LastOutput?.Id ?? "")">@Speakers.PlayedCount sound(s) played</output>
         <output id="last-transcription" data-turn="@(transcribed?.Turn.Value ?? 0)">@(transcribed?.Text ?? "Nothing transcribed")</output>
         <output id="voice-spoken" data-count="@Speech.Spoken.Count">@(Speech.Spoken.LastOrDefault() ?? "Nothing said yet")</output>
+        <output id="notes" data-count="@Notes.Notes.Count" data-erased="@Notes.Erased">@(Notes.Notes.LastOrDefault() ?? "No note")</output>
+        <output id="browser" data-searches="@Browser.Searches.Count" data-last-search="@(Browser.Searches.LastOrDefault() ?? "")" data-shown="@Browser.Shown.Count"
+                data-last-shown="@(Browser.Shown.LastOrDefault() ?? "")" data-cleared="@Browser.Cleared">@(Browser.Shown.LastOrDefault() ?? "No page shown")</output>
+        <output id="claude-sessions" data-step="@ClaudeSessions.Step">Claude Code sessions, step @ClaudeSessions.Step</output>
+        <output id="claude-settings" data-copies="@ClaudeSettings.Copies" data-jarvis-hooks="@(ClaudeSettings.Text.Contains("/hook/task.start", StringComparison.Ordinal) ? "true" : "false")"
+                data-kept="@(ClaudeSettings.Text.Contains("echo done", StringComparison.Ordinal) ? "true" : "false")">Claude Code settings, @ClaudeSettings.Copies copy(ies)</output>
+        <output id="claude-code" data-launches="@ClaudeCode.Launches.Count" data-last-folder="@(ClaudeCode.Launches.LastOrDefault()?.Folder ?? "")"
+                data-last-trusted="@(ClaudeCode.Launches.LastOrDefault()?.Trusted == true ? "true" : "false")"
+                data-last-budget="@(ClaudeCode.Launches.LastOrDefault()?.BudgetUsd.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                data-last-end="@ClaudeCode.LastEnd" data-last-task-status="@(LastHarnessTask?.Status.ToString() ?? "")"
+                data-last-task-summary="@(LastHarnessTask?.Summary ?? "")">@(ClaudeCode.Launches.LastOrDefault()?.FirstMessage ?? "No Claude Code session started")</output>
+        <output id="tool-servers" data-calls="@ToolServers.Calls.Count" data-last-call="@(ToolServers.Calls.LastOrDefault() ?? "")" data-revision="@ToolServers.Revision">@(ToolServers.Calls.LastOrDefault() ?? "No tool server called")</output>
+        <output id="confirmation" data-pending="@(State.Current.Interaction is null ? "false" : "true")" data-kind="@(State.Current.Interaction?.Kind.ToString() ?? "")"
+                data-question-said="@(State.Current.Interaction is { } pending && pending.Id == questionSaid ? "true" : "false")">@(State.Current.Interaction is null ? "No confirmation pending" : "Confirmation pending")</output>
+        <output id="task-fan" data-shown="@(FanSurface.IsShown ? "true" : "false")" data-corner="@FanSurface.Corner">@(FanSurface.IsShown ? "Fan surface shown" : "Fan surface hidden")</output>
         <output id="updater-launched" data-folder="@(Launcher.LaunchedFolder ?? "")">@(Launcher.LaunchedFolder is null ? "Updater not started" : "Updater started")</output>
     </nav>
     @* Like a window of the Windows host, the dialogs rebuild their texts when the language changes. *@
     <LanguageScope>
         <DialogOverlay />
+        @* The task fan, drawn over the page (ADR 0010, section 4). *@
+        <TaskFanView />
     </LanguageScope>
 </main>
 
@@ -70,6 +115,9 @@
     private IDisposable? stateSubscription;
     private IDisposable? transcriptionSubscription;
     private UtteranceTranscribed? transcribed;
+    private string phrase = string.Empty;
+    private IDisposable? questionSubscription;
+    private Guid questionSaid;
 
     protected override void OnInitialized()
     {
@@ -78,7 +126,19 @@
         Microphones.Changed += OnChanged;
         Speakers.Played += OnChanged;
         Speech.Spoke += OnChanged;
+        Notes.Changed += OnChanged;
+        Browser.Changed += OnChanged;
+        ToolServers.Changed += OnChanged;
+        ClaudeSettings.Changed += OnChanged;
+        ClaudeCode.Changed += OnChanged;
+        Board.Changed += OnBoardChanged;
+        FanSurface.Changed += OnChanged;
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
+        questionSubscription = Bus.Subscribe<ConfirmationQuestionSaid>((message, _) => new ValueTask(InvokeAsync(() =>
+        {
+            questionSaid = message.Id;
+            StateHasChanged();
+        })));
         transcriptionSubscription = Bus.Subscribe<UtteranceTranscribed>((message, _) => new ValueTask(InvokeAsync(() =>
         {
             transcribed = message;
@@ -93,11 +153,32 @@
         Microphones.Changed -= OnChanged;
         Speakers.Played -= OnChanged;
         Speech.Spoke -= OnChanged;
+        Notes.Changed -= OnChanged;
+        Browser.Changed -= OnChanged;
+        ToolServers.Changed -= OnChanged;
+        ClaudeSettings.Changed -= OnChanged;
+        ClaudeCode.Changed -= OnChanged;
+        Board.Changed -= OnBoardChanged;
+        FanSurface.Changed -= OnChanged;
         stateSubscription?.Dispose();
         transcriptionSubscription?.Dispose();
+        questionSubscription?.Dispose();
     }
 
     private void OnChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    private void OnBoardChanged() => _ = InvokeAsync(StateHasChanged);
+
+    // The task of the last session Jarvis started itself.
+    private Kazo.Jarvis.Kernel.Tasks.WorkTask? LastHarnessTask =>
+        Board.Tasks.Where(task => task.Source == Kazo.Jarvis.Kernel.Tasks.TaskSource.Harness).OrderByDescending(task => task.CreatedAt).FirstOrDefault();
+
+    // The user edits the files of the agents in an editor (stage2/17-agents): one that does not read, then a good one.
+    private void BreakAgentFile() => AgentFiles.Save("cuisine", "Des consignes sans en-tête.");
+
+    private void WriteAgentFile() => AgentFiles.Save("cuisine", "---\nname: Cuisine\ndescription: Les recettes et les listes de courses.\ntools: write_note\n---\n\nRéponds comme un chef.");
+
+    private void DeleteAgentFile() => AgentFiles.Delete("cuisine");
 
     private Task OpenUpdates() => Bus.PublishAsync(new UpdatesWindowRequested()).AsTask();
 
@@ -119,6 +200,14 @@
         await Bus.PublishAsync(new SentenceToSpeak(turn, "Certainly, sir."));
         await Bus.PublishAsync(new SentenceToSpeak(turn, "The simulated voice says a second, longer sentence so there is time to interrupt it."));
         await Bus.PublishAsync(new AnswerSentencesEnded(turn));
+    }
+
+    // The next utterance is "heard" as the text of the field: a request that calls a tool, or the answer to a
+    // confirmation request (stage2/4-confirmation).
+    private void SayText()
+    {
+        Recognition.NextPhrase = string.IsNullOrWhiteSpace(phrase) ? null : phrase.Trim();
+        Voice.SayPhrase();
     }
 
     private void PressHotkey() => Hotkey.Press();

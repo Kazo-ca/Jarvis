@@ -10,7 +10,7 @@ In the kernel, `Kazo.Jarvis.Kernel.Desktop`. None names a platform type.
 | Contract | Used to | Windows host | Web host |
 | --- | --- | --- | --- |
 | `IOrbWindow` | Show, hide, toggle the orb | `OrbWindowService`: transparent WPF window | `SimulatedOrbWindow`: the orb in the page |
-| `IDialogService` | Open a component in its window, one per key | `WindowDialogService`: one window and web view per key, same service provider | `OverlayDialogService`: a layer over the page |
+| `IDialogService` | Open a component in its window, one per key; `Closed` says with its key that a window closed, whoever closed it | `WindowDialogService`: one window and web view per key, same service provider | `OverlayDialogService`: a layer over the page |
 | `IGlobalHotkey` | Register the global hotkey and receive its presses | `Win32GlobalHotkey`: `RegisterHotKey` on a message-only window | `SimulatedGlobalHotkey`: a button of the page |
 | `ILaunchAtLogin` | Start with Windows | `RegistryLaunchAtLogin`: value `Kazo.Jarvis` of the user's `Run` key | `InMemoryLaunchAtLogin` |
 
@@ -87,7 +87,10 @@ the application stops: never a silent crash.
   bottom right corner of the primary screen.
 - Pressing without moving (under 4 pixels) is a click. The window catches the press itself to tell a click
   from a move (the web view never receives it) and hands the click to `OrbActivation` of the orb slice, which
-  publishes `ActivationRequested(Click)`: the same path as a click on the component in the Web host.
+  publishes `ActivationRequested(Click)`: the same path as a click on the component in the Web host. The window
+  also catches the right click, which opens the fan, in a window of its own ([task-fan.md](task-fan.md)). The
+  double click is kept for the projects view: as long as it does not exist, the left click waits for no delay
+  (ADR 0027).
 - The web view has a transparent background (`DefaultBackgroundColor` and
   `WEBVIEW2_DEFAULT_BACKGROUND_COLOR`).
 - The WebView2 profile of every window goes to `%USERPROFILE%\.kazo\jarvis\webview`, not next to the

@@ -4,6 +4,7 @@
 @inject ISoundLevelSource Levels
 @inject OrbActivation Activation
 @inject OrbQualityKeeper QualityKeeper
+@inject IServiceProvider Services
 
 @* The orb as the hosts show it: fed by the assistant state (ADR 0005, section 4), the sound level
    (section 5) and the "orb quality" setting (ADR 0011, section 1, applied without a restart), and its click
@@ -12,10 +13,12 @@
      Look="@current.Look"
      Quality="@quality"
      DelegatedTasks="@current.DelegatedTasks"
+     PendingDecisions="@decisions"
      Fault="@current.Fault?.Cause"
      AnimateIdle="@AnimateIdle"
      ReducedMotion="@ReducedMotion"
-     OnActivate="ActivateAsync" />
+     OnActivate="ActivateAsync"
+     OnContext="ContextAsync" />
 
 @code {
     private Orb? orb;
@@ -23,6 +26,12 @@
     private OrbQuality quality;
     private IDisposable? stateSubscription;
     private IDisposable? levelSubscription;
+
+    // The amber badge (ADR 0011, section 4): the tasks that wait for the user, and the request that waits when
+    // it does not come from one of them. Both are absent from a host that follows no task.
+    private ITaskBoard? board;
+    private IOpenConfirmations? confirmations;
+    private int decisions;
 
     /// <summary>The host's animation rule; the Windows host keeps the idle look still (ADR 0005, section 6).</summary>
     [Parameter]
@@ -45,6 +54,19 @@
                 StateHasChanged();
             })));
         levelSubscription = Levels.Subscribe(OnLevel);
+        board = Services.GetService<ITaskBoard>();
+        confirmations = Services.GetService<IOpenConfirmations>();
+        if (board is not null)
+        {
+            board.Changed += OnDecisionsChanged;
+        }
+
+        if (confirmations is not null)
+        {
+            confirmations.Changed += OnDecisionsChanged;
+        }
+
+        decisions = CountDecisions();
     }
 
     /// <inheritdoc />
@@ -53,7 +75,36 @@
         QualityKeeper.Changed -= OnQualityChanged;
         stateSubscription?.Dispose();
         levelSubscription?.Dispose();
+        if (board is not null)
+        {
+            board.Changed -= OnDecisionsChanged;
+        }
+
+        if (confirmations is not null)
+        {
+            confirmations.Changed -= OnDecisionsChanged;
+        }
     }
+
+    private int CountDecisions()
+    {
+        var waiting = board?.Tasks.Where(task => task.ParentId is null && task.WaitsForHuman).ToList() ?? [];
+        var open = confirmations?.Current;
+        var apart = open is not null && !waiting.Any(task => task.Id == open.Request.TaskId);
+        return waiting.Count + (apart ? 1 : 0);
+    }
+
+    // Raised on any thread; the badge is only drawn again when its number changes.
+    private void OnDecisionsChanged() =>
+        _ = InvokeAsync(() =>
+        {
+            var next = CountDecisions();
+            if (next != decisions)
+            {
+                decisions = next;
+                StateHasChanged();
+            }
+        });
 
     // The microphone while listening, the voice while speaking (ADR 0005, section 5); nothing otherwise, so a
     // still orb receives no call at all.
@@ -76,4 +127,6 @@
         });
 
     private Task ActivateAsync() => Activation.ClickAsync().AsTask();
+
+    private Task ContextAsync() => Activation.RightClickAsync().AsTask();
 }

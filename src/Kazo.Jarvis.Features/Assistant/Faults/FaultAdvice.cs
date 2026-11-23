@@ -29,6 +29,9 @@ public sealed record FaultAdvice(FaultOrigin Origin, string TitleKey, string Exp
     /// <summary>Key of the wake word page (slice <c>Voice/WakeWord</c>).</summary>
     public const string WakeWordPage = "Voice.WakeWord";
 
+    /// <summary>Key of the agents page (agents slice).</summary>
+    public const string AgentsPage = "Agents.Catalog";
+
     /// <summary>The advice for <paramref name="fault"/>.</summary>
     /// <param name="fault">The current fault.</param>
     /// <returns>Its texts and its page.</returns>
@@ -47,6 +50,7 @@ public sealed record FaultAdvice(FaultOrigin Origin, string TitleKey, string Exp
             (FaultCause.ModelMissing, FaultOrigin.WakeWord) => Advice(origin, "WakeWordModelMissing", WakeWordPage),
             (FaultCause.ModelMissing, _) => Advice(origin, "WhisperMissing", VoiceModelsPage),
             (FaultCause.VoiceMissing, _) => Advice(origin, "Voice", VoicesPage),
+            (FaultCause.AgentUnreadable, _) => Advice(origin, "Agent", AgentsPage),
 
             // No page fixes a file Jarvis refuses to overwrite: the text says which file and what to do.
             (FaultCause.ConfigurationUnreadable, _) => new FaultAdvice(
@@ -68,6 +72,7 @@ public sealed record FaultAdvice(FaultOrigin Origin, string TitleKey, string Exp
         FaultCause.ModelUnreachable => FaultOrigin.LanguageModel,
         FaultCause.ModelMissing => FaultOrigin.Transcription,
         FaultCause.VoiceMissing => FaultOrigin.Voice,
+        FaultCause.AgentUnreadable => FaultOrigin.Agents,
         _ => FaultOrigin.Settings,
     };
 

@@ -1,17 +1,37 @@
+using Kazo.Jarvis.Features.Agents.Catalog;
+using Kazo.Jarvis.Features.Projects.Catalog;
 using Kazo.Jarvis.Features.Assistant.Faults;
 using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
+using Kazo.Jarvis.Features.Conversation.Memory;
 using Kazo.Jarvis.Features.Audio.Devices;
+using Kazo.Jarvis.Features.ClaudeCode.Announcements;
+using Kazo.Jarvis.Features.ClaudeCode.Hooks;
+using Kazo.Jarvis.Features.ClaudeCode.Launch;
+using Kazo.Jarvis.Features.ClaudeCode.Sessions;
 using Kazo.Jarvis.Features.Desktop.Hotkey;
 using Kazo.Jarvis.Features.Desktop.LaunchAtLogin;
+using Kazo.Jarvis.Features.Llm.HandOff;
 using Kazo.Jarvis.Features.Llm.Providers;
+using Kazo.Jarvis.Features.Llm.Spend;
 using Kazo.Jarvis.Features.Maintenance.Updates;
+using Kazo.Jarvis.Features.Mcp.HomeAssistant;
+using Kazo.Jarvis.Features.Mcp.Servers;
+using Kazo.Jarvis.Features.Permissions.Confirmation;
+using Kazo.Jarvis.Features.Permissions.Decision;
 using Kazo.Jarvis.Features.Settings.Language;
 using Kazo.Jarvis.Features.Settings.Window;
 using Kazo.Jarvis.Features.Setup.FirstRun;
 using Kazo.Jarvis.Features.Setup.Models;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
+using Kazo.Jarvis.Features.Tasks.Board;
+using Kazo.Jarvis.Features.Tasks.Fan;
+using Kazo.Jarvis.Features.Tools.Calculator;
+using Kazo.Jarvis.Features.Tools.Catalog;
+using Kazo.Jarvis.Features.Tools.Clock;
+using Kazo.Jarvis.Features.Tools.Files;
+using Kazo.Jarvis.Features.Tools.Web;
 using Kazo.Jarvis.Features.Voice.Speech;
 using Kazo.Jarvis.Features.Voice.TestVoice;
 using Kazo.Jarvis.Features.Voice.Transcription;
@@ -57,6 +77,14 @@ public static class FeaturesServiceCollectionExtensions
         // preloaded in the background and read by the conversation (work item 13).
         services.AddLlmProvidersSlice();
 
+        // Hand-off (stage2/9-hand-off): the targets among the cloud providers, the tool and the forcing formulas;
+        // the conversation reads them through the kernel contract.
+        services.AddHandOffSlice();
+
+        // Spending cap (stage2/10-spend-cap): the prices, the count of the month and the cap asked before each
+        // cloud call; the hand-off and the conversation reach it through the kernel contract.
+        services.AddSpendSlice();
+
         // Audio devices (stage1/8-audio-devices): capture and playback come from the host.
         services.AddAudioDevicesSlice();
 
@@ -72,6 +100,13 @@ public static class FeaturesServiceCollectionExtensions
 
         // Conversation (stage1/13-conversation): the full turn by messages, the interruption, the conversation window
         // and the personality; the default model comes from the language models slice.
+        // Before the conversation, which asks it what to recall (stage2/8-memory): facts, summary, « Mémoire » page.
+        services.AddMemorySlice();
+
+        // Agents (stage2/17-agents, ADR 0025): one agent per kind of task, read from Markdown files (the folder
+        // comes from the host); the conversation asks it who answers a turn and with which tools.
+        services.AddAgentsSlice();
+        services.AddProjectsSlice();
         services.AddConversationSlice();
 
         // First run (stage1/14-first-run): the models page downloads the models (installer and graphics card from the
@@ -83,7 +118,50 @@ public static class FeaturesServiceCollectionExtensions
         // do and opens the right setting, and checks the settings file at start.
         services.AddFaultsSlice();
 
-        // Other slices arrive with the next stages.
+        // Tools (stage2/3-tool-loop, ADR 0017): every call a model asks for goes through the decision point; each
+        // tool slice registers its tool in the registry of the kernel, read by the conversation.
+        services.AddPermissionDecisionSlice();
+
+        // Confirmation (stage2/4-confirmation, ADR 0023): the decision point asks the user through it before a
+        // "Sensitive" or "Critical" call; the speech slice says the question, the transcription slice hears the answer.
+        services.AddConfirmationSlice();
+        services.AddClockToolSlice();
+        services.AddCalculatorToolSlice();
+
+        // Basic tools (stage2/5-basic-tools, ADR 0017 section 3, ADR 0022): the tools page with one switch per tool;
+        // the file tools read the allowed folders only (the disk comes from the host); the web tools search and read
+        // a page in the browser of Jarvis (from the host) and are off until the user turns them on.
+        services.AddToolCatalogSlice();
+        services.AddFileToolsSlice();
+        services.AddWebToolsSlice();
+
+        // Tool servers (stage2/6-mcp-client, ADR 0018): more tools, each off until the user turns it on.
+        // Before the servers: the classification of Home Assistant (stage2/7-home-assistant) is given to their hub.
+        services.AddHomeAssistantSlice();
+        services.AddMcpServersSlice();
+
+        // Tasks and Claude Code sessions (stage2/11-tasks-and-sessions, ADR 0013 section 6, ADR 0021): the board
+        // of the tasks, in the shape of Relais, and the list of the sessions running on the computer.
+        services.AddTaskBoardSlice();
+        services.AddClaudeSessionsSlice();
+
+        // Hooks of the sessions started by hand (stage2/11-hook-server, ADR 0021 sections 3 and 6): the routes
+        // are in the board slice; this one installs the hooks in the user's settings, on the user's click.
+        services.AddClaudeHooksSlice();
+
+        // Sessions started by Jarvis (stage2/12-claude-code-tasks, ADR 0021 sections 1, 4, 5 and 8): « Demande à
+        // Claude Code de… » starts one on an allowed folder; its writes and commands go to the decision point.
+        services.AddClaudeLaunchSlice();
+
+        // Announcements of the sessions (stage2/13-session-announcements, ADR 0021 section 9, ADR 0024): Jarvis
+        // says when a session ends or waits, except during the quiet time; « Où en est Claude sur… ? ».
+        services.AddClaudeAnnouncementsSlice();
+
+        // Task fan (stage2/14-task-fan, ADR 0010): a double click on the orb shows the tasks in progress around
+        // it, with the decision that waits; a host without a fan surface has no fan.
+        services.AddTaskFanSlice();
+
+        // Other slices arrive with the next work items.
         return services;
     }
 }

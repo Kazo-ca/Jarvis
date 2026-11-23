@@ -47,8 +47,11 @@ public sealed class SystemPrompt
 
     /// <summary>The whole system message for a turn in <paramref name="language"/>.</summary>
     /// <param name="language">The language of the turn.</param>
-    /// <returns>The personality, a blank line, then the fixed rules.</returns>
-    public string Build(AssistantLanguage language)
+    /// <param name="withTools">Whether tools are given to the model in this turn; the rules then say how to use them.</param>
+    /// <param name="memory">The block of the memory (ADR 0019, section 6), written by its slice, or <see langword="null"/>.</param>
+    /// <param name="instructions">The instructions of the agent that answers (ADR 0025, section 1), or <see langword="null"/>.</param>
+    /// <returns>The personality, a blank line, the fixed rules, the instructions of the agent, then the memory.</returns>
+    public string Build(AssistantLanguage language, bool withTools = false, string? memory = null, string? instructions = null)
     {
         ArgumentNullException.ThrowIfNull(language);
         var rules = Texts.GetString("Rules", language.Culture) ?? "{0}";
@@ -56,7 +59,22 @@ public sealed class SystemPrompt
         // The local time, written in the language of the answer: "jeudi 20 novembre 2026 05:15:00".
         var now = time.GetLocalNow();
         var moment = now.ToString("F", language.Culture);
-        return Personality(language).Trim() + "\n\n" + string.Format(CultureInfo.InvariantCulture, rules, moment);
+        var text = Personality(language).Trim() + "\n\n" + string.Format(CultureInfo.InvariantCulture, rules, moment);
+        text = withTools ? text + "\n" + Text("Tools", language) : text;
+        text = string.IsNullOrWhiteSpace(instructions) ? text : text + "\n\n" + instructions.Trim();
+        return string.IsNullOrWhiteSpace(memory) ? text : text + "\n\n" + memory.Trim();
+    }
+
+    /// <summary>A fixed text of the prompt resources, in <paramref name="language"/>: a rule, or what a denied or failed tool call returns to the model.</summary>
+    /// <param name="key">The key in <c>PromptTexts.resx</c>.</param>
+    /// <param name="language">The language of the turn.</param>
+    /// <param name="arguments">The values of its placeholders.</param>
+    /// <returns>The text.</returns>
+    public static string Text(string key, AssistantLanguage language, params object[] arguments)
+    {
+        ArgumentNullException.ThrowIfNull(language);
+        var text = Texts.GetString(key, language.Culture) ?? key;
+        return arguments.Length == 0 ? text : string.Format(CultureInfo.InvariantCulture, text, arguments);
     }
 }
 

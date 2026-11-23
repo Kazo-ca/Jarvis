@@ -42,6 +42,15 @@ public sealed record JarvisPaths(string Root)
     /// </summary>
     public string WebView => Path.Combine(Root, "webview");
 
+    /// <summary>
+    /// The data of the browser of Jarvis (ADR 0022, section 2): its cookies and cache, apart from the WebView2 that
+    /// shows the interface and from the browser of the user.
+    /// </summary>
+    public string Browser => Path.Combine(Root, "browser");
+
+    /// <summary>The files of the agents (ADR 0025, section 2), one <c>&lt;name&gt;.md</c> per agent. Created when the first one is written.</summary>
+    public string Agents => Path.Combine(Root, "agents");
+
     /// <summary>The root of the current Windows user: <c>%USERPROFILE%\.kazo\jarvis</c>.</summary>
     /// <returns>The paths.</returns>
     public static JarvisPaths ForCurrentUser() =>

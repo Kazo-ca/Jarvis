@@ -65,6 +65,11 @@
     --orb-light: 0.75;
 }
 
+.orb[data-look="InteractionRequired"] {
+    --orb-color: var(--jarvis-amber);
+    --orb-light: 0.95;
+}
+
 .orb[data-look="Error"] {
     --orb-color: var(--jarvis-red);
     --orb-light: 0.7;

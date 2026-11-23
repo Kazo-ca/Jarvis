@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>MCP servers</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Tool servers add tools to Jarvis over the Model Context Protocol. None is configured at the start, and every tool of a server is off until you turn it on.</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>This host cannot connect to a tool server.</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>No tool server is configured.</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Kind_Generic" xml:space="preserve">
+    <value>Generic</value>
+  </data>
+  <data name="Kind_HomeAssistant" xml:space="preserve">
+    <value>Home Assistant</value>
+  </data>
+  <data name="Remote" xml:space="preserve">
+    <value>Outside the local network</value>
+  </data>
+  <data name="LeavesAddress" xml:space="preserve">
+    <value>The arguments of each call are sent to {0}.</value>
+  </data>
+  <data name="LeavesCommand" xml:space="preserve">
+    <value>The arguments of each call are given to this program, which Jarvis starts on this computer and stops when it quits.</value>
+  </data>
+  <data name="Announced" xml:space="preserve">
+    <value>The server calls itself "{0}".</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="Test" xml:space="preserve">
+    <value>Test the connection</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Reconnect</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="TestOk" xml:space="preserve">
+    <value>The server answers and offers {0} tools.</value>
+  </data>
+  <data name="State_Disabled" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
+  <data name="State_Connecting" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="State_Connected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="State_Failed" xml:space="preserve">
+    <value>Not reachable: {0}</value>
+  </data>
+  <data name="State_Stopped" xml:space="preserve">
+    <value>Stopped, started again at the next call: {0}</value>
+  </data>
+  <data name="Failure_Unreachable" xml:space="preserve">
+    <value>the server cannot be reached</value>
+  </data>
+  <data name="Failure_Rejected" xml:space="preserve">
+    <value>the server refused the token</value>
+  </data>
+  <data name="Failure_TimedOut" xml:space="preserve">
+    <value>the server took too long</value>
+  </data>
+  <data name="Failure_CommandNotFound" xml:space="preserve">
+    <value>the command was not found or could not start</value>
+  </data>
+  <data name="Failure_Protocol" xml:space="preserve">
+    <value>the answer is not the protocol of a tool server</value>
+  </data>
+  <data name="Failure_Closed" xml:space="preserve">
+    <value>the connection ended</value>
+  </data>
+  <data name="HeaderValue" xml:space="preserve">
+    <value>Value of the header {0}</value>
+  </data>
+  <data name="HeaderHint" xml:space="preserve">
+    <value>The value is kept in the vault. After a change, press "Reconnect".</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>{0} of {1} tools are on: about {2} tokens in the context of the model.</value>
+  </data>
+  <data name="ClassLabel" xml:space="preserve">
+    <value>Class of {0}</value>
+  </data>
+  <data name="ClassOfServer" xml:space="preserve">
+    <value>{0} (from the server)</value>
+  </data>
+  <data name="Class_Read" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="Class_EverydayEffect" xml:space="preserve">
+    <value>Everyday effect</value>
+  </data>
+  <data name="Class_Sensitive" xml:space="preserve">
+    <value>Sensitive: asks every time</value>
+  </data>
+  <data name="Class_Critical" xml:space="preserve">
+    <value>Critical: a click on this computer</value>
+  </data>
+  <data name="ChangedSinceApproval" xml:space="preserve">
+    <value>The server changed this tool since you turned it on. Read it again before turning it back on.</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Add a server</value>
+  </data>
+  <data name="AddHint" xml:space="preserve">
+    <value>By address for a server on the network, by command for a program on this computer.</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="NamePlaceholder" xml:space="preserve">
+    <value>lower-case letters, digits, hyphens</value>
+  </data>
+  <data name="ByAddress" xml:space="preserve">
+    <value>By address</value>
+  </data>
+  <data name="ByCommand" xml:space="preserve">
+    <value>By local command</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="Token" xml:space="preserve">
+    <value>Token (optional)</value>
+  </data>
+  <data name="TokenPlaceholder" xml:space="preserve">
+    <value>sent as "Authorization: Bearer …"</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="CommandPlaceholder" xml:space="preserve">
+    <value>program to start</value>
+  </data>
+  <data name="Arguments" xml:space="preserve">
+    <value>Arguments</value>
+  </data>
+  <data name="ArgumentsPlaceholder" xml:space="preserve">
+    <value>one per line</value>
+  </data>
+  <data name="AddLeaves" xml:space="preserve">
+    <value>The arguments of each call of a tool of this server will be sent to this address. The token goes to the vault, never to the settings file.</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings file cannot be written.</value>
+  </data>
+  <data name="TestFailed" xml:space="preserve">
+    <value>The test failed: {0}.</value>
+  </data>
+  <data name="ScriptWarning" xml:space="preserve">
+    <value>A script can actuate anything, and runs without a question. Mark it &quot;security&quot; on the Home Assistant page if it must ask for a click.</value>
+  </data>
+  <data name="Agent" xml:space="preserve">
+    <value>Agent</value>
+  </data>
+  <data name="AgentLabel" xml:space="preserve">
+    <value>Agent that sees the tools of {0}</value>
+  </data>
+</root>

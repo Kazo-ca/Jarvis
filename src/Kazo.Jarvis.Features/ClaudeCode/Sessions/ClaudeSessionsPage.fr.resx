@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Sessions Claude</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Les sessions Claude Code en cours sur cet ordinateur, que vous les ayez lancées dans un terminal ou dans Claude Desktop.</value>
+  </data>
+  <data name="FollowLabel" xml:space="preserve">
+    <value>Suivre les sessions</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Montrer les sessions Claude Code de cet ordinateur</value>
+  </data>
+  <data name="Note_ReadOnly" xml:space="preserve">
+    <value>Jarvis lit la liste que Claude Code tient dans votre dossier utilisateur. Il n'y écrit rien.</value>
+  </data>
+  <data name="Note_Secrets" xml:space="preserve">
+    <value>Il n'ouvre jamais les fichiers de ce dossier qui contiennent des clés.</value>
+  </data>
+  <data name="Note_WatchOnly" xml:space="preserve">
+    <value>Il ne fait que regarder ces sessions : il ne répond jamais à leur place.</value>
+  </data>
+  <data name="ListLabel" xml:space="preserve">
+    <value>Sessions en cours</value>
+  </data>
+  <data name="ListHint" xml:space="preserve">
+    <value>Regroupées par projet. Une session qui vous attend passe en premier.</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Les sessions ne sont pas suivies.</value>
+  </data>
+  <data name="NoRegistry" xml:space="preserve">
+    <value>Claude Code ne semble pas avoir tourné sur cet ordinateur : sa liste de sessions n'existe pas.</value>
+  </data>
+  <data name="Unreadable" xml:space="preserve">
+    <value>La liste des sessions de Claude Code ne peut pas être lue. Jarvis réessaie.</value>
+  </data>
+  <data name="Reading" xml:space="preserve">
+    <value>Lecture…</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Aucune session Claude Code n'est en cours.</value>
+  </data>
+  <data name="ProjectCount" xml:space="preserve">
+    <value>{0} session(s)</value>
+  </data>
+  <data name="State_Busy" xml:space="preserve">
+    <value>Au travail</value>
+  </data>
+  <data name="State_Idle" xml:space="preserve">
+    <value>A fini son tour</value>
+  </data>
+  <data name="State_Waiting" xml:space="preserve">
+    <value>Vous attend</value>
+  </data>
+  <data name="State_WaitingFor" xml:space="preserve">
+    <value>Vous attend : {0}</value>
+  </data>
+  <data name="State_Unknown" xml:space="preserve">
+    <value>État inconnu</value>
+  </data>
+  <data name="Origin_Manual" xml:space="preserve">
+    <value>Lancée à la main</value>
+  </data>
+  <data name="Origin_Desktop" xml:space="preserve">
+    <value>Claude Desktop</value>
+  </data>
+  <data name="Origin_Jarvis" xml:space="preserve">
+    <value>Lancée par Jarvis</value>
+  </data>
+  <data name="LastActivity" xml:space="preserve">
+    <value>dernière activité {0}</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>tâche : {0}</value>
+  </data>
+  <data name="PollLabel" xml:space="preserve">
+    <value>Délai entre deux lectures (secondes)</value>
+  </data>
+  <data name="PollHint" xml:space="preserve">
+    <value>De {0} à {1} secondes.</value>
+  </data>
+  <data name="NotANumber" xml:space="preserve">
+    <value>Entrez un nombre entier.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le fichier de réglages ne peut pas être écrit : le changement n'est pas enregistré.</value>
+  </data>
+</root>

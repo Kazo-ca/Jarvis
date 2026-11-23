@@ -12,7 +12,9 @@
         data-decisions="@PendingDecisions"
         title="@Hover"
         aria-label="@Label"
-        @onclick="ClickAsync">
+        @onclick="ClickAsync"
+        @oncontextmenu="ContextAsync"
+        @oncontextmenu:preventDefault="true">
     @* One component, two drawings (ADR 0011, section 1). Changing the quality swaps the drawing at once. *@
     @if (Quality == OrbQuality.Light)
     {
@@ -92,9 +94,13 @@
     [Parameter]
     public bool AnimateIdle { get; set; }
 
-    /// <summary>Raised on a click (US1.6).</summary>
+    /// <summary>Raised on a left click (US1.6).</summary>
     [Parameter]
     public EventCallback OnActivate { get; set; }
+
+    /// <summary>Raised on a right click (ADR 0027, section 2). The menu of the browser is always held back.</summary>
+    [Parameter]
+    public EventCallback OnContext { get; set; }
 
     private OrbMotion Motion => OrbMotion.For(Look, Quality, AnimateIdle, reducedMotion: false);
 
@@ -121,4 +127,6 @@
     }
 
     private Task ClickAsync() => OnActivate.InvokeAsync();
+
+    private Task ContextAsync() => OnContext.InvokeAsync();
 }

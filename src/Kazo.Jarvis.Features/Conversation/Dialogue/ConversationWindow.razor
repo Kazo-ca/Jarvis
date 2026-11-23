@@ -4,6 +4,7 @@
 @inject IMessageBus Bus
 @inject IAssistantStateReader State
 @inject IStringLocalizer<ConversationWindow> T
+@inject IServiceProvider Services
 
 @* The conversation window (US1.14): the history kept in the store, the turn in progress as the model writes it, the
    model that answered each turn, a field to type a request (a written answer only), and « Tout effacer » (ADR 0004).
@@ -14,15 +15,62 @@
             @foreach (var turn in turns)
             {
                 <li class="conversation-turn" @key="turn.Key" data-conversation-turn data-turn-outcome="@turn.Outcome" data-turn-input="@turn.Input">
-                    <p class="conversation-request">
-                        <span class="conversation-who">@(turn.Input == TurnInput.Voice ? T["YouSaid"] : T["YouWrote"])</span>
-                        <span class="conversation-body" data-conversation-request>@turn.Request</span>
-                    </p>
+                    @if (turn.Input != TurnInput.Announcement)
+                    {
+                        @* An announcement (ADR 0024) is a line of Jarvis with no request above it. *@
+                        <p class="conversation-request">
+                            <span class="conversation-who">@(turn.Input == TurnInput.Voice ? T["YouSaid"] : T["YouWrote"])</span>
+                            <span class="conversation-body" data-conversation-request>@turn.Request</span>
+                        </p>
+                    }
+                    @foreach (var call in turn.ToolCalls)
+                    {
+                        @* Each tool call of the turn, collapsed by default (ADR 0017, section 5). *@
+                        <details class="conversation-tool" data-conversation-tool="@call.Name" data-tool-outcome="@call.Outcome">
+                            <summary class="conversation-tool-summary">
+                                <span class="conversation-who">@T["Tool"]</span>
+                                <span class="conversation-tool-name">@call.Name</span>
+                                <span class="conversation-tool-outcome">@T["ToolOutcome_" + call.Outcome]</span>
+                            </summary>
+                            <p class="conversation-tool-part">
+                                <span class="conversation-who">@T["ToolArguments"]</span>
+                                <code class="conversation-tool-text" data-conversation-tool-arguments>@call.Arguments</code>
+                            </p>
+                            @if (call.Result is { Length: > 0 } result)
+                            {
+                                <p class="conversation-tool-part">
+                                    <span class="conversation-who">@T["ToolResult"]</span>
+                                    <code class="conversation-tool-text" data-conversation-tool-result>@result</code>
+                                </p>
+                                @if (browser is not null && call.Outcome == ToolCallOutcome.Done && ToolResultPages.In(result) is { Count: > 0 } pages)
+                                {
+                                    @* The pages read or found, each opened on request in the browser of Jarvis (ADR 0022, section 1). *@
+                                    <ul class="conversation-tool-pages" data-conversation-tool-pages>
+                                        @foreach (var address in pages)
+                                        {
+                                            <li class="conversation-tool-page">
+                                                <span class="conversation-tool-address">@address.AbsoluteUri</span>
+                                                <button type="button" class="conversation-button" data-conversation-see-page="@address.AbsoluteUri" @onclick="() => SeePageAsync(address)">@T["SeePage"]</button>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            }
+                        </details>
+                    }
+                    @if (turn.HandOff is { } handOff)
+                    {
+                        @* Who answers and why (ADR 0020, section 5); nothing changes on the orb. *@
+                        <p class="conversation-handoff" data-conversation-handoff="@(handOff.Target ?? "")" data-handoff-failure="@(handOff.Failure ?? "")" data-handoff-forced="@(handOff.Forced ? "true" : "false")">
+                            <span class="conversation-who">@T["HandOff"]</span>
+                            <span data-conversation-handoff-text>@HandOffText(handOff)</span>
+                        </p>
+                    }
                     <p class="conversation-answer">
                         <span class="conversation-who conversation-jarvis">Jarvis</span>
                         <span class="conversation-body" data-conversation-answer>@turn.Answer</span>
                     </p>
-                    <p class="conversation-meta" data-conversation-meta data-conversation-model="@(turn.Model ?? "")">@Meta(turn)</p>
+                    <p class="conversation-meta" data-conversation-meta data-conversation-model="@(turn.Model ?? "")" data-conversation-agent="@(turn.Agent ?? "")" data-conversation-project="@(turn.Project ?? "")">@Meta(turn)</p>
                 </li>
             }
         </ol>
@@ -34,6 +82,57 @@
     @if (modelLoading is { } loading)
     {
         <p class="conversation-notice" role="status" data-conversation-loading>@T["ModelLoading", loading]</p>
+    }
+    @if (spend?.Status is { SpentUsd: > 0 } spent)
+    {
+        @* The count of the cloud spending of the month (ADR 0020, section 6): shown once something was spent. *@
+        <p class="conversation-spend" role="status" data-conversation-spend="@spent.SpentUsd.ToString(CultureInfo.InvariantCulture)" data-spend-reached="@(spent.Reached ? "true" : "false")">
+            @T[spent.Reached ? "Spend_Reached" : "Spend", Money(spent.SpentUsd), Money(spent.CapUsd)]
+        </p>
+    }
+    @if (agents is not null && agentChoice is not null && agents.Agents.Count > 1)
+    {
+        @* The agent that answers a typed request (ADR 0025, section 4): the Jarvis agent sorts unless one is chosen here. *@
+        <label class="conversation-agent" title="@T["AgentChoice_Hint"]">
+            <span class="conversation-who">@T["AgentChoice"]</span>
+            <select class="conversation-agent-select" data-conversation-agent-choice value="@(agentChoice.Chosen ?? "")" @onchange="e => agentChoice.Chosen = e.Value as string">
+                <option value="">@T["AgentChoice_Auto"]</option>
+                @foreach (var agent in agents.Agents.Where(agent => agent.Id != Kazo.Jarvis.Kernel.Agents.AgentIds.Main))
+                {
+                    <option value="@agent.Id">@agent.Name</option>
+                }
+            </select>
+        </label>
+    }
+    @if (projects is { Projects.Count: > 0 } && agentChoice is not null)
+    {
+        @* The project a typed request is about (ADR 0025, section 10), unless the request names it itself. *@
+        <label class="conversation-agent" title="@T["ProjectChoice_Hint"]">
+            <span class="conversation-who">@T["ProjectChoice"]</span>
+            <select class="conversation-agent-select" data-conversation-project-choice value="@(agentChoice.Project ?? "")" @onchange="e => agentChoice.Project = e.Value as string">
+                <option value="">@T["ProjectChoice_Auto"]</option>
+                @foreach (var project in projects.Projects)
+                {
+                    <option value="@project.Id">@project.Name</option>
+                }
+            </select>
+        </label>
+    }
+    @if (call is not null)
+    {
+        @* The « Appel » mode (ADR 0025, section 12): the agent that answers keeps the hand, and Jarvis listens to
+           what follows a spoken turn without the wake word, until the user says goodbye or hangs up here. *@
+        <div class="conversation-agent conversation-call" data-conversation-call="@(call.Active ? "true" : "false")" data-conversation-call-agent="@(call.Agent ?? "")">
+            @if (call.Active)
+            {
+                <span class="conversation-who conversation-call-on" role="status">@T["Call_On", CallAgentName]</span>
+                <button type="button" class="conversation-button" data-conversation-call-end @onclick="() => call.End()">@T["Call_End"]</button>
+            }
+            else
+            {
+                <button type="button" class="conversation-button" data-conversation-call-start title="@T["Call_Hint"]" @onclick="StartCallAsync">@T["Call_Start"]</button>
+            }
+        </div>
     }
     <form class="conversation-input" @onsubmit="SendAsync">
         <input type="text" class="conversation-text" data-conversation-text maxlength="4000" autocomplete="off"
@@ -63,10 +162,16 @@
     private IReadOnlyList<ConversationTurn> turns = [];
     private string draft = string.Empty;
     private bool confirmingErase;
+    private Kazo.Jarvis.Kernel.Llm.ISpendCap? spend;
     private string? modelLoading;
     private string? problem;
     private IDisposable? stateSubscription;
     private IDisposable? loadSubscription;
+    private Kazo.Jarvis.Kernel.Web.IReadingBrowser? browser;
+    private Kazo.Jarvis.Kernel.Agents.IAgentCatalog? agents;
+    private AgentChoice? agentChoice;
+    private CallMode? call;
+    private Kazo.Jarvis.Kernel.Projects.IProjectCatalog? projects;
 
     private bool IsIdle => State.Current.Phase == AssistantPhase.Idle;
 
@@ -77,6 +182,32 @@
     protected override void OnInitialized()
     {
         Journal.Changed += OnChanged;
+        browser = Services.GetService(typeof(Kazo.Jarvis.Kernel.Web.IReadingBrowser)) as Kazo.Jarvis.Kernel.Web.IReadingBrowser;
+        spend = Services.GetService(typeof(Kazo.Jarvis.Kernel.Llm.ISpendCap)) as Kazo.Jarvis.Kernel.Llm.ISpendCap;
+        if (spend is not null)
+        {
+            spend.Changed += OnSpendChanged;
+        }
+
+        agents = Services.GetService(typeof(Kazo.Jarvis.Kernel.Agents.IAgentCatalog)) as Kazo.Jarvis.Kernel.Agents.IAgentCatalog;
+        agentChoice = Services.GetService(typeof(AgentChoice)) as AgentChoice;
+        call = Services.GetService(typeof(CallMode)) as CallMode;
+        if (call is not null)
+        {
+            call.Changed += OnSpendChanged;
+        }
+
+        projects = Services.GetService(typeof(Kazo.Jarvis.Kernel.Projects.IProjectCatalog)) as Kazo.Jarvis.Kernel.Projects.IProjectCatalog;
+        if (projects is not null)
+        {
+            projects.Changed += OnSpendChanged;
+        }
+
+        if (agents is not null)
+        {
+            agents.Changed += OnSpendChanged;
+        }
+
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
         loadSubscription = Bus.Subscribe<AssistantModelLoadChanged>((message, _) => new ValueTask(InvokeAsync(() =>
         {
@@ -91,8 +222,53 @@
     public void Dispose()
     {
         Journal.Changed -= OnChanged;
+        if (spend is not null)
+        {
+            spend.Changed -= OnSpendChanged;
+        }
+
+        if (projects is not null)
+        {
+            projects.Changed -= OnSpendChanged;
+        }
+
+        if (agents is not null)
+        {
+            agents.Changed -= OnSpendChanged;
+        }
+
+        if (call is not null)
+        {
+            call.Changed -= OnSpendChanged;
+        }
+
         stateSubscription?.Dispose();
         loadSubscription?.Dispose();
+    }
+
+    // Who keeps the hand during the call: the Jarvis agent until it hands over.
+    private string CallAgentName => (agents?.Find(call?.Agent) ?? agents?.Main)?.Name ?? "Jarvis";
+
+    private async Task StartCallAsync()
+    {
+        // A call is spoken: Jarvis listens right away, when the microphone allows it (ADR 0005).
+        if (call!.Start())
+        {
+            await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Call));
+        }
+    }
+
+    private void OnSpendChanged() => _ = InvokeAsync(StateHasChanged);
+
+    // Cents, and more digits for an answer that costs less than one.
+    private static string Money(decimal value) => value.ToString(value is > 0 and < 0.01m ? "0.0000" : "0.00", CultureInfo.CurrentCulture);
+
+    private async Task SeePageAsync(Uri page)
+    {
+        if (browser is not null)
+        {
+            await browser.ShowAsync(page);
+        }
     }
 
     private async Task LoadAsync()
@@ -149,6 +325,18 @@
             parts.Add(turn.Provider is { Length: > 0 } provider && provider != model ? $"{provider} · {model}" : model);
         }
 
+        if (turn.Agent is { Length: > 0 } agent)
+        {
+            // Who answered (ADR 0025, section 4).
+            parts.Add(T["Agent", agent]);
+        }
+
+        if (turn.Project is { Length: > 0 } project)
+        {
+            // What the turn was about (ADR 0025, section 10).
+            parts.Add(T["Project", project]);
+        }
+
         if (turn.Duration is { } duration)
         {
             parts.Add(T["Seconds", duration.TotalSeconds.ToString("0.0", CultureInfo.CurrentCulture)]);
@@ -173,6 +361,25 @@
         });
 
         return string.Join(" · ", parts.Where(part => part.Length > 0));
+    }
+
+    private static readonly HashSet<string> HandOffCauses = new(StringComparer.Ordinal)
+    {
+        "NoQuestionsTarget", "NoTasksTarget", "NotConfigured", "InvalidAddress", "Unreachable", "ModelMissing", "KeyMissing",
+        "KeyRejected", "TimedOut", "ServerError", "NoPrice", "CapReached",
+    };
+
+    private string HandOffText(HandOffEntry handOff)
+    {
+        if (handOff.Failure is { } failure)
+        {
+            return T["HandOff_Failed", T["HandOff_Cause_" + (HandOffCauses.Contains(failure) ? failure : "Other")].Value];
+        }
+
+        var target = handOff.Target ?? "Claude";
+        return handOff.Forced ? T["HandOff_Forced", target]
+            : handOff.Reason is { Length: > 0 } reason ? T["HandOff_Asked", target, reason]
+            : T["HandOff_AskedNoReason", target];
     }
 
     // The causes named by the model (LlmFailure) and by the faults (FaultCause) that have their own sentence.

@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using Kazo.Jarvis.Kernel.Llm;
 using Microsoft.Extensions.AI;
@@ -42,7 +43,7 @@ internal sealed class AnthropicChatClient : ChatClientBase
 
     /// <inheritdoc />
     protected override async IAsyncEnumerable<ChatResponseUpdate> StreamAsync(
-        IReadOnlyList<(string Role, string Text)> messages, ChatOptions? options, [EnumeratorCancellation] CancellationToken cancellationToken)
+        IReadOnlyList<LlmMessage> messages, IReadOnlyList<LlmTool> tools, ChatOptions? options, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var model = ModelOf(options);
         var system = string.Join("\n\n", messages.Where(m => m.Role == "system").Select(m => m.Text));
@@ -51,11 +52,16 @@ internal sealed class AnthropicChatClient : ChatClientBase
             ["model"] = model,
             ["stream"] = true,
             ["max_tokens"] = options?.MaxOutputTokens ?? Provider.Tuning.MaxOutputTokens,
-            ["messages"] = messages.Where(m => m.Role != "system").Select(m => new { role = m.Role, content = m.Text }).ToArray(),
+            ["messages"] = Write(messages),
         };
         if (system.Length > 0)
         {
             body["system"] = system;
+        }
+
+        if (tools.Count > 0)
+        {
+            body["tools"] = tools.Select(tool => new { name = tool.Name, description = tool.Description, input_schema = tool.Schema }).ToArray();
         }
 
         using var request = LlmHttp.Post(new Uri(ApiBase(Provider.Endpoint), "messages"), body);
@@ -65,6 +71,9 @@ internal sealed class AnthropicChatClient : ChatClientBase
         string? answeredBy = model;
         ChatFinishReason? finish = null;
         long? input = null, output = null;
+
+        // The tool call being written: its block starts with the id and the name, its input follows as JSON text.
+        (string Id, string Name, StringBuilder Input)? calling = null;
         await foreach (var line in LlmHttp.ReadLinesAsync(response, cancellationToken).ConfigureAwait(false))
         {
             if (!line.StartsWith("data:", StringComparison.Ordinal))
@@ -84,6 +93,23 @@ internal sealed class AnthropicChatClient : ChatClientBase
                     }
 
                     break;
+                case "content_block_start" when root.TryGetProperty("content_block", out var block)
+                    && block.TryGetProperty("type", out var blockType)
+                    && blockType.GetString() == "tool_use":
+                    calling = (
+                        block.TryGetProperty("id", out var callId) ? callId.GetString() ?? string.Empty : string.Empty,
+                        block.TryGetProperty("name", out var callName) ? callName.GetString() ?? string.Empty : string.Empty,
+                        new StringBuilder());
+                    break;
+                case "content_block_delta" when calling is not null
+                    && root.TryGetProperty("delta", out var inputDelta)
+                    && inputDelta.TryGetProperty("partial_json", out var partial):
+                    calling.Value.Input.Append(partial.GetString());
+                    break;
+                case "content_block_stop" when calling is { } call:
+                    calling = null;
+                    yield return new ChatResponseUpdate(ChatRole.Assistant, [LlmHttp.Call(call.Id, call.Name, call.Input.ToString())]) { ModelId = answeredBy };
+                    break;
                 case "content_block_delta" when root.TryGetProperty("delta", out var delta)
                     && delta.TryGetProperty("text", out var text)
                     && text.GetString() is { Length: > 0 } piece:
@@ -96,6 +122,7 @@ internal sealed class AnthropicChatClient : ChatClientBase
                         {
                             "end_turn" or "stop_sequence" => ChatFinishReason.Stop,
                             "max_tokens" => ChatFinishReason.Length,
+                            "tool_use" => ChatFinishReason.ToolCalls,
                             "refusal" => ChatFinishReason.ContentFilter,
                             { } other => new ChatFinishReason(other),
                             null => null,
@@ -117,6 +144,49 @@ internal sealed class AnthropicChatClient : ChatClientBase
         }
 
         yield return LlmHttp.Final(answeredBy, finish, input, output);
+    }
+
+    /// <summary>
+    /// The messages in the format of the Messages API: an assistant message with calls is a list of blocks
+    /// (<c>text</c>, <c>tool_use</c>), and the results of one round go together in one user message
+    /// (<c>tool_result</c>), as the API requires.
+    /// </summary>
+    internal static object[] Write(IReadOnlyList<LlmMessage> messages)
+    {
+        var written = new List<object>();
+        List<object>? results = null;
+        foreach (var message in messages.Where(m => m.Role != "system"))
+        {
+            if (message.Role == "tool")
+            {
+                if (results is null)
+                {
+                    results = [];
+                    written.Add(new { role = "user", content = results });
+                }
+
+                results.Add(new { type = "tool_result", tool_use_id = message.CallId, content = message.Text });
+                continue;
+            }
+
+            results = null;
+            if (message.Calls.Count == 0)
+            {
+                written.Add(new { role = message.Role, content = message.Text });
+                continue;
+            }
+
+            var blocks = new List<object>();
+            if (message.Text.Length > 0)
+            {
+                blocks.Add(new { type = "text", text = message.Text });
+            }
+
+            blocks.AddRange(message.Calls.Select(call => (object)new { type = "tool_use", id = call.Id, name = call.Name, input = call.Arguments }));
+            written.Add(new { role = message.Role, content = blocks });
+        }
+
+        return [.. written];
     }
 
     private static JsonDocument Parse(string data)

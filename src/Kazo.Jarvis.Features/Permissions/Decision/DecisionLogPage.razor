@@ -1,0 +1,78 @@
+@using System.Globalization
+@using Kazo.Jarvis.Kernel.Storage
+@inject IDocumentStore Store
+@inject TimeProvider Time
+@inject IStringLocalizer<DecisionLogPage> T
+
+@* The permission log (ADR 0023, section 5): every decision of the decision point, most recent first. Read-only;
+   « Tout effacer » erases it with the rest of the store. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description", MostShown, DaysShown]">
+    <p class="decision-log-bar">
+        <button type="button" class="decision-log-refresh" data-decision-log-refresh @onclick="LoadAsync">@T["Refresh"]</button>
+    </p>
+    @if (failed)
+    {
+        <p class="decision-log-problem" role="alert">@T["LoadFailed"]</p>
+    }
+    else if (records.Count == 0)
+    {
+        <p class="decision-log-none" data-decision-log-none>@T["None"]</p>
+    }
+    else
+    {
+        <ol class="decision-log" data-decision-log>
+            @foreach (var record in records)
+            {
+                <li class="decision-log-entry" data-decision-allowed="@(record.Allowed ? "true" : "false")" data-decision-tool="@record.Tool"
+                    data-decision-cause="@(record.Cause?.ToString() ?? "")" data-decision-channel="@(record.Channel ?? "")">
+                    <p class="decision-log-head">
+                        <time datetime="@record.At.ToString("o", CultureInfo.InvariantCulture)">@record.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time>
+                        <span class="decision-log-outcome">@(record.Allowed ? T["Allowed"] : T["Denied", T["Cause_" + (record.Cause?.ToString() ?? "Unknown")].Value])</span>
+                    </p>
+                    <p class="decision-log-what">
+                        <span class="decision-log-tool">@record.Tool</span>
+                        <span>@T["By", T["Requester_" + record.RequesterKind].Value, record.Requester]</span>
+                        @if (record.Class is { } actionClass)
+                        {
+                            <span>@T["Class", T["Class_" + actionClass].Value]</span>
+                        }
+                        @if (record.Channel is { } channel)
+                        {
+                            <span>@T["Channel_" + channel]</span>
+                        }
+                    </p>
+                    @if (record.Arguments.Length > 0)
+                    {
+                        <pre class="decision-log-arguments">@record.Arguments</pre>
+                    }
+                </li>
+            }
+        </ol>
+    }
+</SettingsFrame>
+
+@code {
+    private const int MostShown = 200;
+    private const int DaysShown = 90;
+
+    private IReadOnlyList<DecisionRecord> records = [];
+    private bool failed;
+
+    /// <inheritdoc />
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            var now = Time.GetUtcNow();
+            var stored = await Store.Collection<DecisionRecord>(PermissionDecisionPoint.CollectionName).ReadPeriodAsync(now.AddDays(-DaysShown), now.AddMinutes(1));
+            records = [.. stored.Select(document => document.Content).OrderByDescending(record => record.At).Take(MostShown)];
+            failed = false;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            failed = true;
+        }
+    }
+}

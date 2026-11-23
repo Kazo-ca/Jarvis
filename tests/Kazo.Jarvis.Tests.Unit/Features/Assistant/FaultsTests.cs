@@ -227,12 +227,22 @@ public sealed class FaultsTests
         .AddSingleton(dialogs)
         .AddSingleton<IGlobalHotkey, Desktop.FakeGlobalHotkey>()
         .AddSingleton<ILaunchAtLogin, Desktop.FakeLaunchAtLogin>()
+
+        // The agents page comes with a host that has the folder of the agent files.
+        .AddSingleton<Kazo.Jarvis.Kernel.Agents.IAgentFiles>(_ => new Kazo.Jarvis.Adapters.Agents.DiskAgentFiles(folder.Paths))
         .AddJarvisFeatures()
         .BuildServiceProvider();
 
     private sealed class RecordingDialogs : IDialogService
     {
         public List<DialogRequest> Opened { get; } = [];
+
+        // No test here closes a window.
+        public event Action<string>? Closed
+        {
+            add { }
+            remove { }
+        }
 
         public void Open(DialogRequest request) => Opened.Add(request);
 

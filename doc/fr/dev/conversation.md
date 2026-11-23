@@ -25,6 +25,9 @@ fenêtre de conversation ─► TextSubmitted ─► machine à états ─► Tu
 
 Aucune tranche n'en référence une autre : tout passe par les messages du noyau. Le noyau n'a pas changé.
 
+Depuis le chantier `stage2/3-tool-loop`, le moteur donne aussi les outils activés au modèle et exécute ses
+appels par le point de décision des permissions : voir [tools.md](tools.md).
+
 ### Tranche `Features/Conversation/Dialogue`
 
 - **`ConversationEngine`** fait le tour :
@@ -32,6 +35,10 @@ Aucune tranche n'en référence une autre : tout passe par les messages du noyau
     `AnswerFinishedWithoutSpeech`. **Jarvis ne parle que si on lui a parlé** (réponse n° 3 du plan).
   - **Demande dite** (`UtteranceTranscribed`) : chaque phrase complète est publiée en `SentenceToSpeak` dès
     qu'elle est écrite, puis `AnswerSentencesEnded`. La voix publie `FirstSentenceReady` et `SpeechEnded`.
+  - **Annonce** (`TurnStarted` avec `TurnInput.Announcement`, ADR 0024) : le moteur ne fait rien, le modèle
+    n'est pas appelé. `AnnouncementDesk` écrit l'annonce dans le journal dès qu'elle arrive et donne ses
+    phrases à la voix quand son tour commence : voir [session-announcements.md](session-announcements.md).
+    Une annonce n'entre jamais dans l'historique envoyé au modèle.
   - **Rien entendu** (texte vide de Whisper) : `AnswerFinishedWithoutSpeech`, sans appeler le modèle.
   - **Interruption** (`TurnCancelled`, US1.12) : la génération s'arrête (le jeton du flux est annulé) ; la voix
     se coupe d'elle-même. Le mot d'éveil reste actif pendant la réflexion et la parole (chantier 9).
@@ -48,7 +55,12 @@ Aucune tranche n'en référence une autre : tout passe par les messages du noyau
   ressources `PromptTexts`), puis les **règles fixes** : répondre dans la langue du tour, un texte fait pour
   être dit (ni Markdown, ni listes, ni emoji, ni code, des phrases courtes), la date et l'heure locales.
 - **Historique envoyé au modèle** : les derniers tours répondus qui tiennent dans environ la moitié du
-  contexte du fournisseur (3 caractères par jeton), 20 tours au plus.
+  contexte du fournisseur (3 caractères par jeton), 20 tours au plus et, quand la mémoire est en service,
+  aucun tour d'avant un silence de 2 heures. Le bloc de la mémoire s'ajoute au message système après les
+  règles fixes ([conversation-memory.md](conversation-memory.md)).
+- **Passage de main** : une demande qui commence par « Demande à Claude… », ou un appel de l'outil
+  `hand_off_to_claude` par le modèle local, fait répondre la cible cloud dans la même boucle ; le tour garde
+  qui a répondu et pourquoi ([hand-off.md](hand-off.md)).
 - **`ConversationJournal`** : les tours de la collection `Conversation.Turns` (lus une fois, au premier
   besoin) et le tour en cours. Un tour est enregistré **quand il finit** : répondu, interrompu (avec ce qui
   était écrit) ou en échec (avec la cause). Ce qui est enregistré (ADR 0007, section 7) : demande, réponse,
@@ -89,7 +101,7 @@ Les ADR ne les tranchent pas ; à confirmer par Benoit :
 2. **Markdown retiré de ce qui est dit**, gardé dans la réponse écrite.
 3. **Historique** : derniers tours répondus, 20 au plus, dans la moitié du contexte ; les tours interrompus ou
    en échec ne sont pas renvoyés au modèle ; **pas de limite d'âge** (un tour d'hier compte) jusqu'au résumé de
-   l'étape 2.
+   l'étape 2. *(Levé par le chantier `stage2/8-memory` : silence de 2 heures, réglable.)*
 4. **Un tour est enregistré à sa fin**. Une écoute annulée ou sans mots n'est pas enregistrée.
 5. **Panne du modèle au milieu d'une réponse dite** : la voix se tait, l'orbe passe en erreur.
 6. **Personnalité** : les deux langues sur la même page ; enregistrer le texte du majordome ou un texte vide

@@ -23,6 +23,18 @@ src/Kazo.Jarvis.Kernel/
   Messages/Localization/                 AssistantLanguageChanged
   Storage/                               contrat de la base de documents (voir storage.md)
   Secrets/                               contrat du coffre de secrets (voir storage.md)
+  Tools/                                 outil, registre des outils, interrupteurs (voir tools.md)
+  Conversation/                          ce que la mémoire rappelle au modèle (voir conversation-memory.md), passage de main (voir hand-off.md)
+  Messages/Conversation/                 TurnRecorded, ExchangesLeftHistory
+  Tools/Servers/                         serveur d'outils : connexion, outils, appel (voir mcp.md), classement par type de serveur (voir home-assistant.md)
+  Files/                                 fichiers locaux en lecture (voir basic-tools.md), dossiers autorisés vus par une autre tranche (voir claude-code-tasks.md)
+  Tasks/                                 forme d'une tâche, clés de projet et de sujet, tableau des tâches (voir tasks-and-sessions.md)
+  ClaudeCode/                            registre des sessions Claude Code en cours (voir tasks-and-sessions.md), fichier de réglages de l'utilisateur (voir hook-server.md), lancement de Claude Code et demandes de permission d'une session (voir claude-code-launch.md), travail confié à Claude Code et fin d'une session (voir claude-code-tasks.md)
+  LocalServer/                           serveur local sur 127.0.0.1, ses routes, son port, chemins des hooks (voir hook-server.md)
+  Web/                                   navigateur de lecture, recherche par API, adresses permises (voir basic-tools.md)
+  Permissions/                           classes d'actions, point de décision des permissions (voir tools.md), demande de confirmation ouverte (voir task-fan.md)
+  Desktop/                               fenêtre de l'orbe, dialogues, raccourci (voir hosts.md), surface de l'éventail et délai de double-clic (voir task-fan.md)
+  Messages/Desktop/                      demandes de fenêtres, TaskFanToggleRequested (voir task-fan.md)
 ```
 
 Un hôte n'appelle pas `AddJarvisKernel()` lui-même : `AddJarvisFeatures()` le fait. L'appel peut se répéter
@@ -65,6 +77,7 @@ sans effet.
 | --- | --- |
 | `ActivationRequested(source)` | Mot d'éveil, raccourci ou clic |
 | `TextSubmitted(texte)` | Texte envoyé depuis la fenêtre de conversation |
+| `AnnouncementSubmitted(texte)` | Une annonce demande à être dite (ADR 0024) : nouveau tour au repos, ignorée sinon |
 | `UtteranceEnded(tour)` / `NothingHeard(tour)` | Fin de la phrase / rien entendu avant le délai |
 | `FirstSentenceReady(tour)` / `AnswerFinishedWithoutSpeech(tour)` / `SpeechEnded(tour)` | Étapes de la réponse |
 | `TurnFailed(tour, faute)` | Le tour ne peut pas finir |
@@ -80,7 +93,7 @@ sans effet.
 - **Fautes.** Le noyau ne nomme que la cause (`FaultCause`) ; le texte, l'action corrective et le lien vers
   le bon réglage viennent des tranches (chantier `stage1/15-faults`). `MicrophoneMissing` refuse les
   activations, comme le micro coupé.
-- **Aspect.** `AssistantLooks.Of(état)` donne l'un des sept aspects (ADR 0011, section 4) ;
+- **Aspect.** `AssistantLooks.Of(état)` donne l'un des huit aspects (ADR 0011, section 4 ; « interaction requise » vient de l'ADR 0023 et passe avant tous les autres) ;
   `AssistantLooks.ShowsProgressRing(état)` dit si l'anneau de progression est dessiné par-dessus.
 
 ### Cas que l'ADR 0005 ne couvre pas

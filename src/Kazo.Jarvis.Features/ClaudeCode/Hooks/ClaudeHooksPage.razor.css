@@ -1,0 +1,59 @@
+.hooks-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.hooks-state {
+    margin: 0;
+}
+
+.hooks-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.hooks-notes {
+    width: 100%;
+    margin: 0;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.hooks-block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hooks-preview {
+    margin: 0;
+    padding: 0.6rem;
+    max-height: 16rem;
+    overflow: auto;
+    border: 1px solid var(--jarvis-line);
+    font-size: 0.8rem;
+    white-space: pre;
+}
+
+.hooks-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.hooks-number {
+    width: 7rem;
+}
+
+.hooks-button {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--jarvis-line);
+    background: transparent;
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}

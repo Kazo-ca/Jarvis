@@ -1,0 +1,102 @@
+@inject AgentCatalog Catalog
+@inject IToolRegistry Registry
+@inject IStringLocalizer<AgentsPage> T
+@implements IDisposable
+
+@* The « Agents » page (ADR 0025, section 2): each agent with what it is given, the tools the model sees while it
+   answers, and a button that opens its file. The files left out are named with what is wrong in them. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <p class="agents-folder" data-agents-folder>@T["Folder", Catalog.Folder]</p>
+    @if (Catalog.Issues is { Count: > 0 } issues)
+    {
+        <div class="agents-issues" role="alert" data-agents-issues>
+            <p class="agents-issues-title">@T["Issues"]</p>
+            <ul class="agents-issues-list">
+                @foreach (var issue in issues)
+                {
+                    <li data-agent-issue="@issue.File" data-agent-problem="@issue.Problem">@T["Problem_" + issue.Problem, issue.File]</li>
+                }
+            </ul>
+        </div>
+    }
+    <ul class="agents-list" data-agents-list>
+        @foreach (var agent in Catalog.Agents)
+        {
+            var isMain = agent.Id == AgentIds.Main;
+            var seen = Catalog.ToolsOf(agent).Where(tool => tool.Name != Catalog.HandToolName && tool.Name != Catalog.ReturnToolName).ToList();
+            var off = agent.Tools.Where(name => seen.All(tool => tool.Name != name)).ToList();
+
+            // A tool every agent has is shown, but it is no reason to hand a request over (ADR 0025, section 5).
+            var own = seen.Count(tool => !tool.ForEveryAgent || agent.Tools.Contains(tool.Name, StringComparer.Ordinal));
+            <li class="agents-entry" data-agent="@agent.Id" data-agent-available="@(isMain || own > 0 ? "true" : "false")" @key="agent.Id">
+                <div class="agents-head">
+                    <span class="agents-name" data-agent-name>@agent.Name</span>
+                    <span class="agents-id">@(agent.Id).md</span>
+                    @if (isMain)
+                    {
+                        <span class="agents-tag">@T["Main"]</span>
+                    }
+                    <button type="button" class="agents-open" data-agent-open @onclick="() => Open(agent.Id)">@T["Open"]</button>
+                </div>
+                <p class="agents-description" data-agent-description>@agent.Description</p>
+                @if (isMain && !written.Contains(agent.Id))
+                {
+                    <p class="agents-note" data-agent-built-in>@T["BuiltIn"]</p>
+                }
+                @if (seen.Count > 0)
+                {
+                    <p class="agents-tools">
+                        <span class="agents-tools-label">@T["Tools"]</span>
+                        @foreach (var tool in seen)
+                        {
+                            <code class="agents-tool" data-agent-tool="@tool.Name" title="@(tool.Agent is null ? null : T["FromSource"].Value)">@tool.Name</code>
+                        }
+                    </p>
+                }
+                @if (own == 0)
+                {
+                    <p class="agents-note" data-agent-no-tools>@T[isMain ? "NoToolsMain" : "NoTools"]</p>
+                }
+                @if (off.Count > 0)
+                {
+                    <p class="agents-note" data-agent-tools-off>@T["ToolsOff", string.Join(", ", off)]</p>
+                }
+            </li>
+        }
+    </ul>
+    @if (problem is not null)
+    {
+        <p class="agents-problem" role="alert" data-agents-problem>@problem</p>
+    }
+</SettingsFrame>
+
+@code {
+    private string? problem;
+    private HashSet<string> written = [];
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        Catalog.Changed += OnChanged;
+        Registry.Changed += OnChanged;
+        Read();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Catalog.Changed -= OnChanged;
+        Registry.Changed -= OnChanged;
+    }
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Read();
+        StateHasChanged();
+    });
+
+    // The agents that come from a file: the Jarvis agent that ships with the application has none.
+    private void Read() => written = [.. Catalog.FileIds];
+
+    private void Open(string id) => problem = Catalog.Open(id) ? null : T["OpenFailed"].Value;
+}

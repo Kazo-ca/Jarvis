@@ -41,7 +41,17 @@ octet, pour couvrir le chargement d'un modèle de 9 Go) :
   mémoire ; les autres types ne savent pas le dire.
 - **Clés :** lues dans le coffre à chaque requête, sous la référence `llm.<id>.apikey`. Un fournisseur cloud
   sans clé échoue avant tout appel réseau.
-- **Outils :** refusés (`NotSupportedException`) jusqu'à l'étape 2, avec le premier outil et l'analyseur tolérant.
+- **Outils** (chantier `stage2/3-tool-loop`, voir [tools.md](tools.md)) : chaque adaptateur envoie les outils
+  déclarés dans `ChatOptions.Tools` et rend un appel comme `FunctionCallContent`, sans jamais l'exécuter.
+  Ollama : `tools` et `message.tool_calls`, arguments en objet, résultat en rôle `tool` avec `tool_name`.
+  `/v1/chat/completions` : appel reçu en morceaux par `index`, arguments en texte JSON, résultat avec
+  `tool_call_id`. Anthropic : `input_schema`, blocs `tool_use` et `tool_result`, les résultats d'un même tour
+  de boucle dans un seul message `user`. Des arguments illisibles marquent l'appel
+  (`FunctionCallContent.Exception`) : le point de décision le refuse.
+- **Analyseur tolérant** (`ollama`, `openai-compatible` ; ADR 0007, section 4) : une réponse entière qui
+  est un seul objet JSON nommant un outil déclaré est un appel. Une réponse qui commence par `{` ou par une
+  clôture de code est retenue jusqu'à sa fin ; toute autre part morceau par morceau. Réglage
+  `TolerantToolCalls` du fournisseur, activé par défaut.
 
 ## La tranche `Llm/Providers`
 
@@ -58,7 +68,10 @@ octet, pour couvrir le chargement d'un modèle de 9 Go) :
 - **Valeurs par défaut :** un fournisseur `local`, Ollama sur `http://127.0.0.1:11434` avec `qwen3:14b`,
   réflexion coupée, contexte 4096, température 0,3, préchargé et gardé en mémoire (ADR 0007, section 5).
 - **Le fournisseur par défaut doit être local à l'étape 1** (règle de validation) ; un fournisseur cloud se
-  configure et se teste, son bouton « par défaut » est grisé.
+  configure et se teste, son bouton « par défaut » est grisé. Il ne répond que par le passage de main, une
+  fois choisi comme cible ([hand-off.md](hand-off.md)) ; `ILlmProviderList` donne la liste des fournisseurs
+  aux autres tranches. Il lui faut un prix, et le plafond du mois ne doit pas être atteint
+  ([spend-cap.md](spend-cap.md)).
 - **Préchargement :** au démarrage, puis après chaque changement du fournisseur par défaut. En cas d'échec
   (Docker qui démarre Ollama après l'ouverture de session, par exemple), nouvel essai après 15 s, 30 s, 1 min,
   2 min et 5 min, puis attente d'un tour ou d'un changement de réglage.

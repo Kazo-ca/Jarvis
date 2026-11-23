@@ -39,3 +39,91 @@ named at the end of each line.
    stage 3 ADR.)
 7. **Mobile** (E10): stage 1 starts without the phone spikes; they will be done before stage 4.
    ([ADR 0003](adr/0003-hosts-and-native-services.md))
+
+## Stage 2 spikes (November 20, 2026)
+
+Run on Benoit's PC by an agent through remote control (work item `stage2/1-spikes`, see the
+[stage 2 plan](plans/stage-2.md)). Benoit had nothing to do.
+
+| Spike | Verdict | In one sentence | Detail |
+| --- | --- | --- | --- |
+| E11 fan window | **Passed** | WPF, window kept hidden: closed 0.5 %, open and still 0.3 %, animation 33 % of one core for 0.4 s, first frame in 6 ms; clicks land right; single click delayed by 500 ms. Recreated WebView2: 2.4 s. | [e11-task-fan-window](../../../spikes/e11-task-fan-window/RESULTS.md) |
+| E12 Claude Code permissions and hooks | **Passed, three surprises** | Denials and approvals of the `--permission-prompt-tool` MCP tool are obeyed; the five hooks reach `/hook/…` and see `RELAIS_TASK_ID`; `SessionStart` only accepts `command` hooks; `CLAUDE.md` comes with the `project` source and its hooks. $0.009 per session. | [e12-claude-code-permissions](../../../spikes/e12-claude-code-permissions/RESULTS.md) |
+| E13 tools in English | **Passed** | `qwen3:14b`: 117 of 117 in English, French and mixed, all through the official channel, 0.9 s; `kind` of `hand_off_to_claude` right 43 times out of 45. | [e13-tool-calls-english](../../../spikes/e13-tool-calls-english/RESULTS.md) |
+| E14 Home Assistant MCP | **Passed, with a warning** | `ModelContextProtocol` 2.4.0, stateless streamable HTTP: 47 tools as `AIFunction`, read in 0.3 s, a light turned on then back off, recovery after a cut; `HassTurnOff` also unlocks locks, and labels do not go through MCP. | [e14-mcp-home-assistant](../../../spikes/e14-mcp-home-assistant/RESULTS.md) |
+| E15 search through the internal browser | **Passed** | WebView2 in a WPF window that is never shown: 0 foreground grabs over 180 checks; DuckDuckGo and Startpage 10 out of 10 in 1 to 1.8 s, Google unreadable, Brave blocked; read-only and local network blocked by the host (0 requests out of 18); 124 MB idle, 1 GB at peak. | [e15-webview-search](../../../spikes/e15-webview-search/RESULTS.md) |
+
+## Decisions proposed after E11 to E14
+
+**Accepted by Benoit on 2026-11-20** ("I agree with your recommendations", in answer to the five questions
+asked in the conversation). His choices follow the list; where they change a line, they win. They are written
+into the work item 2 ADRs (named at the end of each line).
+
+1. **Fan** (E11): WPF rendering in a second transparent window, **created at start-up and kept hidden**
+   (never destroyed); 400 ms opening and 300 ms closing animation at 30 frames per second; the orb is put back
+   on top whenever the fan window is activated. ADR 0010 holds as is: no superseding ADR. If the panels must be
+   Razor views, the same hidden window with `BlazorWebView` also holds (21 ms, 0.6 % closed). (Work item 14.)
+2. **Confirming Claude Code writes** (E12): Jarvis exposes a local HTTP MCP server
+   (`ModelContextProtocol.AspNetCore`) with an `approve` tool passed through `--permission-prompt-tool`; it is
+   **the only decision point**; the `PermissionRequest` hook only moves the task to `waiting_approval`.
+   (ADR 0021)
+3. **Hooks of sessions launched by Jarvis** (E12): in Jarvis's file passed with `--settings`, of type `http`
+   with `allowedEnvVars: ["RELAIS_TASK_ID"]`, except `SessionStart` as a `curl` command. A task is finished
+   only at a `result` with no background task; a `UserPromptSubmit` starting with `<task-notification>` is not
+   a human request. (ADR 0021)
+4. **Settings loaded** (E12): `--setting-sources ""` (nothing from the user or the repository) and the folder's
+   instructions through `--append-system-prompt-file CLAUDE.md`; the `project` source (full instructions, but
+   repository hooks run without asking) only for folders the user marks as trusted. Full command line:
+   [E12, section (d)](../../../spikes/e12-claude-code-permissions/RESULTS.md#d-ligne-de-commande-recommandée-pour-jarvis)
+   (French). (ADR 0021)
+5. **Tool language** (E13): the ADR 0007 rule is confirmed (names in English, descriptions in the assistant's
+   language); `hand_off_to_claude(kind: question|task, reason)` in both languages; `kind` picks the target,
+   never a permission. (ADRs 0017 and 0020)
+6. **MCP client** (E14): `ModelContextProtocol` 2.4.0 package, streamable HTTP transport (`/api/mcp`) with an
+   SSE fallback, token in the `Authorization` header, tools passed as is as `AIFunction`; on a network error,
+   retry without rebuilding a session. (ADR 0018)
+7. **Security home automation** (E14): the class is decided **after resolving the target entity**, never from
+   the tool name: domain `lock`, `alarm_control_panel`, `valve`, `siren`, or `cover` of class `garage`, `door`
+   or `gate` = critical; scripts (`script__…`, `intent_script__…`) sensitive by default; an adjustable list of
+   "security" entities and scripts (MCP gives neither labels nor zones). (ADR 0018)
+
+### Benoit's answers of 2026-11-20
+
+1. **Fan panels: Razor**, in a `BlazorWebView` window created at start-up and kept hidden, like the rest of
+   the interface (point 1: pure WPF rendering is not kept). (Work item 14.)
+2. **Claude Code writes: a single decision point**, Jarvis's permission tool, which asks by voice or next to
+   the orb (point 2). (ADR 0021)
+3. **Repository settings: `CLAUDE.md` alone**, without settings or hooks; the full settings only for folders
+   the user marks as "trusted" (point 4). (ADR 0021)
+4. **Security home automation: from the targeted device**, plus a list the user completes (point 7).
+   (ADR 0018)
+5. **Home Assistant scripts: no confirmation by default.** The user marks as "security" those that require
+   the click. Point 7 said "sensitive by default": that is not kept. (ADR 0018)
+
+What remains after these spikes: Benoit's judgement of the fan's smoothness and of the single-click comfort,
+voice confirmation with a real delay (Claude Code's timeout on the MCP call is not measured), and the 47 Home
+Assistant tools given to the local model.
+
+## After E15 (November 20, 2026)
+
+Spike E15 proves the internal browser of [ADR 0022](adr/0022-in-app-browser-for-web-search.md), run on Benoit's
+PC while he was working. The first E15 attempt, on Edge driven by Playwright, was stopped at his request and
+nothing is kept from it. What the spike sets for work item `stage2/5-basic-tools`:
+
+1. **Default engine: DuckDuckGo in its HTML version** (`html.duckduckgo.com`), a page without script, the
+   simplest to read. Fallback: Startpage, then Bing. Google (hidden addresses) and Brave Search through its page
+   (blocked from the first query) are not offered. Brave through its API remains the second provider (ADR 0017).
+2. **Window:** WPF, never shown (`EnsureHandle`, no `Show`), out of the taskbar, without activation
+   (`WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW`), **WebView2 controller kept visible**. With the controller hidden, the
+   page is throttled and a capture waits more than two minutes. `Show()` without activation for "See the page".
+3. **Refused addresses:** the check is done in `NavigationStarting`, `FrameNavigationStarting` and
+   `WebResourceRequested`, **with DNS resolution**: a public name that points to 127.0.0.1 passes a check done on
+   the text alone.
+4. **Memory:** close the browser after a time without use and recreate it (0.6 s): memory does not come back
+   down by itself after searches (594 MB idle).
+5. **Reading a page:** take the longest of the `main` or `article` blocks, not the first; remove the text of
+   consent banners. A generic heuristic ("link that holds a heading") is the safety net when an engine changes
+   its page.
+
+Not verified by E15: DNS rebinding, actual password saving (the settings are only read back), how the engines
+hold over time (one series of 10 queries), CPU cost.

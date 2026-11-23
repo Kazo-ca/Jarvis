@@ -51,7 +51,7 @@ ce qu'il décrit.
   le 19 novembre 2026).
 - **Série `spikes` (terminée, fusionnée dans `main`) :** essais E1 à E10. Faits le 18 novembre 2026 : E2 à E9. E1 abandonné (pas de 3CX). L'étape 5 est réécrite le 19 novembre 2026 : appels entre Jarvis et l'application Android, dans les deux sens (US5.1 à US5.9 du document de conception), sans ADR pour l'instant ; elle dépend d'E10. En attente : E10
   (téléphone Android de Benoit). Synthèse : [dev/spikes.md](../dev/spikes.md).
-- **Prochain numéro d'ADR libre :** 0017. **ADR 0016 (un seul ONNX Runtime natif, celui de sherpa-onnx ; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 pour le mot d'éveil, remplace une ligne de l'ADR 0001) : accepté** par Benoit le 20 novembre 2026 (chantier `stage1/onnx-runtime-adr`). **ADR 0015 (source de suivi du travail : GitHub Issues ou Azure Boards ; `#<id>` pour GitHub, `AB#<id>` pour Azure DevOps dans les commits et les PR) : accepté** par Benoit le 19 novembre 2026 (chantier `stage1/work-tracking-adr`), avec confirmation avant toute création ou modification, fonctionnalité pour la v2 avec Relais. **ADR 0014 (licence Apache 2.0, règle sur Kazo Bar, retrait de `jarvis.py`) : accepté** par Benoit le 19
+- **Prochain numéro d'ADR libre :** 0028 (0026 est pris par la vue des projets, 0027 par les gestes sur l'orbe). **ADR 0026 (vue des projets, des sujets et de leurs fils, complète 0013 et 0025) : accepté** par Benoit le 22 novembre 2026 (chantier `stage2/adr-0026-projects-view`), d'après six réponses de Benoit sur les maquettes : quatre niveaux de travail (Relais), deux fils (sujet et tâche) ; bande des tâches faites / en cours / prévues ; réponse à une tâche dans le fil du sujet avec « T3> » à la manière de mIRC ; un fil par projet ; projet Général intégré, et Jarvis propose de faire un projet d'un sujet de Général ; rail des projets à gauche ; ouverte par le double-clic sur l'orbe (ADR 0027). Ses trois derniers points pris tels que recommandés (section 11 : le fil du sujet ne montre que ce qui s'adresse à l'utilisateur, sujets créés par Jarvis et par l'utilisateur, proposition de projet à 4 tâches ou 30 messages en une semaine). Construit après l'ADR 0025. **ADR 0025 (un agent par genre de tâche, ses consignes et ses mémoires, complète 0017 et 0019) : accepté** par Benoit le 22 novembre 2026 (proposé le 21 novembre, chantier `stage2/adr-0025-task-agents`), d'après cinq réponses de Benoit à la recette de l'étape 2 : construit après la recette ; l'utilisateur peut choisir l'agent dans la conversation ; agents en fichiers Markdown dans un dossier ; agents de départ (Domotique, Web, Fichiers, Claude Code, Mémoire, Projet, Jarvis) ; une mémoire par agent et une par projet, un projet étant un dossier local créé dans l'interface de Jarvis. Complété le même soir : réponses aux quatre points (le passage de main nomme aussi le projet ; mémoire du projet en fichier Markdown dans son dossier ; passage de main en outil ; à la voix on ne nomme pas l'agent), **agent Jarvis** qui reçoit toujours la demande vocale et décide de passer la main en le disant, **mode « Appel »** (bouton « Appeler » ou « on doit discuter de tel projet », l'agent reste jusqu'à ce que l'utilisateur demande de revenir à Jarvis, « au revoir » termine), demande d'assigner à un projet un dossier qui n'en a pas. Ses trois dernières réponses (« ok » du 22 novembre, les recommandations) : **l'agent Jarvis fait lui-même le tri**, sans appel de tri silencieux avant lui (un seul appel au modèle pour une demande simple) ; **un seul agent « Projet »**, chargé avec le dossier et la mémoire du projet demandé, pas de fichier d'agent par projet ; **pendant un appel, Jarvis écoute sans « Hey Jarvis »** jusqu'à « au revoir ». Rien n'est construit : c'est le premier chantier après la recette, et la vue des projets (ADR 0026) en dépend. **ADR 0024 (tour d'annonce, complète 0005) : accepté** par Benoit le 21 novembre 2026 (chantier `stage2/13-announcement-turn-adr`), sa réponse « Ok » prenant la recommandation : une annonce que personne n'a demandée (fin d'une session Claude Code, attente d'une permission) se dit dans un tour à elle, ouvert seulement au repos, coupé par une activation, écrit dans la conversation et jamais envoyé au modèle. **ADR 0023 (demande de confirmation dans un tour, complète 0005) : accepté** par Benoit le 21 novembre 2026 (chantier `stage2/confirmation-adr`), avec trois réponses qui diffèrent des recommandations : l'orbe a un aspect générique **« interaction requise »** (question, approbation, confirmation ou action manuelle) ; **aucun délai**, « il ne décide jamais à la place de l'utilisateur » ; pour une demande écrite, Jarvis dit seulement « la tâche X du projet Y a besoin de votre interaction », sans écouter de réponse. **ADR 0022 (recherche web dans un navigateur interne à Jarvis, remplace en partie 0017) : accepté** par Benoit le 20 novembre 2026 (chantier `stage2/in-app-browser-adr`) : fenêtre cachée pendant une recherche avec un bouton « Voir la page », témoins gardés, connexion par l'utilisateur derrière un avertissement. Benoit a corrigé la lecture de l'ADR 0017 : il voulait un navigateur **interne à l'application** (WebView2 dans une fenêtre de Jarvis, dossier de données à part, sans Playwright), pas Edge ou Chrome installé, « qui peut rentrer en conflit avec ce que l'utilisateur fait ». **Ne jamais piloter le navigateur de l'utilisateur.** Ce que l'ADR 0017 dit du navigateur piloté, du profil habituel et de l'essai E15 sur Edge ne vaut plus ; l'essai E15 est redéfini par l'ADR 0022 (WebView2). **Essai E15 : fait et réussi** le 20 novembre 2026 (chantier `stage2/e15-webview-search`) : fenêtre WPF jamais affichée avec le contrôleur WebView2 gardé visible, aucune prise du premier plan, DuckDuckGo HTML par défaut (repli Startpage puis Bing), adresses locales bloquées avec résolution DNS, navigateur fermé après un temps sans usage ([synthèse](../dev/spikes.md#après-e15-20-novembre-2026)). **ADR 0017 (outils, classes, point de décision), 0018 (client MCP, Home Assistant) et 0021 (sessions Claude Code) : acceptés** par Benoit le 20 novembre 2026 (chantier `stage2/2-adrs`). Ses choix à l'écriture : recherche web par un **navigateur piloté** (Edge ou Chrome installé, fenêtre visible, profil à part, lecture seule ; profil habituel possible derrière un avertissement), Brave Search dès qu'une clé est fournie ; pas de confirmation au lancement d'une session Claude Code ; aucune heure de silence par défaut, et Jarvis propose 8 heures de silence quand l'utilisateur dit qu'il va dormir. (La recherche par navigateur de l'ADR 0017 est remplacée par l'ADR 0022, voir plus haut.) Ils reprennent ses cinq réponses après les essais : panneaux de l'éventail en Razor dans une fenêtre gardée cachée, un seul point de décision pour les écritures de Claude Code, `CLAUDE.md` seul sauf dossier « de confiance », domotique de sécurité d'après l'appareil visé plus une liste, scripts Home Assistant sans confirmation sauf ceux marqués « sécurité ». **ADR 0019 (mémoire de conversation) et 0020 (passage de main, cibles, plafond de dépense) : acceptés** par Benoit le 20 novembre 2026 (chantier `stage2/2-adrs-memory-and-hand-off`) ; écrits avant les essais E11 à E14 parce qu'ils n'en dépendent pas. Ses choix : mémoire sur demande et automatique ; échange ancien après 2 heures de silence, réglable ; mémoire non envoyée au cloud, mais une session lancée par Jarvis reçoit un résumé des échanges précédents et la demande initiale complète ; rien sur l'orbe quand Claude répond ; plafond de 10 $ US ; réglage « Claude Code est payé par abonnement » coché par défaut. **ADR 0016 (un seul ONNX Runtime natif, celui de sherpa-onnx ; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 pour le mot d'éveil, remplace une ligne de l'ADR 0001) : accepté** par Benoit le 20 novembre 2026 (chantier `stage1/onnx-runtime-adr`). **ADR 0015 (source de suivi du travail : GitHub Issues ou Azure Boards ; `#<id>` pour GitHub, `AB#<id>` pour Azure DevOps dans les commits et les PR) : accepté** par Benoit le 19 novembre 2026 (chantier `stage1/work-tracking-adr`), avec confirmation avant toute création ou modification, fonctionnalité pour la v2 avec Relais. **ADR 0014 (licence Apache 2.0, règle sur Kazo Bar, retrait de `jarvis.py`) : accepté** par Benoit le 19
   novembre 2026 (chantier `stage1/license-kazo-bar-android-calls`). Kazo Bar ne se référence jamais (ni projet, ni paquet) ; son code peut
   être copié ici et évolue ensuite séparément. `jarvis.py` n'est plus utilisé. Le passage du dépôt en public revient à Benoit. **ADR 0013 (préparer le module Relais, v2) : accepté** par Benoit le 19
   novembre 2026 (chantier `stage1/relais-architecture-adr`) ; rien ne se construit avant la v2, sauf l'hôte
@@ -64,8 +64,12 @@ ce qu'il décrit.
   l'ordinateur seulement, l'orbe dans n'importe quel coin de l'écran : décision ambre, bureau assombri,
   animation à l'ouverture et à la fermeture seulement. Réponse de Benoit du 19 novembre 2026 sur le clic :
   **le double-clic ouvre l'éventail, le simple clic lance l'écoute** (US1.6 et l'ADR 0005 ne changent pas).
-- **Essai à faire au début de l'étape 2 :** E11, coût et fluidité de la fenêtre transparente de l'éventail
-  (ADR 0010).
+- **Essais E11 à E14 : faits** le 20 novembre 2026 sur le PC de Benoit (chantier `stage2/1-spikes`), tous
+  réussis : éventail en WPF, fenêtre gardée cachée (E11) ; permissions de `claude -p` par un outil MCP local et
+  hooks vers `/hook/…` (E12, Claude Code 2.1.328) ; outils en anglais 117 sur 117 (E13) ; client MCP
+  `ModelContextProtocol` 2.4.0 contre Home Assistant (E14). Synthèse et **décisions acceptées par Benoit
+  le 20 novembre 2026** : [dev/spikes.md](../dev/spikes.md#décisions-proposées-après-e11-à-e14). Reste à juger
+  par Benoit : fluidité de l'animation et confort du simple clic retardé.
 - **ADR 0011 (couleurs et dessin de l'orbe) : accepté** par Benoit le 19 novembre 2026 (chantier
   `spikes/14-orb-look-adr`). Il reprend le catalogue validé : deux
   versions (haute qualité par défaut, légère en réglage), sept aspects, anneau de progression à la place des
@@ -93,7 +97,7 @@ ce qu'il décrit.
   par défaut préchargé au démarrage, voir [dev/llm.md](../dev/llm.md)) livré dans sa PR le 20 novembre 2026,
   sans vérification Windows. **Tests Windows en attente** ([liste](../dev/llm.md#vérifications-sur-windows)) :
   Ollama sur 11435 et `llama-server` sur 8080, préchargement au démarrage, causes nommées, mesure d'un modèle
-  de repli de 7 à 8 milliards de paramètres. **Choix provisoires** ([détail](../dev/llm.md#choix-provisoires-de-ce-chantier)) :
+  de repli de 7 à 8 milliards de paramètres. **Choix provisoires** ([détail](../dev/llm.md#choix-provisoires-de-ces-chantiers)) :
   port par défaut 11434 (Benoit règle 11435 une fois), `claude-opus-5-5` pour un nouveau fournisseur
   Anthropic, adaptateur Anthropic sur `HttpClient` plutôt que le SDK, réponse de 16 000 jetons au plus, test
   de connexion de 20 s.
@@ -102,7 +106,7 @@ ce qu'il décrit.
   et la transcription), tranche `Audio/Devices` (micro, coupure US1.13, panne « micro absent », sortie, page
   « Audio »), WASAPI par NAudio 3.3 dans l'hôte Windows, voir [dev/audio.md](../dev/audio.md)) livré dans sa
   PR le 20 novembre 2026, sans vérification Windows. **Choix provisoires** (détail dans
-  [dev/audio.md](../dev/audio.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : la coupure du
+  [dev/audio.md](../dev/audio.md#choix-provisoires-de-ces-chantiers), à confirmer par Benoit) : la coupure du
   micro survit au redémarrage ; micro choisi absent = celui de Windows par défaut, sans panne ; couper le micro
   lève la panne « micro absent » ; tampon de 30 s ; niveau en décibels de −60 à 0 ; conversion vers 16 kHz
   faite par Jarvis.
@@ -111,7 +115,7 @@ ce qu'il décrit.
   `Voice/WakeWord` (écoute du flux du micro, seuil 0,5 réglable, une détection par activation, silencieux
   pendant l'écoute, page « Mot d'éveil » avec le score en direct), voir [dev/wake-word.md](../dev/wake-word.md))
   livré dans sa PR le 20 novembre 2026, sans vérification Windows. « Hey Jarvis. » de Piper : 0,999 ;
-  « Hey Travis… » : 0,488. **Choix provisoires** ([détail](../dev/wake-word.md#choix-provisoires-de-ce-chantier),
+  « Hey Travis… » : 0,488. **Choix provisoires** ([détail](../dev/wake-word.md#choix-provisoires-de-ces-chantiers),
   à confirmer par Benoit) : modèles absents = pas de panne (la page le dit, nouvel essai toutes les 30 s) ;
   actif pendant la réflexion et la parole, en pause pendant l'écoute ; curseur de 0,05 à 0,95 ; meilleur score
   des 3 dernières secondes affiché ; `Microsoft.ML.OnnxRuntime.Managed` 1.28.0 sur le moteur natif de sherpa-onnx
@@ -124,7 +128,7 @@ ce qu'il décrit.
   1.9.1 et Silero par sherpa-onnx 1.13.8, voir [dev/transcription.md](../dev/transcription.md)) livré dans sa PR
   le 20 novembre 2026, sans vérification Windows. Silero essayé dans le conteneur sur un vrai enregistrement :
   avec 500 ms, la phrase se termine à la première pause naturelle (à surveiller avec la voix de Benoit).
-  **Choix provisoires** ([détail](../dev/transcription.md#choix-provisoires-de-ce-chantier)) : attente de la
+  **Choix provisoires** ([détail](../dev/transcription.md#choix-provisoires-de-ces-chantiers)) : attente de la
   parole 8 s, énoncé coupé à 25 s, 150 ms de voix pour commencer, 300 ms gardées avant la parole, repli silencieux
   sur le seuil d'énergie, pas de panne au démarrage si Whisper manque (seulement `TurnFailed` en fin de tour),
   texte vide publié tel quel (le chantier 13 termine le tour), modèles dans `models\whisper\` et `models\vad\`.
@@ -134,7 +138,7 @@ ce qu'il décrit.
   (page « Voix »), Piper et Kokoro par sherpa-onnx 1.13.8, ElevenLabs et OpenAI, voir
   [dev/speech.md](../dev/speech.md)) livré dans sa PR le 20 novembre 2026. Piper essayé pour de vrai sous Linux ;
   **l'écoute des voix attend Benoit** ([liste](../dev/speech.md#vérifications-sur-windows) : qualité perçue,
-  vitesse, délai de la carte son, arrêt net). **Choix provisoires** ([détail](../dev/speech.md#choix-provisoires-de-ce-chantier)) :
+  vitesse, délai de la carte son, arrêt net). **Choix provisoires** ([détail](../dev/speech.md#choix-provisoires-de-ces-chantiers)) :
   la tranche de la voix publie `FirstSentenceReady` au premier son ; une voix par tour ; une voix dans le nuage
   qui échoue fait échouer le tour ; voix choisie absente = voix locale de la langue ; vitesse par langue ; clé
   OpenAI des voix séparée.
@@ -144,7 +148,7 @@ ce qu'il décrit.
   « Personnalité »), la voix se tait aussi sur `TurnFailed`, rang des pages des paramètres corrigé (mot d'éveil 25,
   transcription 30, voix 35), voir [dev/conversation.md](../dev/conversation.md)) livré dans sa PR le 20 novembre
   2026, sans vérification Windows. Le noyau n'a pas changé. **Choix provisoires**
-  ([détail](../dev/conversation.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : fin de phrase et
+  ([détail](../dev/conversation.md#choix-provisoires-de-ces-chantiers), à confirmer par Benoit) : fin de phrase et
   abréviations, Markdown non dit, historique de 20 tours au plus sans limite d'âge, tour enregistré à sa fin,
   personnalités des deux langues sur une page, envoi écrit seulement en veille.
 - **Chantier 14** (`stage1/14-first-run`, premier lancement : contrats `IModelInstaller` et `IGraphicsCardProbe` du
@@ -155,8 +159,8 @@ ce qu'il décrit.
   « Modèles de langage », entrée « Assistant de configuration… » de la zone de notification, voir
   [dev/first-run.md](../dev/first-run.md)) livré dans sa PR le 20 novembre 2026, sans vérification Windows. Vrai
   téléchargement essayé dans le conteneur (GitHub) ; **Whisper (Hugging Face) jamais téléchargé pour de vrai**.
-  **Choix provisoires** ([détail](../dev/first-run.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) :
-  10 Go pour la chaîne complète, `small` en dessous, `base` sur le processeur sans NVIDIA, `qwen3:8b` conseillé en
+  **Choix provisoires** ([détail](../dev/first-run.md#choix-provisoires-de-ces-chantiers), à confirmer par Benoit) :
+  15 Go pour la chaîne complète (10 Go avant la recette de l'étape 2), Whisper turbo et `qwen3:8b` de 10 à 15 Go, `small` en dessous, `base` sur le processeur sans NVIDIA, `qwen3:8b` conseillé en
   repli ; SHA-1 pour Whisper ; dépendance SharpZipLib 1.4.2 ; pas d'étape « Voix » ; les deux voix Piper cochées
   d'office ; recherche d'Ollama automatique tant que les fournisseurs sont ceux par défaut. L'hôte Web simule
   désormais un profil existant.
@@ -166,12 +170,186 @@ ce qu'il décrit.
   panne du modèle de langage posée et levée hors d'un tour, Whisper retrouvé et voix entendue lèvent la leur ; entrée
   « Résoudre le problème… » de la zone de notification pendant une panne, voir [dev/faults.md](../dev/faults.md)) livré
   dans sa PR le 20 novembre 2026, sans vérification Windows. La table des transitions n'a pas changé. **Choix
-  provisoires** ([détail](../dev/faults.md#choix-provisoires-de-ce-chantier), à confirmer par Benoit) : fenêtre ouverte
+  provisoires** ([détail](../dev/faults.md#choix-provisoires-de-ces-chantiers), à confirmer par Benoit) : fenêtre ouverte
   par l'entrée du menu et toute seule seulement sur un refus faute de micro ; serveur injoignable posé après deux
   chargements ratés de suite ; la page « Voix » lève la panne de la voix ; aucun bouton pour les réglages illisibles ;
   origine dans le noyau.
 - **Plan de l'étape 2 : validé** par Benoit le 20 novembre 2026 (chantier `stage1/stage-2-plan`, [plan](../dev/plans/stage-2.md)) : 15 chantiers `stage2/<n>-<sujet>`, d'abord les essais E11 à E14 sur son PC puis les ADR 0017 à 0021 (numéros réservés par le plan). Ses réponses : `stage1/base` fusionné dans `main` sans attendre la recette (il a autorisé l'agent à fusionner cette PR), `stage2/base` part de `main` ; recherche web par une API avec clé (Brave Search) derrière un contrat ; essais, puis ADR, puis outils, l'éventail vers la fin.
-- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier `stage2/1-spikes` (essais E11 à E14 sur le PC de Benoit, par le contrôle à distance). `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Chantier `stage2/3-tool-loop`** (boucle d'outils, voir [dev/tools.md](../dev/tools.md)) : contrats du
+  noyau `ITool`, `IToolRegistry`, `ToolActivation` (section `Tools.Activation`), `IPermissionDecision` et
+  `ActionClass` ; tranche `Permissions/Decision` (un seul point de décision, refus par défaut, journal dans
+  la collection `Permissions.Decisions`) ; tranches `Tools/Clock` (`get_datetime`) et `Tools/Calculator`
+  (`calculate`) ; les trois adaptateurs envoient les outils et lisent les appels, avec l'analyseur tolérant
+  pour les adaptateurs locaux ; la conversation fait la boucle (8 appels par tour, 30 s par appel, résultat
+  coupé à 2 000 caractères) et montre chaque appel dans le tour. « Sensible » et « Critique » passent par la demande de confirmation du chantier 4. La page « Outils » est faite au chantier 5. **Non vérifié avec un vrai modèle** ni contre les vraies API d'OpenAI et d'Anthropic. **Tests
+  Windows en attente** ([liste](../dev/tools.md#vérifications-sur-windows)).
+- **Chantier `stage2/4-confirmation`** (demande de confirmation, voir
+  [dev/confirmation.md](../dev/confirmation.md)), selon l'ADR 0023 accepté : condition
+  `AssistantState.Interaction` (`PendingInteraction`, genre question, approbation, confirmation ou action
+  manuelle) et aspect « interaction requise » (ambre) dans le noyau, contrat `IConfirmation`,
+  `ITool.Summarize` ; tranche `Permissions/Confirmation` (`ConfirmationDesk`, une demande à la fois,
+  fenêtre, **aucun délai**, liste fermée de mots par langue) ; le point de décision demande la
+  confirmation, revérifie le canal (« Critique » : clic seul) et journalise le canal ; page « Journal des
+  permissions » ; `Voice/Speech` dit la question (tour parlé) ou l'annonce (tour écrit) sans phase
+  « Parole », `Voice/Transcription` ouvre une seule écoute. Hôte Web : outils factices `write_note`
+  (« Sensible ») et `erase_notes` (« Critique »). **Aucun vrai outil « Sensible » ou « Critique » n'existe
+  encore.** Choix provisoires à confirmer par Benoit : fermer la fenêtre vaut refus ; l'annonce d'une
+  conversation dit « Votre demande a besoin de votre interaction », la forme « la tâche X du projet Y »
+  attend les sessions et les tâches ; la liste de mots suit la langue ; la fenêtre n'est pas encore placée
+  près de l'orbe. **Tests Windows en attente** ([liste](../dev/confirmation.md#vérifications-sur-windows)).
+- **Chantier `stage2/5-basic-tools`** (outils de base, voir [dev/basic-tools.md](../dev/basic-tools.md)),
+  selon les ADR 0017 et 0022 : contrats du noyau `ILocalFiles`, `IReadingBrowser`, `IWebSearchApi`,
+  `IWebAddressPolicy` et `ITool.Discloses` ; tranche `Tools/Files` (`list_directory`, `read_file`, page
+  « Dossiers autorisés », aucun dossier autorisé au départ, liens et jonctions résolus avant la comparaison) ;
+  tranche `Tools/Web` (`web_search` et `fetch_url`, **désactivés au départ**, adresses locales refusées, Brave
+  Search quand une clé est au coffre, page « Recherche web ») ; tranche `Tools/Catalog` (page « Outils », un
+  interrupteur par outil) ; navigateur de Jarvis en WebView2 dans l'hôte Windows (`Browser/`), bouton « Voir
+  la page » dans la fenêtre de conversation. **Rien n'a tourné sur Windows** : le navigateur compile, ses
+  scripts sont essayés dans Chromium. Choix provisoires à confirmer par Benoit
+  ([détail](../dev/basic-tools.md#choix-provisoires-de-ces-chantiers)) : chemin tapé sans sélecteur de dossier,
+  pas de réglage « plus strict » par outil, fermeture du navigateur après 5 minutes, un seul onglet. **Tests
+  Windows en attente** ([liste](../dev/basic-tools.md#vérifications-sur-windows)).
+- **Chantier `stage2/6-mcp-client`** (client MCP, voir [dev/mcp.md](../dev/mcp.md)), selon l'ADR 0018,
+  sections 1 à 4 : contrat du noyau `IToolServerConnector` (`Kernel/Tools/Servers`), adaptateur
+  `McpToolServerConnector` sur le paquet `ModelContextProtocol.Core` 2.4.0, tranche `Mcp/Servers` (section
+  `Mcp.Servers`, `McpServerHub`, page « Serveurs MCP ») : ajout par adresse ou par commande, test de connexion
+  avec cause nommée, nouveaux essais de 5 s à 5 minutes, outils **désactivés à la découverte**, activation
+  liée à l'empreinte, classe « Lecture » ou « Sensible » montée par l'utilisateur seulement, jetons au
+  coffre. **Aucun vrai serveur MCP n'a été joint depuis Jarvis.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/mcp.md#choix-provisoires-de-ces-chantiers)) : un seul champ « Jeton », pas de modification d'un serveur sur la page, pas de
+  variables d'environnement, paquet `Core`. **Tests Windows en attente**
+  ([liste](../dev/mcp.md#vérifications-sur-windows)).
+- **Chantier `stage2/7-home-assistant`** (voir [dev/home-assistant.md](../dev/home-assistant.md)), selon
+  l'ADR 0018, section 5 : `ITool.ClassifyAsync` (le point de décision n'appelle que celle-ci), contrat du noyau
+  `IToolServerClassifier`, tranche `Mcp/HomeAssistant` (`HomeAssistantClassifier`, section `Mcp.HomeAssistant`,
+  page « Home Assistant »). Un appel est classé d'après les entités visées, lues par `GetLiveContext` : serrure,
+  alarme, vanne, sirène, porte de garage, porte, portail et entités marquées donnent « Critique » ; cible
+  introuvable = classe la plus haute possible ; script « Effet courant » sauf s'il est marqué ; sans la liste
+  des entités, l'appel est refusé. **Aucun appel n'est parti de Jarvis vers le vrai Home Assistant.** Choix
+  provisoires à confirmer par Benoit ([détail](../dev/home-assistant.md#choix-provisoires-de-ces-chantiers)) :
+  section `Mcp.HomeAssistant` et page à part, entité marquée par son nom, liste commune à tous les serveurs,
+  étage traité comme cible introuvable, liste gardée 5 s, thermostat non classé de sécurité. **Tests Windows en
+  attente** ([liste](../dev/home-assistant.md#vérifications-sur-windows)).
+- **Chantier `stage2/8-memory`** (voir [dev/conversation-memory.md](../dev/conversation-memory.md)), selon
+  l'ADR 0019 : contrat du noyau `IConversationMemory`, messages `TurnRecorded` et `ExchangesLeftHistory`,
+  propriétés `ITool.ReadsOutsideContent` et `RefusedAfterOutsideContent` ; tranche `Conversation/Memory`
+  (`MemoryBook`, `MemoryRecaller`, `MemoryWorker`, outils `remember_fact`, `forget_fact`, `search_memory`,
+  section `Conversation.Memory`, page « Mémoire »). Faits de 200 caractères et un résumé de 1 200, bloc d'un
+  huitième du contexte après les règles fixes, extraction par le modèle local à partir des seuls mots de
+  l'utilisateur, au repos seulement, silence de 2 heures réglable. **Aucun vrai modèle n'a extrait un fait ni
+  écrit un résumé.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/conversation-memory.md#choix-provisoires-de-ces-chantiers)) : collections
+  `Conversation.MemoryFacts` et `Conversation.MemorySummary`, résumé limité à la moitié du budget, pas de
+  limite d'âge quand la mémoire est coupée, `forget_fact` n'efface rien en cas d'ambiguïté, 500 faits au plus.
+  **Tests Windows en attente** ([liste](../dev/conversation-memory.md#vérifications-sur-windows)).
+- **Chantier `stage2/9-hand-off`** (voir [dev/hand-off.md](../dev/hand-off.md)), selon l'ADR 0020, sections 1
+  à 5 : contrats du noyau `IHandOff` (`Kernel/Conversation`) et `ILlmProviderList` (`Kernel/Llm`) ; tranche
+  `Llm/HandOff` (`HandOffTargets`, `HandOffTool` `hand_off_to_claude`, `HandOffPhrases`, section `Llm.HandOff`,
+  page « Passage de main », ordre 11) ; dans `Conversation/Dialogue`, la boucle `RunAsync` sert au modèle
+  local et à la cible, `ConversationTurn.HandOff` garde qui a répondu et pourquoi. Aucune cible au départ ;
+  l'outil n'est au registre que quand une cible est réglée ; la mémoire ne part que si la case est cochée ;
+  une cible qui échoue est une cause dite, jamais une panne. La cible des tâches (Claude Code) attend le
+  chantier 12. **Aucun appel n'est parti vers une vraie API cloud** (le plafond de dépense
+  est venu avec le chantier 10). Choix provisoires à confirmer par Benoit
+  ([détail](../dev/hand-off.md#choix-provisoires-de-ces-chantiers)) : motif montré mais pas dit, nom dit d'après
+  le genre du fournisseur, formules sur « Claude » seulement, huit appels d'outils propres à la cible.
+  **Tests Windows en attente** ([liste](../dev/hand-off.md#vérifications-sur-windows)).
+- **Chantier `stage2/10-spend-cap`** (voir [dev/spend-cap.md](../dev/spend-cap.md)), selon l'ADR 0020,
+  sections 6 et 7 : contrat du noyau `ISpendCap` (`Kernel/Llm`) et message `ProviderAnswered` ; causes
+  `HandOffRefusal.NoPrice` et `CapReached`, `IHandOff.Notice` ; tranche `Llm/Spend` (`SpendLedger`,
+  `KnownPrices`, sections `Llm.Spend` et `Llm.SpendCount`, collection `Llm.SpendEntries`, page « Dépense »,
+  ordre 12). Plafond de 10 $ US par mois au départ ; un fournisseur cloud sans prix n'est jamais appelé ; le
+  plafond est demandé avant chaque passage et avant chaque requête suivante de la cible ; au plafond l'outil
+  quitte le registre ; Jarvis prévient une fois à 80 % et une fois au plafond. **Écarts avec l'ADR** : la
+  collection a un seul point dans son nom ; le réglage « Claude Code est payé par abonnement » et
+  `--max-budget-usd` attendent le chantier 12. **Aucun appel n'est parti vers une vraie API cloud : le compte
+  n'a jamais été comparé à une facture.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/spend-cap.md#choix-provisoires-de-ces-chantiers)) : « Tout effacer » ne remet pas le compte à
+  zéro, bouton de remise à zéro sur la page, avertissement dit après la réponse de la cible.
+  **Tests Windows en attente** ([liste](../dev/spend-cap.md#vérifications-sur-windows)).
+- **Chantier `stage2/11-tasks-and-sessions`, première partie** (voir
+  [dev/tasks-and-sessions.md](../dev/tasks-and-sessions.md)), selon les ADR 0013 (section 6) et 0021 (sections
+  6, 7 et 10) : forme d'une tâche dans le noyau (`WorkTask`, neuf statuts, `TaskKeys`, `ITaskBoard`) ; tranche
+  `Tasks/Board` (collection `Tasks.Board`) ; contrat `IClaudeSessionRegistry` et adaptateur
+  `Adapters/ClaudeCode/ClaudeSessionRegistry`, qui n'ouvre que `sessions/*.json` (un test prouve qu'aucun
+  `*.key` ni `ide/*.lock` n'est ouvert) ; tranche `ClaudeCode/Sessions` (section `ClaudeCode.Sessions`, page
+  « Sessions Claude », ordre 52). Choix provisoires à confirmer par
+  Benoit ([détail](../dev/tasks-and-sessions.md#choix-provisoires-de-ces-chantiers)) : lecture du registre
+  activée au départ, toutes les 5 secondes. **Tests Windows en attente**
+  ([liste](../dev/tasks-and-sessions.md#vérifications-sur-windows)).
+- **Chantier `stage2/11-hook-server`, seconde partie du chantier 11** (voir
+  [dev/hook-server.md](../dev/hook-server.md)), selon l'ADR 0021 (sections 3, 5 et 6) : contrats du noyau
+  `ILocalServer`, `ILocalRoute`, `LocalServerOptions` (section `Local.Server`, port 47821), `HookPaths`,
+  `IClaudeUserSettings` ; adaptateur `Adapters/LocalServer/KestrelLocalServer` (Kestrel sur `127.0.0.1`
+  seulement, **aucune route sans jeton** : jeton de l'exécution en mémoire, jeton des hooks de l'utilisateur
+  dans le coffre sous `ClaudeCode.UserHookToken`, valable pour `/hook/…` seulement) ; routes des hooks dans
+  `Tasks/Board` (`TaskHooks`), qui créent les tâches de source `hook` et font bouger le tableau ; tranche
+  `ClaudeCode/Hooks` (page « Hooks Claude Code », ordre 53) : aperçu, installation et retrait dans
+  `%USERPROFILE%\.claude\settings.json` **sur le clic de l'utilisateur seulement**, avec copie datée.
+  `Kazo.Jarvis.Adapters` référence `Microsoft.AspNetCore.App`. **Écarts par rapport à l'ADR 0021** : page à
+  part au lieu d'un bouton dans « Sessions Claude » ; hooks installés en **commandes `curl.exe` en
+  arrière-plan** (`async`) et non en hooks `http`, parce que la vérification demandée par la section 6 n'a
+  pas pu se faire sans Windows. `/mcp` et `approve` : chantier 12. Choix provisoires à confirmer par Benoit
+  ([détail](../dev/hook-server.md#choix-provisoires-de-ces-chantiers)). **Tests Windows en attente, dont
+  « Jarvis fermé, une session ne ralentit pas »** ([liste](../dev/hook-server.md#vérifications-sur-windows)).
+- **Chantier `stage2/12-claude-code-launch`, première partie du chantier 12** (voir
+  [dev/claude-code-launch.md](../dev/claude-code-launch.md)) : `ActionRequest.Session` (`SessionAction`) pour
+  qu'une demande d'une session Claude Code passe par le point de décision avec une classe donnée par le code ;
+  outil `approve` sur `/mcp` du serveur local (`ModelContextProtocol.AspNetCore`, jeton de l'exécution
+  seulement) et contrat `IClaudeApprovals` ; contrat `IClaudeCode` et adaptateur `ClaudeCodeProcess` (ligne de
+  commande de l'ADR 0021, fichiers sous `.kazo\jarvis\claude\` sans secret, jeton et tâche par
+  l'environnement). Écarts : pas de hook `SessionStart` pour les sessions
+  de Jarvis ; aucun délai de confirmation (ADR 0023 l'emporte sur l'ADR 0021). **Non vérifié : aucun vrai
+  Claude Code lancé par ce code ; variables dans les en-têtes du fichier MCP.**
+- **Chantier `stage2/12-claude-code-tasks`, seconde partie du chantier 12** (voir
+  [dev/claude-code-tasks.md](../dev/claude-code-tasks.md)) : tranche `ClaudeCode/Launch` (`ClaudeTaskRunner`,
+  page « Tâches Claude Code », ordre 54). « Demande à Claude Code de… » lance une session sur un dossier
+  autorisé (choisi par son nom dans la demande, sinon Jarvis demande lequel) ; tâche créée avant le lancement ;
+  demandes classées par `SessionRules` puis passées au point de décision ; session arrêtée si une écriture
+  s'exécute sans avoir demandé ; fins `done`, `blocked`, `abandoned` ; `ClaudeTaskEnded` publié. Contrats du
+  noyau : `IClaudeTasks`, `IAllowedFolders`, `ISpendCap.SessionBudget`. Réglage « Claude Code est payé par
+  abonnement » (coché par défaut) dans `Llm/Spend`. **Écarts : le résumé de fin n'est pas encore dit à voix
+  haute (chantier 13) ; `kind: task` n'est pas proposé au modèle local, seule la formule lance une session.**
+  Choix provisoires à confirmer par Benoit ([détail](../dev/claude-code-tasks.md#choix-provisoires-de-ces-chantiers)).
+  **Aucune vraie session lancée ; tests Windows en attente**
+  ([liste](../dev/claude-code-tasks.md#vérifications-sur-windows)).
+- **Chantier `stage2/13-session-announcements`** (voir
+  [dev/session-announcements.md](../dev/session-announcements.md)) : le tour d'annonce de l'ADR 0024 dans le
+  noyau (`AnnouncementSubmitted`, `TurnInput.Announcement`, `AnnouncementToSay`) et dans la conversation
+  (`AnnouncementDesk` : écrit tout de suite, dit au repos, une à la fois, jamais envoyé au modèle) ; tranche
+  `ClaudeCode/Announcements` (`SessionAnnouncer` surveille le tableau des tâches, donc mêmes annonces pour une
+  session lancée par Jarvis ou vue par ses hooks ; choix par dossier ; heures de silence, aucune par défaut ;
+  période de silence gardée en mémoire seulement ; outils `start_quiet_period` et `get_claude_sessions` ; page
+  « Annonces », ordre 55). Le résumé de fin laissé de côté au chantier 12 est dit ici. **Écarts : le badge
+  ambre de l'orbe pendant le silence est arrivé au chantier 14 ; « je vais dormir » repose sur la description de
+  l'outil, donc sur le modèle local.** Choix provisoires à confirmer par Benoit
+  ([détail](../dev/session-announcements.md#choix-provisoires-de-ces-chantiers)). **Aucune annonce dite par une
+  vraie voix ; tests Windows en attente** ([liste](../dev/session-announcements.md#vérifications-sur-windows)).
+- **Chantier `stage2/14-task-fan`** (voir [dev/task-fan.md](../dev/task-fan.md)) : l'éventail de l'ADR 0010.
+  Noyau : `TaskFanToggleRequested`, `IPointerTimings` (délai de double-clic donné par l'hôte),
+  `ITaskFanSurface` et `FanAnchor`, `IOpenConfirmations` (la demande de confirmation ouverte, que le bureau des
+  confirmations met en œuvre), `TaskId` sur `ConfirmationRequest` et `SessionAction`. Orbe : `OrbActivation`
+  retarde le simple clic du délai de double-clic et publie le double-clic ; `OrbView` nourrit le badge ambre.
+  Tranche `Tasks/Fan` (`TaskFan`, `FanContent`, `FanLayout`, `TaskFanView` : un SVG dont l'origine est l'orbe,
+  cinq panneaux au plus, sous-tâches dans le panneau, demande d'une session dans le panneau de sa tâche avec
+  Autoriser, Refuser et Détails, animation en pas à 30 images par seconde au plus). `Tasks/Board` publie
+  maintenant `DelegatedTaskCountChanged` (`TaskCount`). Hôte Windows : `FanWindow` créée une fois après l'orbe
+  et gardée cachée, `SystemPointerTimings`. Hôte Web : l'orbe est dans un coin de la page. Choix provisoires à
+  confirmer par Benoit ([détail](../dev/task-fan.md#choix-provisoires-de-ces-chantiers)). **Rien n'a tourné sur
+  Windows ; les mesures de l'ADR 0010 ne sont pas refaites sur l'hôte réel ; tests Windows en attente**
+  ([liste](../dev/task-fan.md#vérifications-sur-windows)).
+- **Chantier `stage2/17-agents`** (voir [dev/agents.md](../dev/agents.md)) : première partie de l'ADR 0025, sections 1 à 4, 8 et 9. Noyau : `IAgentCatalog`, `IAgentFiles`, `AgentDefinition`, `ITool.Agent`, panne `AgentUnreadable`. Tranche `Agents/Catalog` : un fichier `agents\<identité>.md` par agent, six agents de départ écrits au premier lancement et jamais réécrits par-dessus un fichier de l'utilisateur (empreintes dans `Agents.Files`), fichiers relus quand ils changent, outils `hand_to_agent` et `return_to_jarvis`, page « Agents ». Conversation : l'agent Jarvis reçoit la demande avec ses seuls outils et une ligne par agent, répond lui-même (un appel) ou passe la main ; l'agent nommé continue le tour ; un agent rend la main ; choix de l'agent dans la fenêtre pour une demande écrite ; nom de l'agent gardé avec le tour. **Rien n'a tourné sur Windows** ([liste](../dev/agents.md#vérifications-sur-windows)), et **le tri par un vrai modèle local n'a jamais été essayé** : les essais utilisent un modèle simulé. **Huit choix provisoires** à confirmer par Benoit ([détail](../dev/agents.md#choix-provisoires-de-ces-chantiers)). La suite est dans les notes des chantiers 18 et 19. La vue des projets (ADR 0026) vient après le chantier 19. Les deux choix d'application de l'ADR 0027 (clic gauche pendant l'écoute, pas de délai du double-clic tant que rien ne répond) sont confirmés par Benoit depuis le 22 novembre 2026.
+- **Chantier `stage2/18-agent-memory`** (voir [dev/agents.md](../dev/agents.md#la-mémoire-de-chaque-agent-chantier-18-adr-0025-section-5)) : ADR 0025, sections 3 (fin) et 5. Noyau : `ITool.ForEveryAgent`, `ITool.InvokeAsync(arguments, agent, …)`, `IConversationMemory.RecallForAgentAsync`. Mémoire : `MemoryFact.Agent`, outil `remember_agent_fact` donné à chaque agent sauf l'agent Jarvis, second bloc « [Mémoire de l'agent] » envoyé seulement quand cet agent répond (un seizième du contexte), liste « à qui sert le fait » dans la page « Mémoire ». Serveurs MCP : `McpServerOptions.Agent` et liste « Agent » sur la page du serveur, lue à chaque tour. **Rien n'a tourné sur Windows**, et le modèle local n'a jamais appelé `remember_agent_fact`. Quatre choix provisoires de plus (9 à 12 dans [dev/agents.md](../dev/agents.md#choix-provisoires-de-ces-chantiers)).
+- **Chantier `stage2/19-projects`** (voir [dev/projects.md](../dev/projects.md)) : ADR 0025, sections 6, 10, 11 et 13 (point 2). Noyau : `IProjectCatalog`, `ProjectDefinition`, `AgentIds.Project`, `AgentHand.Project`, `IAllowedFolders.AllowAsync`. Tranche `Projects/Catalog` : projets gardés dans les réglages (`Projects.List`), mémoire lue dans `JARVIS.md` à la racine du dossier, page « Projets » (créer, retirer, autoriser le dossier après confirmation). Agents : septième agent de départ « Projet », argument `project` de `hand_to_agent`. Conversation : projet du tour (choisi dans la fenêtre, nommé dans la phrase, ou nommé au passage de main), bloc « [Projet] » donné à l'agent qui répond sauf l'agent Jarvis, nom du projet gardé avec le tour. **Rien n'a tourné sur Windows.** Sept choix provisoires ([détail](../dev/projects.md#choix-provisoires-de-ces-chantiers)), dont le nom `JARVIS.md` et le fait que Jarvis lit cette mémoire sans l'écrire. **Restent à construire pour l'ADR 0025 :** la demande d'assigner à un projet un dossier qui n'en a pas, la session Claude Code lancée dans le dossier du projet, l'écriture de la mémoire d'un projet, puis le chantier 20, le mode « Appel ».
+- **Chantier `stage2/19-project-sessions`** (voir [dev/projects.md](../dev/projects.md)) : ADR 0025, section 6. `ProjectCatalog.Unassigned` lit le tableau des tâches (`ITaskBoard`) : un dossier où une session non terminée travaille et qui n'appartient à aucun projet donne une demande à la page « Projets » (assigner à un projet existant, `ProjectEntry.MoreFolders`, ou créer un projet). Un travail remis à Claude Code pendant un tour qui porte sur un projet démarre dans le dossier du projet (`ClaudeTaskRequest.Folder`) ; un dossier non autorisé est refusé par son nom (`FolderNotAllowed`). **Rien n'a tourné sur Windows.** Choix provisoires 8 à 12 de [dev/projects.md](../dev/projects.md#choix-provisoires-de-ces-chantiers), dont : la demande ne se voit qu'à la page « Projets ». **Restent à construire pour l'ADR 0025 :** l'écriture de la mémoire d'un projet, puis le chantier 20, le mode « Appel ».
+- **Chantier `stage2/20-call-mode`** (voir [dev/call-mode.md](../dev/call-mode.md)) : ADR 0025, sections 12 et 13 (point 3). Noyau : `ActivationSource.Call` (lance l'écoute au repos seulement, n'annule ni n'interrompt jamais). Tranche `Conversation/Dialogue` : `CallMode` (début par le bouton « Appeler » ou une phrase comme « On doit discuter de… », agent et projet gardés d'un tour à l'autre, fin sur « au revoir » dit par Jarvis sans le modèle) et `CallListener` (écoute relancée après un tour parlé qui a reçu sa réponse, trois silences de suite au plus). **Rien n'a tourné sur Windows, et l'écoute sans « Hey Jarvis » n'a jamais été essayée avec un vrai micro.** Sept choix provisoires ([détail](../dev/call-mode.md#choix-provisoires-de-ce-chantier)). **Restent à construire pour l'ADR 0025 :** l'écriture de la mémoire d'un projet par Jarvis ; puis la vue des projets (ADR 0026).
+- **Réponses de Benoit du 2026-11-23** (« ok » aux recommandations, fil « Construire les agents par type de tâche ») : la phrase dite au passage de main reste fixe ; les outils de mémoire restent dans l'agent Mémoire ; les fichiers d'agents de départ suivent la langue de l'assistant ; les longues exécutions vont dans les vérifications GitHub d'une branche poussée ; le fichier de mémoire d'un projet s'appelle `JARVIS.md` ; Jarvis y écrit sur demande, avec confirmation ; la demande pour un dossier sans projet se montre aussi dans l'éventail des tâches.
+- **Chantier `stage2/21-project-memory-writing`** (voir [dev/projects.md](../dev/projects.md)) : outil `remember_project_fact` (tranche `Projects/Catalog`, agent « Projet », classe « Sensible » donc confirmation à chaque fois) qui ajoute une ligne à `JARVIS.md` ; `ILocalFiles.AppendTextAsync` au noyau, seule écriture de Jarvis dans un dossier de l'utilisateur ; `SecretShapes` passé au noyau (`Kernel/Secrets`), car la mémoire de conversation et celle des projets refusent toutes deux un secret. **Rien n'a tourné sur Windows.**
+- **Chantier `stage2/22-unassigned-folder-in-fan`** (voir [dev/task-fan.md](../dev/task-fan.md)) : le panneau d'une session dont le dossier n'appartient à aucun projet montre le bouton « Dossier sans projet : choisir », qui ouvre la page « Projets » ; `IProjectCatalog.IsWithoutProject` et `IProjectCatalog.SettingsPageKey` au noyau. Le panneau ne devient pas ambre. **Rien n'a tourné sur Windows.**
+- **Chantier `stage2/23-session-reads-project-memory`** (voir [dev/projects.md](../dev/projects.md)) : le premier message d'une session Claude Code lancée par Jarvis dans un dossier de projet commence par une ligne qui la dirige vers `JARVIS.md` (`IProjectCatalog.MemoryFileOf` au noyau, `ClaudeTaskRunner.FirstMessage`). **Jamais essayé avec le vrai Claude Code.** Reste de l'ADR 0025 : les appels dans l'application Android (étape 5).
+- **Prochaine étape :** série `stage2`, branche `stage2/base` partie de `main`, chantier 15 (`stage2/15-acceptance`, recette sur le PC de Benoit, avec lui) du [plan](../dev/plans/stage-2.md) ; le chantier `stage2/14-task-fan` est fait (les chantiers `stage2/3-tool-loop`, `stage2/4-confirmation`, `stage2/5-basic-tools`, `stage2/6-mcp-client`, `stage2/7-home-assistant`, `stage2/8-memory`, `stage2/9-hand-off`, `stage2/10-spend-cap` `stage2/11` (ses deux parties, `stage2/11-tasks-and-sessions` et `stage2/11-hook-server`) et `stage2/12` (ses deux parties, `stage2/12-claude-code-launch` et `stage2/12-claude-code-tasks`) et `stage2/13-session-announcements` sont faits ; les ADR 0017 à 0022 sont tous acceptés). Le chantier `stage2/1-spikes` (essais E11 à E14) est fait. `stage1/base` est fusionné dans `main` le 20 novembre 2026 **sans recette** (décision de Benoit) : il reste le chantier `stage1/17-acceptance` (recette sur le PC de Benoit, avec lui), dont les corrections passeront par une petite série à part. Les tests Windows en attente (chantiers 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 et 15, [liste](../dev/hosts.md#vérifications-sur-windows)) se font à la prochaine séance avec Benoit. Plan : le [plan de la série de l'étape 1](../dev/plans/stage-1.md),
+- **Recette de l'étape 2 (chantier 15), état au 22 novembre 2026 :** commencée le 21 novembre sur le PC de Benoit, pas finie. Vérifié sur son PC : les tests unitaires, l'orbe et l'éventail (délai du clic, double clic, Échap, clics qui traversent), l'assistant de première utilisation, Ollama trouvé sur 11435, le serveur MCP de Home Assistant connecté, le mot d'éveil, une commande vocale de bout en bout. Trouvé et corrigé : les services d'arrière-plan qui ne démarraient jamais sous Windows (cercle de dépendances par fabriques, [pièges](../dev/pitfalls.md)), confirmé corrigé sur son PC ; la fenêtre des paramètres sans défilement et le nom d'entité dit par le modèle (« lumière articulée » pour « Articulé », [détail](../dev/home-assistant.md)), corrigés mais **pas encore revus sur son PC** ; le conseil de modèles relevé à 15 Go. Sur sa carte de 12 Go, Benoit utilise `qwen3:8b` avec Whisper turbo. Noté, pas corrigé : Whisper a entendu « est un articulé » pour « allume Articulé ». **Il reste** : la lumière « Articulé » à la voix, la question passée à Claude, la tâche Claude Code avec une écriture autorisée et l'annonce de fin, en français puis en anglais, la liste des connexions sortantes, les vérifications Windows des chantiers 4 à 14, puis `features.md`. L'ADR 0025 (un agent par type de tâche, mémoires par agent et par projet, mode « Appel ») est **proposé** dans sa PR, avec trois points que Benoit a remis à plus tard le 22 novembre ; il se construit après la recette.
+- **ADR 0027 (gestes sur l'orbe, remplace la section 3 de 0010) : accepté** par Benoit le 22 novembre 2026 (chantier `stage2/16-orb-gestures-adr`), d'après sa demande : clic gauche, Jarvis écoute ; clic droit, l'éventail des tâches ; double-clic, la vue des projets (message `ProjectsViewRequested`, auquel rien ne répond encore). Deux choix d'application, **confirmés par Benoit le 22 novembre 2026** (« ok ») : un clic pendant l'écoute l'annule toujours ; tant qu'aucune tranche ne répond au double-clic, il n'y a ni double-clic ni délai. Les numéros 0025 (agents par type de tâche) et 0026 (vue des projets) sont pris par des PR ouvertes : **le prochain numéro d'ADR libre est 0028.** Code fait au chantier `stage2/16-orb-gestures` (`OrbActivation.RightClickAsync`, `ProjectsViewRequested`, clic droit attrapé par la fenêtre de l'orbe), **pas vérifié sur Windows**. Ce que disent plus haut et plus bas les notes des chantiers précédents sur le double-clic qui ouvre l'éventail ne vaut plus.
   **validé** par Benoit le 19 novembre 2026 (17 chantiers `stage1/<n>-<sujet>`). Construire et tester :
   [dev/build.md](../dev/build.md).
 - **Réponses de Benoit du 19 novembre 2026 sur le plan :** intégration continue GitHub Actions sous Linux
@@ -195,7 +373,7 @@ ce qu'il décrit.
 - **Dépôt public :** Benoit a confirmé le 19 novembre 2026 que `Kazo-ca/Jarvis` est public ([ADR 0014](../dev/adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). La
   vérification des versions (US1.18) n'a donc pas besoin de jeton ; la conséquence de l'ADR 0001 qui en
   parlait ne s'applique plus.
-- **Échecs de tests connus :** aucun.
+- **Échecs de tests connus :** aucun. Le test de l'éventail qui n'échouait que sur l'intégration continue (`TaskFanTests`, l'écriture autorisée depuis son panneau) est expliqué et corrigé (lot `stage2/17-confirmation-survives-other-views`) : la fenêtre de confirmation refusait sa demande à la fin d'un composant, et le serveur mettait fin aux pages des tests précédents à ce moment ; le refus vient maintenant de `IDialogService.Closed` ([pièges](../dev/pitfalls.md)).
 - **Vérification sur Windows du chantier 1 : faite** le 19 novembre 2026 par un agent sur le PC de Benoit
   (SDK 10.0.402) : construction sans avertissement, tests unitaires 29/29, Playwright 1/1, hôte Web en
   HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. Lancé sur une session verrouillée, l'hôte

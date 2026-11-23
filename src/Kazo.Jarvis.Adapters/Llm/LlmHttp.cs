@@ -168,41 +168,100 @@ internal static class LlmHttp
         return request;
     }
 
-    /// <summary>
-    /// Refuses tools: the tool format of ADR 0007 (section 3) and the tolerant parser arrive at stage 2 with the
-    /// first tool. Silently dropping them would make the model answer as if it had none.
-    /// </summary>
-    public static void RejectTools(ChatOptions? options)
-    {
-        if (options?.Tools is { Count: > 0 })
-        {
-            throw new NotSupportedException("Tools arrive at stage 2 (ADR 0007, section 3); this adapter does not send them yet.");
-        }
-    }
+    /// <summary>The tools declared in <paramref name="options"/> (ADR 0007, section 3). Only declarations are read: Jarvis keeps the tool loop.</summary>
+    public static IReadOnlyList<LlmTool> Tools(ChatOptions? options) =>
+        options?.Tools is { Count: > 0 } tools
+            ? [.. tools.OfType<AIFunctionDeclaration>().Select(tool => new LlmTool(tool.Name, tool.Description, tool.JsonSchema))]
+            : [];
 
     /// <summary>
-    /// The messages to send, the instructions of <paramref name="options"/> first as a system message.
-    /// Only the text of each message is sent at stage 1.
+    /// The messages to send, the instructions of <paramref name="options"/> first as a system message. An assistant
+    /// message keeps the tool calls it made; each tool result becomes one message of role <c>tool</c>.
     /// </summary>
-    public static IReadOnlyList<(string Role, string Text)> Flatten(IEnumerable<ChatMessage> messages, ChatOptions? options)
+    public static IReadOnlyList<LlmMessage> Flatten(IEnumerable<ChatMessage> messages, ChatOptions? options)
     {
-        var result = new List<(string, string)>();
+        var result = new List<LlmMessage>();
         if (!string.IsNullOrWhiteSpace(options?.Instructions))
         {
-            result.Add(("system", options.Instructions));
+            result.Add(new LlmMessage("system", options.Instructions));
         }
 
+        var names = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var message in messages)
         {
+            if (message.Role == ChatRole.Tool)
+            {
+                foreach (var outcome in message.Contents.OfType<FunctionResultContent>())
+                {
+                    result.Add(new LlmMessage("tool", Text(outcome.Result))
+                    {
+                        CallId = outcome.CallId,
+                        ToolName = names.GetValueOrDefault(outcome.CallId),
+                    });
+                }
+
+                continue;
+            }
+
             var role = message.Role == ChatRole.System ? "system"
                 : message.Role == ChatRole.Assistant ? "assistant"
                 : message.Role == ChatRole.User ? "user"
-                : throw new NotSupportedException($"Role '{message.Role}' arrives with the tools at stage 2.");
-            result.Add((role, message.Text));
+                : throw new NotSupportedException($"Role '{message.Role}' is not sent to a model.");
+            var calls = message.Contents.OfType<FunctionCallContent>()
+                .Select(call => new LlmToolCall(call.CallId, call.Name, JsonSerializer.SerializeToElement(call.Arguments ?? new Dictionary<string, object?>())))
+                .ToList();
+            foreach (var call in calls)
+            {
+                names[call.Id] = call.Name;
+            }
+
+            result.Add(new LlmMessage(role, message.Text) { Calls = calls });
         }
 
         return result;
     }
+
+    /// <summary>
+    /// A tool call read from a provider. Arguments that are not a JSON object leave <see cref="FunctionCallContent.Arguments"/>
+    /// empty and set <see cref="FunctionCallContent.Exception"/>: the decision point denies such a call.
+    /// </summary>
+    public static FunctionCallContent Call(string? id, string name, JsonElement? arguments)
+    {
+        var callId = string.IsNullOrEmpty(id) ? "call_" + Guid.NewGuid().ToString("N")[..12] : id;
+        if (arguments is { ValueKind: JsonValueKind.Object } read)
+        {
+            return new FunctionCallContent(callId, name, read.EnumerateObject().ToDictionary(property => property.Name, property => (object?)property.Value.Clone(), StringComparer.Ordinal));
+        }
+
+        return new FunctionCallContent(callId, name, null) { Exception = new FormatException("The arguments of the call are not a JSON object.") };
+    }
+
+    /// <summary>The same, from arguments written as JSON text (OpenAI, Anthropic). Empty text is an empty object.</summary>
+    public static FunctionCallContent Call(string? id, string name, string argumentsJson)
+    {
+        if (string.IsNullOrWhiteSpace(argumentsJson))
+        {
+            argumentsJson = "{}";
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(argumentsJson);
+            return Call(id, name, document.RootElement.Clone());
+        }
+        catch (JsonException)
+        {
+            return Call(id, name, (JsonElement?)null);
+        }
+    }
+
+    private static string Text(object? result) => result switch
+    {
+        null => string.Empty,
+        string text => text,
+        JsonElement { ValueKind: JsonValueKind.String } json => json.GetString() ?? string.Empty,
+        _ => JsonSerializer.Serialize(result, Json),
+    };
 
     /// <summary>The last update of a stream: why it ended, the tokens counted, the model that answered.</summary>
     public static ChatResponseUpdate Final(string? modelId, ChatFinishReason? finish, long? input, long? output)

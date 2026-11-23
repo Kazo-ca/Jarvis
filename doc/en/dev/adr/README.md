@@ -22,6 +22,17 @@ free number is given in the [project memory](../../memory/README.md).
 | [0014](0014-license-kazo-bar-rule-and-jarvis-py.md) | Apache 2.0 license, rule on Kazo Bar (copying allowed, no reference) and removal of `jarvis.py` | Accepted |
 | [0015](0015-work-tracking-source.md) | Work tracking source (GitHub Issues or Azure Boards) and mandatory link for commits and PRs | Accepted |
 | [0016](0016-onnx-runtime-managed-on-sherpa-native.md) | A single native ONNX Runtime, the one from sherpa-onnx (partly supersedes 0001) | Accepted |
+| [0017](0017-tools-classes-and-decision-point.md) | Basic tools, class of each tool and permission decision point (section 3 browser superseded by 0022) | Accepted |
+| [0018](0018-mcp-client-and-home-assistant.md) | MCP client, Home Assistant and security home automation (clarifies 0009 for Home Assistant scripts) | Accepted |
+| [0019](0019-conversation-memory.md) | Conversation memory: kept facts, summary of old exchanges, "Memory" page | Accepted |
+| [0020](0020-hand-off-targets-and-spend-cap.md) | Hand-off, targets and spend cap | Accepted |
+| [0021](0021-claude-code-sessions.md) | Claude Code sessions: launch, permissions, hooks, announcements | Accepted |
+| [0022](0022-in-app-browser-for-web-search.md) | Web search in a browser internal to Jarvis (partly supersedes 0017) | Accepted |
+| [0023](0023-confirmation-request-in-a-turn.md) | The confirmation request within a turn: "interaction required" condition and look, voice answer by a closed list, no timeout (completes 0005) | Accepted |
+| [0024](0024-announcement-turn.md) | The announcement turn: one more row in the transition table, to say aloud what nobody asked for (completes 0005) | Accepted |
+| [0025](0025-task-agents-and-their-memories.md) | One agent per kind of task: Markdown files, sorting by the Jarvis agent, memory per agent and per project (completes 0017 and 0019) | Accepted |
+| [0026](0026-projects-subjects-and-their-threads.md) | The view of projects, subjects and their threads: project rail, subject thread and task thread, "T3>" answers, Général project, opened by the double click of ADR 0027 (completes 0013 and 0025) | Accepted |
+| [0027](0027-orb-gestures.md) | Gestures on the orb: left click to listen, right click for the fan, double click for the projects view (replaces section 3 of 0010) | Accepted |
 
 The first nine ADRs are those of stage 1, listed in the
 [design document](../plans/design.md#working-method-and-first-adrs).

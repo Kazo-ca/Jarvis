@@ -53,4 +53,19 @@ The details are in the log:
   <data name="FirstRunWizard" xml:space="preserve">
     <value>Setup wizard…</value>
   </data>
+  <data name="BrowserTitle" xml:space="preserve">
+    <value>Jarvis's browser</value>
+  </data>
+  <data name="BrowserBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="BrowserReload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="BrowserAddress" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="BrowserWarning" xml:space="preserve">
+    <value>This browser belongs to Jarvis and reads pages for it. If you sign in to a site here, Jarvis then reads pages with that account open, and a trapped page can mislead the model while it reads.</value>
+  </data>
 </root>

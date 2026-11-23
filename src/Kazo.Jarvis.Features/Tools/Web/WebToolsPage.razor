@@ -1,0 +1,118 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject IServiceProvider Services
+@inject IStringLocalizer<WebToolsPage> T
+
+@* Page of the web tools (ADR 0017, section 3; ADR 0022): which search is used, what leaves the machine, the local
+   addresses allowed by hand, and the browser of Jarvis. The two tools are turned on in the tools page. A change is
+   saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["LeavesLabel"]">
+        <p class="web-tools-note" data-web-tools-leaves>@T["Leaves"]</p>
+    </SettingsField>
+
+    <SettingsField Label="@T["EngineLabel"]" Hint="@T["EngineHint"]">
+        @foreach (var engine in Enum.GetValues<WebSearchEngine>())
+        {
+            <label class="web-tools-choice">
+                <input type="radio" name="web-tools-engine" data-web-engine="@engine" checked="@(options.Engine == engine)"
+                       @onchange="() => SaveAsync(options with { Engine = engine })" />
+                <span>@T["Engine_" + engine]</span>
+            </label>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["BraveLabel"]" Hint="@T["BraveHint"]">
+        <SecretField Reference="WebSearchApiSecrets.BraveKey" Label="@T["BraveKey"]" />
+    </SettingsField>
+
+    <SettingsField Label="@T["ResultsLabel"]" Hint="@T["ResultsHint", WebToolsOptions.MostResults]">
+        <input type="number" class="web-tools-number" data-web-results aria-label="@T["ResultsLabel"]" min="1" max="@WebToolsOptions.MostResults"
+               value="@options.Results.ToString(CultureInfo.InvariantCulture)"
+               @onchange="e => SaveAsync(options with { Results = Math.Clamp(Integer(e, options.Results), 1, WebToolsOptions.MostResults) })" />
+    </SettingsField>
+
+    <SettingsField Label="@T["SizeLabel"]" Hint="@T["SizeHint", WebToolsOptions.LeastResultCharacters, WebToolsOptions.MostResultCharacters]">
+        <input type="number" class="web-tools-number" data-web-result-characters aria-label="@T["SizeLabel"]"
+               min="@WebToolsOptions.LeastResultCharacters" max="@WebToolsOptions.MostResultCharacters" step="100"
+               value="@options.ResultCharacters.ToString(CultureInfo.InvariantCulture)"
+               @onchange="e => SaveAsync(options with { ResultCharacters = Math.Clamp(Integer(e, options.ResultCharacters), WebToolsOptions.LeastResultCharacters, WebToolsOptions.MostResultCharacters) })" />
+    </SettingsField>
+
+    <SettingsField Label="@T["ExceptionsLabel"]" Hint="@T["ExceptionsHint"]">
+        <textarea class="web-tools-exceptions" data-web-exceptions rows="3" spellcheck="false" aria-label="@T["ExceptionsLabel"]"
+                  value="@string.Join("\n", options.LocalExceptions)" @onchange="ChangeExceptionsAsync"></textarea>
+    </SettingsField>
+
+    <SettingsField Label="@T["BrowserLabel"]" Hint="@(browser is null ? T["BrowserMissing"] : T["BrowserHint"])">
+        @if (browser is not null)
+        {
+            <button type="button" class="web-tools-button" data-web-browser-open @onclick="OpenAsync">@T["BrowserOpen"]</button>
+            <button type="button" class="web-tools-button" data-web-browser-clear @onclick="ClearAsync">@T["BrowserClear"]</button>
+            @if (cleared)
+            {
+                <span class="web-tools-note" role="status" data-web-browser-cleared>@T["BrowserCleared"]</span>
+            }
+        }
+    </SettingsField>
+
+    @if (problem is not null)
+    {
+        <p class="web-tools-problem" role="alert" data-web-tools-problem>@problem</p>
+    }
+</SettingsFrame>
+
+@code {
+    private WebToolsOptions options = new();
+    private IReadingBrowser? browser;
+    private string? problem;
+    private bool cleared;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        options = Settings.Read(WebToolsOptions.Section);
+        browser = Services.GetService(typeof(IReadingBrowser)) as IReadingBrowser;
+    }
+
+    private static int Integer(ChangeEventArgs e, int fallback) =>
+        int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : fallback;
+
+    private Task ChangeExceptionsAsync(ChangeEventArgs e)
+    {
+        var hosts = (e.Value?.ToString() ?? string.Empty)
+            .Split(['\n', '\r', ',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        return SaveAsync(options with { LocalExceptions = hosts });
+    }
+
+    private async Task SaveAsync(WebToolsOptions changed)
+    {
+        var result = await Settings.WriteAsync(WebToolsOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        options = Settings.Read(WebToolsOptions.Section);
+    }
+
+    private async Task OpenAsync()
+    {
+        if (browser is not null)
+        {
+            await browser.ShowAsync();
+        }
+    }
+
+    private async Task ClearAsync()
+    {
+        if (browser is not null)
+        {
+            await browser.ClearDataAsync();
+            cleared = true;
+        }
+    }
+}

@@ -20,6 +20,12 @@ public enum ActivationSource
 
     /// <summary>A single click on the orb. While listening, it cancels listening.</summary>
     Click,
+
+    /// <summary>
+    /// The call goes on (ADR 0025, section 12): Jarvis listens to what follows without the wake word. It only
+    /// starts listening at rest: it never cancels listening and never interrupts.
+    /// </summary>
+    Call,
 }
 
 /// <summary>Wake word, hotkey or click: starts listening, cancels it, or interrupts Jarvis.</summary>
@@ -29,6 +35,13 @@ public sealed record ActivationRequested(ActivationSource Source) : AssistantInp
 /// <summary>A text sent from the conversation window: a new turn without the microphone.</summary>
 /// <param name="Text">The request as typed.</param>
 public sealed record TextSubmitted(string Text) : AssistantInput;
+
+/// <summary>
+/// An announcement asks to be said (ADR 0024, section 1): a new turn when idle, ignored otherwise. Whoever submits
+/// it waits for the rest and submits it again.
+/// </summary>
+/// <param name="Text">The text to say.</param>
+public sealed record AnnouncementSubmitted(string Text) : AssistantInput;
 
 /// <summary>The end of the utterance was detected; transcription and the model follow.</summary>
 /// <param name="Turn">The turn listened to.</param>

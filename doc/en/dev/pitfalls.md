@@ -135,3 +135,32 @@ that 1.32 lacks: Piper and Silero no longer load ("Unable to load shared library
 Fix of work item 9: the wake word takes `Microsoft.ML.OnnxRuntime.Managed` **1.28.0** (the .NET part only)
 and runs on sherpa-onnx's 1.28.2 native engine; one `onnxruntime` in the process. A managed version newer
 than the native one fails (`GetApi` returns null): raising one means raising the other.
+
+## A dependency circle through factories freezes the start with no error (stage 2 acceptance)
+
+The container only detects a circle between constructors. With factories
+(`provider => new X(provider.GetRequiredService<Y>())`), it goes down until the stack is full, moves to
+another thread and waits for the lock of the first one: `host.StartAsync()` never returns, with no exception
+and no log line. Seen at the acceptance: local server → `IClaudeApprovals` → session runner → `IClaudeCode` →
+local server. The wake word, the MCP servers and the first run never started, while the orb answered. The Web
+host did not show it: its simulated `IClaudeCode` does not need the local server.
+
+Rule: an adapter that needs a service given by a slice asks for it **at the time of the call** (`Func<T?>`),
+not when it is built. The test `AdaptersRegistrationTests` builds the background services with the real
+adapters and a time limit.
+
+Same source: an object handed out by several factory registrations (itself, its interface, the hosted
+service) is disposed once per registration. Its `DisposeAsync` must accept several calls.
+
+## The end of a component is not a gesture of the user (stage 2, fan test failing on CI only)
+
+The confirmation window refused its request in `Dispose`, reading the end of the component as "the user closed
+the window". In the Web host the dialogs live in the host: **every** connected page draws them, also a page
+whose browser is gone and whose connection the server has not dropped yet. When the server ended such a
+connection while a request was open, its components were disposed and the request was refused with no click.
+On GitHub the pages of the earlier tests were dropped later than locally, so a test failed there only: the
+window "never appeared" or was gone a moment later. The same would happen when `LanguageScope` builds the
+content again for another language.
+
+Rule: a component never answers for the user in `Dispose`. What the user closes is told by the host
+(`IDialogService.Closed`). And in the Web host, remember that a component can exist once per connected page.

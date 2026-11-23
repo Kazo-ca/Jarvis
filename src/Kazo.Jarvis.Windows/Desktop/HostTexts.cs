@@ -43,6 +43,18 @@ internal static class HostTexts
 
     public static string Quit => Text(nameof(Quit));
 
+    /// <summary>Title of the window of the browser of Jarvis (ADR 0022).</summary>
+    public static string BrowserTitle => Text(nameof(BrowserTitle));
+
+    public static string BrowserBack => Text(nameof(BrowserBack));
+
+    public static string BrowserReload => Text(nameof(BrowserReload));
+
+    public static string BrowserAddress => Text(nameof(BrowserAddress));
+
+    /// <summary>The warning shown in the browser of Jarvis: what signing in there means (ADR 0022, section 2).</summary>
+    public static string BrowserWarning => Text(nameof(BrowserWarning));
+
     public static string WaitingForUnlock => Text(nameof(WaitingForUnlock));
 
     public static string WebView2Missing => Text(nameof(WebView2Missing)) + "\n" + WebView2Download;

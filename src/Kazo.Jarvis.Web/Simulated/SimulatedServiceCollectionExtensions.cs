@@ -36,6 +36,9 @@ public static class SimulatedServiceCollectionExtensions
 
         services.TryAddSingleton<SimulatedOrbWindow>();
         services.TryAddSingleton<IOrbWindow>(provider => provider.GetRequiredService<SimulatedOrbWindow>());
+        services.TryAddSingleton<SimulatedTaskFanSurface>();
+        services.TryAddSingleton<ITaskFanSurface>(provider => provider.GetRequiredService<SimulatedTaskFanSurface>());
+        services.TryAddSingleton<IPointerTimings>(provider => provider.GetRequiredService<SimulatedTaskFanSurface>());
         services.TryAddSingleton<OverlayDialogService>();
         services.TryAddSingleton<IDialogService>(provider => provider.GetRequiredService<OverlayDialogService>());
         services.TryAddSingleton<SimulatedGlobalHotkey>();
@@ -65,6 +68,40 @@ public static class SimulatedServiceCollectionExtensions
         services.TryAddSingleton<IWakeWordEngine>(provider => provider.GetRequiredService<SimulatedWakeWordEngine>());
         services.TryAddSingleton<SimulatedSpeechRecognition>();
         services.TryAddSingleton<ISpeechRecognition>(provider => provider.GetRequiredService<SimulatedSpeechRecognition>());
+        // Two tools that need a confirmation, to show the request before a real tool does (stage2/4-confirmation).
+        services.TryAddSingleton<SimulatedNotes>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Kazo.Jarvis.Kernel.Tools.ITool, SimulatedNoteTool>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Kazo.Jarvis.Kernel.Tools.ITool, SimulatedEraseTool>());
+        // Basic tools (stage2/5-basic-tools): a few files in memory and a browser with fixed pages; the address
+        // policy comes from the web tools slice.
+        // Claude Code sessions (stage2/11-tasks-and-sessions): a few sessions in memory, moved by the test page.
+        services.TryAddSingleton<SimulatedClaudeSessions>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeSessionRegistry>(provider => provider.GetRequiredService<SimulatedClaudeSessions>());
+
+        // Hooks (stage2/11-hook-server): the user's Claude Code settings in memory, and a local server that only
+        // says it listens. The real server and its token check are tested with the adapter.
+        services.TryAddSingleton<SimulatedClaudeUserSettings>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeUserSettings>(provider => provider.GetRequiredService<SimulatedClaudeUserSettings>());
+        services.TryAddSingleton<SimulatedLocalServer>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(provider => provider.GetRequiredService<SimulatedLocalServer>());
+
+        // Sessions started by Jarvis (stage2/12-claude-code-tasks): a scripted Claude Code that asks its
+        // permissions through the same contract as the real approve tool.
+        services.TryAddSingleton<SimulatedClaudeCode>();
+        services.TryAddSingleton<SimulatedHandSession>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode>(provider => provider.GetRequiredService<SimulatedClaudeCode>());
+
+        services.TryAddSingleton<SimulatedLocalFiles>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Files.ILocalFiles>(provider => provider.GetRequiredService<SimulatedLocalFiles>());
+
+        // Agents (stage2/17-agents): their files in memory.
+        services.TryAddSingleton<InMemoryAgentFiles>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Agents.IAgentFiles>(provider => provider.GetRequiredService<InMemoryAgentFiles>());
+        services.TryAddSingleton<SimulatedReadingBrowser>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Web.IReadingBrowser>(provider => provider.GetRequiredService<SimulatedReadingBrowser>());
+        // Tool servers (stage2/6-mcp-client): fixed servers in memory.
+        services.TryAddSingleton<SimulatedToolServers>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Tools.Servers.IToolServerConnector>(provider => provider.GetRequiredService<SimulatedToolServers>());
         services.TryAddSingleton<SimulatedVoiceActivity>();
         services.TryAddSingleton<IVoiceActivityDetection>(provider => provider.GetRequiredService<SimulatedVoiceActivity>());
 

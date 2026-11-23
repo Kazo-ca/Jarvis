@@ -123,4 +123,13 @@
   <data name="Configuration_Action_MigrationFailed" xml:space="preserve">
     <value>Rename %USERPROFILE%\.kazo\jarvis\config.json, then restart Jarvis; the log says which step failed.</value>
   </data>
+  <data name="Agent_Title" xml:space="preserve">
+    <value>Unreadable agent</value>
+  </data>
+  <data name="Agent_Explanation" xml:space="preserve">
+    <value>The file of an agent could not be read: its header is missing or badly written. This agent is left out; the others keep answering.</value>
+  </data>
+  <data name="Agent_Action" xml:space="preserve">
+    <value>Open the Agents page: it names the file and what is wrong. Fix it or delete it; the problem goes away as soon as every file reads.</value>
+  </data>
 </root>

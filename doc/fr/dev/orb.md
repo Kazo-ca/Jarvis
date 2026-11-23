@@ -24,7 +24,7 @@ référence : sections 2 et 3 du [catalogue](ui/catalog.md) et les prototypes
 | `OrbGyroscopeGeometry.cs` | Les cinq anneaux gyroscopiques (graduation en degrés, arcs, tirets et nœuds, bande, couronne) et leurs vitesses, dans une boîte de 1 000 × 1 000 |
 | `OrbQuality.cs`, `OrbOptions.cs`, `OrbQualityKeeper.cs` | Le réglage « qualité de l'orbe » (section `Assistant.Orb` de `config.json`), surveillé pour s'appliquer sans redémarrer |
 | `OrbSettingsPage.razor` (+ `.razor.css`, `.resx`) | La page « Orbe » de la fenêtre des paramètres |
-| `OrbActivation.cs` | Le clic sur l'orbe (US1.6) : publie `ActivationRequested(Click)` |
+| `OrbActivation.cs` | Les gestes sur l'orbe (US1.6 ; ADR 0027) : un clic gauche publie `ActivationRequested(Click)`, un clic droit publie `TaskFanToggleRequested`, un double-clic publie `ProjectsViewRequested` ; le clic gauche n'attend le délai de double-clic de l'hôte que si une tranche répond au double-clic (voir [task-fan.md](task-fan.md)) |
 | `OrbSlice.cs` | Enregistrement |
 
 ### Entrées et sorties du composant `Orb`
@@ -56,7 +56,7 @@ sur son dessin. Ce sont les points d'appui des tests Playwright.
   l'orbe affiché : `OrbQualityKeeper` surveille la section et `OrbView` change de dessin sans redémarrer.
 - Jarvis ne change jamais de version tout seul (ADR 0011, section 1).
 
-## Les sept aspects
+## Les huit aspects
 
 | Aspect | Couleur | Vitesse haute qualité / légère | Lumière |
 | --- | --- | --- | --- |
@@ -67,6 +67,7 @@ sur son dessin. Ce sont les points d'appui des tests Playwright.
 | Tâche longue | vert | 0,45 / 0,5 | anneau de progression |
 | Erreur | rouge | 0 / 0 (image fixe) | un éclair à l'entrée ; la cause au survol |
 | Micro coupé | gris | 0 / 0 (image fixe) | faible, mention « micro coupé » |
+| Interaction requise | ambre | 0,6 / 0,7 ; les deux versions pulsent | presque pleine ; passe avant l'aspect de la phase ([ADR 0023](adr/0023-confirmation-request-in-a-turn.md)) |
 
 - La couleur (`--orb-color`) et la lumière (`--orb-light`) de chaque aspect sont dans `Orb.razor.css`, pour
   les deux versions. Elles sont enregistrées par `@property` : elles passent en fondu (0,5 et 0,4 s), et la
@@ -139,7 +140,7 @@ Faciles à changer ; à confirmer par Benoit.
 ## Page de démonstration
 
 `/orb` dans l'hôte Web (US1.3), liée depuis la page d'accueil. Elle pilote le composant directement par ses
-entrées, sans micro ni modèle : les deux versions (haute qualité au départ), les sept aspects, le nombre de
+entrées, sans micro ni modèle : les deux versions (haute qualité au départ), les huit aspects, le nombre de
 tâches et la progression (connue ou non), les décisions en attente, la cause d'une erreur, le niveau sonore,
 le mouvement réduit et la veille animée (pour essayer seulement : interdite sur Windows). Un compteur montre
 la sortie « clic ».
@@ -150,7 +151,8 @@ la sortie « clic ».
   seulement, mouvement réduit), `OrbGeometryTests` et `OrbGyroscopeGeometryTests` (tracés, vitesses des
   anneaux, nombres indépendants de la culture), `OrbQualityKeeperTests` (haute qualité par défaut, choix
   enregistré, changement annoncé une seule fois, valeur inconnue refusée), `OrbActivationTests` (le clic passe
-  par la machine à états).
+  par la machine à états), `OrbDoubleClickTests` (clic droit, simple clic retardé, double-clic qui n'est jamais un simple
+  clic, clic immédiat sans vue des projets).
 - Playwright (`OrbTests`) : chaque aspect dans `data-look` ; version légère : écoute = trois rotations,
   veille, micro coupé et erreur = aucune, veille animée en option, mouvement réduit du système et de
   l'option ; haute qualité : écoute = sept rotations et boucle de dessin active, veille, micro coupé et erreur

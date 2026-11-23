@@ -54,12 +54,20 @@ internal sealed class OrbWindow : Window
 
         // WebView2CompositionControl receives its input through WPF, so the window sees the press first.
         PreviewMouseLeftButtonDown += OnPress;
+        PreviewMouseRightButtonDown += OnRightPress;
+        PreviewMouseRightButtonUp += OnRightRelease;
         SourceInitialized += (_, _) => NativeMethods.AddExtendedStyle(
             new WindowInteropHelper(this).Handle, NativeMethods.WsExNoActivate | NativeMethods.WsExToolWindow);
     }
 
     /// <summary>The top-left corner in physical screen pixels.</summary>
     public (int X, int Y) ScreenPosition => NativeMethods.WindowPosition(new WindowInteropHelper(this).Handle);
+
+    /// <summary>The window's rectangle in physical screen pixels.</summary>
+    public (int X, int Y, int Width, int Height) ScreenBounds => NativeMethods.WindowBounds(new WindowInteropHelper(this).Handle);
+
+    /// <summary>Puts the window back above the other "always on top" windows of the host, without activating it.</summary>
+    public void BringToTop() => NativeMethods.BringToTop(new WindowInteropHelper(this).Handle);
 
     /// <summary>
     /// Places the window at physical screen pixels as soon as its handle exists, before it is shown. Windows
@@ -73,8 +81,20 @@ internal sealed class OrbWindow : Window
     /// <summary>Raised on a press released without moving the window.</summary>
     public event EventHandler? Clicked;
 
+    /// <summary>Raised on a right click (ADR 0027, section 2). The WebView never sees it, so it shows no menu.</summary>
+    public event EventHandler? RightClicked;
+
     /// <summary>Raised after the user moved the window.</summary>
     public event EventHandler? Moved;
+
+    // Kept from the WebView, which would otherwise open its own menu on the release.
+    private void OnRightPress(object sender, MouseButtonEventArgs e) => e.Handled = true;
+
+    private void OnRightRelease(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        RightClicked?.Invoke(this, EventArgs.Empty);
+    }
 
     private void OnPress(object sender, MouseButtonEventArgs e)
     {

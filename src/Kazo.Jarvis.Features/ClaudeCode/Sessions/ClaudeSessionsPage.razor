@@ -1,0 +1,166 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject ClaudeSessionList Sessions
+@inject IStringLocalizer<ClaudeSessionsPage> T
+@implements IDisposable
+
+@* The « Sessions Claude » page (US2.11, US2.14; ADR 0021, section 6): every Claude Code session running on this
+   computer, grouped by project, with its folder, its state and its last activity; those started by hand and
+   those of Claude Desktop included. Jarvis only looks. A change of a setting is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["FollowLabel"]">
+        <label class="sessions-switch">
+            <input type="checkbox" data-sessions-enabled checked="@options.Enabled" @onchange="e => SaveAsync(options with { Enabled = e.Value is true })" />
+            <span>@T["Enabled"]</span>
+        </label>
+        <ul class="sessions-notes" data-sessions-notes>
+            <li>@T["Note_ReadOnly"]</li>
+            <li>@T["Note_Secrets"]</li>
+            <li>@T["Note_WatchOnly"]</li>
+        </ul>
+    </SettingsField>
+
+    <SettingsField Label="@T["ListLabel"]" Hint="@T["ListHint"]">
+        <div class="sessions-list" data-sessions-list data-sessions-availability="@view.Availability" data-sessions-count="@view.Count">
+            @switch (view.Availability)
+            {
+                case ClaudeSessionsAvailability.Off:
+                    <p class="sessions-note" data-sessions-off>@T["Off"]</p>
+                    break;
+                case ClaudeSessionsAvailability.NoRegistry:
+                    <p class="sessions-note" data-sessions-no-registry>@T["NoRegistry"]</p>
+                    break;
+                case ClaudeSessionsAvailability.Unreadable:
+                    <p class="sessions-problem" role="alert" data-sessions-unreadable>@T["Unreadable"]</p>
+                    break;
+                case ClaudeSessionsAvailability.NotRead:
+                    <p class="sessions-note">@T["Reading"]</p>
+                    break;
+                default:
+                    if (view.Count == 0)
+                    {
+                        <p class="sessions-note" data-sessions-none>@T["None"]</p>
+                    }
+
+                    @foreach (var project in view.Projects)
+                    {
+                        <section class="sessions-project" data-sessions-project="@project.Key" @key="project.Key">
+                            <h3 class="sessions-project-name">
+                                <span data-sessions-project-name>@project.Name</span>
+                                <span class="sessions-note">@T["ProjectCount", project.Sessions.Count]</span>
+                            </h3>
+                            <ul class="sessions-rows">
+                                @foreach (var row in project.Sessions)
+                                {
+                                    var session = row.Session;
+                                    <li class="sessions-row" data-session="@session.SessionId" data-session-state="@session.State" data-session-waits="@(row.Waits ? "true" : "false")"
+                                        data-session-origin="@Origin(row)" data-session-topic="@row.Topic" @key="session.SessionId">
+                                        <span class="sessions-name" data-session-name>@session.Name</span>
+                                        <span class="sessions-state" data-session-state-text>@StateText(row)</span>
+                                        <span class="sessions-note" data-session-folder>@session.Folder</span>
+                                        <span class="sessions-note" data-session-meta>@Meta(row)</span>
+                                    </li>
+                                }
+                            </ul>
+                        </section>
+                    }
+
+                    break;
+            }
+        </div>
+    </SettingsField>
+
+    <SettingsField Label="@T["PollLabel"]" Hint="@T["PollHint", ClaudeSessionsOptions.LeastSeconds, ClaudeSessionsOptions.MostSeconds]">
+        <input type="number" class="sessions-number" data-sessions-poll aria-label="@T["PollLabel"]" disabled="@(!options.Enabled)"
+               min="@ClaudeSessionsOptions.LeastSeconds" max="@ClaudeSessionsOptions.MostSeconds" step="1"
+               value="@options.PollSeconds.ToString(CultureInfo.InvariantCulture)" @onchange="ChangePollAsync" />
+        @if (problem is not null)
+        {
+            <p class="sessions-problem" role="alert" data-sessions-problem>@problem</p>
+        }
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private ClaudeSessionsOptions options = new();
+    private ClaudeSessionsView view = ClaudeSessionsView.NotRead;
+    private string? problem;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        Sessions.Changed += OnChanged;
+        options = Settings.Read(ClaudeSessionsOptions.Section);
+
+        // The page shows the sessions of now, not those of the last interval.
+        view = await Sessions.RefreshAsync();
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => Sessions.Changed -= OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        view = Sessions.View;
+        StateHasChanged();
+    });
+
+    private static string Origin(ClaudeSessionRow row) =>
+        row.StartedByJarvis ? "Jarvis" : row.Session.FromDesktop ? "Desktop" : "Manual";
+
+    private string StateText(ClaudeSessionRow row)
+    {
+        var session = row.Session;
+        if (session.State == ClaudeSessionState.Waiting && session.WaitingFor is { Length: > 0 } reason)
+        {
+            return T["State_WaitingFor", reason];
+        }
+
+        return T["State_" + session.State];
+    }
+
+    private string Meta(ClaudeSessionRow row)
+    {
+        var parts = new List<string> { T["Origin_" + Origin(row)] };
+        if (row.Topic != TaskKeys.Inbox)
+        {
+            parts.Add(row.Topic);
+        }
+
+        if (row.Session.UpdatedAt is { } at)
+        {
+            parts.Add(T["LastActivity", at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)]);
+        }
+
+        if (row.Task is { } task)
+        {
+            parts.Add(T["Task", task.Status.ToWire()]);
+        }
+
+        return string.Join(" · ", parts);
+    }
+
+    private async Task ChangePollAsync(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds))
+        {
+            problem = T["NotANumber"];
+            return;
+        }
+
+        await SaveAsync(options with { PollSeconds = seconds });
+    }
+
+    private async Task SaveAsync(ClaudeSessionsOptions changed)
+    {
+        var result = await Settings.WriteAsync(ClaudeSessionsOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        options = Settings.Read(ClaudeSessionsOptions.Section);
+        view = await Sessions.RefreshAsync();
+    }
+}

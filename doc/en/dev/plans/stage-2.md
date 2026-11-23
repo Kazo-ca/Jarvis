@@ -177,7 +177,7 @@ Work item 11 only depends on the ADRs and can move from work item 2 on.
   and sent straight to the target (US2.6).
 - Targets page: one for tasks with files or steps (Claude Code, wired in work item 12), one for hard
   questions (`anthropic` or `openai` provider) (US2.7).
-- The orb and the conversation say who answers. The screen that turns on a cloud target says what leaves
+- The conversation says who answers; nothing changes on the orb (ADR 0020, answer 2). The screen that turns on a cloud target says what leaves
   the machine.
 
 ### 10. Spend cap (`stage2/10-spend-cap`)

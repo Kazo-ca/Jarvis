@@ -1,0 +1,243 @@
+@using System.Globalization
+@inject ISettingsStore Settings
+@inject MemoryBook Book
+@inject IAssistantModel Model
+@inject IStringLocalizer<MemoryPage> T
+@inject IServiceProvider Services
+@implements IDisposable
+
+@* The « Mémoire » page (ADR 0019, section 8): what Jarvis keeps about the user, shown whole, erased one fact at a
+   time or all at once; the summary of the old exchanges; the two switches and the silence after which an exchange
+   is old. A change is saved at once. *@
+<SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    <SettingsField Label="@T["SwitchesLabel"]">
+        <label class="memory-switch">
+            <input type="checkbox" data-memory-enabled checked="@options.Enabled" @onchange="e => SaveAsync(options with { Enabled = e.Value is true })" />
+            <span>@T["Enabled"]</span>
+        </label>
+        <p class="memory-note">@T["EnabledHint"]</p>
+        <label class="memory-switch">
+            <input type="checkbox" data-memory-automatic checked="@options.Automatic" disabled="@(!options.Enabled)" @onchange="e => SaveAsync(options with { Automatic = e.Value is true })" />
+            <span>@T["Automatic"]</span>
+        </label>
+        <p class="memory-note">@T["AutomaticHint"]</p>
+    </SettingsField>
+
+    <SettingsField Label="@T["FactsLabel"]" Hint="@T["FactsHint", budget]">
+        @if (facts.Count == 0)
+        {
+            <p class="memory-note" data-memory-none>@T["None"]</p>
+        }
+        else
+        {
+            <ul class="memory-facts" data-memory-facts data-memory-count="@facts.Count">
+                @foreach (var fact in facts)
+                {
+                    var isSent = options.Enabled && sent.Contains(fact.Key);
+                    <li class="memory-fact" data-memory-fact="@fact.Key" data-memory-agent="@fact.Agent" data-memory-source="@fact.Source" data-memory-pinned="@(fact.Pinned ? "true" : "false")"
+                        data-memory-sent="@(isSent ? "true" : "false")" @key="fact.Key">
+                        <span class="memory-fact-text">@fact.Text</span>
+                        <span class="memory-note">@fact.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @T["Source_" + fact.Source] · @(fact.Agent is null ? string.Empty : T["ForAgent", AgentName(fact.Agent)].Value + " · ")@T[isSent ? "Sent" : "NotSent"]</span>
+                        <label class="memory-switch">
+                            <input type="checkbox" data-memory-pin checked="@fact.Pinned" @onchange="e => PinAsync(fact, e.Value is true)" />
+                            <span>@T["Pinned"]</span>
+                        </label>
+                        <button type="button" class="memory-button" data-memory-remove @onclick="() => RemoveAsync(fact)">@T["Remove"]</button>
+                    </li>
+                }
+            </ul>
+        }
+        <div class="memory-add">
+            <input type="text" class="memory-input" data-memory-add-text maxlength="@MemoryFact.MostCharacters" aria-label="@T["AddLabel"]"
+                   placeholder="@T["AddPlaceholder"]" @bind="draft" @bind:event="oninput" @onkeydown="OnKeyAsync" />
+            @if (agents.Count > 0)
+            {
+                @* A fact typed here can serve one agent alone (ADR 0025, section 5). *@
+                <select class="memory-input memory-agent" data-memory-add-agent aria-label="@T["AddAgentLabel"]" @bind="draftAgent">
+                    <option value="">@T["ForEveryone"]</option>
+                    @foreach (var agent in agents)
+                    {
+                        <option value="@agent.Id">@T["ForAgent", agent.Name]</option>
+                    }
+                </select>
+            }
+            <button type="button" class="memory-button" data-memory-add disabled="@string.IsNullOrWhiteSpace(draft)" @onclick="AddAsync">@T["Add"]</button>
+        </div>
+        @if (problem is not null)
+        {
+            <p class="memory-problem" role="alert" data-memory-problem>@problem</p>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["SummaryLabel"]" Hint="@T["SummaryHint"]">
+        @if (string.IsNullOrWhiteSpace(summary?.Text))
+        {
+            <p class="memory-note" data-memory-no-summary>@T["NoSummary"]</p>
+        }
+        else
+        {
+            <p class="memory-summary" data-memory-summary>@summary.Text</p>
+            <button type="button" class="memory-button" data-memory-erase-summary @onclick="EraseSummaryAsync">@T["EraseSummary"]</button>
+        }
+    </SettingsField>
+
+    <SettingsField Label="@T["SilenceLabel"]" Hint="@T["SilenceHint", MemoryOptions.LeastSilenceMinutes, MemoryOptions.MostSilenceMinutes]">
+        <input type="number" class="memory-number" data-memory-silence aria-label="@T["SilenceLabel"]"
+               min="@MemoryOptions.LeastSilenceMinutes" max="@MemoryOptions.MostSilenceMinutes" step="5"
+               value="@options.SilenceMinutes.ToString(CultureInfo.InvariantCulture)" @onchange="ChangeSilenceAsync" />
+    </SettingsField>
+
+    <SettingsField Label="@T["EraseLabel"]" Hint="@T["EraseHint"]">
+        @if (confirmingErase)
+        {
+            <span class="memory-note" role="alert">@T["EraseConfirm"]</span>
+            <button type="button" class="memory-button memory-danger" data-memory-erase-confirm @onclick="EraseAllAsync">@T["EraseYes"]</button>
+            <button type="button" class="memory-button" data-memory-erase-cancel @onclick="() => confirmingErase = false">@T["EraseNo"]</button>
+        }
+        else
+        {
+            <button type="button" class="memory-button" data-memory-erase disabled="@(facts.Count == 0 && string.IsNullOrWhiteSpace(summary?.Text))" @onclick="() => confirmingErase = true">@T["EraseAll"]</button>
+        }
+    </SettingsField>
+</SettingsFrame>
+
+@code {
+    private MemoryOptions options = new();
+    private IReadOnlyList<MemoryFact> facts = [];
+    private HashSet<Guid> sent = [];
+    private MemorySummary? summary;
+    private int budget;
+    private string? draft;
+    private string draftAgent = string.Empty;
+    private Kazo.Jarvis.Kernel.Agents.IAgentCatalog? catalog;
+    private IReadOnlyList<Kazo.Jarvis.Kernel.Agents.AgentDefinition> agents = [];
+    private string? problem;
+    private bool confirmingErase;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        options = Settings.Read(MemoryOptions.Section);
+        Book.Changed += OnBookChanged;
+
+        // Without agents, every fact is about the user and the choice is not shown.
+        catalog = Services.GetService(typeof(Kazo.Jarvis.Kernel.Agents.IAgentCatalog)) as Kazo.Jarvis.Kernel.Agents.IAgentCatalog;
+        if (catalog is not null)
+        {
+            catalog.Changed += OnBookChanged;
+        }
+
+        await ReadAsync();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Book.Changed -= OnBookChanged;
+        if (catalog is not null)
+        {
+            catalog.Changed -= OnBookChanged;
+        }
+    }
+
+    // The name of the agent as its file gives it; its identity when the file is gone, so the fact stays readable.
+    private string AgentName(string id) => catalog?.Agents.FirstOrDefault(agent => agent.Id == id)?.Name ?? id;
+
+    // A fact kept during a conversation shows without leaving the page.
+    private void OnBookChanged() => _ = InvokeAsync(async () =>
+    {
+        await ReadAsync();
+        StateHasChanged();
+    });
+
+    private async Task ReadAsync()
+    {
+        facts = await Book.FactsAsync();
+        summary = await Book.SummaryAsync();
+        budget = MemoryRecaller.Budget(Model.Provider?.Tuning.ContextLength ?? new LlmTuning().ContextLength);
+        sent = [.. MemoryRecaller.Select(MemoryRecaller.General(facts), summary?.Text, budget).Facts.Select(fact => fact.Key)];
+
+        // A fact of an agent is sent when that agent answers, within its own share.
+        foreach (var agent in facts.Where(fact => fact.Agent is not null).Select(fact => fact.Agent!).Distinct(StringComparer.Ordinal))
+        {
+            sent.UnionWith(MemoryRecaller.Select(MemoryRecaller.Of(facts, agent), null, budget / 2).Facts.Select(fact => fact.Key));
+        }
+
+        // The memory of the Jarvis agent is the memory of the user: it is not in the choice.
+        agents = catalog is null ? [] : [.. catalog.Agents.Where(agent => agent.Id != catalog.Main.Id)];
+        if (agents.All(agent => agent.Id != draftAgent))
+        {
+            draftAgent = string.Empty;
+        }
+    }
+
+    private async Task OnKeyAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AddAsync();
+        }
+    }
+
+    private async Task AddAsync()
+    {
+        if (string.IsNullOrWhiteSpace(draft))
+        {
+            return;
+        }
+
+        var outcome = await Book.AddForAgentAsync(draftAgent, draft, FactSource.Manual);
+        problem = outcome == FactOutcome.Added ? null : T["Add_" + outcome].Value;
+        if (outcome is FactOutcome.Added or FactOutcome.AlreadyKnown)
+        {
+            draft = null;
+        }
+
+        await ReadAsync();
+    }
+
+    private async Task RemoveAsync(MemoryFact fact)
+    {
+        await Book.RemoveAsync(fact.Key);
+        await ReadAsync();
+    }
+
+    private async Task PinAsync(MemoryFact fact, bool pinned)
+    {
+        await Book.PinAsync(fact.Key, pinned);
+        await ReadAsync();
+    }
+
+    private async Task EraseSummaryAsync()
+    {
+        await Book.EraseSummaryAsync();
+        await ReadAsync();
+    }
+
+    private async Task EraseAllAsync()
+    {
+        confirmingErase = false;
+        await Book.EraseAllAsync();
+        await ReadAsync();
+    }
+
+    private async Task ChangeSilenceAsync(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var minutes))
+        {
+            await SaveAsync(options with { SilenceMinutes = Math.Clamp(minutes, MemoryOptions.LeastSilenceMinutes, MemoryOptions.MostSilenceMinutes) });
+        }
+    }
+
+    private async Task SaveAsync(MemoryOptions changed)
+    {
+        var result = await Settings.WriteAsync(MemoryOptions.Section, changed);
+        problem = result.Outcome switch
+        {
+            SettingsWriteOutcome.Saved => null,
+            SettingsWriteOutcome.ReadOnly => T["SaveFailed"],
+            _ => string.Join(" ", result.Problems),
+        };
+        options = Settings.Read(MemoryOptions.Section);
+    }
+}

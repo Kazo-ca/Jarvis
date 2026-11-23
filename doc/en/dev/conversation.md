@@ -25,6 +25,9 @@ conversation window ─► TextSubmitted ─► state machine ─► TurnStarted
 
 No slice references another: everything goes through the kernel's messages. The kernel did not change.
 
+Since work item `stage2/3-tool-loop`, the engine also gives the enabled tools to the model and runs its
+calls through the permission decision point: see [tools.md](tools.md).
+
 ### Slice `Features/Conversation/Dialogue`
 
 - **`ConversationEngine`** runs the turn:
@@ -33,6 +36,11 @@ No slice references another: everything goes through the kernel's messages. The 
   - **Spoken request** (`UtteranceTranscribed`): each complete sentence is published as `SentenceToSpeak` as
     soon as it is written, then `AnswerSentencesEnded`. The voice publishes `FirstSentenceReady` and
     `SpeechEnded`.
+  - **Announcement** (`TurnStarted` with `TurnInput.Announcement`, ADR 0024): the engine does nothing, the
+    model is not called. `AnnouncementDesk` writes the announcement in the journal as soon as it arrives and
+    gives its sentences to the voice when its turn starts: see
+    [session-announcements.md](session-announcements.md). An announcement never enters the history sent to
+    the model.
   - **Nothing heard** (empty Whisper text): `AnswerFinishedWithoutSpeech`, without calling the model.
   - **Interruption** (`TurnCancelled`, US1.12): the generation stops (the stream token is cancelled); the
     voice cuts itself. The wake word stays active while thinking and speaking (work item 9).
@@ -49,7 +57,12 @@ No slice references another: everything goes through the kernel's messages. The 
   resources), then the **fixed rules**: answer in the language of the turn, a text made to be said (no
   Markdown, lists, emoji or code, short sentences), the local date and time.
 - **History sent to the model**: the last answered turns that fit in about half of the provider's context
-  (3 characters per token), 20 turns at most.
+  (3 characters per token), 20 turns at most and, when the memory is in use, no turn from before a silence
+  of 2 hours. The memory block is added to the system message after the fixed rules
+  ([conversation-memory.md](conversation-memory.md)).
+- **Hand-off**: a request that starts with "Ask Claude…", or a call of the `hand_off_to_claude` tool by the
+  local model, has the cloud target answer in the same loop; the turn keeps who answered and why
+  ([hand-off.md](hand-off.md)).
 - **`ConversationJournal`**: the turns of the collection `Conversation.Turns` (read once, when first needed)
   and the turn in progress. A turn is stored **when it ends**: answered, interrupted (with what was written by
   then) or failed (with the cause). What is stored (ADR 0007, section 7): request, answer, language, voice or
@@ -89,7 +102,8 @@ The ADRs do not settle them; for Benoit to confirm:
    abbreviations; a sentence cut at a comma beyond 250 characters.
 2. **Markdown removed from what is said**, kept in the written answer.
 3. **History**: last answered turns, 20 at most, in half of the context; interrupted or failed turns are not
-   sent back to the model; **no age limit** (a turn from yesterday counts) until the summary of stage 2.
+   sent back to the model; **no age limit** (a turn from yesterday counts) until the summary of stage 2. *(Lifted by work item
+   `stage2/8-memory`: silence of 2 hours, can be set.)*
 4. **A turn is stored when it ends**. A cancelled listening, or one without words, is not stored.
 5. **Model failure in the middle of a spoken answer**: the voice stops, the orb shows the error.
 6. **Personality**: both languages on the same page; saving the butler's text or an empty text is a reset;

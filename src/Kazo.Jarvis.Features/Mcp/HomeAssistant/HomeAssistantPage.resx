@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Home Assistant</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>A command to a security device asks for a click on this computer: the voice is not enough. Jarvis finds the devices a command aims at before it decides.</value>
+  </data>
+  <data name="AlwaysLabel" xml:space="preserve">
+    <value>Always security</value>
+  </data>
+  <data name="Always" xml:space="preserve">
+    <value>Locks, alarms, valves, sirens, and covers that are a garage door, a door or a gate.</value>
+  </data>
+  <data name="EntitiesLabel" xml:space="preserve">
+    <value>Other security devices</value>
+  </data>
+  <data name="EntitiesHint" xml:space="preserve">
+    <value>One name per line, as Home Assistant names the device.</value>
+  </data>
+  <data name="ScriptsLabel" xml:space="preserve">
+    <value>Security scripts</value>
+  </data>
+  <data name="ScriptsHint" xml:space="preserve">
+    <value>A script can actuate anything, and its name does not say what. Without a mark, a script runs without a question.</value>
+  </data>
+  <data name="NoScript" xml:space="preserve">
+    <value>No connected server offers a script.</value>
+  </data>
+  <data name="ContextLabel" xml:space="preserve">
+    <value>Device list kept (seconds)</value>
+  </data>
+  <data name="ContextHint" xml:space="preserve">
+    <value>Each command reads the devices Home Assistant exposes. The list is reused for this long, from 0 to {0} seconds.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings file cannot be written.</value>
+  </data>
+</root>

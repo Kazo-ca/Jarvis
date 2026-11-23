@@ -1,0 +1,85 @@
+.spend-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.spend-warning {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-amber);
+}
+
+.spend-problem {
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+.spend-count {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.spend-list,
+.spend-entries {
+    width: 100%;
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.spend-entries {
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.spend-prices {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.spend-price {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.spend-provider {
+    min-width: 12rem;
+}
+
+.spend-amount {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.spend-number {
+    width: 7rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.spend-button {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--jarvis-line);
+    background: transparent;
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.spend-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

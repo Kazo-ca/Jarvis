@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Dépense</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Ce que les réponses des fournisseurs cloud coûtent ce mois-ci, et le plafond que Jarvis ne dépasse jamais. Les montants sont en dollars américains, la monnaie de facturation des fournisseurs.</value>
+  </data>
+  <data name="CountLabel" xml:space="preserve">
+    <value>Ce mois-ci</value>
+  </data>
+  <data name="CountHint" xml:space="preserve">
+    <value>Compté à partir des jetons de chaque réponse et des prix ci-dessous. Le compte repart à zéro le premier jour de chaque mois.</value>
+  </data>
+  <data name="Count" xml:space="preserve">
+    <value>{0} USD dépensés sur {1} USD ({2})</value>
+  </data>
+  <data name="Reached" xml:space="preserve">
+    <value>Le plafond est atteint : Jarvis reste en local jusqu'au mois prochain, ou jusqu'à ce que vous releviez le plafond.</value>
+  </data>
+  <data name="Near" xml:space="preserve">
+    <value>Plus de 80 % du plafond est dépensé.</value>
+  </data>
+  <data name="Entry" xml:space="preserve">
+    <value>{0} jetons envoyés, {1} reçus, {2} USD</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Remettre le compte à zéro</value>
+  </data>
+  <data name="ResetConfirm" xml:space="preserve">
+    <value>Le compte du mois et son détail seront effacés. La facture de votre fournisseur ne change pas.</value>
+  </data>
+  <data name="ResetYes" xml:space="preserve">
+    <value>Oui, remettre à zéro</value>
+  </data>
+  <data name="ResetNo" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="CapLabel" xml:space="preserve">
+    <value>Plafond mensuel (USD)</value>
+  </data>
+  <data name="CapHint" xml:space="preserve">
+    <value>Une fois atteint, aucun fournisseur cloud n'est appelé. Zéro : aucun appel au cloud.</value>
+  </data>
+  <data name="PricesLabel" xml:space="preserve">
+    <value>Prix</value>
+  </data>
+  <data name="PricesHint" xml:space="preserve">
+    <value>En dollars américains par million de jetons. Un fournisseur cloud sans prix n'est jamais appelé : son coût ne pourrait pas être compté.</value>
+  </data>
+  <data name="NoProvider" xml:space="preserve">
+    <value>Aucun fournisseur cloud n'est configuré. Ajoutez-en un dans la page des modèles de langage.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>Envoyés</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>Écrits</value>
+  </data>
+  <data name="UseKnown" xml:space="preserve">
+    <value>Utiliser le prix connu ({0} / {1})</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Retirer le prix</value>
+  </data>
+  <data name="Unpriced" xml:space="preserve">
+    <value>Sans prix : jamais appelé.</value>
+  </data>
+  <data name="KnownAsOf" xml:space="preserve">
+    <value>Les prix connus sont ceux du {0}, date de publication de cette version. Vérifiez-les dans la grille de votre fournisseur.</value>
+  </data>
+  <data name="LimitsLabel" xml:space="preserve">
+    <value>Ce que ce compte n'est pas</value>
+  </data>
+  <data name="Limit_Estimate" xml:space="preserve">
+    <value>C'est une estimation. La facture de votre fournisseur fait foi ; les rabais, les jetons mis en cache et les taxes ne sont pas connus ici.</value>
+  </data>
+  <data name="Limit_Voices" xml:space="preserve">
+    <value>Les voix cloud (reconnaissance et synthèse vocales) ne sont pas comptées.</value>
+  </data>
+  <data name="Limit_Tasks" xml:space="preserve">
+    <value>Le coût d'une session Claude Code est celui que Claude Code annonce à la fin : Jarvis ne le calcule pas.</value>
+  </data>
+  <data name="NotANumber" xml:space="preserve">
+    <value>Entrez un nombre.</value>
+  </data>
+  <data name="BothAmounts" xml:space="preserve">
+    <value>Entrez les deux montants : un prix est enregistré quand les deux y sont.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Le fichier de réglages ne peut pas être écrit : le changement n'est pas enregistré.</value>
+  </data>
+  <data name="ClaudeCodeLabel" xml:space="preserve">
+    <value>Claude Code</value>
+  </data>
+  <data name="ClaudeCodeHint" xml:space="preserve">
+    <value>Ce que coûtent les sessions lancées par Jarvis. Avec un abonnement Claude, elles ne sont pas facturées à l'usage : leur coût est affiché à part et ne compte pas dans le plafond.</value>
+  </data>
+  <data name="ClaudeCodeBySubscription" xml:space="preserve">
+    <value>Claude Code est payé par abonnement</value>
+  </data>
+  <data name="ClaudeCodeApart" xml:space="preserve">
+    <value>Annoncé par les sessions ce mois-ci, hors plafond : {0} $ US.</value>
+  </data>
+  <data name="ClaudeCodeCounted" xml:space="preserve">
+    <value>Le coût de chaque session compte dans le plafond, et une session ne reçoit jamais plus que ce qu'il en reste.</value>
+  </data>
+  <data name="EntryApart" xml:space="preserve">
+    <value>{0} $ US, hors plafond</value>
+  </data>
+</root>

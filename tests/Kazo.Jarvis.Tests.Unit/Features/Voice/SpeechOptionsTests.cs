@@ -36,8 +36,10 @@ public sealed class SpeechOptionsTests
     [TestCase("fr", "", "x", 1.0, "The voice of 'fr' names no engine or no voice.")]
     [TestCase("fr", "piper", "x", 3.0, "The speed of 'fr' is outside 0.5 to 2.")]
     [TestCase("fr", "piper", "x", double.NaN, "The speed of 'fr' is outside 0.5 to 2.")]
+    [SetCulture("fr-FR")]
     public void A_wrong_choice_is_refused(string language, string engine, string voice, double speed, string problem)
     {
+        // Under a French Windows the decimal separator is a comma: the problem must not follow it.
         var options = new SpeechOptions { Voices = new Dictionary<string, VoiceChoice> { [language] = new(engine, voice, speed) } };
 
         Assert.That(SpeechOptions.Section.Validate(options), Is.EqualTo(new[] { problem }));

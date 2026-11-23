@@ -15,6 +15,9 @@ public sealed class AssistantStateMachineTests
 
     private static readonly ActivationSource[] AllSources = Enum.GetValues<ActivationSource>();
 
+    // What the user does: a call that goes on never interrupts (ADR 0025, section 12).
+    private static readonly ActivationSource[] UserSources = [.. AllSources.Where(source => source != ActivationSource.Call)];
+
     // Row: Idle + activation -> Listening, new turn.
     [TestCaseSource(nameof(AllSources))]
     public void Idle_activation_starts_listening_with_a_new_turn(ActivationSource source)
@@ -125,6 +128,27 @@ public sealed class AssistantStateMachineTests
         AssertIgnored(transition, listening);
     }
 
+    // ADR 0025, section 12: a call starts listening at rest, and never cancels listening nor interrupts.
+    [Test]
+    public void A_call_starts_listening_only_at_rest()
+    {
+        var idle = In(AssistantPhase.Idle);
+        var started = Apply(idle, new ActivationRequested(ActivationSource.Call));
+        var muted = Apply(idle with { MicrophoneMuted = true }, new ActivationRequested(ActivationSource.Call));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(started.State.Phase, Is.EqualTo(AssistantPhase.Listening));
+            Assert.That(muted.State.Phase, Is.EqualTo(AssistantPhase.Idle));
+            Assert.That(muted.Effects.OfType<ActivationRefused>().Single().Reason, Is.EqualTo(ActivationRefusal.MicrophoneMuted));
+        });
+        foreach (var phase in new[] { AssistantPhase.Listening, AssistantPhase.Thinking, AssistantPhase.Speaking })
+        {
+            var busy = In(phase);
+            AssertIgnored(Apply(busy, new ActivationRequested(ActivationSource.Call)), busy);
+        }
+    }
+
     // Row: Listening + microphone muted -> Idle, turn cancelled.
     [Test]
     public void Listening_microphone_muted_cancels_the_turn()
@@ -162,7 +186,7 @@ public sealed class AssistantStateMachineTests
     [Test]
     public void Thinking_or_speaking_activation_interrupts_and_starts_a_new_turn(
         [Values(AssistantPhase.Thinking, AssistantPhase.Speaking)] AssistantPhase phase,
-        [ValueSource(nameof(AllSources))] ActivationSource source)
+        [ValueSource(nameof(UserSources))] ActivationSource source)
     {
         var transition = Apply(In(phase), new ActivationRequested(source));
 
@@ -198,6 +222,67 @@ public sealed class AssistantStateMachineTests
 
         AssertIdleWithoutTurn(transition.State);
         Assert.That(transition.State.Fault, Is.Null);
+    }
+
+    // ADR 0024, section 1. Row: Idle + announcement submitted -> Thinking, new turn without microphone nor model.
+    [Test]
+    public void Idle_announcement_starts_a_turn_of_its_own()
+    {
+        var transition = Apply(AssistantState.Initial with { MicrophoneMuted = true }, new AnnouncementSubmitted("Claude Code a terminé."));
+
+        Assert.That(transition.State.Phase, Is.EqualTo(AssistantPhase.Thinking));
+        Assert.That(transition.State.Announcing, Is.True);
+        Assert.That(transition.Effects, Is.EqualTo(new IEvent[] { new TurnStarted(Turn1, TurnInput.Announcement, "Claude Code a terminé.") }));
+    }
+
+    [Test]
+    public void An_announcement_never_interrupts(
+        [Values(AssistantPhase.Listening, AssistantPhase.Thinking, AssistantPhase.Speaking)] AssistantPhase phase)
+    {
+        var busy = In(phase);
+
+        AssertIgnored(Apply(busy, new AnnouncementSubmitted("Claude Code a terminé.")), busy);
+    }
+
+    [Test]
+    public void An_announcement_without_a_text_is_ignored()
+    {
+        AssertIgnored(Apply(AssistantState.Initial, new AnnouncementSubmitted("  ")), AssistantState.Initial);
+    }
+
+    [Test]
+    public void The_end_of_an_announcement_goes_back_to_idle_and_keeps_the_fault()
+    {
+        var state = AssistantState.Initial with { Fault = ModelUnreachable };
+        state = Apply(state, new AnnouncementSubmitted("Claude Code a terminé.")).State;
+        state = Apply(state, new FirstSentenceReady(Turn1)).State;
+        Assert.That(state.Phase, Is.EqualTo(AssistantPhase.Speaking));
+
+        var transition = Apply(state, new SpeechEnded(Turn1));
+
+        AssertIdleWithoutTurn(transition.State);
+        Assert.That(transition.State.Fault, Is.EqualTo(ModelUnreachable), "An announcement said proves neither the microphone nor the model.");
+        Assert.That(transition.State.Announcing, Is.False);
+    }
+
+    [Test]
+    public void An_activation_cuts_an_announcement_and_the_next_turn_clears_the_fault_again()
+    {
+        var state = AssistantState.Initial with { Fault = ModelUnreachable };
+        state = Apply(state, new AnnouncementSubmitted("Claude Code a terminé.")).State;
+        state = Apply(state, new FirstSentenceReady(Turn1)).State;
+
+        var cut = Apply(state, new ActivationRequested(ActivationSource.WakeWord));
+
+        Assert.That(cut.State.Phase, Is.EqualTo(AssistantPhase.Listening));
+        Assert.That(cut.State.Announcing, Is.False);
+        Assert.That(cut.Effects, Is.EqualTo(new IEvent[]
+        {
+            new TurnCancelled(Turn1, TurnCancelReason.Interrupted),
+            new TurnStarted(Turn2, TurnInput.Voice, null),
+        }));
+        state = Apply(cut.State, new UtteranceEnded(Turn2)).State;
+        Assert.That(Apply(state, new AnswerFinishedWithoutSpeech(Turn2)).State.Fault, Is.Null);
     }
 
     // Row: Listening, Thinking, Speaking + turn failed -> Idle with the fault.
@@ -337,6 +422,48 @@ public sealed class AssistantStateMachineTests
         Assert.That(transition.State, Is.EqualTo(speaking with { DelegatedTasks = 3 }));
         AssertIgnored(Apply(transition.State, new DelegatedTaskCountChanged(3)), transition.State);
         AssertIgnored(Apply(speaking, new DelegatedTaskCountChanged(-1)), speaking);
+    }
+
+    // ADR 0023, section 1: one more condition, and no transition of ADR 0005 changed.
+    [Test]
+    public void A_required_interaction_sets_a_condition_and_leaves_the_phase_and_the_turn([Values] AssistantPhase phase)
+    {
+        var before = In(phase);
+        var id = Guid.NewGuid();
+
+        var opened = Apply(before, new InteractionOpened(id, InteractionKind.Confirmation));
+
+        Assert.That(opened.State, Is.EqualTo(before with { Interaction = new PendingInteraction(id, InteractionKind.Confirmation) }));
+        Assert.That(opened.Effects, Is.Empty);
+        Assert.That(opened.State.Look, Is.EqualTo(AssistantLook.InteractionRequired));
+
+        var closed = Apply(opened.State, new InteractionClosed(id));
+
+        Assert.That(closed.State, Is.EqualTo(before));
+        Assert.That(closed.Effects, Is.Empty);
+    }
+
+    [Test]
+    public void Only_one_interaction_is_open_and_only_its_own_closing_clears_it()
+    {
+        var id = Guid.NewGuid();
+        var pending = Apply(In(AssistantPhase.Thinking), new InteractionOpened(id, InteractionKind.Confirmation)).State;
+
+        AssertIgnored(Apply(pending, new InteractionOpened(Guid.NewGuid(), InteractionKind.Confirmation)), pending);
+        AssertIgnored(Apply(pending, new InteractionClosed(Guid.NewGuid())), pending);
+        AssertIgnored(Apply(In(AssistantPhase.Thinking), new InteractionClosed(id)), In(AssistantPhase.Thinking));
+    }
+
+    [Test]
+    public void An_activation_while_an_interaction_is_required_is_still_the_interruption()
+    {
+        var pending = Apply(In(AssistantPhase.Thinking), new InteractionOpened(Guid.NewGuid(), InteractionKind.Confirmation)).State;
+
+        var transition = Apply(pending, new ActivationRequested(ActivationSource.Click));
+
+        // The turn is cancelled as ADR 0005 says; the confirmation slice then closes its request by a refusal.
+        Assert.That(transition.Effects[0], Is.EqualTo(new TurnCancelled(Turn1, TurnCancelReason.Interrupted)));
+        Assert.That(transition.State.Interaction, Is.EqualTo(pending.Interaction));
     }
 
     [Test]

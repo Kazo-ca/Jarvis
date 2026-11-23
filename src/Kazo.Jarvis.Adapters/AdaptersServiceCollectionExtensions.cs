@@ -9,6 +9,8 @@ using Kazo.Jarvis.Adapters.Speech;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Adapters.Updates;
 using Kazo.Jarvis.Adapters.Voice;
+using Kazo.Jarvis.Adapters.Web;
+using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Hardware;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Models;
@@ -18,6 +20,7 @@ using Kazo.Jarvis.Kernel.Speech;
 using Kazo.Jarvis.Kernel.Storage;
 using Kazo.Jarvis.Kernel.Updates;
 using Kazo.Jarvis.Kernel.Voice;
+using Kazo.Jarvis.Kernel.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -100,6 +103,46 @@ public static class AdaptersServiceCollectionExtensions
             provider.GetService<ILogger<HttpModelInstaller>>()));
         services.TryAddSingleton<IGraphicsCardProbe>(provider => new NvidiaSmiGraphicsCardProbe(
             provider.GetService<ILogger<NvidiaSmiGraphicsCardProbe>>()));
+
+        // Basic tools (ADR 0017, section 3): the disk, read only, for the file tools; Brave Search for the web search,
+        // called only when the tool is on and a key is in the vault. 20 s bound one search.
+        services.TryAddSingleton<ILocalFiles, LocalFiles>();
+
+        // Agents (ADR 0025, section 2): one Markdown file per agent in the folder of Jarvis, watched for changes.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Agents.IAgentFiles>(provider => new Kazo.Jarvis.Adapters.Agents.DiskAgentFiles(
+            provider.GetRequiredService<JarvisPaths>(),
+            provider.GetService<ILogger<Kazo.Jarvis.Adapters.Agents.DiskAgentFiles>>()));
+
+        // Claude Code sessions (ADR 0021, section 6): the registry of the running sessions, read only.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeSessionRegistry>(provider =>
+            new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry(provider.GetService<ILogger<Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry>>()));
+
+        // The user's Claude Code settings (ADR 0021, section 6): read to show, written on the user's click only.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeUserSettings>(_ => new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeUserSettings());
+
+        // Local server (ADR 0021, section 3): 127.0.0.1 only, a token on every route.
+        services.TryAddSingleton(provider => new Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer(
+            provider.GetRequiredService<ISettingsStore>(),
+            provider.GetServices<Kazo.Jarvis.Kernel.LocalServer.ILocalRoute>(),
+            provider.GetService<ISecretVault>(),
+            provider.GetService<ILogger<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>>(),
+            // Resolved at the first request, not here: IClaudeApprovals needs IClaudeCode, which needs this server.
+            () => provider.GetService<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeApprovals>()));
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
+        services.AddHostedService(provider => provider.GetRequiredService<Kazo.Jarvis.Adapters.LocalServer.KestrelLocalServer>());
+
+        // Claude Code as a program Jarvis starts (ADR 0021, section 1).
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode>(provider => new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeCodeProcess(
+            provider.GetRequiredService<JarvisPaths>(),
+            provider.GetRequiredService<Kazo.Jarvis.Kernel.LocalServer.ILocalServer>(),
+            provider.GetService<ILogger<Kazo.Jarvis.Adapters.ClaudeCode.ClaudeCodeProcess>>()));
+
+        // Tool servers (ADR 0018): the MCP client.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Tools.Servers.IToolServerConnector, Kazo.Jarvis.Adapters.Mcp.McpToolServerConnector>();
+        services.TryAddSingleton<IWebSearchApi>(provider => new BraveSearchApi(
+            new HttpClient { Timeout = TimeSpan.FromSeconds(20) },
+            provider.GetService<ISecretVault>(),
+            provider.GetService<ILogger<BraveSearchApi>>()));
 
         // Both vaults need Windows (Credential Manager, DPAPI). The Windows host is the only one to load Adapters.
         if (OperatingSystem.IsWindows())

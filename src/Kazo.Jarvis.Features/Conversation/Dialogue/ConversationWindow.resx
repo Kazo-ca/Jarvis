@@ -105,4 +105,127 @@
   <data name="Failure_Other" xml:space="preserve">
     <value>failed</value>
   </data>
+  <data name="Tool" xml:space="preserve">
+    <value>Tool</value>
+  </data>
+  <data name="ToolArguments" xml:space="preserve">
+    <value>Arguments</value>
+  </data>
+  <data name="ToolResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ToolOutcome_Running" xml:space="preserve">
+    <value>running…</value>
+  </data>
+  <data name="ToolOutcome_Done" xml:space="preserve">
+    <value>done</value>
+  </data>
+  <data name="ToolOutcome_Denied" xml:space="preserve">
+    <value>denied</value>
+  </data>
+  <data name="ToolOutcome_Failed" xml:space="preserve">
+    <value>failed</value>
+  </data>
+  <data name="ToolOutcome_Interrupted" xml:space="preserve">
+    <value>interrupted</value>
+  </data>
+  <data name="SeePage" xml:space="preserve">
+    <value>See the page</value>
+  </data>
+  <data name="HandOff" xml:space="preserve">
+    <value>Hand-off</value>
+  </data>
+  <data name="HandOff_Asked" xml:space="preserve">
+    <value>Handed over to {0}: {1}</value>
+  </data>
+  <data name="HandOff_AskedNoReason" xml:space="preserve">
+    <value>Handed over to {0}</value>
+  </data>
+  <data name="HandOff_Forced" xml:space="preserve">
+    <value>Asked {0} directly, at your request</value>
+  </data>
+  <data name="HandOff_Failed" xml:space="preserve">
+    <value>The hand-off did not happen ({0})</value>
+  </data>
+  <data name="HandOff_Cause_NoQuestionsTarget" xml:space="preserve">
+    <value>no target for questions</value>
+  </data>
+  <data name="HandOff_Cause_NoTasksTarget" xml:space="preserve">
+    <value>no target for tasks yet</value>
+  </data>
+  <data name="HandOff_Cause_NotConfigured" xml:space="preserve">
+    <value>provider not configured</value>
+  </data>
+  <data name="HandOff_Cause_InvalidAddress" xml:space="preserve">
+    <value>invalid address</value>
+  </data>
+  <data name="HandOff_Cause_Unreachable" xml:space="preserve">
+    <value>unreachable</value>
+  </data>
+  <data name="HandOff_Cause_ModelMissing" xml:space="preserve">
+    <value>unknown model</value>
+  </data>
+  <data name="HandOff_Cause_KeyMissing" xml:space="preserve">
+    <value>no key in the vault</value>
+  </data>
+  <data name="HandOff_Cause_KeyRejected" xml:space="preserve">
+    <value>key refused</value>
+  </data>
+  <data name="HandOff_Cause_TimedOut" xml:space="preserve">
+    <value>no answer in time</value>
+  </data>
+  <data name="HandOff_Cause_ServerError" xml:space="preserve">
+    <value>server error</value>
+  </data>
+  <data name="HandOff_Cause_Other" xml:space="preserve">
+    <value>unknown cause</value>
+  </data>
+  <data name="HandOff_Cause_NoPrice" xml:space="preserve">
+    <value>the target has no price</value>
+  </data>
+  <data name="HandOff_Cause_CapReached" xml:space="preserve">
+    <value>the monthly spending cap is reached</value>
+  </data>
+  <data name="Spend" xml:space="preserve">
+    <value>Cloud this month: {0} USD out of {1} USD</value>
+  </data>
+  <data name="Spend_Reached" xml:space="preserve">
+    <value>Cloud this month: {0} USD out of {1} USD. Cap reached, Jarvis stays local.</value>
+  </data>
+  <data name="Agent" xml:space="preserve">
+    <value>Agent {0}</value>
+  </data>
+  <data name="AgentChoice" xml:space="preserve">
+    <value>Agent:</value>
+  </data>
+  <data name="AgentChoice_Auto" xml:space="preserve">
+    <value>Jarvis chooses</value>
+  </data>
+  <data name="AgentChoice_Hint" xml:space="preserve">
+    <value>A typed request goes straight to the chosen agent, without the Jarvis agent.</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Project {0}</value>
+  </data>
+  <data name="ProjectChoice" xml:space="preserve">
+    <value>Project:</value>
+  </data>
+  <data name="ProjectChoice_Auto" xml:space="preserve">
+    <value>Named in the request</value>
+  </data>
+  <data name="ProjectChoice_Hint" xml:space="preserve">
+    <value>The project a typed request is about. A spoken request names its project itself.</value>
+  </data>
+  <data name="Call_Start" xml:space="preserve">
+    <value>Call</value>
+  </data>
+  <data name="Call_End" xml:space="preserve">
+    <value>Hang up</value>
+  </data>
+  <data name="Call_On" xml:space="preserve">
+    <value>Call in progress with the {0} agent. Say "goodbye" to end it.</value>
+  </data>
+  <data name="Call_Hint" xml:space="preserve">
+    <value>During a call, the agent that answers keeps the hand and Jarvis listens to what follows without "Hey Jarvis".</value>
+  </data>
 </root>

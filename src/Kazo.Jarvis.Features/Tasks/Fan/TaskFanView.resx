@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Task fan</value>
+  </data>
+  <data name="NoTask" xml:space="preserve">
+    <value>No task in progress.</value>
+  </data>
+  <data name="OneTask" xml:space="preserve">
+    <value>{0} task</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>{0} tasks</value>
+  </data>
+  <data name="OneDecision" xml:space="preserve">
+    <value>{0} decision waiting</value>
+  </data>
+  <data name="Decisions" xml:space="preserve">
+    <value>{0} decisions waiting</value>
+  </data>
+  <data name="OneHidden" xml:space="preserve">
+    <value>{0} more on the “Claude sessions” page</value>
+  </data>
+  <data name="Hidden" xml:space="preserve">
+    <value>{0} more on the “Claude sessions” page</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="Source_Harness" xml:space="preserve">
+    <value>started by Jarvis</value>
+  </data>
+  <data name="Source_Hook" xml:space="preserve">
+    <value>started by hand</value>
+  </data>
+  <data name="Source_Mcp" xml:space="preserve">
+    <value>declared by an agent</value>
+  </data>
+  <data name="Source_Orchestrator" xml:space="preserve">
+    <value>created by an orchestrator</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>Starting</value>
+  </data>
+  <data name="Status_Working" xml:space="preserve">
+    <value>Working</value>
+  </data>
+  <data name="Status_Paused" xml:space="preserve">
+    <value>Paused</value>
+  </data>
+  <data name="Status_Idle" xml:space="preserve">
+    <value>Its turn ended</value>
+  </data>
+  <data name="Status_WaitingAnswer" xml:space="preserve">
+    <value>Has a question for you</value>
+  </data>
+  <data name="Status_WaitingApproval" xml:space="preserve">
+    <value>Waiting for your permission</value>
+  </data>
+  <data name="Status_Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="Status_Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="Status_Abandoned" xml:space="preserve">
+    <value>Stopped</value>
+  </data>
+  <data name="MoreSubTasks" xml:space="preserve">
+    <value>and {0} more</value>
+  </data>
+  <data name="DecisionFrom" xml:space="preserve">
+    <value>Asked by {0}</value>
+  </data>
+  <data name="DecisionTitle" xml:space="preserve">
+    <value>A decision waits for you</value>
+  </data>
+  <data name="Allow" xml:space="preserve">
+    <value>Allow</value>
+  </data>
+  <data name="Refuse" xml:space="preserve">
+    <value>Refuse</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="HideDetails" xml:space="preserve">
+    <value>Hide the details</value>
+  </data>
+  <data name="NoProject" xml:space="preserve">
+    <value>Folder with no project: choose</value>
+  </data>
+</root>

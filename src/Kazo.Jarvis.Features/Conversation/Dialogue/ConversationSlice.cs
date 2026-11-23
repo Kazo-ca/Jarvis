@@ -26,6 +26,14 @@ public static class ConversationSlice
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<SystemPrompt>();
         services.TryAddSingleton<ConversationJournal>();
+        services.TryAddSingleton<AgentChoice>();
+
+        // The « Appel » mode (ADR 0025, section 12).
+        services.TryAddSingleton<CallMode>();
+        services.TryAddSingleton<CallListener>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, CallListener>(Listener));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, CallListener>(Listener));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AssistantStateChanged>, CallListener>(Listener));
 
         services.TryAddSingleton<ConversationEngine>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, ConversationEngine>(Engine));
@@ -37,6 +45,12 @@ public static class ConversationSlice
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, ConversationEngine>(Engine));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnFailed>, ConversationEngine>(Engine));
 
+        // What Jarvis says without being asked (ADR 0024).
+        services.TryAddSingleton<AnnouncementDesk>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AnnouncementToSay>, AnnouncementDesk>(Desk));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AssistantStateChanged>, AnnouncementDesk>(Desk));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, AnnouncementDesk>(Desk));
+
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<ConversationWindowRequested>, ConversationWindowOpener>());
 
         // Right after the language models (10): the personality is what the model is told first.
@@ -45,4 +59,8 @@ public static class ConversationSlice
     }
 
     private static ConversationEngine Engine(IServiceProvider provider) => provider.GetRequiredService<ConversationEngine>();
+
+    private static CallListener Listener(IServiceProvider provider) => provider.GetRequiredService<CallListener>();
+
+    private static AnnouncementDesk Desk(IServiceProvider provider) => provider.GetRequiredService<AnnouncementDesk>();
 }

@@ -40,6 +40,30 @@ public sealed class AdaptersRegistrationTests
         });
     }
 
+    /// <summary>
+    /// Who decides the requests of Claude Code needs Claude Code, which needs the local server, which asks who
+    /// decides: taken at construction, that circle left the host waiting for ever at its start, with no error
+    /// (acceptance of stage 2). The local server asks at each request instead.
+    /// </summary>
+    [Test]
+    public async Task The_local_server_and_claude_code_are_built_although_the_approvals_need_claude_code()
+    {
+        var services = new ServiceCollection().AddJarvisAdapters(folder.Paths);
+        services.AddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeApprovals>(inner => new ApprovalsThatNeedClaudeCode(inner.GetRequiredService<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode>()));
+        await using var provider = services.BuildServiceProvider();
+
+        // On its own thread, with a limit: the fault was a wait without end, not an exception.
+        var built = Task.Run(() => provider.GetServices<Microsoft.Extensions.Hosting.IHostedService>().ToList());
+
+        var ended = await Task.WhenAny(built, Task.Delay(TimeSpan.FromSeconds(20))) == built;
+        Assert.That(ended, Is.True, "building the hosted services never ends");
+        Assert.Multiple(() =>
+        {
+            Assert.That(provider.GetRequiredService<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode>(), Is.Not.Null);
+            Assert.That(provider.GetRequiredService<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeApprovals>(), Is.TypeOf<ApprovalsThatNeedClaudeCode>());
+        });
+    }
+
     [Test]
     public void The_wake_word_engine_reads_the_models_folder()
     {
@@ -95,5 +119,13 @@ public sealed class AdaptersRegistrationTests
             Assert.That(provider.GetRequiredService<ISecretVaultSelector>(), Is.SameAs(provider.GetRequiredService<ISecretVault>()));
             Assert.That(provider.GetRequiredService<ISecretVaultSelector>().Current, Is.EqualTo(VaultKind.CredentialManager));
         });
+    }
+
+    private sealed class ApprovalsThatNeedClaudeCode(Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode claude) : Kazo.Jarvis.Kernel.ClaudeCode.IClaudeApprovals
+    {
+        public Kazo.Jarvis.Kernel.ClaudeCode.IClaudeCode Claude { get; } = claude;
+
+        public ValueTask<Kazo.Jarvis.Kernel.ClaudeCode.ClaudeApproval> AskAsync(Kazo.Jarvis.Kernel.ClaudeCode.ClaudeApprovalRequest request, CancellationToken cancellationToken = default) =>
+            ValueTask.FromResult(Kazo.Jarvis.Kernel.ClaudeCode.ClaudeApproval.Deny("test"));
     }
 }

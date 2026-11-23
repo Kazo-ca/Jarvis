@@ -1,6 +1,7 @@
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
+using Kazo.Jarvis.Features.Permissions.Decision;
 using Kazo.Jarvis.Kernel;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Llm;
@@ -9,8 +10,11 @@ using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Messages.Speech;
 using Kazo.Jarvis.Kernel.Messages.Voice;
 using Kazo.Jarvis.Kernel.Messaging;
+using Kazo.Jarvis.Kernel.Permissions;
+using Kazo.Jarvis.Kernel.Tools;
 using Kazo.Jarvis.Tests.Unit.Adapters;
 using Kazo.Jarvis.Tests.Unit.Features.Settings;
+using Kazo.Jarvis.Tests.Unit.Kernel.Tools;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,7 +27,7 @@ namespace Kazo.Jarvis.Tests.Unit.Features.Conversation;
 /// stored with the model, the tokens and the time. Runs with the real kernel and the real SQLite store.
 /// </summary>
 [TestFixture]
-public sealed class ConversationEngineTests
+public sealed partial class ConversationEngineTests
 {
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
 
@@ -35,7 +39,18 @@ public sealed class ConversationEngineTests
     private FakeAssistantModel model = null!;
     private ManualLanguage language = null!;
     private ConversationJournal journal = null!;
+    private ToolRegistry registry = null!;
+    private PermissionDecisionPoint permissions = null!;
     private ConversationEngine engine = null!;
+    private FakeMemory memory = null!;
+    private FakeHandOff handOff = null!;
+    private FakeClaudeTasks? claudeTasks;
+    private Agents.FakeAgentFiles? agentFiles;
+    private Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog? agents;
+    private AgentChoice? agentChoice;
+    private CallMode callMode = null!;
+    private Projects.FakeLocalFiles? projectFiles;
+    private Kazo.Jarvis.Features.Projects.Catalog.ProjectCatalog? projects;
     private List<IEvent> published = null!;
     private IDisposable[] subscriptions = [];
 
@@ -55,14 +70,46 @@ public sealed class ConversationEngineTests
         model = new FakeAssistantModel(client);
         language = new ManualLanguage { Current = AssistantLanguage.French };
         journal = new ConversationJournal(store, TimeProvider.System, NullLogger<ConversationJournal>.Instance);
+        registry = new ToolRegistry([], settings);
+        permissions = new PermissionDecisionPoint(registry, store, TimeProvider.System, NullLogger<PermissionDecisionPoint>.Instance);
+
+        // Only the tests of the agents have their slice: the files of the starting agents, and the two tools of the hand.
+        if (TestContext.CurrentContext.Test.Properties.ContainsKey(WithAgents))
+        {
+            agentFiles = new Agents.FakeAgentFiles();
+            agents = new Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog(agentFiles, registry, settings, language, Bus, NullLogger<Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog>.Instance);
+            projectFiles = new Projects.FakeLocalFiles();
+            projects = new Kazo.Jarvis.Features.Projects.Catalog.ProjectCatalog(settings, projectFiles);
+            registry.Register(new Kazo.Jarvis.Features.Agents.Catalog.HandToAgentTool(() => agents, () => projects));
+            registry.Register(new Kazo.Jarvis.Features.Agents.Catalog.ReturnToJarvisTool());
+            agents.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
+            agentChoice = new AgentChoice();
+        }
+        else
+        {
+            (agentFiles, agents, agentChoice, projectFiles, projects) = (null, null, null, null, null);
+        }
+
         engine = new ConversationEngine(
             model,
             new SystemPrompt(settings, TimeProvider.System),
             journal,
             language,
+            registry,
+            permissions,
             Bus,
             TimeProvider.System,
-            NullLogger<ConversationEngine>.Instance);
+            NullLogger<ConversationEngine>.Instance,
+            memory = new FakeMemory(),
+            handOff = new FakeHandOff(),
+
+            // Only the tests of the work handed to Claude Code have the slice of its sessions.
+            claudeTasks = TestContext.CurrentContext.Test.Properties.ContainsKey(WithClaudeTasks) ? new FakeClaudeTasks() : null,
+            agents,
+            agentChoice,
+            projects,
+            callMode = new CallMode());
+        var callListener = new CallListener(callMode, Bus);
         published = [];
         subscriptions =
         [
@@ -75,6 +122,9 @@ public sealed class ConversationEngineTests
             Bus.Subscribe<AnswerFinishedWithoutSpeech>(engine.HandleAsync),
             Bus.Subscribe<TurnCancelled>(engine.HandleAsync),
             Bus.Subscribe<TurnFailed>(engine.HandleAsync),
+            Bus.Subscribe<TurnStarted>(callListener.HandleAsync),
+            Bus.Subscribe<TurnCancelled>(callListener.HandleAsync),
+            Bus.Subscribe<AssistantStateChanged>(callListener.HandleAsync),
             Bus.Subscribe<IEvent>((message, _) =>
             {
                 lock (published)
@@ -96,7 +146,11 @@ public sealed class ConversationEngineTests
         }
 
         engine.Dispose();
+        agents?.Dispose();
+        projects?.Dispose();
+        registry.Dispose();
         client.Dispose();
+        cloud?.Dispose();
         provider.Dispose();
         Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
         folder.Dispose();
@@ -130,7 +184,13 @@ public sealed class ConversationEngineTests
         // Read back after a restart: same turn, from the store.
         var reopened = new ConversationJournal(store, TimeProvider.System, NullLogger<ConversationJournal>.Instance);
         await reopened.EnsureLoadedAsync();
-        Assert.That(reopened.Turns.Single(), Is.EqualTo(shown));
+        // A record compares its list of tool calls by reference: the list is compared apart.
+        var read = reopened.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(read.ToolCalls, Is.Empty);
+            Assert.That(read with { ToolCalls = shown.ToolCalls }, Is.EqualTo(shown));
+        });
     }
 
     [Test]

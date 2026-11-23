@@ -23,6 +23,18 @@ src/Kazo.Jarvis.Kernel/
   Messages/Localization/                 AssistantLanguageChanged
   Storage/                               document store contract (see storage.md)
   Secrets/                               secret vault contract (see storage.md)
+  Tools/                                 tool, tool registry, switches (see tools.md)
+  Conversation/                          what the memory recalls to the model (see conversation-memory.md), hand-off (see hand-off.md)
+  Messages/Conversation/                 TurnRecorded, ExchangesLeftHistory
+  Tools/Servers/                         tool server: connection, tools, call (see mcp.md), classification per type of server (see home-assistant.md)
+  Files/                                 local files, read only (see basic-tools.md), allowed folders seen by another slice (see claude-code-tasks.md)
+  Tasks/                                 shape of a task, project and topic keys, board of the tasks (see tasks-and-sessions.md)
+  ClaudeCode/                            registry of the running Claude Code sessions (see tasks-and-sessions.md), settings file of the user (see hook-server.md), launch of Claude Code and permission requests of a session (see claude-code-launch.md), work handed to Claude Code and end of a session (see claude-code-tasks.md)
+  LocalServer/                           local server on 127.0.0.1, its routes, its port, hook paths (see hook-server.md)
+  Web/                                   reading browser, search by API, allowed addresses (see basic-tools.md)
+  Permissions/                           action classes, permission decision point (see tools.md), open confirmation request (see task-fan.md)
+  Desktop/                               orb window, dialogs, hotkey (see hosts.md), fan surface and double-click delay (see task-fan.md)
+  Messages/Desktop/                      window requests, TaskFanToggleRequested (see task-fan.md)
 ```
 
 A host does not call `AddJarvisKernel()` itself: `AddJarvisFeatures()` does. Calling it again has no effect.
@@ -61,6 +73,7 @@ A host does not call `AddJarvisKernel()` itself: `AddJarvisFeatures()` does. Cal
 | --- | --- |
 | `ActivationRequested(source)` | Wake word, hotkey or click |
 | `TextSubmitted(text)` | Text sent from the conversation window |
+| `AnnouncementSubmitted(text)` | An announcement asks to be said (ADR 0024): new turn at rest, ignored otherwise |
 | `UtteranceEnded(turn)` / `NothingHeard(turn)` | End of the utterance / nothing heard before the timeout |
 | `FirstSentenceReady(turn)` / `AnswerFinishedWithoutSpeech(turn)` / `SpeechEnded(turn)` | Steps of the answer |
 | `TurnFailed(turn, fault)` | The turn cannot finish |
@@ -76,7 +89,7 @@ A host does not call `AddJarvisKernel()` itself: `AddJarvisFeatures()` does. Cal
 - **Faults.** The kernel only names the cause (`FaultCause`); the text, the corrective action and the link to
   the right setting come from the slices (work item `stage1/15-faults`). `MicrophoneMissing` refuses
   activations, like the muted microphone.
-- **Look.** `AssistantLooks.Of(state)` gives one of the seven looks (ADR 0011, section 4);
+- **Look.** `AssistantLooks.Of(state)` gives one of the eight looks (ADR 0011, section 4; "interaction required" comes from ADR 0023 and wins over all the others);
   `AssistantLooks.ShowsProgressRing(state)` says whether the progress ring is drawn over it.
 
 ### Case ADR 0005 does not cover

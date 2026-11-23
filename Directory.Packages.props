@@ -42,6 +42,13 @@
     <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.11.1" />
   </ItemGroup>
 
+  <!-- MCP client (ADR 0018, section 1), in Adapters only: version proven by spike E14. The Core package is the
+       client and the protocol, without the hosting extensions Jarvis does not use. -->
+  <ItemGroup>
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="2.4.0" />
+    <PackageVersion Include="ModelContextProtocol.Core" Version="2.4.0" />
+  </ItemGroup>
+
   <!-- Settings, storage and vault (ADR 0004), in Adapters only. -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.15" />

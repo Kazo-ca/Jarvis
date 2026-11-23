@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Memory</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>What Jarvis keeps about you from one conversation to the next: short facts and a summary of the old exchanges. Everything stays on this computer, and you can erase it here.</value>
+  </data>
+  <data name="SwitchesLabel" xml:space="preserve">
+    <value>What Jarvis may do</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Use the memory</value>
+  </data>
+  <data name="EnabledHint" xml:space="preserve">
+    <value>Off: nothing is kept and nothing is recalled to the model. What is already kept stays visible below.</value>
+  </data>
+  <data name="Automatic" xml:space="preserve">
+    <value>Keep facts by itself</value>
+  </data>
+  <data name="AutomaticHint" xml:space="preserve">
+    <value>After each exchange, the local model reads what you said, and only that, and keeps up to three lasting facts. Off: Jarvis keeps a fact only when you ask ("remember that…").</value>
+  </data>
+  <data name="FactsLabel" xml:space="preserve">
+    <value>Facts</value>
+  </data>
+  <data name="FactsHint" xml:space="preserve">
+    <value>The model receives the pinned facts first, then the most recent, up to about {0} characters with the summary. The others are found when Jarvis searches its memory.</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Jarvis keeps no fact yet.</value>
+  </data>
+  <data name="Source_Asked" xml:space="preserve">
+    <value>on request</value>
+  </data>
+  <data name="Source_Auto" xml:space="preserve">
+    <value>automatic</value>
+  </data>
+  <data name="Source_Manual" xml:space="preserve">
+    <value>typed here</value>
+  </data>
+  <data name="Sent" xml:space="preserve">
+    <value>sent to the model</value>
+  </data>
+  <data name="NotSent" xml:space="preserve">
+    <value>not sent (no room)</value>
+  </data>
+  <data name="Pinned" xml:space="preserve">
+    <value>Pinned</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Erase</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>A fact to keep</value>
+  </data>
+  <data name="AddPlaceholder" xml:space="preserve">
+    <value>For example: The user prefers short answers.</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Add_AlreadyKnown" xml:space="preserve">
+    <value>Jarvis already keeps this fact.</value>
+  </data>
+  <data name="Add_Empty" xml:space="preserve">
+    <value>The fact is empty.</value>
+  </data>
+  <data name="Add_TooLong" xml:space="preserve">
+    <value>A fact has 200 characters at most.</value>
+  </data>
+  <data name="Add_LooksLikeSecret" xml:space="preserve">
+    <value>This looks like a password, a key or a card number. Jarvis never keeps one in its memory.</value>
+  </data>
+  <data name="Add_Full" xml:space="preserve">
+    <value>The memory is full. Erase some facts first.</value>
+  </data>
+  <data name="Add_Unavailable" xml:space="preserve">
+    <value>The fact could not be saved.</value>
+  </data>
+  <data name="SummaryLabel" xml:space="preserve">
+    <value>Summary of the old exchanges</value>
+  </data>
+  <data name="SummaryHint" xml:space="preserve">
+    <value>Written by the local model from your requests and the answers of Jarvis, without the results of the tools. It replaces the exchanges that are no longer sent word for word.</value>
+  </data>
+  <data name="NoSummary" xml:space="preserve">
+    <value>No summary yet.</value>
+  </data>
+  <data name="EraseSummary" xml:space="preserve">
+    <value>Erase the summary</value>
+  </data>
+  <data name="SilenceLabel" xml:space="preserve">
+    <value>Silence after which an exchange is old (minutes)</value>
+  </data>
+  <data name="SilenceHint" xml:space="preserve">
+    <value>After this long without a request, the exchanges before it are no longer sent word for word: only the summary recalls them. From {0} to {1} minutes; 120 by default.</value>
+  </data>
+  <data name="EraseLabel" xml:space="preserve">
+    <value>Erase everything</value>
+  </data>
+  <data name="EraseHint" xml:space="preserve">
+    <value>Erases every fact and the summary. The conversation itself is erased from its own window.</value>
+  </data>
+  <data name="EraseAll" xml:space="preserve">
+    <value>Erase the whole memory</value>
+  </data>
+  <data name="EraseConfirm" xml:space="preserve">
+    <value>Erase every fact and the summary? This cannot be undone.</value>
+  </data>
+  <data name="EraseYes" xml:space="preserve">
+    <value>Yes, erase</value>
+  </data>
+  <data name="EraseNo" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings file cannot be written.</value>
+  </data>
+  <data name="ForAgent" xml:space="preserve">
+    <value>Agent {0}</value>
+  </data>
+  <data name="ForEveryone" xml:space="preserve">
+    <value>About you, for every agent</value>
+  </data>
+  <data name="AddAgentLabel" xml:space="preserve">
+    <value>Who the fact is for</value>
+  </data>
+</root>

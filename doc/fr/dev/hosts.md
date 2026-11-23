@@ -10,7 +10,7 @@ Dans le noyau, `Kazo.Jarvis.Kernel.Desktop`. Aucun ne nomme un type de plateform
 | Contrat | Sert à | Hôte Windows | Hôte Web |
 | --- | --- | --- | --- |
 | `IOrbWindow` | Afficher, cacher, basculer l'orbe | `OrbWindowService` : fenêtre WPF transparente | `SimulatedOrbWindow` : l'orbe dans la page |
-| `IDialogService` | Ouvrir un composant dans sa fenêtre, une par clé | `WindowDialogService` : une fenêtre et une vue web par clé, même fournisseur de services | `OverlayDialogService` : un calque par-dessus la page |
+| `IDialogService` | Ouvrir un composant dans sa fenêtre, une par clé ; `Closed` dit avec sa clé qu'une fenêtre s'est fermée, peu importe qui l'a fermée | `WindowDialogService` : une fenêtre et une vue web par clé, même fournisseur de services | `OverlayDialogService` : un calque par-dessus la page |
 | `IGlobalHotkey` | Enregistrer le raccourci global et recevoir ses appuis | `Win32GlobalHotkey` : `RegisterHotKey` sur une fenêtre de messages | `SimulatedGlobalHotkey` : un bouton de la page |
 | `ILaunchAtLogin` | Démarrage avec Windows | `RegistryLaunchAtLogin` : valeur `Kazo.Jarvis` de la clé `Run` de l'utilisateur | `InMemoryLaunchAtLogin` |
 
@@ -92,7 +92,9 @@ journalisée, puis une boîte de dialogue donne le chemin du journal avant l'arr
 - Un appui sans déplacement (moins de 4 pixels) est un clic. La fenêtre attrape l'appui elle-même pour
   distinguer un clic d'un déplacement (la vue web ne le reçoit jamais) et passe le clic à `OrbActivation` de
   la tranche de l'orbe, qui publie `ActivationRequested(Click)` : c'est le même chemin que le clic sur le
-  composant dans l'hôte Web.
+  composant dans l'hôte Web. La fenêtre attrape aussi le clic droit, qui ouvre
+  l'éventail, dans sa propre fenêtre ([task-fan.md](task-fan.md)). Le double-clic est réservé à la vue des
+  projets : tant qu'elle n'existe pas, le clic gauche n'attend aucun délai (ADR 0027).
 - La vue web a un fond transparent (`DefaultBackgroundColor` et `WEBVIEW2_DEFAULT_BACKGROUND_COLOR`).
 - Le profil WebView2 de toutes les fenêtres va dans `%USERPROFILE%\.kazo\jarvis\webview`, pas à côté de
   l'exécutable (le dossier d'installation n'est pas forcément accessible en écriture). Ce dossier n'est pas

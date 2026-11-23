@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Tools</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>What Jarvis can do besides talking. Only the tools that are on are offered to the model, and every call goes through the permissions first. A tool that sends something out of this computer is off until you turn it on.</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>{0} tools on: about {1} tokens given to the model at every turn.</value>
+  </data>
+  <data name="SizeOfContext" xml:space="preserve">
+    <value>{0} tools on: about {1} tokens given to the model at every turn, out of a context of {2}.</value>
+  </data>
+  <data name="Class" xml:space="preserve">
+    <value>Class: {0}</value>
+  </data>
+  <data name="Class_Read" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="Class_EverydayEffect" xml:space="preserve">
+    <value>Everyday effect</value>
+  </data>
+  <data name="Class_Sensitive" xml:space="preserve">
+    <value>Sensitive</value>
+  </data>
+  <data name="Class_Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Class_Forbidden" xml:space="preserve">
+    <value>Forbidden</value>
+  </data>
+  <data name="Origin_BuiltIn" xml:space="preserve">
+    <value>Built into Jarvis</value>
+  </data>
+  <data name="Origin_HandOff" xml:space="preserve">
+    <value>Hand-off</value>
+  </data>
+  <data name="Origin_Mcp" xml:space="preserve">
+    <value>MCP server {0}</value>
+  </data>
+  <data name="Discloses" xml:space="preserve">
+    <value>Leaves this computer: {0}</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>The settings could not be saved.</value>
+  </data>
+</root>

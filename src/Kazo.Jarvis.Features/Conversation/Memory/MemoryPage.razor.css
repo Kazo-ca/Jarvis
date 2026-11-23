@@ -1,0 +1,106 @@
+.memory-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.memory-switch {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    cursor: pointer;
+}
+
+.memory-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.memory-fact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    background: var(--jarvis-input);
+}
+
+.memory-fact[data-memory-pinned="true"] {
+    border-left: 3px solid var(--jarvis-amber);
+}
+
+.memory-fact[data-memory-sent="false"] .memory-fact-text {
+    color: var(--jarvis-text-muted);
+}
+
+.memory-fact-text {
+    flex: 1 1 100%;
+    overflow-wrap: anywhere;
+}
+
+.memory-add {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.memory-input {
+    flex: 1 1 auto;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.memory-number {
+    width: 7rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.memory-button {
+    padding: 0.35rem 1rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.memory-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.memory-danger {
+    border-color: var(--jarvis-red);
+}
+
+.memory-summary {
+    width: 100%;
+    margin: 0;
+    padding: 0.5rem 0.6rem;
+    background: var(--jarvis-input);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.memory-problem {
+    width: 100%;
+    margin: 0;
+    color: var(--jarvis-red);
+}
+
+/* The agent a typed fact serves: it keeps its width, the text takes the rest. */
+.memory-agent {
+    flex: 0 1 auto;
+}

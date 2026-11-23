@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Title" xml:space="preserve">
+    <value>Agents</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Un agent par genre de tâche : son nom, ce qu'on lui confie, ses consignes et les outils que le modèle voit quand il répond. L'agent Jarvis reçoit chaque demande, répond aux plus simples et passe la main pour le reste. Un agent ne donne aucun droit : chaque appel d'outil passe toujours par les permissions. Chaque agent est un fichier texte que vous pouvez modifier ; Jarvis ne remplace jamais un fichier que vous avez changé.</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Dossier des fichiers : {0}</value>
+  </data>
+  <data name="Main" xml:space="preserve">
+    <value>Reçoit chaque demande</value>
+  </data>
+  <data name="Tools" xml:space="preserve">
+    <value>Outils vus par le modèle :</value>
+  </data>
+  <data name="NoTools" xml:space="preserve">
+    <value>Aucun outil activé : Jarvis ne lui passe pas la main.</value>
+  </data>
+  <data name="NoToolsMain" xml:space="preserve">
+    <value>Aucun outil activé.</value>
+  </data>
+  <data name="ToolsOff" xml:space="preserve">
+    <value>Nommés dans le fichier, mais coupés ou absents : {0}</value>
+  </data>
+  <data name="FromSource" xml:space="preserve">
+    <value>donné par son serveur</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Ouvrir le fichier</value>
+  </data>
+  <data name="OpenFailed" xml:space="preserve">
+    <value>Le fichier n'a pas pu être ouvert. Il se trouve dans le dossier indiqué plus haut.</value>
+  </data>
+  <data name="BuiltIn" xml:space="preserve">
+    <value>Son fichier manque ou ne se lit pas : Jarvis utilise l'agent fourni avec l'application.</value>
+  </data>
+  <data name="Issues" xml:space="preserve">
+    <value>Fichiers laissés de côté</value>
+  </data>
+  <data name="Problem_Unreadable" xml:space="preserve">
+    <value>{0}.md : le fichier n'a pas pu être lu.</value>
+  </data>
+  <data name="Problem_NoHeader" xml:space="preserve">
+    <value>{0}.md : l'en-tête manque. Le fichier doit commencer par une ligne « --- », puis name, description et tools, puis une autre ligne « --- ».</value>
+  </data>
+  <data name="Problem_NoName" xml:space="preserve">
+    <value>{0}.md : l'en-tête n'a pas de ligne « name: ».</value>
+  </data>
+  <data name="Problem_NoDescription" xml:space="preserve">
+    <value>{0}.md : l'en-tête n'a pas de ligne « description: ». Sans elle, Jarvis ne sait pas quoi confier à cet agent.</value>
+  </data>
+  <data name="Problem_NameTaken" xml:space="preserve">
+    <value>{0}.md : un autre fichier donne déjà ce nom à un agent.</value>
+  </data>
+</root>

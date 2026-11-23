@@ -98,6 +98,16 @@
     color: var(--jarvis-amber);
 }
 
+.conversation-spend {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.conversation-spend[data-spend-reached="true"] {
+    color: var(--jarvis-amber);
+}
+
 .conversation-input {
     display: flex;
     gap: 0.6rem;
@@ -151,4 +161,97 @@
 .conversation-problem {
     margin: 0;
     color: var(--jarvis-red);
+}
+
+/* A tool call of the turn: one line, opened to see its arguments and its result. */
+.conversation-tool {
+    padding-left: 0.8rem;
+    border-left: 2px solid var(--jarvis-line);
+    color: var(--jarvis-text-muted);
+    font-size: 0.85rem;
+}
+
+.conversation-tool-summary {
+    cursor: pointer;
+}
+
+.conversation-tool-name {
+    margin-right: 0.5rem;
+    color: var(--jarvis-text);
+    font-family: var(--jarvis-font-mono);
+}
+
+.conversation-tool[data-tool-outcome="Denied"] .conversation-tool-outcome,
+.conversation-tool[data-tool-outcome="Failed"] .conversation-tool-outcome {
+    color: var(--jarvis-red);
+}
+
+.conversation-tool-part {
+    margin: 0.3rem 0 0;
+    overflow-wrap: anywhere;
+}
+
+.conversation-tool-text {
+    white-space: pre-wrap;
+    font-family: var(--jarvis-font-mono);
+}
+
+.conversation-tool-pages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0.4rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.conversation-tool-page {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.conversation-tool-address {
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+}
+
+.conversation-handoff {
+    margin: 0;
+    padding-left: 0.8rem;
+    border-left: 2px solid var(--jarvis-cyan);
+    color: var(--jarvis-text-muted);
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+}
+
+.conversation-handoff:not([data-handoff-failure=""]) {
+    border-left-color: var(--jarvis-red);
+}
+
+.conversation-agent {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+}
+
+.conversation-agent-select {
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}
+
+.conversation-call {
+    justify-content: flex-end;
+}
+
+.conversation-call-on {
+    flex: 1 1 auto;
+    color: var(--jarvis-green);
 }

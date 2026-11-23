@@ -30,3 +30,16 @@ public sealed record ConversationWindowRequested : IEvent;
 /// greys the menu entry out.
 /// </summary>
 public sealed record FirstRunWizardRequested : IEvent;
+
+/// <summary>
+/// A right click on the orb (ADR 0027, section 2): the fan slice opens the task fan, or puts it away when it is
+/// open. It waits for no delay and never starts listening.
+/// </summary>
+public sealed record TaskFanToggleRequested : IEvent;
+
+/// <summary>
+/// A double click on the orb (ADR 0027, section 3): the slice of the projects view opens it. Never also a single
+/// click: the orb slice waits for the double-click delay before it treats a left click. Until a slice handles
+/// this event there is no double click and no delay: a left click acts at once.
+/// </summary>
+public sealed record ProjectsViewRequested : IEvent;

@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; font-family: "Segoe UI", sans-serif; }
+  #dim { position: absolute; inset: 0; background: rgba(0, 8, 20, 0.55); opacity: 0; }
+  .panel { position: absolute; width: 340px; height: 140px; box-sizing: border-box; padding: 14px; border-radius: 10px;
+           border: 1.5px solid #4de1ff; background: rgba(6, 22, 36, 0.85); color: #fff; opacity: 0; }
+  .panel.amber { border-color: #ffb347; }
+  .panel h1 { margin: 0; font-size: 16px; color: #4de1ff; }
+  .panel.amber h1 { color: #ffb347; }
+  .panel p { margin: 6px 0 0; font-size: 13px; opacity: 0.8; }
+  svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="dim"></div>
+<svg id="links"></svg>
+<script>
+  // Same geometry as FanWindow.PanelPosition: arc from 180° to 270° around the orb in the bottom-right corner.
+  const q = new URLSearchParams(location.search), ox = +q.get('ox'), oy = +q.get('oy');
+  const titles = ['Claude Code · Kazo.Jarvis', 'Claude Code · Kazo Bar', 'Tâche planifiée · météo', 'Décision : écrire build.ps1'];
+  const dim = document.getElementById('dim'), svg = document.getElementById('links');
+  const panels = [], links = [];
+  for (let i = 0; i < 4; i++) {
+    const a = Math.PI * (1 + 0.5 * i / 3) + 0.12, x = ox + 520 * Math.cos(a) - 170, y = oy + 520 * Math.sin(a) - 70;
+    const p = document.createElement('div');
+    p.className = 'panel' + (i === 3 ? ' amber' : '');
+    p.style.left = x + 'px'; p.style.top = y + 'px';
+    p.innerHTML = `<h1>${titles[i]}</h1><p>${i === 3 ? "En attente d'une décision" : 'En cours · il y a 12 s'}</p><p>Dernière activité : Edit src/App.cs</p>`;
+    p.addEventListener('mousedown', e => { e.stopPropagation(); post({ type: 'hit', index: i }); });
+    document.body.appendChild(p);
+    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', ox); l.setAttribute('y1', oy); l.setAttribute('x2', x + 170); l.setAttribute('y2', y + 70);
+    l.setAttribute('stroke', i === 3 ? '#ffb347' : '#4de1ff'); l.setAttribute('stroke-dasharray', '4 4'); l.setAttribute('opacity', 0);
+    svg.appendChild(l);
+    panels.push({ el: p, dx: ox - (x + 170), dy: oy - (y + 70) }); links.push(l);
+  }
+  dim.addEventListener('mousedown', () => post({ type: 'hit', index: -1 }));
+  function post(m) { window.chrome.webview.postMessage(m); }
+  function draw(t) { // t: 0 closed .. 1 open
+    dim.style.opacity = t;
+    for (let i = 0; i < 4; i++) {
+      const p = panels[i], s = 0.1 + 0.9 * t;
+      p.el.style.opacity = t;
+      p.el.style.transform = `translate(${p.dx * (1 - t)}px, ${p.dy * (1 - t)}px) scale(${s})`;
+      links[i].setAttribute('opacity', 0.8 * t);
+    }
+  }
+  // 30 images per second at most: a timer, not requestAnimationFrame (E6), and nothing runs between animations.
+  function animate(open, ms) {
+    const start = performance.now(); let frames = 0;
+    const step = () => {
+      const k = Math.min(1, (performance.now() - start) / ms);
+      const e = open ? 1 - Math.pow(1 - k, 3) : 1 - k * k * k;
+      draw(e); frames++;
+      if (frames === 1 && open) requestAnimationFrame(() => post({ type: 'frame0' }));
+      if (k < 1) setTimeout(step, 1000 / 30); else post({ type: 'done', frames, ms: performance.now() - start });
+    };
+    step();
+  }
+  window.fan = { open: ms => animate(true, ms), close: ms => animate(false, ms) };
+  draw(0);
+  post({ type: 'ready' });
+</script>
+</body>
+</html>

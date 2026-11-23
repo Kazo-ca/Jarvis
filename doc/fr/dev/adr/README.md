@@ -22,6 +22,17 @@ libre est indiqué dans la [mémoire du projet](../../memory/README.md).
 | [0014](0014-license-kazo-bar-rule-and-jarvis-py.md) | Licence Apache 2.0, règle sur Kazo Bar (copie permise, aucune référence) et retrait de `jarvis.py` | Accepté |
 | [0015](0015-work-tracking-source.md) | Source de suivi du travail (GitHub Issues ou Azure Boards) et lien obligatoire des commits et des PR | Accepté |
 | [0016](0016-onnx-runtime-managed-on-sherpa-native.md) | Un seul ONNX Runtime natif, celui de sherpa-onnx (remplace en partie 0001) | Accepté |
+| [0017](0017-tools-classes-and-decision-point.md) | Outils de base, classe de chaque outil et point de décision des permissions (navigateur de la section 3 remplacé par 0022) | Accepté |
+| [0018](0018-mcp-client-and-home-assistant.md) | Client MCP, Home Assistant et domotique de sécurité (précise 0009 pour les scripts Home Assistant) | Accepté |
+| [0019](0019-conversation-memory.md) | Mémoire de conversation : faits retenus, résumé des anciens échanges, page « Mémoire » | Accepté |
+| [0020](0020-hand-off-targets-and-spend-cap.md) | Passage de main, cibles et plafond de dépense | Accepté |
+| [0021](0021-claude-code-sessions.md) | Sessions Claude Code : lancement, permissions, hooks, annonces | Accepté |
+| [0022](0022-in-app-browser-for-web-search.md) | Recherche web dans un navigateur interne à Jarvis (remplace en partie 0017) | Accepté |
+| [0023](0023-confirmation-request-in-a-turn.md) | La demande de confirmation dans un tour : condition et aspect « interaction requise », réponse vocale par liste fermée, aucun délai (complète 0005) | Accepté |
+| [0024](0024-announcement-turn.md) | Le tour d'annonce : une ligne de plus dans la table des transitions, pour dire à voix haute ce que personne n'a demandé (complète 0005) | Accepté |
+| [0025](0025-task-agents-and-their-memories.md) | Un agent par genre de tâche : fichiers Markdown, tri par l'agent Jarvis, mémoire par agent et par projet (complète 0017 et 0019) | Accepté |
+| [0026](0026-projects-subjects-and-their-threads.md) | La vue des projets, des sujets et de leurs fils : rail des projets, fil du sujet et fil de la tâche, réponse « T3> », projet Général, ouverte par le double-clic de l'ADR 0027 (complète 0013 et 0025) | Accepté |
+| [0027](0027-orb-gestures.md) | Les gestes sur l'orbe : clic gauche pour écouter, clic droit pour l'éventail, double-clic pour la vue des projets (remplace la section 3 de 0010) | Accepté |
 
 Les neuf premiers ADR sont ceux de l'étape 1, listés dans le
 [document de conception](../plans/design.md#méthode-de-travail-et-premiers-adr).

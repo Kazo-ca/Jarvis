@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
 
 namespace Kazo.Jarvis.Features.Conversation.Dialogue;
@@ -18,6 +19,89 @@ public enum TurnOutcome
 
     /// <summary>The model or the voice failed; <see cref="ConversationTurn.Failure"/> names the cause.</summary>
     Failed,
+}
+
+/// <summary>How a tool call of a turn ended.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<ToolCallOutcome>))]
+public enum ToolCallOutcome
+{
+    /// <summary>The decision is being taken, or the tool is running.</summary>
+    Running,
+
+    /// <summary>The tool ran; <see cref="ToolCallEntry.Result"/> holds what it returned.</summary>
+    Done,
+
+    /// <summary>The decision point denied the call; <see cref="ToolCallEntry.Result"/> holds the cause told to the model.</summary>
+    Denied,
+
+    /// <summary>The tool failed or took too long.</summary>
+    Failed,
+
+    /// <summary>The user interrupted the turn during the call.</summary>
+    Interrupted,
+}
+
+/// <summary>A tool call of a turn (ADR 0017, section 5): what the window shows and what is stored with the turn.</summary>
+public sealed record ToolCallEntry
+{
+    /// <summary>The name of the tool, as the model wrote it.</summary>
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>The arguments, as JSON.</summary>
+    public string Arguments { get; init; } = string.Empty;
+
+    /// <summary>What was returned to the model: the result of the tool, or the cause of the denial or of the failure.</summary>
+    public string? Result { get; init; }
+
+    /// <summary>How the call ended.</summary>
+    public ToolCallOutcome Outcome { get; init; }
+
+    /// <summary>The class the decision point gave to the call (an <c>ActionClass</c> name), when it could tell.</summary>
+    public string? Class { get; init; }
+
+    /// <summary>For a denied call, the cause (a <c>DenialCause</c> name, <c>Again</c> or <c>CallLimit</c>).</summary>
+    public string? Denial { get; init; }
+
+    /// <summary>Time taken by the decision and the tool.</summary>
+    public TimeSpan? Duration { get; init; }
+}
+
+/// <summary>
+/// The hand-off of a turn to a target (ADR 0020, section 5): what the window shows next to who answered, and
+/// what is stored with the turn.
+/// </summary>
+public sealed record HandOffEntry
+{
+    /// <summary>A question or a task.</summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<HandOffKind>))]
+    public HandOffKind Kind { get; init; }
+
+    /// <summary>Why the local model handed over, in its words; absent from a forced hand-off.</summary>
+    public string? Reason { get; init; }
+
+    /// <summary>Whether the first words of the request forced it (« Demande à Claude… »).</summary>
+    public bool Forced { get; init; }
+
+    /// <summary>The name said for the target (« Claude », « ChatGPT »); absent when there was none.</summary>
+    public string? Target { get; init; }
+
+    /// <summary>Name of the local provider that handed over; absent from a forced hand-off.</summary>
+    public string? FromProvider { get; init; }
+
+    /// <summary>The local model that handed over.</summary>
+    public string? FromModel { get; init; }
+
+    /// <summary>Tokens sent to the local model before it handed over.</summary>
+    public long? FromInputTokens { get; init; }
+
+    /// <summary>Tokens written by the local model before it handed over.</summary>
+    public long? FromOutputTokens { get; init; }
+
+    /// <summary>From the hand-off to the first text of the target.</summary>
+    public TimeSpan? FirstText { get; init; }
+
+    /// <summary>Why the hand-off did not happen (a <c>HandOffRefusal</c> or an <c>LlmFailure</c> name); the local model then answered, or nobody after a forced one.</summary>
+    public string? Failure { get; init; }
 }
 
 /// <summary>
@@ -41,6 +125,21 @@ public sealed record ConversationTurn
 
     /// <summary>The answer as written by the model; partial for an interrupted or failed turn.</summary>
     public string Answer { get; init; } = string.Empty;
+
+    /// <summary>The tool calls of the turn, in the order they were made (ADR 0017, section 5). Empty for most turns.</summary>
+    public IReadOnlyList<ToolCallEntry> ToolCalls { get; init; } = [];
+
+    /// <summary>The hand-off of the turn, when one was asked (ADR 0020). After one that answered, <see cref="Provider"/>, <see cref="Model"/> and the tokens are those of the target.</summary>
+    public HandOffEntry? HandOff { get; init; }
+
+    /// <summary>
+    /// The name of the agent that answered (ADR 0025, section 4): the Jarvis agent, the one it handed the turn to,
+    /// or the one the user chose. Absent from a turn no agent answered: a forced hand-off, an announcement.
+    /// </summary>
+    public string? Agent { get; init; }
+
+    /// <summary>The name of the project the turn was about, when the agent that answered was told of one (ADR 0025, section 10).</summary>
+    public string? Project { get; init; }
 
     /// <summary>Code of the language of the turn (<c>fr</c>, <c>en</c>).</summary>
     public string Language { get; init; } = string.Empty;

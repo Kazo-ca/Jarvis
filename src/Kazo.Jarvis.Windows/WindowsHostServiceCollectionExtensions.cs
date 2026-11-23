@@ -5,9 +5,12 @@ using Kazo.Jarvis.Kernel.Messages.Localization;
 using Kazo.Jarvis.Kernel.Messages.Updates;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Updates;
+using Kazo.Jarvis.Kernel.Web;
 using Kazo.Jarvis.Windows.Audio;
+using Kazo.Jarvis.Windows.Browser;
 using Kazo.Jarvis.Windows.Desktop;
 using Kazo.Jarvis.Windows.Dialogs;
+using Kazo.Jarvis.Windows.Fan;
 using Kazo.Jarvis.Windows.Orb;
 using Kazo.Jarvis.Windows.Startup;
 using Kazo.Jarvis.Windows.Tray;
@@ -20,13 +23,17 @@ namespace Kazo.Jarvis.Windows;
 /// <summary>Registers the native services of the Windows host (ADR 0003, section 5).</summary>
 internal static class WindowsHostServiceCollectionExtensions
 {
-    /// <summary>Orb window, dialogs, tray icon, global hotkey, audio devices, start with Windows, Windows display language and updater launcher.</summary>
+    /// <summary>Orb window, fan window, dialogs, tray icon, global hotkey, audio devices, start with Windows, Windows display language, the browser of Jarvis and updater launcher.</summary>
     /// <param name="services">The host's service collection.</param>
     /// <returns>The same collection, for chaining.</returns>
     public static IServiceCollection AddJarvisWindowsHost(this IServiceCollection services)
     {
         services.TryAddSingleton<OrbWindowService>();
         services.TryAddSingleton<IOrbWindow>(provider => provider.GetRequiredService<OrbWindowService>());
+        // The task fan (ADR 0010): its window, and the double-click time that delays a single click on the orb.
+        services.TryAddSingleton<FanWindowService>();
+        services.TryAddSingleton<ITaskFanSurface>(provider => provider.GetRequiredService<FanWindowService>());
+        services.TryAddSingleton<IPointerTimings, SystemPointerTimings>();
         services.TryAddSingleton<WindowDialogService>();
         services.TryAddSingleton<IDialogService>(provider => provider.GetRequiredService<WindowDialogService>());
         services.TryAddSingleton<IGlobalHotkey, Win32GlobalHotkey>();
@@ -39,6 +46,11 @@ internal static class WindowsHostServiceCollectionExtensions
         services.TryAddSingleton<IAudioPlayback, WasapiAudioPlayback>();
         services.TryAddSingleton<ISystemLanguage, WindowsSystemLanguage>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AssistantLanguageChanged>, HostLanguage>());
+
+        // The browser of Jarvis (ADR 0022): WebView2 in a window of its own, created at the first search. It asks the
+        // address policy of the web tools slice at every request.
+        services.TryAddSingleton<WebViewReadingBrowser>();
+        services.TryAddSingleton<IReadingBrowser>(provider => provider.GetRequiredService<WebViewReadingBrowser>());
 
         // Updates (US1.18): starts the updater, tells about a new version, cleans what the last update left.
         services.TryAddSingleton<QuitSignal>();

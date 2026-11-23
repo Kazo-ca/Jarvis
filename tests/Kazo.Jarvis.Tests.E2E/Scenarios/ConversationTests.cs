@@ -120,6 +120,58 @@ public sealed class ConversationTests : PageTest
     }
 
     [Test]
+    public async Task A_tool_call_is_shown_in_the_turn_with_its_arguments_and_its_result()
+    {
+        // US2.1 (ADR 0017): the simulated model asks for the tool "calculate"; the call goes through the decision
+        // point, runs, and the answer quotes its result.
+        await OpenConversationAsync();
+
+        await Conversation.Locator("[data-conversation-text]").FillAsync("Calcule 12*7+3");
+        await Conversation.Locator("[data-conversation-text]").PressAsync("Enter");
+
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 10_000 });
+        var call = Newest.Locator("[data-conversation-tool='calculate']");
+        await Expect(call).ToHaveCountAsync(1);
+        await Expect(call).ToHaveAttributeAsync("data-tool-outcome", "Done");
+        await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("87");
+
+        // Collapsed by default; opened, it shows the arguments and the result.
+        await Expect(call.Locator("[data-conversation-tool-result]")).Not.ToBeVisibleAsync();
+        await call.Locator("summary").ClickAsync();
+        await Expect(call.Locator("[data-conversation-tool-arguments]")).ToContainTextAsync("12*7+3");
+        await Expect(call.Locator("[data-conversation-tool-result]")).ToHaveTextAsync("87");
+    }
+
+    [Test]
+    public async Task The_clock_tool_answers_with_the_date_of_the_computer()
+    {
+        await OpenConversationAsync();
+
+        await Conversation.Locator("[data-conversation-text]").FillAsync("Donne-moi l'heure exacte.");
+        await Conversation.Locator("[data-conversation-text]").PressAsync("Enter");
+
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 10_000 });
+        await Expect(Newest.Locator("[data-conversation-tool='get_datetime']")).ToHaveAttributeAsync("data-tool-outcome", "Done");
+        await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("time_zone");
+    }
+
+    [Test]
+    public async Task A_tool_that_does_not_exist_is_denied_and_the_turn_still_ends()
+    {
+        await OpenConversationAsync();
+
+        await Conversation.Locator("[data-conversation-text]").FillAsync("Appelle un outil inconnu.");
+        await Conversation.Locator("[data-conversation-text]").PressAsync("Enter");
+
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 10_000 });
+        var call = Newest.Locator("[data-conversation-tool]");
+        await Expect(call).ToHaveAttributeAsync("data-tool-outcome", "Denied");
+        await call.Locator("summary").ClickAsync();
+        await Expect(call.Locator("[data-conversation-tool-result]")).ToHaveTextAsync(new System.Text.RegularExpressions.Regex("aucun outil ne porte ce nom|no tool has this name"));
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle");
+    }
+
+    [Test]
     public async Task Erase_everything_empties_the_conversation_after_a_confirmation()
     {
         await OpenConversationAsync();
