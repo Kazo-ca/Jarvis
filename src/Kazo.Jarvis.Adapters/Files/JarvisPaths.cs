@@ -48,6 +48,9 @@ public sealed record JarvisPaths(string Root)
     /// </summary>
     public string Browser => Path.Combine(Root, "browser");
 
+    /// <summary>The files of the agents (ADR 0025, section 2), one <c>&lt;name&gt;.md</c> per agent. Created when the first one is written.</summary>
+    public string Agents => Path.Combine(Root, "agents");
+
     /// <summary>The root of the current Windows user: <c>%USERPROFILE%\.kazo\jarvis</c>.</summary>
     /// <returns>The paths.</returns>
     public static JarvisPaths ForCurrentUser() =>

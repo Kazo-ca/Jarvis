@@ -93,6 +93,10 @@ public static class SimulatedServiceCollectionExtensions
 
         services.TryAddSingleton<SimulatedLocalFiles>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Files.ILocalFiles>(provider => provider.GetRequiredService<SimulatedLocalFiles>());
+
+        // Agents (stage2/17-agents): their files in memory.
+        services.TryAddSingleton<InMemoryAgentFiles>();
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Agents.IAgentFiles>(provider => provider.GetRequiredService<InMemoryAgentFiles>());
         services.TryAddSingleton<SimulatedReadingBrowser>();
         services.TryAddSingleton<Kazo.Jarvis.Kernel.Web.IReadingBrowser>(provider => provider.GetRequiredService<SimulatedReadingBrowser>());
         // Tool servers (stage2/6-mcp-client): fixed servers in memory.

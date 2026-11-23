@@ -45,6 +45,9 @@ internal sealed class McpTool : ITool
     /// <inheritdoc />
     public string Origin => ToolOrigins.Mcp(session.Name);
 
+    /// <summary>The tools of a Home Assistant server go to the home automation agent (ADR 0025, section 3); those of any other server to the Jarvis agent.</summary>
+    public string? Agent => session.Options.Kind == McpServerKind.HomeAssistant ? Kazo.Jarvis.Kernel.Agents.AgentIds.HomeAutomation : null;
+
     /// <summary>Never on at its discovery (ADR 0018, section 3).</summary>
     public bool EnabledByDefault => false;
 

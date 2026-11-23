@@ -49,8 +49,9 @@ public sealed class SystemPrompt
     /// <param name="language">The language of the turn.</param>
     /// <param name="withTools">Whether tools are given to the model in this turn; the rules then say how to use them.</param>
     /// <param name="memory">The block of the memory (ADR 0019, section 6), written by its slice, or <see langword="null"/>.</param>
-    /// <returns>The personality, a blank line, the fixed rules, then the memory.</returns>
-    public string Build(AssistantLanguage language, bool withTools = false, string? memory = null)
+    /// <param name="instructions">The instructions of the agent that answers (ADR 0025, section 1), or <see langword="null"/>.</param>
+    /// <returns>The personality, a blank line, the fixed rules, the instructions of the agent, then the memory.</returns>
+    public string Build(AssistantLanguage language, bool withTools = false, string? memory = null, string? instructions = null)
     {
         ArgumentNullException.ThrowIfNull(language);
         var rules = Texts.GetString("Rules", language.Culture) ?? "{0}";
@@ -60,6 +61,7 @@ public sealed class SystemPrompt
         var moment = now.ToString("F", language.Culture);
         var text = Personality(language).Trim() + "\n\n" + string.Format(CultureInfo.InvariantCulture, rules, moment);
         text = withTools ? text + "\n" + Text("Tools", language) : text;
+        text = string.IsNullOrWhiteSpace(instructions) ? text : text + "\n\n" + instructions.Trim();
         return string.IsNullOrWhiteSpace(memory) ? text : text + "\n\n" + memory.Trim();
     }
 

@@ -25,4 +25,7 @@ public enum FaultOrigin
 
     /// <summary>The voice that says the answer (speech slice).</summary>
     Voice,
+
+    /// <summary>The files of the agents (agents slice).</summary>
+    Agents,
 }

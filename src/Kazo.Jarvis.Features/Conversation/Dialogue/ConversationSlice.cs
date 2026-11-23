@@ -26,6 +26,7 @@ public static class ConversationSlice
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<SystemPrompt>();
         services.TryAddSingleton<ConversationJournal>();
+        services.TryAddSingleton<AgentChoice>();
 
         services.TryAddSingleton<ConversationEngine>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, ConversationEngine>(Engine));

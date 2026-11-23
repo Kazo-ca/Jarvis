@@ -132,6 +132,12 @@ public sealed record ConversationTurn
     /// <summary>The hand-off of the turn, when one was asked (ADR 0020). After one that answered, <see cref="Provider"/>, <see cref="Model"/> and the tokens are those of the target.</summary>
     public HandOffEntry? HandOff { get; init; }
 
+    /// <summary>
+    /// The name of the agent that answered (ADR 0025, section 4): the Jarvis agent, the one it handed the turn to,
+    /// or the one the user chose. Absent from a turn no agent answered: a forced hand-off, an announcement.
+    /// </summary>
+    public string? Agent { get; init; }
+
     /// <summary>Code of the language of the turn (<c>fr</c>, <c>en</c>).</summary>
     public string Language { get; init; } = string.Empty;
 

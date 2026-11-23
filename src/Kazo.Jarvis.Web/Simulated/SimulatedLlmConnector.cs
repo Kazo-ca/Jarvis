@@ -24,7 +24,9 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// « souviens-toi que … », « oublie que … » and « que sais-tu sur … » for the tools of the memory, « question difficile »
 /// for <c>hand_off_to_claude</c> (a simulated cloud provider then says back what it received), « que retiens-tu »
 /// « où en est Claude sur … » for <c>get_claude_sessions</c> and « silence pendant N heures » for <c>start_quiet_period</c>,
-/// to hear back the memory block the model received, and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
+/// to hear back the memory block the model received, « passe la main à X » for <c>hand_to_agent</c> (the Jarvis agent
+/// also hands over by itself when the words ask for a tool only another agent sees), « pas pour toi » for
+/// <c>return_to_jarvis</c>, and « outil inconnu » for a tool that does not exist, which the decision point denies. After a tool result, the
 /// answer quotes it.
 /// </para>
 /// </summary>
@@ -281,6 +283,12 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
             string? OfferedAs(string name) =>
                 options?.Tools?.FirstOrDefault(tool => tool.Name == name || tool.Name.EndsWith("__" + name, StringComparison.Ordinal))?.Name;
 
+            // The agents (stage2/17-agents): an agent that gets a request made for another one gives it back.
+            if (Offered("return_to_jarvis") && NotForMeRequest().IsMatch(request))
+            {
+                return new FunctionCallContent("call_return", "return_to_jarvis", new Dictionary<string, object?> { ["reason"] = "Cette demande n'est pas pour moi." });
+            }
+
             if (Offered("get_datetime") && TimeRequest().IsMatch(request))
             {
                 return new FunctionCallContent("call_time", "get_datetime", new Dictionary<string, object?>());
@@ -399,9 +407,35 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
                 return new FunctionCallContent("call_hand_off", "hand_off_to_claude", new Dictionary<string, object?> { ["kind"] = "question", ["reason"] = "Cette question demande un raisonnement long." });
             }
 
+            // The Jarvis agent (stage2/17-agents): the words ask for a tool it does not see, so it hands the turn to
+            // the agent that has it, by the name the hand tool lists; « passe la main à X » names any agent.
+            if (Offered("hand_to_agent") && AgentFor(request, options) is { } agent)
+            {
+                return new FunctionCallContent("call_hand", "hand_to_agent", new Dictionary<string, object?> { ["agent"] = agent, ["reason"] = "Cette demande est pour cet agent." });
+            }
+
             // A tool the registry does not know: only when tools are offered, as a real model could invent one.
             return options?.Tools is { Count: > 0 } && request.Contains("outil inconnu", StringComparison.OrdinalIgnoreCase)
                 ? new FunctionCallContent("call_unknown", "open_the_pod_bay_doors", new Dictionary<string, object?>())
+                : null;
+        }
+
+        /// <summary>The agent the words of <paramref name="request"/> are for, among those the hand tool lists.</summary>
+        private static string? AgentFor(string request, ChatOptions? options)
+        {
+            if (HandRequest().Match(request) is { Success: true } named)
+            {
+                return Sentence(named.Groups[1].Value);
+            }
+
+            var schema = options?.Tools?.OfType<AIFunctionDeclaration>().FirstOrDefault(tool => tool.Name == "hand_to_agent")?.JsonSchema.GetRawText() ?? string.Empty;
+            string? Listed(params string[] names) => names.FirstOrDefault(name => schema.Contains("\"" + name + "\"", StringComparison.Ordinal));
+
+            return ListRequest().IsMatch(request) || FileRequest().IsMatch(request) ? Listed("Fichiers", "Files")
+                : SearchRequest().IsMatch(request) || PageRequest().IsMatch(request) ? Listed("Web")
+                : RememberRequest().IsMatch(request) || ForgetRequest().IsMatch(request) || KnownRequest().IsMatch(request) ? Listed("Mémoire", "M\\u00E9moire", "Memory")
+                : ScriptRequest().IsMatch(request) || TurnOffRequest().IsMatch(request) || TurnOnRequest().IsMatch(request) ? Listed("Domotique", "Home")
+                : SessionsRequest().IsMatch(request) ? Listed("Claude Code")
                 : null;
         }
 
@@ -420,6 +454,12 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         {
         }
     }
+
+    [GeneratedRegex(@"(?:pas pour toi|not for you)", RegexOptions.IgnoreCase)]
+    private static partial Regex NotForMeRequest();
+
+    [GeneratedRegex(@"(?:passe la main à|hand over to)\s+(.+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex HandRequest();
 
     [GeneratedRegex(@"(?:où en est claude|where is claude)(?:\s+(?:sur|on)\s+(.+))?$", RegexOptions.IgnoreCase)]
     private static partial Regex SessionsRequest();

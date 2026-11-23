@@ -20,4 +20,7 @@ public enum FaultCause
 
     /// <summary>The configuration file could not be read; the application runs on defaults.</summary>
     ConfigurationUnreadable,
+
+    /// <summary>The file of an agent could not be read; the agent is left out (ADR 0025, section 2).</summary>
+    AgentUnreadable,
 }

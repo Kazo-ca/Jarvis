@@ -1,0 +1,109 @@
+.agents-folder {
+    margin: 0 0 0.8rem;
+    font-size: 0.9rem;
+    color: var(--jarvis-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.agents-issues {
+    margin: 0 0 0.8rem;
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--jarvis-amber);
+    background: var(--jarvis-input);
+}
+
+.agents-issues-title {
+    margin: 0 0 0.3rem;
+    font-weight: 600;
+}
+
+.agents-issues-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.9rem;
+}
+
+.agents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.agents-entry {
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+}
+
+.agents-entry[data-agent-available="true"] {
+    border-left-color: var(--jarvis-green);
+}
+
+.agents-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    align-items: center;
+}
+
+.agents-name {
+    font-weight: 600;
+}
+
+.agents-id {
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.85rem;
+    color: var(--jarvis-text-muted);
+}
+
+.agents-tag {
+    font-size: 0.8rem;
+    color: var(--jarvis-text-muted);
+}
+
+.agents-open {
+    margin-left: auto;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid var(--jarvis-line);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.agents-description {
+    margin: 0.4rem 0 0;
+}
+
+.agents-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.5rem;
+    align-items: baseline;
+    margin: 0.4rem 0 0;
+    font-size: 0.9rem;
+}
+
+.agents-tools-label {
+    color: var(--jarvis-text-muted);
+}
+
+.agents-tool {
+    font-family: var(--jarvis-font-mono);
+    font-size: 0.85rem;
+}
+
+.agents-note {
+    margin: 0.4rem 0 0;
+    font-size: 0.9rem;
+    color: var(--jarvis-text-muted);
+}
+
+.agents-problem {
+    margin: 0.8rem 0 0;
+    color: var(--jarvis-amber);
+}

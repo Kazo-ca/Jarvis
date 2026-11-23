@@ -45,6 +45,9 @@ public sealed partial class ConversationEngineTests
     private FakeMemory memory = null!;
     private FakeHandOff handOff = null!;
     private FakeClaudeTasks? claudeTasks;
+    private Agents.FakeAgentFiles? agentFiles;
+    private Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog? agents;
+    private AgentChoice? agentChoice;
     private List<IEvent> published = null!;
     private IDisposable[] subscriptions = [];
 
@@ -66,6 +69,22 @@ public sealed partial class ConversationEngineTests
         journal = new ConversationJournal(store, TimeProvider.System, NullLogger<ConversationJournal>.Instance);
         registry = new ToolRegistry([], settings);
         permissions = new PermissionDecisionPoint(registry, store, TimeProvider.System, NullLogger<PermissionDecisionPoint>.Instance);
+
+        // Only the tests of the agents have their slice: the files of the starting agents, and the two tools of the hand.
+        if (TestContext.CurrentContext.Test.Properties.ContainsKey(WithAgents))
+        {
+            agentFiles = new Agents.FakeAgentFiles();
+            agents = new Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog(agentFiles, registry, settings, language, Bus, NullLogger<Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog>.Instance);
+            registry.Register(new Kazo.Jarvis.Features.Agents.Catalog.HandToAgentTool(() => agents));
+            registry.Register(new Kazo.Jarvis.Features.Agents.Catalog.ReturnToJarvisTool());
+            agents.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
+            agentChoice = new AgentChoice();
+        }
+        else
+        {
+            (agentFiles, agents, agentChoice) = (null, null, null);
+        }
+
         engine = new ConversationEngine(
             model,
             new SystemPrompt(settings, TimeProvider.System),
@@ -80,7 +99,9 @@ public sealed partial class ConversationEngineTests
             handOff = new FakeHandOff(),
 
             // Only the tests of the work handed to Claude Code have the slice of its sessions.
-            claudeTasks = TestContext.CurrentContext.Test.Properties.ContainsKey(WithClaudeTasks) ? new FakeClaudeTasks() : null);
+            claudeTasks = TestContext.CurrentContext.Test.Properties.ContainsKey(WithClaudeTasks) ? new FakeClaudeTasks() : null,
+            agents,
+            agentChoice);
         published = [];
         subscriptions =
         [
@@ -114,6 +135,7 @@ public sealed partial class ConversationEngineTests
         }
 
         engine.Dispose();
+        agents?.Dispose();
         registry.Dispose();
         client.Dispose();
         cloud?.Dispose();

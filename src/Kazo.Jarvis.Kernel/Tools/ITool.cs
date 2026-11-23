@@ -86,6 +86,13 @@ public interface ITool
     /// </summary>
     bool RefusedAfterOutsideContent => false;
 
+    /// <summary>
+    /// The identity of the agent the source of the tool gives it to (ADR 0025, section 3): the tools of a Home
+    /// Assistant server go to the home automation agent. <see langword="null"/> when only the agent files say who
+    /// sees the tool.
+    /// </summary>
+    string? Agent => null;
+
     /// <summary>Runs the call. Only called after the decision point allowed it.</summary>
     /// <param name="arguments">The arguments of the call, a JSON object.</param>
     /// <param name="cancellationToken">Cancelled by an interruption or by the time limit of a call.</param>

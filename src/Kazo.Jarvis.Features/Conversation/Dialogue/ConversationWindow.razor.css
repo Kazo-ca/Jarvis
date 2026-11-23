@@ -230,3 +230,19 @@
 .conversation-handoff:not([data-handoff-failure=""]) {
     border-left-color: var(--jarvis-red);
 }
+
+.conversation-agent {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+}
+
+.conversation-agent-select {
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--jarvis-line);
+    background: var(--jarvis-input);
+    color: var(--jarvis-text);
+    font: inherit;
+}

@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Kazo.Jarvis.Kernel.Agents;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Localization;
@@ -29,6 +30,85 @@ public sealed partial class ConversationEngine
     /// <summary>Tools as a model receives them: name, description in the language of the turn, schema.</summary>
     private static List<AITool> Declarations(AssistantLanguage turnLanguage, IEnumerable<ITool> offered) =>
         [.. offered.Select(tool => (AITool)AIFunctionFactory.CreateDeclaration(tool.Name, tool.Describe(turnLanguage), tool.Schema))];
+
+    /// <summary>
+    /// Who answers first (ADR 0025, sections 4 and 9): the agent the user chose in the conversation window for a
+    /// typed request, else the Jarvis agent. <see langword="null"/> without the agents slice.
+    /// </summary>
+    private AgentDefinition? FirstAgent(Answering answering)
+    {
+        if (agents is null)
+        {
+            return null;
+        }
+
+        // By voice nobody is named to skip the Jarvis agent (section 9).
+        var chosen = answering.Input == TurnInput.Text ? agents.Find(choice?.Chosen) : null;
+        return chosen ?? agents.Main;
+    }
+
+    /// <summary>
+    /// The tools <paramref name="agent"/> sees in this turn: its own, and the hand while it may still change. An
+    /// agent the user chose keeps the way back to the Jarvis agent like any other.
+    /// </summary>
+    private IEnumerable<ITool> ToolsFor(TurnRun run, AgentDefinition? agent)
+    {
+        if (agents is null || agent is null)
+        {
+            return tools.Enabled;
+        }
+
+        // After an agent gave the turn back, the Jarvis agent answers with what it has: the hand does not go round.
+        var offered = agents.ToolsOf(agent);
+        return run.Returned
+            ? offered.Where(tool => tool.Name != agents.HandToolName && tool.Name != agents.ReturnToolName)
+            : offered;
+    }
+
+    /// <summary>
+    /// A call that changes the hand (ADR 0025, sections 4 and 8): the Jarvis agent names an agent, or an agent says
+    /// the request is not for it. The loop of the agent that called stops; the turn continues with the other one.
+    /// An unknown name is refused, and the agent that called keeps the hand.
+    /// </summary>
+    /// <returns>What goes back as the result of the call, or <see langword="null"/> when <paramref name="name"/> is not a tool of the hand.</returns>
+    private async Task<(ToolCallOutcome Outcome, string Result)?> ChangeHandAsync(TurnRun run, Speaker speaker, string name, JsonElement arguments)
+    {
+        if (agents is null || speaker.Agent is not { } current || speaker.Target is not null)
+        {
+            return null;
+        }
+
+        if (name == agents.ReturnToolName)
+        {
+            run.Returned = true;
+            run.Next = agents.Main;
+            LogHandReturned(run.Answering.Turn, current.Id);
+            return (ToolCallOutcome.Done, SystemPrompt.Text("Agent_Returned", run.Language, agents.Main.Name));
+        }
+
+        if (name != agents.HandToolName)
+        {
+            return null;
+        }
+
+        var hand = agents.ReadHand(arguments);
+        if (hand.Agent is not { } next || next.Id == current.Id || run.HandedToAgent)
+        {
+            var known = string.Join(", ", agents.Agents.Where(agent => agent.Id != current.Id && agents.ToolsOf(agent).Any(tool => tool.Name != agents.ReturnToolName)).Select(agent => agent.Name));
+            return (ToolCallOutcome.Failed, SystemPrompt.Text("Agent_Unknown", run.Language, hand.Asked ?? string.Empty, known));
+        }
+
+        run.HandedToAgent = true;
+        run.Next = next;
+        LogHandChanged(run.Answering.Turn, current.Id, next.Id);
+        if (run.Speak && !run.Prefaced)
+        {
+            // The Jarvis agent says that it hands over (section 9); when the model wrote nothing, a fixed sentence does.
+            await SayAsync(run.Answering.Turn, [SystemPrompt.Text("Agent_Announcement", run.Language, next.Name)]).ConfigureAwait(false);
+        }
+
+        return (ToolCallOutcome.Done, SystemPrompt.Text("Agent_Handed", run.Language, next.Name));
+    }
 
     /// <summary>The text the model wrote before its calls, kept in the message that carries them.</summary>
     private static IEnumerable<AIContent> Preface(StringBuilder text) =>
@@ -91,6 +171,13 @@ public sealed partial class ConversationEngine
             return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_Again", turnLanguage), denial: "Again");
         }
 
+        // An agent sees its own tools only (ADR 0025, section 1): it cannot call a tool of another agent. A name no
+        // tool has goes on to the decision point, which names that cause.
+        if (speaker.Target is null && speaker.Agent is not null && tools.Find(call.Name) is not null && !speaker.Offered.Any(offered => offered.Name == call.Name))
+        {
+            return Finish(ToolCallOutcome.Denied, SystemPrompt.Text("Denied_NotThisAgent", turnLanguage), denial: "NotThisAgent");
+        }
+
         // A target is given the reading tools only (ADR 0020, section 4): it cannot call what it was not offered.
         if (speaker.Target is not null && !speaker.Offered.Any(offered => offered.Name == call.Name))
         {
@@ -125,6 +212,11 @@ public sealed partial class ConversationEngine
                 // The terminal tool: its run is the whole answer of the target, without the time limit of a call.
                 var asked = handOff.Read(arguments.Value) ?? new HandOffCall(HandOffKind.Question, null);
                 return Finish(ToolCallOutcome.Done, await HandOffAsync(run, asked, null, token).ConfigureAwait(false), decision.Class);
+            }
+
+            if (await ChangeHandAsync(run, speaker, call.Name, arguments.Value).ConfigureAwait(false) is { } hand)
+            {
+                return Finish(hand.Outcome, hand.Result, decision.Class);
             }
 
             // WaitAsync: a tool that ignores its cancellation does not hold the turn.
@@ -170,6 +262,12 @@ public sealed partial class ConversationEngine
 
     [LoggerMessage(Level = LogLevel.Information, Message = "{Turn}: tool {Tool} {Outcome} (class {Class}, cause {Denial}) in {Milliseconds} ms.")]
     private partial void LogToolCall(TurnId turn, string tool, ToolCallOutcome outcome, ActionClass? @class, string? denial, long milliseconds);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{Turn}: the agent {From} handed the turn to the agent {To}.")]
+    private partial void LogHandChanged(TurnId turn, string from, string to);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{Turn}: the agent {From} gave the turn back to the Jarvis agent.")]
+    private partial void LogHandReturned(TurnId turn, string from);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "{Turn}: the tool {Tool} failed.")]
     private partial void LogToolFailed(Exception exception, TurnId turn, string tool);

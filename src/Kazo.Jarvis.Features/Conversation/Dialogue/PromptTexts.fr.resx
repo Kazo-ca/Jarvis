@@ -120,4 +120,19 @@
   <data name="Summary_Assistant" xml:space="preserve">
     <value>Assistant :</value>
   </data>
+  <data name="Agent_Handed" xml:space="preserve">
+    <value>La main est passée à l'agent {0}, qui répond maintenant.</value>
+  </data>
+  <data name="Agent_Returned" xml:space="preserve">
+    <value>La demande revient à l'agent {0}.</value>
+  </data>
+  <data name="Agent_Unknown" xml:space="preserve">
+    <value>La main n'a pas changé : aucun agent ne s'appelle « {0} ». Agents connus : {1}. Réponds toi-même ou nomme l'un d'eux.</value>
+  </data>
+  <data name="Agent_Announcement" xml:space="preserve">
+    <value>Je passe la main à l'agent {0}.</value>
+  </data>
+  <data name="Denied_NotThisAgent" xml:space="preserve">
+    <value>Refusé : cet outil n'est pas un de ceux de cet agent.</value>
+  </data>
 </root>

@@ -108,6 +108,11 @@ public static class AdaptersServiceCollectionExtensions
         // called only when the tool is on and a key is in the vault. 20 s bound one search.
         services.TryAddSingleton<ILocalFiles, LocalFiles>();
 
+        // Agents (ADR 0025, section 2): one Markdown file per agent in the folder of Jarvis, watched for changes.
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Agents.IAgentFiles>(provider => new Kazo.Jarvis.Adapters.Agents.DiskAgentFiles(
+            provider.GetRequiredService<JarvisPaths>(),
+            provider.GetService<ILogger<Kazo.Jarvis.Adapters.Agents.DiskAgentFiles>>()));
+
         // Claude Code sessions (ADR 0021, section 6): the registry of the running sessions, read only.
         services.TryAddSingleton<Kazo.Jarvis.Kernel.ClaudeCode.IClaudeSessionRegistry>(provider =>
             new Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry(provider.GetService<ILogger<Kazo.Jarvis.Adapters.ClaudeCode.ClaudeSessionRegistry>>()));

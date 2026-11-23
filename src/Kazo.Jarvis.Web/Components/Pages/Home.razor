@@ -18,6 +18,7 @@
 @inject ISettingsStore Settings
 @inject SimulatedNotes Notes
 @inject SimulatedReadingBrowser Browser
+@inject InMemoryAgentFiles AgentFiles
 @inject SimulatedToolServers ToolServers
 @inject SimulatedClaudeSessions ClaudeSessions
 @inject SimulatedClaudeUserSettings ClaudeSettings
@@ -46,6 +47,9 @@
         <button type="button" id="open-settings" @onclick="OpenSettings">Open the settings (tray menu)</button>
         <button type="button" id="open-conversation" @onclick="OpenConversation">Open the conversation (tray menu)</button>
         <button type="button" id="open-updates" @onclick="OpenUpdates">Open the updates window</button>
+        <button type="button" id="agent-file-break" @onclick="BreakAgentFile">Save an agent file without a header</button>
+        <button type="button" id="agent-file-write" @onclick="WriteAgentFile">Save the agent file of the kitchen</button>
+        <button type="button" id="agent-file-delete" @onclick="DeleteAgentFile">Delete the agent file of the kitchen</button>
         <button type="button" id="simulate-release" @onclick="PublishRelease">Publish version 9.9.0</button>
         <button type="button" id="simulate-offline" @onclick="ToggleNetwork">@(Releases.Reachable ? "Cut the network" : "Restore the network")</button>
         <button type="button" id="toggle-mute" @onclick="ToggleMute">@(State.Current.MicrophoneMuted ? "Unmute the microphone (tray menu)" : "Mute the microphone (tray menu)")</button>
@@ -167,6 +171,13 @@
     // The task of the last session Jarvis started itself.
     private Kazo.Jarvis.Kernel.Tasks.WorkTask? LastHarnessTask =>
         Board.Tasks.Where(task => task.Source == Kazo.Jarvis.Kernel.Tasks.TaskSource.Harness).OrderByDescending(task => task.CreatedAt).FirstOrDefault();
+
+    // The user edits the files of the agents in an editor (stage2/17-agents): one that does not read, then a good one.
+    private void BreakAgentFile() => AgentFiles.Save("cuisine", "Des consignes sans en-tête.");
+
+    private void WriteAgentFile() => AgentFiles.Save("cuisine", "---\nname: Cuisine\ndescription: Les recettes et les listes de courses.\ntools: write_note\n---\n\nRéponds comme un chef.");
+
+    private void DeleteAgentFile() => AgentFiles.Delete("cuisine");
 
     private Task OpenUpdates() => Bus.PublishAsync(new UpdatesWindowRequested()).AsTask();
 
