@@ -402,7 +402,7 @@ public sealed partial class ConversationEngine :
                 await bus.PublishAsync(new ExchangesLeftHistory(left, turnLanguage), CancellationToken.None).ConfigureAwait(false);
             }
 
-            var run = new TurnRun(answering, turnLanguage, recent, recall);
+            var run = new TurnRun(answering, turnLanguage, recent, recall) { Project = FirstProject(answering) };
             Usage? local = null;
             started = time.GetTimestamp();
             if (forced is not null)
@@ -426,7 +426,6 @@ public sealed partial class ConversationEngine :
                 // with agents, only those of the agent that answers (ADR 0025, section 1).
                 var requester = new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model");
                 var agent = FirstAgent(answering);
-                run.Project = FirstProject(answering);
                 local = new Usage();
                 while (true)
                 {

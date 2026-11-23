@@ -43,7 +43,8 @@ public sealed partial class ConversationEngine
         var entry = new HandOffEntry { Kind = asked.Kind, Reason = asked.Reason, Forced = forcedRequest is not null, FromProvider = before.Provider, FromModel = before.Model };
         if (asked.Kind == HandOffKind.Task && claudeTasks is not null)
         {
-            return await DelegateAsync(run, resumed ?? new ClaudeTaskRequest(forcedRequest ?? before.Request, language), entry, token).ConfigureAwait(false);
+            // A turn about a project starts the session in the folder of that project (ADR 0025, section 6).
+            return await DelegateAsync(run, resumed ?? new ClaudeTaskRequest(forcedRequest ?? before.Request, language) { Folder = run.Project?.Folder }, entry, token).ConfigureAwait(false);
         }
 
         var opening = handOff!.Open(asked.Kind);

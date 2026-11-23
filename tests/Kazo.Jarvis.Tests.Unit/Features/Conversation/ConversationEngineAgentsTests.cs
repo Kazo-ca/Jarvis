@@ -337,6 +337,21 @@ public sealed partial class ConversationEngineTests
 
     [Test]
     [Property(WithAgents, "yes")]
+    [Property("ClaudeTasks", "yes")]
+    public async Task A_work_handed_to_Claude_Code_about_a_project_starts_in_the_folder_of_that_project()
+    {
+        await CreateKazoOsAsync();
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Demande à Claude Code de corriger le pilote réseau de Kazo OS."));
+        await TurnStoredAsync();
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Demande à Claude Code de ranger le dépôt."));
+        await TurnStoredAsync();
+
+        Assert.That(claudeTasks!.Started.Select(started => started.Request.Folder), Is.EqualTo(new[] { "/projets/kazo-os", null }), "Without a project the request names the folder, as before.");
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
     public async Task Without_a_project_named_only_the_memory_of_the_agent_is_sent()
     {
         RegisterClockAndSearch();

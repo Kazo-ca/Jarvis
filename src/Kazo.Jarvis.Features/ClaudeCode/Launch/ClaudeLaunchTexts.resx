@@ -72,4 +72,7 @@
   <data name="Abandoned" xml:space="preserve">
     <value>Stopped by the user.</value>
   </data>
+  <data name="FolderNotAllowed" xml:space="preserve">
+    <value>The folder {0} is not allowed. Allow it in the settings, on the Projects page or on the Allowed folders page.</value>
+  </data>
 </root>

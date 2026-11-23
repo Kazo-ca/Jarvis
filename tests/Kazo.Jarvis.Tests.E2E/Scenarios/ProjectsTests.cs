@@ -159,6 +159,42 @@ public sealed class ProjectsTests : PageTest
         await ExpectIdleAsync();
     }
 
+    [Test]
+    public async Task A_session_in_a_folder_of_no_project_asks_where_it_belongs_and_the_user_answers()
+    {
+        // A Claude Code session the user started by hand works in a folder Jarvis has no project for (section 6).
+        const string bar = "/home/demo/projets/kazo-bar";
+        await Page.Locator("#hand-session-work").DispatchEventAsync("click");
+        await OpenSettingsAsync("Projects.Catalog");
+        var request = Settings.Locator($"[data-project-request='{bar}']");
+        await Expect(request).ToHaveCountAsync(1);
+        await Expect(request.Locator("[data-project-request-project]")).ToHaveCountAsync(0);
+        await Expect(request.Locator("[data-project-request-create]")).ToBeDisabledAsync();
+
+        // A new project on that folder: the request is answered.
+        await request.Locator("[data-project-request-name]").FillAsync("Kazo Bar");
+        await request.Locator("[data-project-request-create]").ClickAsync();
+        await Expect(request).ToHaveCountAsync(0);
+        await Expect(Settings.Locator("[data-project='kazo-bar'] [data-project-folder]")).ToHaveTextAsync(bar);
+
+        // Without that project the request is back, and it can go to a project that exists.
+        await Settings.Locator("[data-project='kazo-bar'] [data-project-remove]").ClickAsync();
+        await Expect(request).ToHaveCountAsync(1);
+        await AddAsync("Kazo OS", KazoOs);
+        await Expect(Projects).ToHaveCountAsync(1);
+        await Expect(request.Locator("[data-project-request-assign]")).ToBeDisabledAsync();
+        await request.Locator("[data-project-request-project]").SelectOptionAsync("kazo-os");
+        await request.Locator("[data-project-request-assign]").ClickAsync();
+        await Expect(request).ToHaveCountAsync(0);
+        var more = Settings.Locator($"[data-project='kazo-os'] [data-project-more-folder='{bar}']");
+        await Expect(more).ToHaveCountAsync(1);
+
+        // Taken back from the project, the folder asks again: Jarvis never chose.
+        await more.Locator("[data-project-more-remove]").ClickAsync();
+        await Expect(request).ToHaveCountAsync(1);
+        await Page.Locator("#hand-session-stop").DispatchEventAsync("click");
+    }
+
     private async Task AddAsync(string name, string folder)
     {
         await Settings.Locator("[data-project-add-name]").FillAsync(name);

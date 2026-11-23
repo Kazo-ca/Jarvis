@@ -124,6 +124,24 @@ public sealed class ClaudeTaskRunnerTests
     }
 
     [Test]
+    public async Task A_folder_given_with_the_work_is_the_one_of_the_session_when_it_is_allowed_and_refused_by_name_otherwise()
+    {
+        folders.Folders.Add(Notes);
+        claude.Board = board;
+
+        // The folder of a project (ADR 0025, section 6): the request names no folder, and the other one is not asked about.
+        var started = await runner.StartAsync(Request("corrige le menu") with { Folder = Notes.ToUpperInvariant() + "/" }, Say);
+        var refused = await runner.StartAsync(Request("corrige le menu") with { Folder = "/home/benoit/ailleurs" }, Say);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(started.Started, Is.True);
+            Assert.That(claude.Launches.Single().Folder, Is.EqualTo(Notes), "As the allowed folders write it.");
+            Assert.That((refused.Started, refused.Said), Is.EqualTo((false, "Le dossier ailleurs n'est pas autorisé. Autorisez-le dans les réglages, à la page Projets ou à la page Dossiers autorisés.")));
+        });
+    }
+
+    [Test]
     public async Task With_several_folders_the_one_the_request_names_is_chosen()
     {
         folders.Folders.Add(Notes);

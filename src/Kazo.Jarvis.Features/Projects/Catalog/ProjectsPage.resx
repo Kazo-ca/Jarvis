@@ -90,4 +90,34 @@
   <data name="Add_NotSaved" xml:space="preserve">
     <value>The project could not be saved.</value>
   </data>
+  <data name="RequestsLabel" xml:space="preserve">
+    <value>Folders with no project</value>
+  </data>
+  <data name="RequestsHint" xml:space="preserve">
+    <value>Jarvis never chooses for you: the request stays as long as the session works in that folder.</value>
+  </data>
+  <data name="Request" xml:space="preserve">
+    <value>A Claude session works in {0}, which belongs to no project.</value>
+  </data>
+  <data name="RequestProjectLabel" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="RequestChoose" xml:space="preserve">
+    <value>Choose a project…</value>
+  </data>
+  <data name="RequestAssign" xml:space="preserve">
+    <value>Assign to this project</value>
+  </data>
+  <data name="RequestCreate" xml:space="preserve">
+    <value>Create a project on this folder</value>
+  </data>
+  <data name="RequestFailed" xml:space="preserve">
+    <value>The folder could not be assigned.</value>
+  </data>
+  <data name="MoreFolder" xml:space="preserve">
+    <value>Also: {0}</value>
+  </data>
+  <data name="MoreFolderRemove" xml:space="preserve">
+    <value>Remove this folder</value>
+  </data>
 </root>

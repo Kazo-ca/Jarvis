@@ -7,6 +7,41 @@
    a memory file and whether Jarvis may read its folder; allowing the folder is asked in so many words, never done
    by creating the project. *@
 <SettingsFrame Title="@T["Title"]" Description="@T["Description"]">
+    @if (unassigned.Count > 0)
+    {
+        @* A session works in a folder of no project: the user says where it belongs, Jarvis never chooses, and
+           the request waits as long as it takes (ADR 0025, section 6). *@
+        <SettingsField Label="@T["RequestsLabel"]" Hint="@T["RequestsHint"]">
+            <ul class="projects-list" data-project-requests>
+                @foreach (var request in unassigned)
+                {
+                    <li class="projects-entry projects-request" data-project-request="@request" @key="request">
+                        <p class="projects-folder" role="alert">@T["Request", request]</p>
+                        @if (projects.Count > 0)
+                        {
+                            <div class="projects-add">
+                                <select class="projects-input" data-project-request-project aria-label="@T["RequestProjectLabel"]"
+                                        value="@Chosen(request)" @onchange="change => chosen[request] = change.Value?.ToString()">
+                                    <option value="">@T["RequestChoose"]</option>
+                                    @foreach (var project in projects)
+                                    {
+                                        <option value="@project.Id">@project.Name</option>
+                                    }
+                                </select>
+                                <button type="button" class="projects-button" data-project-request-assign disabled="@string.IsNullOrEmpty(Chosen(request))" @onclick="() => AssignAsync(request)">@T["RequestAssign"]</button>
+                            </div>
+                        }
+                        <div class="projects-add">
+                            <input type="text" class="projects-input" data-project-request-name maxlength="@ProjectsOptions.MostNameCharacters" aria-label="@T["NameLabel"]"
+                                   placeholder="@T["NamePlaceholder"]" value="@Named(request)" @oninput="change => named[request] = change.Value?.ToString()" />
+                            <button type="button" class="projects-button" data-project-request-create disabled="@string.IsNullOrWhiteSpace(Named(request))" @onclick="() => CreateForAsync(request)">@T["RequestCreate"]</button>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </SettingsField>
+    }
+
     <SettingsField Label="@T["ListLabel"]" Hint="@T["RemoveHint"]">
         @if (projects.Count == 0)
         {
@@ -25,6 +60,13 @@
                             <button type="button" class="projects-button" data-project-remove @onclick="() => RemoveAsync(project)">@T["Remove"]</button>
                         </div>
                         <p class="projects-folder" data-project-folder>@project.Folder</p>
+                        @foreach (var more in Catalog.MoreFoldersOf(project.Id))
+                        {
+                            <p class="projects-folder" data-project-more-folder="@more">
+                                @T["MoreFolder", more]
+                                <button type="button" class="projects-button" data-project-more-remove @onclick="() => UnassignAsync(project, more)">@T["MoreFolderRemove"]</button>
+                            </p>
+                        }
                         <p class="projects-note" data-project-memory-text>@(hasMemory ? T["Memory", memory!] : T["NoMemory", IProjectCatalog.MemoryFileName])</p>
                         @if (folders is not null)
                         {
@@ -67,7 +109,10 @@
 
     private readonly Dictionary<string, string?> memories = new(StringComparer.Ordinal);
     private readonly HashSet<string> allowed = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string?> chosen = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string?> named = new(StringComparer.Ordinal);
     private IReadOnlyList<ProjectDefinition> projects = [];
+    private IReadOnlyList<string> unassigned = [];
     private IAllowedFolders? folders;
     private string? name;
     private string? folder;
@@ -95,6 +140,7 @@
     private async Task ReadAsync()
     {
         projects = Catalog.Projects;
+        unassigned = Catalog.Unassigned;
         memories.Clear();
         allowed.Clear();
         foreach (var project in projects)
@@ -130,6 +176,35 @@
     {
         allowing = null;
         problem = folders is not null && await folders.AllowAsync(project.Folder) ? null : T["AllowFailed"].Value;
+        await ReadAsync();
+    }
+
+    private string Chosen(string request) => chosen.GetValueOrDefault(request) ?? string.Empty;
+
+    private string Named(string request) => named.GetValueOrDefault(request) ?? string.Empty;
+
+    private async Task AssignAsync(string request)
+    {
+        problem = await Catalog.AssignAsync(Chosen(request), request) ? null : T["RequestFailed"].Value;
+        chosen.Remove(request);
+        await ReadAsync();
+    }
+
+    private async Task CreateForAsync(string request)
+    {
+        var outcome = await Catalog.AddAsync(Named(request), request);
+        problem = outcome == ProjectOutcome.Added ? null : T["Add_" + outcome].Value;
+        if (outcome == ProjectOutcome.Added)
+        {
+            named.Remove(request);
+        }
+
+        await ReadAsync();
+    }
+
+    private async Task UnassignAsync(ProjectDefinition project, string more)
+    {
+        await Catalog.UnassignAsync(project.Id, more);
         await ReadAsync();
     }
 }
