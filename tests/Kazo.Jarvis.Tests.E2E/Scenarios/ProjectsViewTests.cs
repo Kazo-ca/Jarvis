@@ -63,7 +63,8 @@ public sealed class ProjectsViewTests : PageTest
 
         // « Tous les projets »: the folder asks for its project, the card of « Général » names what runs.
         await Expect(View.Locator($"[data-folder-card='{Folder}']")).ToHaveCountAsync(1);
-        await Expect(View.Locator($"[data-project-card='{General}'] [data-card-running]")).ToContainTextAsync(HandTitle);
+        // Sessions of other scenarios may still run in the host: only the one of this scenario is looked for.
+        await Expect(View.Locator($"[data-project-card='{General}'] [data-card-running]").Filter(new() { HasTextString = HandTitle })).ToHaveCountAsync(1);
 
         await View.Locator($"[data-rail='{General}']").ClickAsync();
         await Expect(View.Locator($"[data-project-panel='{General}']")).ToHaveCountAsync(1);
@@ -109,9 +110,8 @@ public sealed class ProjectsViewTests : PageTest
         await Expect(View.Locator($"[data-rail='{General}'] [data-rail-badge]")).ToHaveTextAsync("1");
 
         await attention.ClickAsync();
-        var item = View.Locator("[data-attention]");
+        var item = View.Locator("[data-attention]").Filter(new() { HasTextString = HandTitle });
         await Expect(item).ToHaveCountAsync(1);
-        await Expect(item).ToContainTextAsync(HandTitle);
         await item.ClickAsync();
         await Expect(View).ToHaveAttributeAsync("data-projects-rail", General);
         await Expect(View.Locator("[data-task-thread]")).ToContainTextAsync(HandTitle);
@@ -138,7 +138,7 @@ public sealed class ProjectsViewTests : PageTest
         await Settings.Locator(".dialog-close").ClickAsync();
 
         // The view followed the catalog without being opened again.
-        await Expect(View.Locator("[data-folder-card]")).ToHaveCountAsync(0);
+        await Expect(View.Locator($"[data-folder-card='{Folder}']")).ToHaveCountAsync(0);
         var rail = View.Locator("[data-rail='kazo-bar']");
         await Expect(rail).ToHaveTextAsync("KB");
         await rail.ClickAsync();
