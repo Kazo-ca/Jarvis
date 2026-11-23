@@ -2,7 +2,8 @@
 
 Chantier `stage2/24-projects-view`. Décision : [ADR 0026](adr/0026-projects-subjects-and-their-threads.md),
 sections 3, 5, 7 et 8 ; [ADR 0027](adr/0027-orb-gestures.md) pour le double-clic. Ce premier chantier **lit**
-le tableau des tâches et le catalogue des projets : on n'écrit encore dans aucun fil.
+le tableau des tâches et le catalogue des projets. Le chantier `stage2/26-subject-thread-writing` y ajoute
+l'écriture dans le fil d'un sujet (section 4).
 
 ![Un projet, son sujet, la bande des tâches et le fil d'une tâche](../../../design/screenshots/projects-subject.png)
 
@@ -42,8 +43,29 @@ le tableau des tâches et le catalogue des projets : on n'écrit encore dans auc
 `Pending` est « prévue », `Done` « faite », `Abandoned` « arrêtée », tout le reste « en cours ». Un sujet est
 terminé quand toutes ses tâches sont faites ou arrêtées.
 
-**Le fil du sujet** est pour l'instant calculé : une ligne au début de chaque tâche, une à sa fin avec son
-résumé, une quand elle attend l'utilisateur. Les messages n'y sont pas encore.
+**Le fil du sujet** mêle, du plus ancien au plus récent, des lignes calculées (une au début de chaque tâche,
+une à sa fin avec son résumé, une quand elle attend l'utilisateur) et les messages écrits dans le fil.
+
+## Écrire dans le fil d'un sujet
+
+Chantier `stage2/26-subject-thread-writing` (ADR 0026, section 4).
+
+- Sous le fil, une ligne de saisie. Le message part comme une demande tapée ordinaire
+  (`TextSubmitted`), avec l'adresse du fil : `ThreadAddress(Projet, Sujet, Tâche, Étiquette, Titre)`.
+- **`T3> oui, on fait comme ça`** répond à la tâche `T3` du sujet (`SubjectAnswer.Parse`) : le préfixe est
+  retiré, le message porte l'étiquette `T3` dans le fil et apparaît aussi dans le fil de la tâche. Une tâche
+  que le sujet n'a pas est refusée et le texte reste dans la saisie.
+- **Qui répond.** Dans un projet du catalogue, l'agent « Projet » reçoit la demande directement, sans passage
+  de main, avec le dossier et la mémoire du projet, et une ligne qui dit le sujet (et la tâche, avec son titre).
+  Dans Général, l'agent Jarvis répond comme dans la fenêtre de conversation, avec la même ligne.
+- **Où c'est gardé.** Le tour va au journal de la conversation avec son adresse (`ConversationTurn.Thread`).
+  `ISubjectThreads` (noyau), tenu par la tranche `Conversation/Dialogue`, rend les tours d'un fil ; la vue ne
+  référence pas la conversation. Le même tour se voit donc aussi dans la fenêtre de conversation.
+- L'état de l'assistant n'accepte un texte qu'au repos : pendant une réponse, la vue dit de réessayer et garde
+  le texte.
+
+Le message **n'est pas remis à la session Claude Code** de la tâche : l'agent local répond. Reprendre la
+session avec le message est le chantier suivant.
 
 ## Tranche `Projects/View`
 
@@ -74,11 +96,17 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 6. « + » et la carte d'un dossier sans projet ouvrent la page « Projets » des réglages.
 7. « Retrouver » cherche dans les tâches du projet ouvert seulement ; pas de Ctrl+K.
 8. L'agent affiché est toujours « Projet » (ADR 0025 : un seul agent de projet).
+9. Un message écrit dans un fil est un tour ordinaire de la conversation, étiqueté : il n'y a pas une
+   conversation séparée par sujet, et la mémoire de conversation le voit comme les autres.
+10. `T3>` adressé à une tâche ne touche pas encore la session Claude Code : l'agent local répond en connaissant
+    la tâche.
+11. Pas de choix de l'agent dans le fil, et rien à la voix (« pour la tâche 3 »).
 
 ## Pas encore construit
 
-- Écrire ou parler dans le fil d'un sujet, `T3>` et « pour la tâche 3 » (section 4) ; le choix de l'agent.
-- Les messages dans les fils, les fichiers d'une tâche, le journal complet (section 5).
+- Remettre un message `T3>` à la session Claude Code de la tâche (la reprendre avec ce message).
+- Parler dans le fil d'un sujet, « pour la tâche 3 » (section 4) ; le choix de l'agent.
+- Les fichiers d'une tâche, le journal complet (section 5).
 - Le fil du projet comme conversation avec l'agent du projet (section 2).
 - « + Nouveau sujet », les archives (section 11).
 - La proposition de faire un projet d'un sujet de Général (section 6).
@@ -90,9 +118,12 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 
 ## Tests
 
-- Unitaires : `ProjectsOverviewTests` (regroupement, numéros, fil, Général, dossier sans projet).
+- Unitaires : `ProjectsOverviewTests` (regroupement, numéros, fil, Général, dossier sans projet) ;
+  `SubjectAnswerTests` (préfixe `T3>`) ; `ConversationEngineTests` (l'agent « Projet » répond dans le fil d'un
+  projet, la ligne du sujet et de la tâche, les messages d'un fil) ; `AssistantStateMachineTests` (l'adresse
+  suit le tour).
 - Playwright : `ProjectsViewTests` (double-clic, session sans projet, tâche qui attend, projet créé depuis la
-  vue).
+  vue, message écrit dans le fil d'un sujet et `T1>`).
 
 ## Vérifications sur Windows
 

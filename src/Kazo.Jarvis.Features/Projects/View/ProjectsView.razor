@@ -5,10 +5,12 @@
 @inject IServiceProvider Services
 @inject TimeProvider Time
 @inject IStringLocalizer<ProjectsView> T
+@inject Kazo.Jarvis.Kernel.Assistant.IAssistantStateReader Assistant
 
 @* The projects view (ADR 0026, section 7): a rail, the panel of the project, the thread of the subject with the
    band of its tasks, and on the right the thread of the open task or a search. Everything is read from the task
-   board and the catalog of projects; nothing is written here yet. *@
+   board and the catalog of projects. A message written in the thread of a subject is a typed request that
+   carries the address of the thread (section 4): the conversation answers it and keeps it. *@
 <div class="pv" data-projects-view data-projects-rail="@State.Rail">
     <nav class="pv-rail" aria-label="@T["RailLabel"]">
         <button type="button" class="pv-rail-item" data-rail="@ProjectsViewState.Attention" aria-current="@Current(ProjectsViewState.Attention)"
@@ -173,19 +175,50 @@
                     }
                 </div>
                 <ol class="pv-thread" data-thread>
-                    @foreach (var line in subject.Lines)
+                    @foreach (var entry in Entries(project, subject))
                     {
-                        <li class="pv-line" data-thread-line="@line.Kind" data-thread-step="@line.Step.Label">
-                            <span class="pv-time">@Clock(line.At)</span>
-                            <span class="pv-who">@(line.Kind == ThreadLineKind.Opened ? "*" : Worker(line.Step.Task))</span>
-                            <span class="pv-text">
-                                <button type="button" class="pv-tag" data-thread-tag data-step-kind="@line.Step.Kind" @onclick="() => State.Open(line.Step.Task.Id)">@line.Step.Label</button>
-                                @Sentence(line)
-                            </span>
-                        </li>
+                        @if (entry.Line is { } line)
+                        {
+                            <li class="pv-line" data-thread-line="@line.Kind" data-thread-step="@line.Step.Label">
+                                <span class="pv-time">@Clock(line.At)</span>
+                                <span class="pv-who">@(line.Kind == ThreadLineKind.Opened ? "*" : Worker(line.Step.Task))</span>
+                                <span class="pv-text">
+                                    <button type="button" class="pv-tag" data-thread-tag data-step-kind="@line.Step.Kind" @onclick="() => State.Open(line.Step.Task.Id)">@line.Step.Label</button>
+                                    @Sentence(line)
+                                </span>
+                            </li>
+                        }
+                        else if (entry.Message is { } message)
+                        {
+                            <li class="pv-line pv-line-user" @key="@("ask:" + message.Key)" data-thread-message="request">
+                                <span class="pv-time">@Clock(message.At)</span>
+                                <span class="pv-who pv-who-user">@T["You"]</span>
+                                <span class="pv-text">@Tag(message)@message.Request</span>
+                            </li>
+                            <li class="pv-line" @key="@("answer:" + message.Key)" data-thread-message="answer" data-thread-pending="@Flag(message.Pending)">
+                                <span class="pv-time"></span>
+                                <span class="pv-who">@(message.Agent ?? "Jarvis")</span>
+                                <span class="pv-text">@Tag(message)@(message.Answer.Length == 0 && message.Pending ? "…" : message.Answer)</span>
+                            </li>
+                        }
                     }
                 </ol>
-                <p class="pv-note" data-thread-note>@T["ReadOnly"]</p>
+                @if (threads is null)
+                {
+                    <p class="pv-note" data-thread-note>@T["ReadOnly"]</p>
+                }
+                else
+                {
+                    <form class="pv-input" @onsubmit="() => SendAsync(project, subject)">
+                        <input type="text" class="pv-input-text" data-thread-text maxlength="4000" autocomplete="off"
+                               placeholder="@T["Write_Hint"]" aria-label="@T["Write_Label"]" @bind="draft" @bind:event="oninput" />
+                        <button type="submit" class="pv-input-send" data-thread-send disabled="@string.IsNullOrWhiteSpace(draft)">@T["Send"]</button>
+                    </form>
+                    @if (problem is not null)
+                    {
+                        <p class="pv-note pv-problem" role="alert" data-thread-problem>@problem</p>
+                    }
+                }
             }
         </section>
 
@@ -208,6 +241,20 @@
                             @foreach (var child in opened.SubTasks)
                             {
                                 <li @key="child.Id"><i class="pv-dot" data-dot="@Dot(child)"></i>@child.Title · @T["Status_" + child.Status]</li>
+                            }
+                        </ul>
+                    }
+                    @if (Messages(project, subject).Where(message => message.Address.Task == opened.Task.Id).ToList() is { Count: > 0 } said)
+                    {
+                        <p class="pv-label">@T["TaskMessages"]</p>
+                        <ul class="pv-side-list" data-task-messages>
+                            @foreach (var message in said)
+                            {
+                                <li @key="message.Key">@Clock(message.At) · @T["You"] : @message.Request</li>
+                                @if (message.Answer.Length > 0)
+                                {
+                                    <li @key="@("answer:" + message.Key)">@(message.Agent ?? "Jarvis") : @message.Answer</li>
+                                }
                             }
                         </ul>
                     }
@@ -247,6 +294,9 @@
     private static readonly TimeSpan Recent = TimeSpan.FromDays(7);
 
     private IProjectCatalog? catalog;
+    private Kazo.Jarvis.Kernel.Conversation.ISubjectThreads? threads;
+    private string draft = string.Empty;
+    private string? problem;
     private ProjectsOverview overview = new([new ProjectBoard(ProjectsOverview.GeneralId, string.Empty, null, [])], []);
     private bool allSteps;
     private string find = string.Empty;
@@ -257,6 +307,13 @@
     protected override void OnInitialized()
     {
         catalog = Services.GetService<IProjectCatalog>();
+        threads = Services.GetService<Kazo.Jarvis.Kernel.Conversation.ISubjectThreads>();
+        if (threads is not null)
+        {
+            threads.Changed += OnChanged;
+            _ = LoadThreadsAsync(threads);
+        }
+
         Board.Changed += OnChanged;
         State.Changed += OnChanged;
         if (catalog is not null)
@@ -272,6 +329,11 @@
     {
         Board.Changed -= OnChanged;
         State.Changed -= OnChanged;
+        if (threads is not null)
+        {
+            threads.Changed -= OnChanged;
+        }
+
         if (catalog is not null)
         {
             catalog.Changed -= OnChanged;
@@ -285,6 +347,68 @@
     });
 
     private void Read() => overview = ProjectsOverview.From(Board.Tasks, catalog);
+
+    private async Task LoadThreadsAsync(Kazo.Jarvis.Kernel.Conversation.ISubjectThreads source)
+    {
+        try
+        {
+            await source.LoadAsync();
+            OnChanged();
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            // The store cannot be read: the thread shows what the board knows, and the conversation tells the fault.
+        }
+    }
+
+    private IReadOnlyList<Kazo.Jarvis.Kernel.Conversation.ThreadMessage> Messages(ProjectBoard project, SubjectBoard subject) =>
+        threads?.Of(project.Id, subject.Key) ?? [];
+
+    // The thread of a subject: what the board knows and what was written, oldest first.
+    private IEnumerable<(DateTimeOffset At, ThreadLine? Line, Kazo.Jarvis.Kernel.Conversation.ThreadMessage? Message)> Entries(ProjectBoard project, SubjectBoard subject) =>
+        subject.Lines.Select(line => (line.At, (ThreadLine?)line, (Kazo.Jarvis.Kernel.Conversation.ThreadMessage?)null))
+            .Concat(Messages(project, subject).Select(message => (message.At, (ThreadLine?)null, (Kazo.Jarvis.Kernel.Conversation.ThreadMessage?)message)))
+            .OrderBy(entry => entry.Item1);
+
+    private RenderFragment? Tag(Kazo.Jarvis.Kernel.Conversation.ThreadMessage message) => message.Address.Task is not { } task
+        ? null
+        : @<button type="button" class="pv-tag" data-thread-tag @onclick="() => State.Open(task)">@(message.Address.TaskLabel ?? "T")</button>;
+
+    // A message goes to the conversation as a typed request with the address of this thread. « T3> … » answers
+    // the task T3 of the subject (ADR 0026, section 4).
+    private async Task SendAsync(ProjectBoard project, SubjectBoard subject)
+    {
+        var text = draft.Trim();
+        if (text.Length == 0)
+        {
+            return;
+        }
+
+        TaskStep? step = null;
+        if (SubjectAnswer.Parse(text) is { } answer)
+        {
+            step = subject.Steps.FirstOrDefault(item => item.Number == answer.Number);
+            if (step is null)
+            {
+                problem = T["Write_NoTask", "T" + answer.Number];
+                return;
+            }
+
+            text = answer.Text;
+        }
+
+        if (Assistant.Current.Phase != Kazo.Jarvis.Kernel.Assistant.AssistantPhase.Idle)
+        {
+            // The state machine takes a text only at rest: the draft is kept.
+            problem = T["Write_Busy"];
+            return;
+        }
+
+        problem = null;
+        draft = string.Empty;
+        var address = new Kazo.Jarvis.Kernel.Conversation.ThreadAddress(project.Id, subject.Key, step?.Task.Id, step?.Label, step?.Task.Title);
+        await Bus.PublishAsync<Kazo.Jarvis.Kernel.Messages.Assistant.AssistantInput>(new Kazo.Jarvis.Kernel.Messages.Assistant.TextSubmitted(text) { Thread = address });
+    }
 
     // A new project is made on the page of the projects (ADR 0025): the view only leads there.
     private async Task NewProjectAsync() => await Bus.PublishAsync(new SettingsWindowRequested(IProjectCatalog.SettingsPageKey));

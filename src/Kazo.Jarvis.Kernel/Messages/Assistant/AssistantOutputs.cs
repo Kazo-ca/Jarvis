@@ -29,7 +29,11 @@ public enum TurnInput
 /// <param name="Turn">The new turn.</param>
 /// <param name="Input">Spoken or typed.</param>
 /// <param name="Text">The typed text for a <see cref="TurnInput.Text"/> turn, the text to say for a <see cref="TurnInput.Announcement"/> turn, otherwise <see langword="null"/>.</param>
-public sealed record TurnStarted(TurnId Turn, TurnInput Input, string? Text) : IEvent;
+public sealed record TurnStarted(TurnId Turn, TurnInput Input, string? Text) : IEvent
+{
+    /// <summary>The thread of a subject a typed request was written in (ADR 0026, section 4), or <see langword="null"/>.</summary>
+    public Kazo.Jarvis.Kernel.Conversation.ThreadAddress? Thread { get; init; }
+}
 
 /// <summary>Why a turn was cancelled.</summary>
 public enum TurnCancelReason

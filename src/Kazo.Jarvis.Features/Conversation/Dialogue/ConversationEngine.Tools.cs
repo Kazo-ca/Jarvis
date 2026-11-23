@@ -44,12 +44,22 @@ public sealed partial class ConversationEngine
         }
 
         // By voice nobody is named to skip the Jarvis agent (section 9).
+        // Written in the thread of a subject of a project: the agent of the project answers (ADR 0026, section 4).
+        if (ThreadProject(answering) is not null && agents.Find(AgentIds.Project) is { } ofProject)
+        {
+            return ofProject;
+        }
+
         var chosen = answering.Input == TurnInput.Text ? agents.Find(choice?.Chosen) : null;
 
         // During a call the agent of the turn before keeps the hand, by voice too (section 12).
         var held = callMode is { Agent: { } keeping } ? agents.Find(keeping) : null;
         return chosen ?? held ?? agents.Main;
     }
+
+    /// <summary>The project of the thread a request was written in; <see langword="null"/> for the built-in project.</summary>
+    private ProjectDefinition? ThreadProject(Answering answering) =>
+        answering.Snapshot.Thread is { } thread ? projects?.Projects.FirstOrDefault(project => project.Id == thread.Project) : null;
 
     /// <summary>
     /// The project a turn starts with (ADR 0025, section 10): the one the user chose in the window for a typed
@@ -60,6 +70,11 @@ public sealed partial class ConversationEngine
         if (projects is null || agents is null)
         {
             return null;
+        }
+
+        if (ThreadProject(answering) is { } written)
+        {
+            return written;
         }
 
         var chosen = answering.Input == TurnInput.Text ? projects.Find(choice?.Project) : null;

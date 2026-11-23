@@ -144,4 +144,25 @@
   <data name="Status_Abandoned" xml:space="preserve">
     <value>Stopped</value>
   </data>
+  <data name="You" xml:space="preserve">
+    <value>You</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="Write_Hint" xml:space="preserve">
+    <value>Write in the subject… “T3&gt;” to answer a task</value>
+  </data>
+  <data name="Write_Label" xml:space="preserve">
+    <value>Message in the thread of the subject</value>
+  </data>
+  <data name="Write_NoTask" xml:space="preserve">
+    <value>This subject has no task {0}.</value>
+  </data>
+  <data name="Write_Busy" xml:space="preserve">
+    <value>Jarvis is busy: send again when it is at rest.</value>
+  </data>
+  <data name="TaskMessages" xml:space="preserve">
+    <value>Messages of the task</value>
+  </data>
 </root>

@@ -49,6 +49,10 @@ await request.waitFor({ state: 'detached' });
 await settings.screenshot({ path: shot('projects-page') });
 await settings.locator('.dialog-close').click();
 await view.locator("[data-rail='kazo-bar']").click();
+// A message written in the thread of the subject answers its first task.
+await view.locator('[data-thread-text]').fill('T1> oui, garde le même pied de page partout');
+await view.locator('[data-thread-send]').click();
+await view.locator("[data-thread-message='answer'][data-thread-pending='false']").waitFor();
 await view.locator('[data-step]').first().click();
 await view.locator('[data-task-thread]').waitFor();
 await view.screenshot({ path: shot('projects-subject') });

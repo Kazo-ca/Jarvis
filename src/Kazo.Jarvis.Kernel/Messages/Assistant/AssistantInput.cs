@@ -34,7 +34,11 @@ public sealed record ActivationRequested(ActivationSource Source) : AssistantInp
 
 /// <summary>A text sent from the conversation window: a new turn without the microphone.</summary>
 /// <param name="Text">The request as typed.</param>
-public sealed record TextSubmitted(string Text) : AssistantInput;
+public sealed record TextSubmitted(string Text) : AssistantInput
+{
+    /// <summary>The thread of a subject the text was written in (ADR 0026, section 4); <see langword="null"/> for the conversation window.</summary>
+    public Kazo.Jarvis.Kernel.Conversation.ThreadAddress? Thread { get; init; }
+}
 
 /// <summary>
 /// An announcement asks to be said (ADR 0024, section 1): a new turn when idle, ignored otherwise. Whoever submits

@@ -149,7 +149,7 @@ public sealed partial class ConversationEngine :
         ArgumentNullException.ThrowIfNull(message);
         if (message.Input == TurnInput.Text && !string.IsNullOrWhiteSpace(message.Text))
         {
-            Start(message.Turn, TurnInput.Text, message.Text.Trim(), language.Current);
+            Start(message.Turn, TurnInput.Text, message.Text.Trim(), language.Current, message.Thread);
         }
 
         // A spoken turn waits for its transcription.
@@ -329,7 +329,7 @@ public sealed partial class ConversationEngine :
         return left.Count > MostExchangesAnnounced ? left.GetRange(left.Count - MostExchangesAnnounced, MostExchangesAnnounced) : left;
     }
 
-    private void Start(TurnId turn, TurnInput input, string request, AssistantLanguage turnLanguage)
+    private void Start(TurnId turn, TurnInput input, string request, AssistantLanguage turnLanguage, Kazo.Jarvis.Kernel.Conversation.ThreadAddress? thread = null)
     {
         var answering = new Answering(turn, input, new ConversationTurn
         {
@@ -338,6 +338,7 @@ public sealed partial class ConversationEngine :
             Request = request,
             Language = turnLanguage.Code,
             Outcome = TurnOutcome.Pending,
+            Thread = thread,
         });
 
         Answering? replaced;
@@ -453,6 +454,7 @@ public sealed partial class ConversationEngine :
 
                     var remembered = await RecallAsync(answering.Turn, agent, recall.Block, turnLanguage, contextLength, token).ConfigureAwait(false);
                     remembered = await WithProjectAsync(run, agent, remembered, contextLength, token).ConfigureAwait(false);
+                    remembered = WithThread(run, remembered);
                     var speaker = new Speaker(client!, requester, Declarations(turnLanguage, ToolsFor(run, agent)), remembered, Agent: agent);
                     local.Add(await RunAsync(run, speaker, [.. messages], token).ConfigureAwait(false));
                     if (run.Next is not { } next || run.Handed is not null || run.Delegated)
@@ -723,6 +725,25 @@ public sealed partial class ConversationEngine :
             LogRecallFailed(exception, run.Answering.Turn);
             return block;
         }
+    }
+
+    /// <summary>
+    /// A request written in the thread of a subject says where (ADR 0026, section 4): the subject, and the task
+    /// it answers when it began with <c>T3&gt;</c>. The title of a task comes from a session: it is quoted as data.
+    /// </summary>
+    private static string? WithThread(TurnRun run, string? block)
+    {
+        if (run.Answering.Snapshot.Thread is not { } thread)
+        {
+            return block;
+        }
+
+        const string Branch = "branch:";
+        var subject = thread.Subject.StartsWith(Branch, StringComparison.Ordinal) ? thread.Subject[Branch.Length..] : thread.Subject;
+        var told = thread.Task is null
+            ? SystemPrompt.Text("Thread_Subject", run.Language, subject)
+            : SystemPrompt.Text("Thread_Task", run.Language, subject, thread.TaskLabel ?? thread.Task, thread.TaskTitle ?? string.Empty);
+        return string.IsNullOrWhiteSpace(block) ? told : block + "\n\n" + told;
     }
 
     private async Task SayAsync(TurnId turn, IReadOnlyList<string> sentences)

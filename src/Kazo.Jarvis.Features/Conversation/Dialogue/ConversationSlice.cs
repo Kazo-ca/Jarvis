@@ -28,6 +28,9 @@ public static class ConversationSlice
         services.TryAddSingleton<ConversationJournal>();
         services.TryAddSingleton<AgentChoice>();
 
+        // The threads of the subjects of the projects view read the same journal (ADR 0026, section 4).
+        services.TryAddSingleton<Kazo.Jarvis.Kernel.Conversation.ISubjectThreads, SubjectThreads>();
+
         // The « Appel » mode (ADR 0025, section 12).
         services.TryAddSingleton<CallMode>();
         services.TryAddSingleton<CallListener>();

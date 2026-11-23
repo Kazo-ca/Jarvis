@@ -138,4 +138,10 @@
   <data name="Call_Goodbye" xml:space="preserve">
     <value>Au revoir.</value>
   </data>
+  <data name="Thread_Subject" xml:space="preserve">
+    <value>L'utilisateur a écrit ceci dans le fil du sujet « {0} » du projet.</value>
+  </data>
+  <data name="Thread_Task" xml:space="preserve">
+    <value>L'utilisateur a écrit ceci dans le fil du sujet « {0} » du projet, en réponse à sa tâche {1}, dont le titre est : « {2} ».</value>
+  </data>
 </root>
