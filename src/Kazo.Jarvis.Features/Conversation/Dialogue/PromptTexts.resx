@@ -120,4 +120,19 @@
   <data name="Summary_Assistant" xml:space="preserve">
     <value>Assistant:</value>
   </data>
+  <data name="Agent_Handed" xml:space="preserve">
+    <value>The turn was handed to the agent {0}, which answers now.</value>
+  </data>
+  <data name="Agent_Returned" xml:space="preserve">
+    <value>The request goes back to the agent {0}.</value>
+  </data>
+  <data name="Agent_Unknown" xml:space="preserve">
+    <value>The hand did not change: no agent is named "{0}". Known agents: {1}. Answer yourself or name one of them.</value>
+  </data>
+  <data name="Agent_Announcement" xml:space="preserve">
+    <value>I hand over to the agent {0}.</value>
+  </data>
+  <data name="Denied_NotThisAgent" xml:space="preserve">
+    <value>Denied: this tool is not one of this agent's.</value>
+  </data>
 </root>

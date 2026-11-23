@@ -1,3 +1,4 @@
+using Kazo.Jarvis.Features.Agents.Catalog;
 using Kazo.Jarvis.Features.Assistant.Faults;
 using Kazo.Jarvis.Features.Assistant.Orb;
 using Kazo.Jarvis.Features.Conversation.Dialogue;
@@ -100,6 +101,10 @@ public static class FeaturesServiceCollectionExtensions
         // and the personality; the default model comes from the language models slice.
         // Before the conversation, which asks it what to recall (stage2/8-memory): facts, summary, « Mémoire » page.
         services.AddMemorySlice();
+
+        // Agents (stage2/17-agents, ADR 0025): one agent per kind of task, read from Markdown files (the folder
+        // comes from the host); the conversation asks it who answers a turn and with which tools.
+        services.AddAgentsSlice();
         services.AddConversationSlice();
 
         // First run (stage1/14-first-run): the models page downloads the models (installer and graphics card from the

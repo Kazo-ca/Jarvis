@@ -123,4 +123,13 @@
   <data name="Configuration_Action_MigrationFailed" xml:space="preserve">
     <value>Renommez %USERPROFILE%\.kazo\jarvis\config.json, puis relancez Jarvis ; le journal dit quelle étape a échoué.</value>
   </data>
+  <data name="Agent_Title" xml:space="preserve">
+    <value>Agent illisible</value>
+  </data>
+  <data name="Agent_Explanation" xml:space="preserve">
+    <value>Le fichier d'un agent n'a pas pu être lu : son en-tête manque ou est mal écrit. Cet agent est laissé de côté ; les autres continuent de répondre.</value>
+  </data>
+  <data name="Agent_Action" xml:space="preserve">
+    <value>Ouvrez la page Agents : elle nomme le fichier et ce qui ne va pas. Corrigez-le ou supprimez-le ; le problème disparaît dès que tous les fichiers se lisent.</value>
+  </data>
 </root>

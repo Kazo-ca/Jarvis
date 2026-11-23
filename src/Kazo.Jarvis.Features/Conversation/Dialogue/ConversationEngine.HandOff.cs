@@ -1,4 +1,5 @@
 using System.Text;
+using Kazo.Jarvis.Kernel.Agents;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.Conversation;
@@ -249,6 +250,14 @@ public sealed partial class ConversationEngine
         public long? Output { get; set; }
 
         public string? Model { get; set; }
+
+        /// <summary>Adds the tokens of another answer of the same model: after a change of agent, the turn counts both.</summary>
+        public void Add(Usage more)
+        {
+            Input = Sum(Input, more.Input);
+            Output = Sum(Output, more.Output);
+            Model = more.Model ?? Model;
+        }
     }
 
     /// <summary>One model answering in a turn: its client, who it is for the decision point, what it is offered and reminded of.</summary>
@@ -259,6 +268,7 @@ public sealed partial class ConversationEngine
     /// <param name="Target">The target, when this is not the local model.</param>
     /// <param name="FirstText">Called at each piece of text; the hand-off measures its first one.</param>
     /// <param name="Recheck">Asked before each request after the first: why the target must stop, or <see langword="null"/>.</param>
+    /// <param name="Agent">The agent that answers, when the local model answers as one (ADR 0025).</param>
     private sealed record Speaker(
         IChatClient Client,
         ActionRequester Requester,
@@ -266,7 +276,8 @@ public sealed partial class ConversationEngine
         string? Memory,
         HandOffTarget? Target = null,
         Action? FirstText = null,
-        Func<HandOffRefusal?>? Recheck = null);
+        Func<HandOffRefusal?>? Recheck = null,
+        AgentDefinition? Agent = null);
 
     /// <summary>A target stopped between two of its requests.</summary>
     private sealed class HandOffStoppedException(HandOffRefusal refusal) : Exception($"The hand-off stopped: {refusal}.")
@@ -301,5 +312,17 @@ public sealed partial class ConversationEngine
 
         /// <summary>Whether the turn handed a work to Claude Code: like an answered hand-off, it ends the loop of the local model.</summary>
         public bool Delegated { get; set; }
+
+        /// <summary>The agent the turn continues with, set by a call that changed the hand (ADR 0025, section 4).</summary>
+        public AgentDefinition? Next { get; set; }
+
+        /// <summary>Whether the Jarvis agent already handed this turn over: it does so once.</summary>
+        public bool HandedToAgent { get; set; }
+
+        /// <summary>Whether an agent gave the turn back to the Jarvis agent, which then answers without handing over again.</summary>
+        public bool Returned { get; set; }
+
+        /// <summary>Whether the model wrote something before the calls being run: then it said itself that it hands over.</summary>
+        public bool Prefaced { get; set; }
     }
 }

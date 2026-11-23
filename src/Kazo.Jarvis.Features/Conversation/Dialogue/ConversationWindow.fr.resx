@@ -192,4 +192,16 @@
   <data name="Spend_Reached" xml:space="preserve">
     <value>Cloud ce mois-ci : {0} USD sur {1} USD. Plafond atteint, Jarvis reste en local.</value>
   </data>
+  <data name="Agent" xml:space="preserve">
+    <value>Agent {0}</value>
+  </data>
+  <data name="AgentChoice" xml:space="preserve">
+    <value>Agent :</value>
+  </data>
+  <data name="AgentChoice_Auto" xml:space="preserve">
+    <value>Jarvis choisit</value>
+  </data>
+  <data name="AgentChoice_Hint" xml:space="preserve">
+    <value>Une demande écrite va droit à l'agent choisi, sans passer par l'agent Jarvis.</value>
+  </data>
 </root>

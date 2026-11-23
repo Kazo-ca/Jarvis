@@ -70,7 +70,7 @@
                         <span class="conversation-who conversation-jarvis">Jarvis</span>
                         <span class="conversation-body" data-conversation-answer>@turn.Answer</span>
                     </p>
-                    <p class="conversation-meta" data-conversation-meta data-conversation-model="@(turn.Model ?? "")">@Meta(turn)</p>
+                    <p class="conversation-meta" data-conversation-meta data-conversation-model="@(turn.Model ?? "")" data-conversation-agent="@(turn.Agent ?? "")">@Meta(turn)</p>
                 </li>
             }
         </ol>
@@ -89,6 +89,20 @@
         <p class="conversation-spend" role="status" data-conversation-spend="@spent.SpentUsd.ToString(CultureInfo.InvariantCulture)" data-spend-reached="@(spent.Reached ? "true" : "false")">
             @T[spent.Reached ? "Spend_Reached" : "Spend", Money(spent.SpentUsd), Money(spent.CapUsd)]
         </p>
+    }
+    @if (agents is not null && agentChoice is not null && agents.Agents.Count > 1)
+    {
+        @* The agent that answers a typed request (ADR 0025, section 4): the Jarvis agent sorts unless one is chosen here. *@
+        <label class="conversation-agent" title="@T["AgentChoice_Hint"]">
+            <span class="conversation-who">@T["AgentChoice"]</span>
+            <select class="conversation-agent-select" data-conversation-agent-choice value="@(agentChoice.Chosen ?? "")" @onchange="e => agentChoice.Chosen = e.Value as string">
+                <option value="">@T["AgentChoice_Auto"]</option>
+                @foreach (var agent in agents.Agents.Where(agent => agent.Id != Kazo.Jarvis.Kernel.Agents.AgentIds.Main))
+                {
+                    <option value="@agent.Id">@agent.Name</option>
+                }
+            </select>
+        </label>
     }
     <form class="conversation-input" @onsubmit="SendAsync">
         <input type="text" class="conversation-text" data-conversation-text maxlength="4000" autocomplete="off"
@@ -124,6 +138,8 @@
     private IDisposable? stateSubscription;
     private IDisposable? loadSubscription;
     private Kazo.Jarvis.Kernel.Web.IReadingBrowser? browser;
+    private Kazo.Jarvis.Kernel.Agents.IAgentCatalog? agents;
+    private AgentChoice? agentChoice;
 
     private bool IsIdle => State.Current.Phase == AssistantPhase.Idle;
 
@@ -139,6 +155,13 @@
         if (spend is not null)
         {
             spend.Changed += OnSpendChanged;
+        }
+
+        agents = Services.GetService(typeof(Kazo.Jarvis.Kernel.Agents.IAgentCatalog)) as Kazo.Jarvis.Kernel.Agents.IAgentCatalog;
+        agentChoice = Services.GetService(typeof(AgentChoice)) as AgentChoice;
+        if (agents is not null)
+        {
+            agents.Changed += OnSpendChanged;
         }
 
         stateSubscription = Bus.Subscribe<AssistantStateChanged>((_, _) => new ValueTask(InvokeAsync(StateHasChanged)));
@@ -158,6 +181,11 @@
         if (spend is not null)
         {
             spend.Changed -= OnSpendChanged;
+        }
+
+        if (agents is not null)
+        {
+            agents.Changed -= OnSpendChanged;
         }
 
         stateSubscription?.Dispose();
@@ -229,6 +257,12 @@
         if (turn.Model is { Length: > 0 } model)
         {
             parts.Add(turn.Provider is { Length: > 0 } provider && provider != model ? $"{provider} · {model}" : model);
+        }
+
+        if (turn.Agent is { Length: > 0 } agent)
+        {
+            // Who answered (ADR 0025, section 4).
+            parts.Add(T["Agent", agent]);
         }
 
         if (turn.Duration is { } duration)

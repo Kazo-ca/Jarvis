@@ -1,4 +1,5 @@
 using System.Text;
+using Kazo.Jarvis.Kernel.Agents;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.ClaudeCode;
 using Kazo.Jarvis.Kernel.Conversation;
@@ -73,6 +74,8 @@ public sealed partial class ConversationEngine :
     private readonly IConversationMemory? memory;
     private readonly IHandOff? handOff;
     private readonly IClaudeTasks? claudeTasks;
+    private readonly IAgentCatalog? agents;
+    private readonly AgentChoice? choice;
     private readonly Lock gate = new();
     private Answering? current;
 
@@ -92,6 +95,8 @@ public sealed partial class ConversationEngine :
     /// <param name="memory">What to recall to the model, when a memory slice is there.</param>
     /// <param name="handOff">The targets of the hand-off, when a hand-off slice is there.</param>
     /// <param name="claudeTasks">Who starts the Claude Code sessions, when that slice is there: the target of the tasks.</param>
+    /// <param name="agents">The agents, when that slice is there: who answers a turn, and with which tools (ADR 0025).</param>
+    /// <param name="choice">The agent the user chose in the conversation window, if any.</param>
     public ConversationEngine(
         IAssistantModel model,
         SystemPrompt prompt,
@@ -104,8 +109,12 @@ public sealed partial class ConversationEngine :
         ILogger<ConversationEngine> logger,
         IConversationMemory? memory = null,
         IHandOff? handOff = null,
-        IClaudeTasks? claudeTasks = null)
+        IClaudeTasks? claudeTasks = null,
+        IAgentCatalog? agents = null,
+        AgentChoice? choice = null)
     {
+        this.agents = agents;
+        this.choice = choice;
         this.memory = memory;
         this.handOff = handOff;
         this.claudeTasks = claudeTasks;
@@ -408,9 +417,31 @@ public sealed partial class ConversationEngine :
                 var messages = Messages(recent).ToList();
                 messages.Add(new ChatMessage(ChatRole.User, answering.Snapshot.Request));
 
-                // Only the enabled tools are offered (ADR 0017, section 4), described in the language of the turn.
-                var speaker = new Speaker(client!, new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model"), Declarations(turnLanguage, tools.Enabled), recall.Block);
-                local = await RunAsync(run, speaker, messages, token).ConfigureAwait(false);
+                // Only the enabled tools are offered (ADR 0017, section 4), described in the language of the turn;
+                // with agents, only those of the agent that answers (ADR 0025, section 1).
+                var requester = new ActionRequester(RequesterKind.Tool, provider?.Id ?? "model");
+                var agent = FirstAgent(answering);
+                local = new Usage();
+                while (true)
+                {
+                    if (agent is not null)
+                    {
+                        var name = agent.Name;
+                        journal.Show(answering.Update(turn => turn with { Agent = name }));
+                    }
+
+                    var speaker = new Speaker(client!, requester, Declarations(turnLanguage, ToolsFor(run, agent)), recall.Block, Agent: agent);
+                    local.Add(await RunAsync(run, speaker, [.. messages], token).ConfigureAwait(false));
+                    if (run.Next is not { } next || run.Handed is not null || run.Delegated)
+                    {
+                        break;
+                    }
+
+                    // The hand changed (ADR 0025, section 4): the turn continues with the next agent, which gets
+                    // the request as the user made it, not the calls of the agent before it.
+                    agent = next;
+                    run.Next = null;
+                }
             }
 
             if (run.Speak)
@@ -481,7 +512,7 @@ public sealed partial class ConversationEngine :
             var withTools = speaker.Offered.Count > 0 && callsMade < MostToolCalls && round <= MostToolCalls;
             var options = new ChatOptions
             {
-                Instructions = prompt.Build(run.Language, speaker.Offered.Count > 0, speaker.Memory),
+                Instructions = prompt.Build(run.Language, speaker.Offered.Count > 0, speaker.Memory, speaker.Agent?.Instructions),
                 Tools = withTools ? speaker.Offered : null,
             };
             if (round > 0 && speaker.Recheck?.Invoke() is { } refusal)
@@ -561,6 +592,7 @@ public sealed partial class ConversationEngine :
             }
 
             // The calls run one by one, in the order asked, each through the decision point.
+            run.Prefaced = roundText.Length > 0;
             messages.Add(new ChatMessage(ChatRole.Assistant, [.. Preface(roundText), .. calls]));
             foreach (var call in calls)
             {
@@ -568,6 +600,12 @@ public sealed partial class ConversationEngine :
                 if ((run.Handed is not null || run.Delegated) && speaker.Target is null)
                 {
                     // The target answered the user: nothing goes back to the local model (ADR 0020, section 2).
+                    return usage;
+                }
+
+                if (run.Next is not null && speaker.Target is null)
+                {
+                    // The hand changed: this agent is done, the next one answers (ADR 0025, section 4).
                     return usage;
                 }
 
