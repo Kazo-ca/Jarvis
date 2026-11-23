@@ -128,8 +128,9 @@ Jarvis le dit, avec le nom du dossier et la page où l'autoriser.
 5. Le projet choisi dans la fenêtre passe avant celui que la phrase nomme, et s'oublie à l'arrêt de Jarvis.
 6. Le projet « Domotique » de l'ADR (section 6) n'est pas créé d'office.
 7. La mémoire d'un projet prend un seizième du contexte, en plus des deux autres mémoires.
-8. La demande pour un dossier sans projet se voit **seulement à la page « Projets »** : ni l'orbe, ni l'éventail,
-   ni la voix ne la signalent encore.
+8. La demande pour un dossier sans projet se voit à la page « Projets » et **dans l'éventail des tâches**, sur
+   le panneau de la session (bouton « Dossier sans projet : choisir », qui ouvre la page « Projets » ; réponse
+   de Benoit du 23 novembre 2026, voir [task-fan.md](task-fan.md)). Ni l'orbe ni la voix ne la signalent.
 9. « Assigner à un projet existant » ajoute le dossier aux autres dossiers du projet ; le dossier principal et
    la mémoire ne bougent pas.
 10. La demande disparaît quand les sessions du dossier sont terminées, et il n'y a pas de bouton pour l'écarter.

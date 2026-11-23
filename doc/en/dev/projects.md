@@ -127,8 +127,9 @@ To be confirmed by Benoit:
 5. The project chosen in the window goes before the one the sentence names, and is forgotten when Jarvis stops.
 6. The "Home automation" project of the ADR (section 6) is not created by default.
 7. The memory of a project takes one sixteenth of the context, on top of the two other memories.
-8. The request for a folder with no project shows **only on the "Projects" page**: neither the orb, nor the fan,
-   nor the voice signals it yet.
+8. The request for a folder with no project shows on the "Projects" page and **in the task fan**, on the panel
+   of the session (button "Folder with no project: choose", which opens the "Projects" page; Benoit's answer of
+   23 November 2026, see [task-fan.md](task-fan.md)). Neither the orb nor the voice signals it.
 9. "Assign to an existing project" adds the folder to the other folders of the project; the main folder and the
    memory do not move.
 10. The request goes away when the sessions of the folder have ended, and there is no button to dismiss it.

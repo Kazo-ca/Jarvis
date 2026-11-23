@@ -16,6 +16,9 @@ and spike E11 ([results](../../../spikes/e11-task-fan-window/RESULTS.md)).
 - A panel that waits for the user is **amber**, and so is its line.
 - When a session started by Jarvis asks for a permission, its panel shows the request and the buttons
   **Allow**, **Refuse** and **Details**. The confirmation window stays open: both do the same thing.
+- When a session works in a folder that belongs to no project, its panel shows the button
+  **Folder with no project: choose**. It closes the fan and opens the "Projects" page, where the request waits
+  ([projects.md](projects.md)). The button does not show during a permission request.
 - Near the orb, a line counts the tasks and the decisions that wait. Without a task, the fan opens anyway and
   says "No task in progress.".
 - **A left click on the orb** starts listening, as the wake word does; while listening, it cancels it.
@@ -68,6 +71,10 @@ click, by the component (Web host) or by the orb window (Windows host).
 - **Content.** One panel per task that is not over (sub-tasks aside), the ones that wait first, then the most
   recently changed. **Five panels at most**; the others are counted in the line near the orb. Two sub-tasks at
   most per panel, then "and N more".
+- **Folder with no project.** `TaskFanView` asks `IProjectCatalog.IsWithoutProject(task.Folder)` (kernel;
+  false with no catalog) and draws again when the catalog changes. The button publishes
+  `SettingsWindowRequested(IProjectCatalog.SettingsPageKey)`: the slice of the fan does not know the one of
+  the projects. The panel does not turn amber and the counting line does not change.
 - **Confirmation request.** It is shown in the panel of the task that asks (`TaskId`). A request that comes
   from no task (a tool of the local model) has an amber panel of its own. The task that asks always has its
   panel, even beyond five.

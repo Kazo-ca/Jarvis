@@ -47,6 +47,12 @@
                                         {
                                             <p class="fan-summary" data-fan-summary>@summary</p>
                                         }
+                                        @if (panel.Decision is null && projects?.IsWithoutProject(task.Folder) == true)
+                                        {
+                                            @* The folder of the session belongs to no project (ADR 0025, section 6): Jarvis
+                                               never chooses, the button opens the page where the user does. *@
+                                            <button type="button" class="fan-button fan-no-project" data-fan-no-project title="@task.Folder" @onclick="ChooseProjectAsync">@T["NoProject"]</button>
+                                        }
                                         @if (panel.SubTasks.Count > 0)
                                         {
                                             <ul class="fan-subtasks" data-fan-subtasks>
@@ -127,6 +133,7 @@
 
     private ElementReference root;
     private IOpenConfirmations? confirmations;
+    private Kazo.Jarvis.Kernel.Projects.IProjectCatalog? projects;
     private FanPhase phase;
     private FanAnchor anchor = FanAnchor.BottomRight;
     private (int Horizontal, int Vertical) direction = (-1, -1);
@@ -145,6 +152,12 @@
     protected override void OnInitialized()
     {
         confirmations = Services.GetService<IOpenConfirmations>();
+        projects = Services.GetService<Kazo.Jarvis.Kernel.Projects.IProjectCatalog>();
+        if (projects is not null)
+        {
+            projects.Changed += OnBoardChanged;
+        }
+
         Fan.Changed += OnFanChanged;
         Board.Changed += OnBoardChanged;
         if (confirmations is not null)
@@ -183,10 +196,23 @@
     {
         Fan.Changed -= OnFanChanged;
         Board.Changed -= OnBoardChanged;
+        if (projects is not null)
+        {
+            projects.Changed -= OnBoardChanged;
+        }
+
         if (confirmations is not null)
         {
             confirmations.Changed -= OnDecisionChanged;
         }
+    }
+
+    private async Task ChooseProjectAsync()
+    {
+        // The page is a window of its own: the fan goes away so that it does not cover it.
+        Fan.Close();
+        await Services.GetRequiredService<Kazo.Jarvis.Kernel.Messaging.IMessageBus>().PublishAsync(
+            new Kazo.Jarvis.Kernel.Messages.Desktop.SettingsWindowRequested(Kazo.Jarvis.Kernel.Projects.IProjectCatalog.SettingsPageKey));
     }
 
     private void Read()

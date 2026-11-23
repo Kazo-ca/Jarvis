@@ -85,6 +85,40 @@ public sealed class TaskFanTests : PageTest
     }
 
     [Test]
+    public async Task A_session_in_a_folder_of_no_project_says_so_on_its_panel_and_the_button_opens_the_projects_page()
+    {
+        // ADR 0025, section 6: Jarvis never chooses the project; the panel leads to the page where the user does.
+        await PressAsync("#hand-session-work");
+        await Orb.ClickAsync(Right);
+        await Expect(Fan).ToHaveAttributeAsync("data-fan-phase", "Open");
+        var ask = HandPanel.Locator("[data-fan-no-project]");
+        await Expect(ask).ToBeVisibleAsync();
+        await Expect(ask).ToHaveAttributeAsync("title", "/home/demo/projets/kazo-bar");
+
+        await ask.ClickAsync();
+        await Expect(Fan).ToHaveCountAsync(0);
+        var request = Settings.Locator("[data-project-request='/home/demo/projets/kazo-bar']");
+        await Expect(request).ToHaveCountAsync(1);
+
+        // Answered there, the panel no longer asks.
+        await request.Locator("[data-project-request-name]").FillAsync("Kazo Bar");
+        await request.Locator("[data-project-request-create]").ClickAsync();
+        await Expect(request).ToHaveCountAsync(0);
+        await CloseDialogsAsync();
+        await Orb.ClickAsync(Right);
+        await Expect(Fan).ToHaveAttributeAsync("data-fan-phase", "Open");
+        await Expect(HandPanel).ToHaveCountAsync(1);
+        await Expect(HandPanel.Locator("[data-fan-no-project]")).ToHaveCountAsync(0);
+        await Fan.PressAsync("Escape");
+        await Expect(Fan).ToHaveCountAsync(0);
+
+        // The host keeps its settings between the tests.
+        await OpenSettingsAsync("Projects.Catalog");
+        await Settings.Locator("[data-project='kazo-bar'] [data-project-remove]").ClickAsync();
+        await Expect(Settings.Locator("[data-project]")).ToHaveCountAsync(0);
+    }
+
+    [Test]
     public async Task A_task_has_its_panel_amber_when_it_waits_with_its_sub_tasks_and_the_orb_shows_the_badge()
     {
         await PressAsync("#hand-session-work");

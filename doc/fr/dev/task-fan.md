@@ -17,6 +17,9 @@ ambre, badge) et l'essai E11 ([résultats](../../../spikes/e11-task-fan-window/R
 - Quand une session lancée par Jarvis demande une permission, son panneau montre la demande et les boutons
   **Autoriser**, **Refuser** et **Détails**. La fenêtre de confirmation reste ouverte : les deux font la même
   chose.
+- Quand une session travaille dans un dossier qui n'appartient à aucun projet, son panneau montre le bouton
+  **Dossier sans projet : choisir**. Il ferme l'éventail et ouvre la page « Projets », où la demande attend
+  ([projects.md](projects.md)). Le bouton ne se montre pas pendant une demande de permission.
 - Près de l'orbe, une ligne compte les tâches et les décisions en attente. Sans tâche, l'éventail s'ouvre
   quand même et dit « Aucune tâche en cours. ».
 - **Un clic gauche sur l'orbe** lance l'écoute, comme le mot d'éveil ; pendant l'écoute, il l'annule.
@@ -73,6 +76,10 @@ par clic droit, par le composant (hôte Web) ou par la fenêtre de l'orbe (hôte
 - **Demande de confirmation.** Elle s'affiche dans le panneau de la tâche qui demande (`TaskId`). Une demande
   qui ne vient d'aucune tâche (un outil du modèle local) a son propre panneau ambre. La tâche qui demande a
   toujours son panneau, même au-delà de cinq.
+- **Dossier sans projet.** `TaskFanView` demande à `IProjectCatalog.IsWithoutProject(task.Folder)` (noyau ;
+  faux sans catalogue) et redessine quand le catalogue change. Le bouton publie
+  `SettingsWindowRequested(IProjectCatalog.SettingsPageKey)` : la tranche de l'éventail ne connaît pas celle
+  des projets. Le panneau ne devient pas ambre et la ligne de compte ne change pas.
 - **Disposition.** Les longueurs sont en `em` ; la taille du texte suit le petit côté de la surface (16 px au
   plus), donc le même arc tient sur un petit écran. Hors d'un coin, l'éventail prend la disposition du coin
   le plus proche.
