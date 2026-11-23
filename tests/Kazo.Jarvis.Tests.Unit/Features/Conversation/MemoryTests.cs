@@ -503,6 +503,78 @@ public sealed class MemoryTests
         });
     }
 
+    // ----- The memory of each agent (ADR 0025, section 5) -----
+
+    [Test]
+    public async Task A_fact_of_an_agent_is_recalled_to_that_agent_only()
+    {
+        await KeepAsync("L'utilisateur s'appelle Benoit.");
+        time.Advance(TimeSpan.FromSeconds(1));
+        var kept = await book.AddForAgentAsync("home-automation", "Articulé est la lampe du bureau.", FactSource.Manual);
+        time.Advance(TimeSpan.FromSeconds(1));
+        var twice = await book.AddForAgentAsync("home-automation", "articulé est la lampe du bureau.", FactSource.Manual);
+        var elsewhere = await book.AddForAgentAsync("web", "Articulé est la lampe du bureau.", FactSource.Manual);
+
+        var general = await recaller.RecallAsync(AssistantLanguage.French, 4096);
+        var home = await recaller.RecallForAgentAsync("home-automation", AssistantLanguage.French, 4096);
+        var files = await recaller.RecallForAgentAsync("files", AssistantLanguage.French, 4096);
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(kept, Is.EqualTo(FactOutcome.Added));
+            Assert.That(twice, Is.EqualTo(FactOutcome.AlreadyKnown));
+            Assert.That(elsewhere, Is.EqualTo(FactOutcome.Added), "The same sentence may serve two agents.");
+            Assert.That(general.Block, Does.Contain("Benoit").And.Not.Contain("Articulé"), "Sent only when this agent answers.");
+            Assert.That(home, Does.StartWith("Ce qui suit, entre « [Mémoire de l'agent] »").And.Contain("\n[Mémoire de l'agent]\n- Articulé est la lampe du bureau.\n[Fin de la mémoire de l'agent]"));
+            Assert.That(home, Does.Not.Contain("Benoit"), "The facts about the user are in the other block.");
+            Assert.That(files, Is.Null, "An agent that kept nothing gets no block.");
+            Assert.That((await book.FactsAsync()).Count(fact => fact.Agent == "home-automation"), Is.EqualTo(1));
+            Assert.That(await recaller.RecallForAgentAsync("home-automation", AssistantLanguage.English, 4096), Does.Contain("[Agent memory]"));
+        });
+    }
+
+    [Test]
+    public async Task The_memory_of_an_agent_has_its_own_share_and_follows_the_general_switch()
+    {
+        // 64 tokens of context: 24 characters for the user, 12 for the agent.
+        await book.AddForAgentAsync("web", "Douze signes", FactSource.Manual);
+        time.Advance(TimeSpan.FromSeconds(1));
+        await book.AddForAgentAsync("web", "Bien plus que douze signes", FactSource.Manual);
+
+        var small = await recaller.RecallForAgentAsync("web", AssistantLanguage.French, 64);
+        await settings.WriteAsync(MemoryOptions.Section, new MemoryOptions { Enabled = false });
+        var off = await recaller.RecallForAgentAsync("web", AssistantLanguage.French, 4096);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(MemoryRecaller.AgentBudget(64), Is.EqualTo(12));
+            Assert.That(small, Does.Contain("Douze signes").And.Not.Contain("Bien plus"));
+            Assert.That(off, Is.Null, "Off: nothing of the memory goes to the model.");
+        });
+    }
+
+    [Test]
+    public async Task Remember_for_an_agent_writes_in_the_memory_of_the_agent_that_calls()
+    {
+        ITool tool = new RememberAgentFactTool(book, settings);
+
+        var kept = await tool.InvokeAsync(Arguments("text", "Articulé est la lampe du bureau."), "home-automation", CancellationToken.None);
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(tool.Name, Is.EqualTo("remember_agent_fact"));
+            Assert.That(tool.ForEveryAgent, Is.True);
+            Assert.That(tool.RefusedAfterOutsideContent, Is.True, "Same guard as remember_fact (ADR 0019, section 3).");
+            Assert.That(tool.DeclaredClass, Is.EqualTo(ActionClass.EverydayEffect));
+            Assert.That(tool.Describe(AssistantLanguage.French), Does.Contain("ton travail d'agent"));
+            Assert.That(kept, Is.EqualTo("""{"remembered":true}"""));
+            Assert.That((await book.FactsAsync()).Single().Agent, Is.EqualTo("home-automation"));
+            Assert.That(async () => await tool.InvokeAsync(Arguments("text", "Un fait."), CancellationToken.None), Throws.InstanceOf<ToolException>(), "Without an agent there is no agent memory.");
+            Assert.That(async () => await tool.InvokeAsync(Arguments("text", "Un fait."), null, CancellationToken.None), Throws.InstanceOf<ToolException>());
+            Assert.That(async () => await tool.InvokeAsync(Arguments("text", "Son mot de passe est tournesol"), "web", CancellationToken.None), Throws.InstanceOf<ToolException>().With.Message.Contains("password"));
+        });
+    }
+
     // ----- The tools -----
 
     [Test]

@@ -153,11 +153,20 @@ internal sealed class FakeMemory : IConversationMemory
 
     public List<(AssistantLanguage Language, int ContextLength)> Asked { get; } = [];
 
+    /// <summary>What each agent kept for itself, by its identity.</summary>
+    public Dictionary<string, string> OfAgents { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>When set, <see cref="RecallForAgentAsync"/> throws it.</summary>
+    public Exception? AgentFailure { get; set; }
+
     public ValueTask<MemoryRecall> RecallAsync(AssistantLanguage language, int contextLength, CancellationToken cancellationToken = default)
     {
         Asked.Add((language, contextLength));
         return Failure is null ? ValueTask.FromResult(Recall) : ValueTask.FromException<MemoryRecall>(Failure);
     }
+
+    public ValueTask<string?> RecallForAgentAsync(string agent, AssistantLanguage language, int contextLength, CancellationToken cancellationToken = default) =>
+        AgentFailure is null ? ValueTask.FromResult(OfAgents.GetValueOrDefault(agent)) : ValueTask.FromException<string?>(AgentFailure);
 }
 
 /// <summary>A hand-off whose target is set by the test; the formulas and the arguments are read by the real code of the slice.</summary>

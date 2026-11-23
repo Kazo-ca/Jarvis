@@ -128,6 +128,44 @@ public sealed class MemoryTests : PageTest
     }
 
     [Test]
+    public async Task A_fact_typed_for_an_agent_is_recalled_to_that_agent_only()
+    {
+        await OpenMemoryAsync();
+        await AddAsync("L'utilisateur s'appelle Benoit.");
+        await Expect(Facts).ToHaveCountAsync(1);
+        await Settings.Locator("[data-memory-add-agent]").SelectOptionAsync("web");
+        await AddAsync("L'utilisateur préfère Météo-Média.");
+        await Expect(Facts).ToHaveCountAsync(2);
+        await Expect(Facts.Filter(new() { HasText = "Météo-Média" })).ToHaveAttributeAsync("data-memory-agent", "web");
+        await Expect(Facts.Filter(new() { HasText = "Météo-Média" })).ToHaveAttributeAsync("data-memory-sent", "true");
+        await Expect(Facts.Filter(new() { HasText = "Benoit" })).Not.ToHaveAttributeAsync("data-memory-agent", new System.Text.RegularExpressions.Regex(".+"));
+        await Settings.Locator("[data-memory-add-agent]").SelectOptionAsync(string.Empty);
+
+        // The Jarvis agent has the memory of the user only (ADR 0025, section 5).
+        await SayAsync("Que retiens-tu ?");
+        await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("Benoit");
+        await Expect(Newest.Locator("[data-conversation-answer]")).Not.ToContainTextAsync("Météo-Média");
+
+        var choice = Conversation.Locator("[data-conversation-agent-choice]");
+        try
+        {
+            await choice.SelectOptionAsync("web");
+            await SayAsync("Que retiens-tu ?");
+            await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("Benoit");
+            await Expect(Newest.Locator("[data-conversation-answer]")).ToContainTextAsync("Et pour mon travail : - L'utilisateur préfère Météo-Média.");
+
+            await choice.SelectOptionAsync("files");
+            await SayAsync("Que retiens-tu ?");
+            await Expect(Newest.Locator("[data-conversation-answer]")).Not.ToContainTextAsync("Météo-Média");
+        }
+        finally
+        {
+            // The choice lasts until the user takes it off: the next test starts with the Jarvis agent.
+            await choice.SelectOptionAsync(string.Empty);
+        }
+    }
+
+    [Test]
     public async Task The_switches_cut_what_is_kept_and_what_is_sent()
     {
         await OpenMemoryAsync();

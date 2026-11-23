@@ -129,6 +129,24 @@ public sealed class AgentCatalogTests
     }
 
     [Test]
+    public async Task A_tool_made_for_every_agent_goes_to_all_but_the_Jarvis_agent_and_gives_nobody_the_hand()
+    {
+        registry.Register(new FakeTool("get_datetime"));
+        registry.Register(new FakeTool("web_search"));
+        registry.Register(new FakeTool("remember_agent_fact") { ForEveryAgent = true });
+        await catalog.StartAsync(CancellationToken.None);
+
+        string[] Names(string agent) => [.. catalog.ToolsOf(catalog.Find(agent)!).Select(tool => tool.Name)];
+        Assert.Multiple(() =>
+        {
+            Assert.That(Names("web"), Is.EqualTo(new[] { "web_search", "remember_agent_fact", "return_to_jarvis" }));
+            Assert.That(Names("files"), Is.EqualTo(new[] { "remember_agent_fact", "return_to_jarvis" }));
+            Assert.That(Names("jarvis"), Is.EqualTo(new[] { "get_datetime", "hand_to_agent" }), "Its memory is the memory of the user (section 5).");
+            Assert.That(catalog.Others.Select(agent => agent.Id), Is.EqualTo(new[] { "web" }), "A tool every agent has is not a reason to take the hand.");
+        });
+    }
+
+    [Test]
     public async Task Without_another_agent_that_has_a_tool_the_hand_is_not_offered()
     {
         registry.Register(new FakeTool("get_datetime"));

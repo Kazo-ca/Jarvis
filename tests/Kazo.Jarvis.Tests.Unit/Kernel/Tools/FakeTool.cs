@@ -45,6 +45,22 @@ internal sealed class FakeTool(string name) : ITool
     public ValueTask<ActionClass> ClassifyAsync(JsonElement arguments, CancellationToken cancellationToken) =>
         AsyncClassifier?.Invoke(arguments, cancellationToken) ?? new ValueTask<ActionClass>(Classify(arguments));
 
+    /// <summary>Whether every agent but the Jarvis agent sees it (ADR 0025, section 5).</summary>
+    public bool ForEveryAgent { get; init; }
+
+    /// <summary>The agent of each run, in order; <see langword="null"/> for a run without one.</summary>
+    public List<string?> Agents { get; } = [];
+
+    public ValueTask<string> InvokeAsync(JsonElement arguments, string? agent, CancellationToken cancellationToken)
+    {
+        lock (Invoked)
+        {
+            Agents.Add(agent);
+        }
+
+        return InvokeAsync(arguments, cancellationToken);
+    }
+
     public ValueTask<string> InvokeAsync(JsonElement arguments, CancellationToken cancellationToken)
     {
         lock (Invoked)

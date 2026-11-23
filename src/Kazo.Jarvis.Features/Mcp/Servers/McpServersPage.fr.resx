@@ -177,4 +177,10 @@
   <data name="ScriptWarning" xml:space="preserve">
     <value>Un script peut actionner n'importe quoi, et s'exécute sans question. Marquez-le « sécurité » dans la page Home Assistant s'il doit exiger un clic.</value>
   </data>
+  <data name="Agent" xml:space="preserve">
+    <value>Agent</value>
+  </data>
+  <data name="AgentLabel" xml:space="preserve">
+    <value>Agent qui voit les outils de {0}</value>
+  </data>
 </root>

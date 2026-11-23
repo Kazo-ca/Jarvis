@@ -35,6 +35,7 @@ public static class MemorySlice
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AssistantStateChanged>, MemoryWorker>(Worker));
 
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, RememberFactTool>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, RememberAgentFactTool>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, ForgetFactTool>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, SearchMemoryTool>());
 

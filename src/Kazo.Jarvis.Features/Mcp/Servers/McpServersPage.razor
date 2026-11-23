@@ -1,6 +1,7 @@
 @inject McpServerHub Hub
 @inject ISettingsStore Settings
 @inject IStringLocalizer<McpServersPage> T
+@inject IServiceProvider Services
 @implements IDisposable
 
 @* The « Serveurs MCP » page (ADR 0018, sections 1 to 4 and 6; US2.2): add a tool server by address or by command,
@@ -47,6 +48,28 @@
                            @onchange="e => SaveAsync(Hub.ChangeAsync(server.Name, current => current with { Enabled = e.Value is true }))" />
                     <span>@T["Enabled"]</span>
                 </label>
+                @if (agents is { Count: > 0 })
+                {
+                    @* Which agent sees the tools of this server (ADR 0025, section 3). *@
+                    <label class="mcp-switch">
+                        <span>@T["Agent"]</span>
+                        @if (server.Kind == McpServerKind.HomeAssistant)
+                        {
+                            <span class="mcp-tag" data-mcp-agent-fixed>@AgentName(Kazo.Jarvis.Kernel.Agents.AgentIds.HomeAutomation)</span>
+                        }
+                        else
+                        {
+                            <select class="mcp-class" data-mcp-agent aria-label="@T["AgentLabel", server.Name]"
+                                    @onchange="e => SaveAsync(Hub.ChangeAsync(server.Name, current => current with { Agent = AgentChosen(e.Value?.ToString()) }))">
+                                <option value="" selected="@(!agents.Any(agent => agent.Id == server.Agent))">@catalog!.Main.Name</option>
+                                @foreach (var agent in agents)
+                                {
+                                    <option value="@agent.Id" selected="@(agent.Id == server.Agent)">@agent.Name</option>
+                                }
+                            </select>
+                        }
+                    </label>
+                }
                 <button type="button" class="mcp-button" data-mcp-test disabled="@(testing == server.Name || !Hub.Available)" @onclick="() => TestAsync(server.Name)">@T["Test"]</button>
                 @if (server.Enabled && status.State is McpServerState.Failed or McpServerState.Stopped or McpServerState.Connected)
                 {
@@ -181,16 +204,45 @@
     private string? arguments;
     private string? problem;
     private string? testing;
+    private Kazo.Jarvis.Kernel.Agents.IAgentCatalog? catalog;
+    private IReadOnlyList<Kazo.Jarvis.Kernel.Agents.AgentDefinition>? agents;
 
     /// <inheritdoc />
     protected override void OnInitialized()
     {
         Hub.Changed += OnHubChanged;
         statuses = Hub.Statuses;
+
+        // Without agents (a host that has no agent files), the choice is not shown.
+        catalog = Services.GetService(typeof(Kazo.Jarvis.Kernel.Agents.IAgentCatalog)) as Kazo.Jarvis.Kernel.Agents.IAgentCatalog;
+        if (catalog is not null)
+        {
+            catalog.Changed += OnAgentsChanged;
+            ReadAgents();
+        }
     }
 
     /// <inheritdoc />
-    public void Dispose() => Hub.Changed -= OnHubChanged;
+    public void Dispose()
+    {
+        Hub.Changed -= OnHubChanged;
+        if (catalog is not null)
+        {
+            catalog.Changed -= OnAgentsChanged;
+        }
+    }
+
+    private void ReadAgents() => agents = [.. catalog!.Agents.Where(agent => agent.Id != catalog.Main.Id)];
+
+    private void OnAgentsChanged() => _ = InvokeAsync(() =>
+    {
+        ReadAgents();
+        StateHasChanged();
+    });
+
+    private string AgentName(string id) => catalog?.Agents.FirstOrDefault(agent => agent.Id == id)?.Name ?? catalog?.Main.Name ?? id;
+
+    private static string? AgentChosen(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 
     private void OnHubChanged() => _ = InvokeAsync(() =>
     {

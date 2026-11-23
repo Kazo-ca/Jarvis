@@ -124,12 +124,14 @@ public sealed partial class AgentCatalog : IAgentCatalog, IHostedService, IDispo
         if (agent.Id != AgentIds.Main)
         {
             // « Ce n'est pas pour moi » (section 8): the way back to the Jarvis agent.
-            return [.. own, .. enabled.Where(tool => tool.Name == ReturnToolName)];
+            // What every agent needs to keep its own memory (section 5), then the way back.
+            return [.. own, .. enabled.Where(tool => tool.ForEveryAgent && !own.Contains(tool)), .. enabled.Where(tool => tool.Name == ReturnToolName)];
         }
 
         // A tool no agent claims goes to the Jarvis agent (section 3), so a new tool is never lost.
         var claimed = known.Where(other => other.Id != AgentIds.Main).SelectMany(other => OwnTools(other, enabled, known)).Select(tool => tool.Name).ToHashSet(StringComparer.Ordinal);
-        var mine = enabled.Where(tool => !IsHandTool(tool) && (own.Contains(tool) || !claimed.Contains(tool.Name)));
+        // The memory of the Jarvis agent is the memory of the user: it has no use for a tool made for the others.
+        var mine = enabled.Where(tool => !IsHandTool(tool) && (own.Contains(tool) || (!claimed.Contains(tool.Name) && !tool.ForEveryAgent)));
 
         // The hand is offered only when someone can take it: without it, a request costs one call to the model.
         return [.. mine, .. enabled.Where(tool => tool.Name == HandToolName && Others.Count > 0)];

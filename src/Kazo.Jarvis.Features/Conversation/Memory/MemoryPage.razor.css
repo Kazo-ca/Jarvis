@@ -99,3 +99,8 @@
     margin: 0;
     color: var(--jarvis-red);
 }
+
+/* The agent a typed fact serves: it keeps its width, the text takes the rest. */
+.memory-agent {
+    flex: 0 1 auto;
+}

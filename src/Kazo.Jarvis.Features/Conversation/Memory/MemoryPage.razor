@@ -3,6 +3,7 @@
 @inject MemoryBook Book
 @inject IAssistantModel Model
 @inject IStringLocalizer<MemoryPage> T
+@inject IServiceProvider Services
 @implements IDisposable
 
 @* The « Mémoire » page (ADR 0019, section 8): what Jarvis keeps about the user, shown whole, erased one fact at a
@@ -33,10 +34,10 @@
                 @foreach (var fact in facts)
                 {
                     var isSent = options.Enabled && sent.Contains(fact.Key);
-                    <li class="memory-fact" data-memory-fact="@fact.Key" data-memory-source="@fact.Source" data-memory-pinned="@(fact.Pinned ? "true" : "false")"
+                    <li class="memory-fact" data-memory-fact="@fact.Key" data-memory-agent="@fact.Agent" data-memory-source="@fact.Source" data-memory-pinned="@(fact.Pinned ? "true" : "false")"
                         data-memory-sent="@(isSent ? "true" : "false")" @key="fact.Key">
                         <span class="memory-fact-text">@fact.Text</span>
-                        <span class="memory-note">@fact.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @T["Source_" + fact.Source] · @T[isSent ? "Sent" : "NotSent"]</span>
+                        <span class="memory-note">@fact.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) · @T["Source_" + fact.Source] · @(fact.Agent is null ? string.Empty : T["ForAgent", AgentName(fact.Agent)].Value + " · ")@T[isSent ? "Sent" : "NotSent"]</span>
                         <label class="memory-switch">
                             <input type="checkbox" data-memory-pin checked="@fact.Pinned" @onchange="e => PinAsync(fact, e.Value is true)" />
                             <span>@T["Pinned"]</span>
@@ -49,6 +50,17 @@
         <div class="memory-add">
             <input type="text" class="memory-input" data-memory-add-text maxlength="@MemoryFact.MostCharacters" aria-label="@T["AddLabel"]"
                    placeholder="@T["AddPlaceholder"]" @bind="draft" @bind:event="oninput" @onkeydown="OnKeyAsync" />
+            @if (agents.Count > 0)
+            {
+                @* A fact typed here can serve one agent alone (ADR 0025, section 5). *@
+                <select class="memory-input memory-agent" data-memory-add-agent aria-label="@T["AddAgentLabel"]" @bind="draftAgent">
+                    <option value="">@T["ForEveryone"]</option>
+                    @foreach (var agent in agents)
+                    {
+                        <option value="@agent.Id">@T["ForAgent", agent.Name]</option>
+                    }
+                </select>
+            }
             <button type="button" class="memory-button" data-memory-add disabled="@string.IsNullOrWhiteSpace(draft)" @onclick="AddAsync">@T["Add"]</button>
         </div>
         @if (problem is not null)
@@ -96,6 +108,9 @@
     private MemorySummary? summary;
     private int budget;
     private string? draft;
+    private string draftAgent = string.Empty;
+    private Kazo.Jarvis.Kernel.Agents.IAgentCatalog? catalog;
+    private IReadOnlyList<Kazo.Jarvis.Kernel.Agents.AgentDefinition> agents = [];
     private string? problem;
     private bool confirmingErase;
 
@@ -104,11 +119,29 @@
     {
         options = Settings.Read(MemoryOptions.Section);
         Book.Changed += OnBookChanged;
+
+        // Without agents, every fact is about the user and the choice is not shown.
+        catalog = Services.GetService(typeof(Kazo.Jarvis.Kernel.Agents.IAgentCatalog)) as Kazo.Jarvis.Kernel.Agents.IAgentCatalog;
+        if (catalog is not null)
+        {
+            catalog.Changed += OnBookChanged;
+        }
+
         await ReadAsync();
     }
 
     /// <inheritdoc />
-    public void Dispose() => Book.Changed -= OnBookChanged;
+    public void Dispose()
+    {
+        Book.Changed -= OnBookChanged;
+        if (catalog is not null)
+        {
+            catalog.Changed -= OnBookChanged;
+        }
+    }
+
+    // The name of the agent as its file gives it; its identity when the file is gone, so the fact stays readable.
+    private string AgentName(string id) => catalog?.Agents.FirstOrDefault(agent => agent.Id == id)?.Name ?? id;
 
     // A fact kept during a conversation shows without leaving the page.
     private void OnBookChanged() => _ = InvokeAsync(async () =>
@@ -122,7 +155,20 @@
         facts = await Book.FactsAsync();
         summary = await Book.SummaryAsync();
         budget = MemoryRecaller.Budget(Model.Provider?.Tuning.ContextLength ?? new LlmTuning().ContextLength);
-        sent = [.. MemoryRecaller.Select(facts, summary?.Text, budget).Facts.Select(fact => fact.Key)];
+        sent = [.. MemoryRecaller.Select(MemoryRecaller.General(facts), summary?.Text, budget).Facts.Select(fact => fact.Key)];
+
+        // A fact of an agent is sent when that agent answers, within its own share.
+        foreach (var agent in facts.Where(fact => fact.Agent is not null).Select(fact => fact.Agent!).Distinct(StringComparer.Ordinal))
+        {
+            sent.UnionWith(MemoryRecaller.Select(MemoryRecaller.Of(facts, agent), null, budget / 2).Facts.Select(fact => fact.Key));
+        }
+
+        // The memory of the Jarvis agent is the memory of the user: it is not in the choice.
+        agents = catalog is null ? [] : [.. catalog.Agents.Where(agent => agent.Id != catalog.Main.Id)];
+        if (agents.All(agent => agent.Id != draftAgent))
+        {
+            draftAgent = string.Empty;
+        }
     }
 
     private async Task OnKeyAsync(KeyboardEventArgs e)
@@ -140,7 +186,7 @@
             return;
         }
 
-        var outcome = await Book.AddAsync(draft, FactSource.Manual);
+        var outcome = await Book.AddForAgentAsync(draftAgent, draft, FactSource.Manual);
         problem = outcome == FactOutcome.Added ? null : T["Add_" + outcome].Value;
         if (outcome is FactOutcome.Added or FactOutcome.AlreadyKnown)
         {

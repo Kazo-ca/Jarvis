@@ -21,6 +21,9 @@ public sealed partial record McpServersOptions
     /// <summary>The most arguments of one command.</summary>
     public const int MostArguments = 40;
 
+    /// <summary>Longest identity of an agent, in characters.</summary>
+    public const int MostAgentCharacters = 100;
+
     /// <summary>The section.</summary>
     public static SettingsSection<McpServersOptions> Section { get; } = new("Mcp.Servers", () => new McpServersOptions(), Validate);
 
@@ -118,6 +121,11 @@ public sealed partial record McpServersOptions
                 problems.Add($"The type of the tool server '{server.Name}' is unknown.");
             }
 
+            if (server.Agent is { Length: > MostAgentCharacters })
+            {
+                problems.Add($"The agent of the tool server '{server.Name}' is longer than {MostAgentCharacters} characters.");
+            }
+
             if (server.Arguments is null || server.Arguments.Count > MostArguments || server.Arguments.Any(argument => argument is null))
             {
                 problems.Add($"The arguments of the tool server '{server.Name}' are missing or more than {MostArguments}.");
@@ -173,6 +181,12 @@ public sealed record McpServerOptions
 
     /// <summary>The names of the headers sent to <see cref="Address"/>. Their values are in the vault.</summary>
     public IReadOnlyList<string> Headers { get; init; } = [];
+
+    /// <summary>
+    /// The agent that sees the tools of this server (ADR 0025, section 3), by its identity; <see langword="null"/>
+    /// for the Jarvis agent. A Home Assistant server ignores it: its tools go to the home automation agent.
+    /// </summary>
+    public string? Agent { get; init; }
 
     /// <summary>Whether Jarvis connects to the server.</summary>
     public bool Enabled { get; init; } = true;

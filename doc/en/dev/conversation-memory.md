@@ -34,6 +34,10 @@ block. A fact identical to another, whatever the case and the spaces, is not add
 Nothing is kept in RAM between two reads: "Erase everything" in the conversation window empties the whole
 store, so the facts and the summary too.
 
+Since work item 18 (ADR 0025, section 5), a fact may serve **one agent alone** (`MemoryFact.Agent`): it is then
+sent only when this agent answers, in a second block. See
+[agents.md](agents.md#the-memory-of-each-agent-work-item-18-adr-0025-section-5).
+
 ### A secret is not a fact (`SecretShapes`)
 
 Rejected by code, whatever the model was told: a known key (`sk-…`, `ghp_…`, `AKIA…`, `xox…`, `AIza…`,

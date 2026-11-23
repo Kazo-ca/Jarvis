@@ -37,6 +37,12 @@ public sealed record MemoryFact
     /// <summary>The stored turn it comes from, when there is one.</summary>
     public Guid? Turn { get; init; }
 
+    /// <summary>
+    /// The agent this fact serves alone (ADR 0025, section 5), by its identity; <see langword="null"/> for a fact
+    /// about the user, sent whoever answers.
+    /// </summary>
+    public string? Agent { get; init; }
+
     /// <summary>A pinned fact goes to the model before every other.</summary>
     public bool Pinned { get; init; }
 }

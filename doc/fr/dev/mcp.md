@@ -99,6 +99,10 @@ Pour chaque serveur : type, état avec la cause, adresse ou commande, ce qui qui
 secret), puis chaque outil avec sa description entière, sa classe et son interrupteur, et l'estimation en
 jetons des outils activés. En bas, l'ajout par adresse ou par commande locale.
 
+Depuis le chantier 18 (ADR 0025, section 3), chaque serveur générique a une liste « Agent » sur la page
+(`McpServerOptions.Agent`) : ses outils vont à cet agent, l'agent Jarvis par défaut. Voir
+[agents.md](agents.md#les-outils-dun-agent-agentcatalogtoolsof).
+
 ## Hôte Web
 
 `SimulatedToolServers` : `https://mcp.jarvis.example` (`lookup_stock` en lecture seule, `send_message`),

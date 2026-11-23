@@ -74,7 +74,10 @@ public sealed class AgentsTests : PageTest
         var files = Settings.Locator("[data-agent='files']");
         await Expect(files.Locator("[data-agent-name]")).ToHaveTextAsync(new Regex("Fichiers|Files"));
         await Expect(files).ToHaveAttributeAsync("data-agent-available", "true");
-        await Expect(files.Locator("[data-agent-tool]")).ToHaveCountAsync(2);
+        // Its two tools, and the one every agent has to keep its own memory (section 5).
+        await Expect(files.Locator("[data-agent-tool]")).ToHaveCountAsync(3);
+        await Expect(files.Locator("[data-agent-tool='remember_agent_fact']")).ToHaveCountAsync(1);
+        await Expect(jarvis.Locator("[data-agent-tool='remember_agent_fact']")).ToHaveCountAsync(0);
 
         // The web tools are off until the user turns them on: the agent names them, and nobody hands over to it.
         var web = Settings.Locator("[data-agent='web']");

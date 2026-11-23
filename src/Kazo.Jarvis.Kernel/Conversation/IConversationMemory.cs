@@ -14,6 +14,17 @@ public interface IConversationMemory
     /// <param name="cancellationToken">Cancels the read.</param>
     /// <returns>The recall; <see cref="MemoryRecall.Nothing"/> when the memory is off or empty.</returns>
     ValueTask<MemoryRecall> RecallAsync(AssistantLanguage language, int contextLength, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// What one agent kept for its own work (ADR 0025, section 5): sent only when this agent answers, after the
+    /// block of <see cref="RecallAsync"/>.
+    /// </summary>
+    /// <param name="agent">The identity of the agent that answers.</param>
+    /// <param name="language">The language of the turn.</param>
+    /// <param name="contextLength">The context of the model that answers, in tokens.</param>
+    /// <param name="cancellationToken">Cancels the read.</param>
+    /// <returns>A delimited block that says of itself that it is data, or <see langword="null"/> when there is nothing.</returns>
+    ValueTask<string?> RecallForAgentAsync(string agent, AssistantLanguage language, int contextLength, CancellationToken cancellationToken = default) => new((string?)null);
 }
 
 /// <summary>What the memory gives to a turn.</summary>

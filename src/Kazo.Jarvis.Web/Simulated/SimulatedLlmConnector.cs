@@ -262,18 +262,32 @@ public sealed partial class SimulatedLlmConnector : ILlmConnector
         /// <summary>What the memory block of the system message holds, said back: the tests see what the model received.</summary>
         private static string Recalled(string? instructions)
         {
-            // The block is written in the language of the turn.
-            foreach (var (opening, closing) in new[] { ("[Mémoire]", "[Fin de la mémoire]"), ("[Memory]", "[End of memory]") })
+            // The blocks are written in the language of the turn: the memory of the user, then the one of the
+            // agent that answers (stage2/18-agent-memory).
+            var user = Between(instructions, ("[Mémoire]", "[Fin de la mémoire]"), ("[Memory]", "[End of memory]"));
+            var agent = Between(instructions, ("[Mémoire de l'agent]", "[Fin de la mémoire de l'agent]"), ("[Agent memory]", "[End of the agent memory]"));
+            return (user, agent) switch
+            {
+                (null, null) => "Je ne retiens rien, Monsieur.",
+                (_, null) => "Je retiens ceci, Monsieur : " + user,
+                (null, _) => "Je retiens ceci pour mon travail, Monsieur : " + agent,
+                _ => "Je retiens ceci, Monsieur : " + user + " Et pour mon travail : " + agent,
+            };
+        }
+
+        private static string? Between(string? instructions, params (string Opening, string Closing)[] marks)
+        {
+            foreach (var (opening, closing) in marks)
             {
                 var start = instructions?.LastIndexOf(opening, StringComparison.Ordinal) ?? -1;
                 var end = instructions?.LastIndexOf(closing, StringComparison.Ordinal) ?? -1;
                 if (start >= 0 && end > start)
                 {
-                    return "Je retiens ceci, Monsieur : " + instructions![(start + opening.Length)..end].ReplaceLineEndings(" ").Trim();
+                    return instructions![(start + opening.Length)..end].ReplaceLineEndings(" ").Trim();
                 }
             }
 
-            return "Je ne retiens rien, Monsieur.";
+            return null;
         }
 
         /// <summary>The tool call the words of <paramref name="request"/> ask for, when that tool is offered.</summary>

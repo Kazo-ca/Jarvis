@@ -72,10 +72,59 @@ public sealed class MemoryRecaller : IConversationMemory
             return MemoryRecall.Nothing;
         }
 
-        var facts = await book.FactsAsync(cancellationToken).ConfigureAwait(false);
+        var facts = General(await book.FactsAsync(cancellationToken).ConfigureAwait(false));
         var summary = await book.SummaryAsync(cancellationToken).ConfigureAwait(false);
         var (sent, summarySent) = Select(facts, summary?.Text, Budget(contextLength));
         return new MemoryRecall(Block(language, sent, summarySent), TimeSpan.FromMinutes(options.SilenceMinutes));
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<string?> RecallForAgentAsync(string agent, AssistantLanguage language, int contextLength, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(language);
+        if (string.IsNullOrWhiteSpace(agent) || !settings.Read(MemoryOptions.Section).Enabled)
+        {
+            return null;
+        }
+
+        var sent = Select(Of(await book.FactsAsync(cancellationToken).ConfigureAwait(false), agent), null, AgentBudget(contextLength)).Facts;
+        if (sent.Count == 0)
+        {
+            return null;
+        }
+
+        var block = new StringBuilder();
+        block.Append(Text("AgentBlock_Rule", language)).Append('\n').Append(Text("AgentBlock_Start", language)).Append('\n');
+        foreach (var fact in sent)
+        {
+            block.Append("- ").Append(fact.Text).Append('\n');
+        }
+
+        return block.Append(Text("AgentBlock_End", language)).ToString();
+    }
+
+    /// <summary>The characters the memory of one agent may take: half of <see cref="Budget"/>, on top of it.</summary>
+    /// <param name="contextLength">The context of the model, in tokens.</param>
+    /// <returns>The budget, in characters.</returns>
+    public static int AgentBudget(int contextLength) => Budget(contextLength) / 2;
+
+    /// <summary>The facts about the user: those no agent keeps for itself.</summary>
+    /// <param name="facts">Every fact.</param>
+    /// <returns>The facts sent whoever answers.</returns>
+    public static IReadOnlyList<MemoryFact> General(IReadOnlyList<MemoryFact> facts)
+    {
+        ArgumentNullException.ThrowIfNull(facts);
+        return [.. facts.Where(fact => fact.Agent is null)];
+    }
+
+    /// <summary>The facts one agent keeps for itself.</summary>
+    /// <param name="facts">Every fact.</param>
+    /// <param name="agent">The identity of the agent.</param>
+    /// <returns>Its facts.</returns>
+    public static IReadOnlyList<MemoryFact> Of(IReadOnlyList<MemoryFact> facts, string agent)
+    {
+        ArgumentNullException.ThrowIfNull(facts);
+        return [.. facts.Where(fact => string.Equals(fact.Agent, agent, StringComparison.Ordinal))];
     }
 
     /// <summary>The block written in the system message, or <see langword="null"/> when there is nothing to recall.</summary>
