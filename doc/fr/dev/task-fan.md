@@ -23,10 +23,10 @@ ambre, badge) et l'essai E11 ([résultats](../../../spikes/e11-task-fan-window/R
 - Près de l'orbe, une ligne compte les tâches et les décisions en attente. Sans tâche, l'éventail s'ouvre
   quand même et dit « Aucune tâche en cours. ».
 - **Un clic gauche sur l'orbe** lance l'écoute, comme le mot d'éveil ; pendant l'écoute, il l'annule.
-- **Un double-clic sur l'orbe** demandera la vue des projets. Elle n'est pas encore construite : pour
-  l'instant il n'y a ni double-clic ni délai, et le clic gauche agit tout de suite. Quand elle existera, le
-  clic gauche attendra le délai de double-clic de Windows (une demi-seconde par défaut) ; le mot d'éveil, le
-  raccourci et le clic droit ne sont jamais retardés.
+- **Un double-clic sur l'orbe** ouvre la vue des projets ([projects-view.md](projects-view.md)). Le clic
+  gauche attend donc le délai de double-clic de Windows (une demi-seconde par défaut) avant de lancer
+  l'écoute ; le mot d'éveil, le raccourci et le clic droit ne sont jamais retardés. Dans un hôte sans vue des
+  projets, il n'y a ni double-clic ni délai.
 - **Le badge ambre de l'orbe** donne le nombre de décisions en attente, éventail ouvert ou fermé. L'orbe
   prend l'aspect « tâche longue » tant qu'une tâche travaille.
 
@@ -38,7 +38,7 @@ ouvert.
 | Élément | Rôle |
 | --- | --- |
 | `TaskFanToggleRequested` (`Kernel/Messages/Desktop`) | Le clic droit sur l'orbe : la tranche de l'éventail l'ouvre ou le range |
-| `ProjectsViewRequested` (`Kernel/Messages/Desktop`) | Le double-clic sur l'orbe : la tranche de la vue des projets y répondra ; rien n'y répond encore |
+| `ProjectsViewRequested` (`Kernel/Messages/Desktop`) | Le double-clic sur l'orbe : la tranche `Projects/View` y répond en ouvrant la vue des projets |
 | `IPointerTimings` (`Kernel/Desktop`) | Le délai de double-clic, donné par l'hôte ; sans lui, pas de double-clic ni de délai |
 | `ITaskFanSurface`, `FanAnchor` (`Kernel/Desktop`) | La surface où l'éventail est dessiné : où est le centre de l'orbe, montrer, cacher |
 | `IOpenConfirmations`, `OpenConfirmation` (`Kernel/Permissions`) | La demande de confirmation ouverte et son clic, pour qui la montre en plus de la fenêtre |

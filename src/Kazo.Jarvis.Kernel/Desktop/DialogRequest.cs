@@ -9,4 +9,11 @@ public sealed record DialogRequest(
     string Key,
     Type Component,
     string Title,
-    IReadOnlyDictionary<string, object?>? Parameters = null);
+    IReadOnlyDictionary<string, object?>? Parameters = null)
+{
+    /// <summary>
+    /// Whether the window takes the whole screen when it opens (the projects view, ADR 0026, section 7). A host
+    /// with no window of its own may ignore it.
+    /// </summary>
+    public bool Maximized { get; init; }
+}

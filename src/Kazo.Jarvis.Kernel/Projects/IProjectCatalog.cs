@@ -20,10 +20,10 @@ public interface IProjectCatalog
     /// <summary>The name of the file of the memory of a project, at the root of its folder.</summary>
     const string MemoryFileName = "JARVIS.md";
 
-    /// <summary>Raised when the projects change, on any thread.</summary>
     /// <summary>The key of the settings page where the user creates the projects and assigns the folders.</summary>
     const string SettingsPageKey = "Projects.Catalog";
 
+    /// <summary>Raised when the projects change, on any thread.</summary>
     event Action? Changed;
 
     /// <summary>The projects, in the order the user created them.</summary>
@@ -38,6 +38,11 @@ public interface IProjectCatalog
     /// <param name="request">The request as the user made it.</param>
     /// <returns>The project, or <see langword="null"/> when the request names none.</returns>
     ProjectDefinition? NamedIn(string? request);
+
+    /// <summary>The project that holds a folder, as its main folder or one of its other folders.</summary>
+    /// <param name="folder">A local path.</param>
+    /// <returns>The project, or <see langword="null"/>.</returns>
+    ProjectDefinition? OwnerOf(string? folder) => null;
 
     /// <summary>
     /// Whether a folder where a session works belongs to no project (ADR 0025, section 6): the user is then asked

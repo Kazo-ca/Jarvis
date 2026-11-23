@@ -22,6 +22,10 @@ internal sealed class DialogWindow : Window
         MinWidth = 360;
         MinHeight = 240;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        if (request.Maximized)
+        {
+            WindowState = WindowState.Maximized;
+        }
 
         var webView = new BlazorWebView
         {

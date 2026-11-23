@@ -11,6 +11,11 @@
     overflow: auto;
 }
 
+/* A window that takes the whole screen on Windows (the projects view) takes the width of the page here. */
+.dialog-layer-wide {
+    inset: 260px 2% 2% 2%;
+}
+
 header {
     display: flex;
     align-items: center;
