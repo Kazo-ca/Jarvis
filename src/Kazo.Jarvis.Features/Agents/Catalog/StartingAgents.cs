@@ -22,7 +22,7 @@ public static class StartingAgents
         ("files", "Files", ["list_directory", "read_file"]),
         ("claude-code", "ClaudeCode", ["get_claude_sessions"]),
         ("memory", "Memory", ["remember_fact", "forget_fact", "search_memory"]),
-        (AgentIds.Project, "Project", ["list_directory", "read_file", "get_claude_sessions"]),
+        (AgentIds.Project, "Project", ["list_directory", "read_file", "get_claude_sessions", "remember_project_fact"]),
     ];
 
     /// <summary>The starting agents, written in <paramref name="language"/>.</summary>

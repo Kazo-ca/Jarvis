@@ -2,6 +2,7 @@ using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Tasks;
+using Kazo.Jarvis.Kernel.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -20,6 +21,9 @@ public static class ProjectsSlice
     {
         services.TryAddSingleton(provider => new ProjectCatalog(provider.GetRequiredService<ISettingsStore>(), provider.GetService<ILocalFiles>(), provider.GetService<ITaskBoard>()));
         services.TryAddSingleton<IProjectCatalog>(provider => provider.GetRequiredService<ProjectCatalog>());
+
+        // « Retiens pour ce projet que… »: the one tool of this slice.
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ITool, RememberProjectFactTool>());
 
         // Right after the agents (17): what the « Projet » agent is loaded with.
         services.AddSingleton(new SettingsPage(PageKey, typeof(ProjectsPage), typeof(ProjectsPage), "Title", Order: 18));

@@ -79,7 +79,7 @@ Written at the first launch, in the language of the assistant:
 | `files` | Fichiers / Files | `list_directory`, `read_file` |
 | `claude-code` | Claude Code | `get_claude_sessions` |
 | `memory` | Mémoire / Memory | `remember_fact`, `forget_fact`, `search_memory` |
-| `project` | Projet / Project | `list_directory`, `read_file`, `get_claude_sessions` (work item 19, see [projects.md](projects.md)) |
+| `project` | Projet / Project | `list_directory`, `read_file`, `get_claude_sessions`, `remember_project_fact` (work items 19 and 21, see [projects.md](projects.md)) |
 
 **A file the user changed is never overwritten.** Jarvis keeps the SHA-256 fingerprint of each file it wrote
 (section `Agents.Files` of `config.json`). At start:

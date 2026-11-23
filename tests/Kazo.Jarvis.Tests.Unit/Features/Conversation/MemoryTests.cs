@@ -2,6 +2,7 @@ using System.Text.Json;
 using Kazo.Jarvis.Adapters.Settings;
 using Kazo.Jarvis.Adapters.Storage;
 using Kazo.Jarvis.Features.Conversation.Memory;
+using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Conversation;
 using Kazo.Jarvis.Kernel.Llm;

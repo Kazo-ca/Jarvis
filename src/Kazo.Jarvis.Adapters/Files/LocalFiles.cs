@@ -145,6 +145,35 @@ public sealed class LocalFiles : ILocalFiles
         }
     }
 
+    /// <inheritdoc />
+    public async ValueTask AppendTextAsync(string file, string text, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+        ArgumentNullException.ThrowIfNull(text);
+        try
+        {
+            if (Directory.Exists(file))
+            {
+                throw new LocalFileException(LocalFileFailure.NotAFile);
+            }
+
+            // UTF-8 without a mark: a mark in the middle of a file that exists would show as a stray character.
+            await File.AppendAllTextAsync(file, text, new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            throw new LocalFileException(LocalFileFailure.AccessDenied, exception);
+        }
+        catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
+        {
+            throw new LocalFileException(LocalFileFailure.NotFound, exception);
+        }
+        catch (IOException exception)
+        {
+            throw new LocalFileException(LocalFileFailure.Unreadable, exception);
+        }
+    }
+
     /// <summary>
     /// The text of <paramref name="bytes"/>, or <see langword="null"/> when they are not text: UTF-16 and UTF-8 by
     /// their mark, UTF-8 otherwise; a file that holds a zero byte or bytes UTF-8 does not have is not text.

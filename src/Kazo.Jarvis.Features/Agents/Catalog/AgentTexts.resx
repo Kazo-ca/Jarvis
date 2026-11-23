@@ -89,6 +89,7 @@ Repeat in one sentence what you kept or forgot.</value>
   <data name="Project_Instructions" xml:space="preserve">
     <value>You receive the project asked in a block "[Project]": its folder and its memory.
 Answer from this block and from the files of the folder.
+When the user asks to remember something for the project, write it with remember_project_fact.
 When no project is given, ask which one.</value>
   </data>
   <data name="Hand_Projects" xml:space="preserve">

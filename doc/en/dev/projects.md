@@ -1,13 +1,14 @@
 # Projects: a name, a folder, a memory, and the "Project" agent
 
-Work items `stage2/19-projects` and `stage2/19-project-sessions`. Decision: [ADR 0025](adr/0025-task-agents-and-their-memories.md), sections 6, 10,
+Work items `stage2/19-projects`, `stage2/19-project-sessions` and `stage2/21-project-memory-writing`. Decision: [ADR 0025](adr/0025-task-agents-and-their-memories.md), sections 6, 10,
 11 and 13 (point 2). The agents are described in [agents.md](agents.md), the conversation memory in
 [conversation-memory.md](conversation-memory.md).
 
 The first work item builds the projects, their page, their memory read from the folder, the "Project" agent and
 the project of a turn. The second adds the request to assign to a project a folder that has none (when a Claude
 Code session works there) and starting a Claude Code session in the folder of the project.
-**Still to build:** Jarvis writing the memory of a project, then the projects view (ADR 0026).
+The third adds Jarvis writing the memory of a project, on request and after a confirmation.
+**Still to build:** the projects view (ADR 0026).
 
 ## What is built
 
@@ -38,7 +39,7 @@ contract `IProjectCatalog` links them. Without this slice, no turn is about a pr
 
 **The file `JARVIS.md` at the root of the folder of the project.** It is readable Markdown, written by the user
 or by a Claude Code session; Jarvis **reads** it at each turn about the project, keeping nothing between two
-reads. Jarvis does not write it yet.
+reads. Jarvis **adds a line** to it when the user asks (below).
 
 - Read through `ILocalFiles`, without going through the allowed folders: the user gave this folder to the
   project, and only this file is read. The tools `list_directory` and `read_file` keep their rule: the agent
@@ -46,6 +47,23 @@ reads. Jarvis does not write it yet.
 - Its share: one sixteenth of the context (`ProjectCatalog.Budget`). A longer file is cut, with "…".
 - A bracket of the file becomes a parenthesis: it cannot close the block.
 - Never sent to the cloud this way: the block goes to the local model, with the memory.
+
+## Writing in the memory of a project (`remember_project_fact`)
+
+"Retiens pour le projet Kazo OS que la cible est ARM64." Decision of Benoit of 2026-11-23: Jarvis may write in
+`JARVIS.md`, on request, with a confirmation.
+
+- The tool `remember_project_fact(project, text)` belongs to the "Project" agent. Its class is **"Sensitive"**:
+  Jarvis asks for a confirmation every time (ADR 0023), and the request says the project and the sentence.
+- It **adds one line** `- <fact>` at the end of the file, changing nothing of what is there. Without a file, it
+  creates it with the name of the project as its title. A line already there is not written twice.
+- A fact is one line of 300 characters at most. **A text that looks like a password, a key or a card number is
+  never written** (`SecretShapes`, moved to the kernel): a session reads this file, and a repository may keep it.
+- Refused once the turn holds a content read from outside (web page, file): the text comes from the model.
+- It is the only write Jarvis does in a folder of the user: `ILocalFiles.AppendTextAsync`. The file tools of the
+  model stay read-only (ADR 0009). The write does not go through the allowed folders: the user gave this folder
+  to the project, and confirms every line.
+- Jarvis erases and corrects nothing in this file: the user does it by hand.
 
 ## The project of a turn (`ConversationEngine`)
 
@@ -102,7 +120,8 @@ To be confirmed by Benoit:
 
 1. The memory file is named `JARVIS.md`, at the root of the folder. Claude Code does not read it by itself: it
    will have to be told at the start of a session, or the file named from `CLAUDE.md`.
-2. Jarvis reads the memory of a project and does not write it.
+2. Settled by Benoit on 2026-11-23: the file is named `JARVIS.md` (point 1), and Jarvis writes in it on request,
+   with a confirmation. Jarvis erases nothing in it.
 3. The memory file is read even when the folder is not among the allowed folders.
 4. The Jarvis agent does not get the block of the project.
 5. The project chosen in the window goes before the one the sentence names, and is forgotten when Jarvis stops.

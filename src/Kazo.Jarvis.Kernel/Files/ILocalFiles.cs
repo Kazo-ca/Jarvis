@@ -32,6 +32,20 @@ public interface ILocalFiles
     /// <returns>The text and how long the whole file is.</returns>
     /// <exception cref="LocalFileException">The file cannot be read as text.</exception>
     ValueTask<FileExcerpt> ReadTextAsync(string file, int start, int most, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Adds <paramref name="text"/> at the end of a text file, created when it does not exist; its folder must
+    /// exist. The one write Jarvis does in a folder of the user: the memory file of a project, after the user
+    /// confirmed (ADR 0025, section 6). The file tools of the model stay read-only (ADR 0009). A host that
+    /// cannot write refuses.
+    /// </summary>
+    /// <param name="file">A resolved path.</param>
+    /// <param name="text">The text to add, as UTF-8.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>A task that completes when the text is written.</returns>
+    /// <exception cref="LocalFileException">The file could not be written.</exception>
+    ValueTask AppendTextAsync(string file, string text, CancellationToken cancellationToken = default) =>
+        throw new LocalFileException(LocalFileFailure.AccessDenied);
 }
 
 /// <summary>One entry of a folder.</summary>

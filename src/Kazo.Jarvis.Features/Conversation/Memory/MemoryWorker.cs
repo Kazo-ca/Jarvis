@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;

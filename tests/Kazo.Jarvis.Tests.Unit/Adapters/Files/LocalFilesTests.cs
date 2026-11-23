@@ -33,6 +33,28 @@ public sealed class LocalFilesTests
         Assert.That(files.Resolve(Path.Combine(folder.Path, "a\0b")), Is.Null);
 
     [Test]
+    public async Task Text_is_added_at_the_end_of_a_file_created_when_missing_without_a_mark()
+    {
+        var file = Path.Combine(folder.Path, "JARVIS.md");
+
+        await files.AppendTextAsync(file, "# Projet\n");
+        await files.AppendTextAsync(file, "- été\n");
+        var bytes = await File.ReadAllBytesAsync(file);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(System.Text.Encoding.UTF8.GetString(bytes), Is.EqualTo("# Projet\n- été\n"));
+            Assert.That(bytes[0], Is.EqualTo((byte)'#'), "No byte order mark.");
+            Assert.That(
+                Assert.ThrowsAsync<Kazo.Jarvis.Kernel.Files.LocalFileException>(async () => await files.AppendTextAsync(Path.Combine(folder.Path, "missing", "JARVIS.md"), "x"))!.Failure,
+                Is.EqualTo(Kazo.Jarvis.Kernel.Files.LocalFileFailure.NotFound));
+            Assert.That(
+                Assert.ThrowsAsync<Kazo.Jarvis.Kernel.Files.LocalFileException>(async () => await files.AppendTextAsync(folder.Path, "x"))!.Failure,
+                Is.EqualTo(Kazo.Jarvis.Kernel.Files.LocalFileFailure.NotAFile));
+        });
+    }
+
+    [Test]
     public void Dots_are_resolved_and_a_missing_path_is_kept()
     {
         var resolved = files.Resolve(Path.Combine(folder.Path, "a", "..", "b", "missing.txt"));

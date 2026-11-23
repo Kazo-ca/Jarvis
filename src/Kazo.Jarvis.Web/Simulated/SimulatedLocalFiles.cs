@@ -104,4 +104,39 @@ public sealed class SimulatedLocalFiles : ILocalFiles
         start = Math.Clamp(start, 0, text.Length);
         return ValueTask.FromResult(new FileExcerpt(text.Substring(start, Math.Min(Math.Max(0, most), text.Length - start)), start, text.Length));
     }
+
+    /// <inheritdoc />
+    public ValueTask AppendTextAsync(string file, string text, CancellationToken cancellationToken = default)
+    {
+        var cut = file.LastIndexOf('/');
+        if (cut <= 0 || !Folders.Contains(file[..cut], StringComparer.OrdinalIgnoreCase))
+        {
+            throw new LocalFileException(LocalFileFailure.NotFound);
+        }
+
+        lock (Texts)
+        {
+            Texts[file] = (Texts.TryGetValue(file, out var known) ? known : string.Empty) + text;
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <summary>Puts a file back as it was, or removes it: the tests share the host.</summary>
+    /// <param name="file">The path.</param>
+    /// <param name="text">The text, or <see langword="null"/> to remove the file.</param>
+    public static void Restore(string file, string? text)
+    {
+        lock (Texts)
+        {
+            if (text is null)
+            {
+                Texts.Remove(file);
+            }
+            else
+            {
+                Texts[file] = text;
+            }
+        }
+    }
 }

@@ -89,6 +89,7 @@ Répète en une phrase ce que tu as retenu ou oublié.</value>
   <data name="Project_Instructions" xml:space="preserve">
     <value>Tu reçois le projet demandé dans un bloc « [Projet] » : son dossier et sa mémoire.
 Réponds d'après ce bloc et d'après les fichiers du dossier.
+Quand l'utilisateur demande de retenir quelque chose pour le projet, écris-le avec remember_project_fact.
 Quand aucun projet n'est donné, demande lequel.</value>
   </data>
   <data name="Hand_Projects" xml:space="preserve">

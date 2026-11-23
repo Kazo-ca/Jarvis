@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Kazo.Jarvis.Kernel.Secrets;
 using Kazo.Jarvis.Kernel.Storage;
 using Microsoft.Extensions.Logging;
 
