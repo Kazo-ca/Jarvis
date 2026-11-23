@@ -28,6 +28,13 @@ public static class ConversationSlice
         services.TryAddSingleton<ConversationJournal>();
         services.TryAddSingleton<AgentChoice>();
 
+        // The « Appel » mode (ADR 0025, section 12).
+        services.TryAddSingleton<CallMode>();
+        services.TryAddSingleton<CallListener>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, CallListener>(Listener));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnCancelled>, CallListener>(Listener));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<AssistantStateChanged>, CallListener>(Listener));
+
         services.TryAddSingleton<ConversationEngine>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<TurnStarted>, ConversationEngine>(Engine));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IEventHandler<UtteranceEnded>, ConversationEngine>(Engine));
@@ -52,6 +59,8 @@ public static class ConversationSlice
     }
 
     private static ConversationEngine Engine(IServiceProvider provider) => provider.GetRequiredService<ConversationEngine>();
+
+    private static CallListener Listener(IServiceProvider provider) => provider.GetRequiredService<CallListener>();
 
     private static AnnouncementDesk Desk(IServiceProvider provider) => provider.GetRequiredService<AnnouncementDesk>();
 }

@@ -44,6 +44,12 @@ public sealed class ProjectsTests : PageTest
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 15_000 });
         await Page.ClickAsync("#open-conversation");
         await Conversation.Locator("[data-conversation-agent-choice]").SelectOptionAsync(string.Empty);
+        var hangUp = Conversation.Locator("[data-conversation-call-end]");
+        if (await hangUp.CountAsync() == 1)
+        {
+            await hangUp.ClickAsync();
+        }
+
         var project = Conversation.Locator("[data-conversation-project-choice]");
         if (await project.CountAsync() == 1)
         {
@@ -193,6 +199,59 @@ public sealed class ProjectsTests : PageTest
         await more.Locator("[data-project-more-remove]").ClickAsync();
         await Expect(request).ToHaveCountAsync(1);
         await Page.Locator("#hand-session-stop").DispatchEventAsync("click");
+    }
+
+    [Test]
+    public async Task A_call_keeps_the_agent_and_the_project_from_one_turn_to_the_next_until_goodbye()
+    {
+        await OpenSettingsAsync("Projects.Catalog");
+        await AddAsync("Kazo OS", KazoOs);
+        await Expect(Projects).ToHaveCountAsync(1);
+
+        // « On doit discuter de… » starts the call (ADR 0025, section 12): the Jarvis agent sorts as usual.
+        await OpenConversationAsync();
+        var call = Conversation.Locator("[data-conversation-call]");
+        await Expect(call).ToHaveAttributeAsync("data-conversation-call", "false");
+        var before = await Turns.CountAsync();
+        await SendAsync("On doit discuter de ce qu'il reste à faire dans Kazo OS.");
+        await Expect(Turns).ToHaveCountAsync(before + 1);
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 15_000 });
+        await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-agent", new Regex("Projet|Project"));
+        await Expect(call).ToHaveAttributeAsync("data-conversation-call", "true");
+        await Expect(call).ToHaveAttributeAsync("data-conversation-call-agent", "project");
+        await ExpectIdleAsync();
+
+        // The next request goes straight to the agent that kept the hand, with the project of the call.
+        await SendAsync("Bonsoir");
+        await Expect(Turns).ToHaveCountAsync(before + 2);
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 15_000 });
+        await Expect(Newest.Locator("[data-conversation-tool='hand_to_agent']")).ToHaveCountAsync(0);
+        await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-agent", new Regex("Projet|Project"));
+        await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-project", "Kazo OS");
+        await ExpectIdleAsync();
+
+        // Goodbye ends the call; the next request is sorted by the Jarvis agent again.
+        await SendAsync("Au revoir");
+        await Expect(Turns).ToHaveCountAsync(before + 3);
+        await Expect(Newest.Locator("[data-conversation-answer]")).ToHaveTextAsync(new Regex("Au revoir|Goodbye"));
+        await Expect(call).ToHaveAttributeAsync("data-conversation-call", "false");
+        await ExpectIdleAsync();
+        await SendAsync("Bonsoir");
+        await Expect(Turns).ToHaveCountAsync(before + 4);
+        await Expect(Newest).ToHaveAttributeAsync("data-turn-outcome", "Answered", new() { Timeout = 15_000 });
+        await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-agent", "Jarvis");
+        await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-project", string.Empty);
+        await ExpectIdleAsync();
+
+        // The button starts a call too, and Jarvis listens right away; a listening the user cancels is not started again.
+        await call.Locator("[data-conversation-call-start]").ClickAsync();
+        await Expect(call).ToHaveAttributeAsync("data-conversation-call", "true");
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Listening");
+        await Page.Locator("#simulate-hotkey").DispatchEventAsync("click");
+        await ExpectIdleAsync();
+        await call.Locator("[data-conversation-call-end]").ClickAsync();
+        await Expect(call).ToHaveAttributeAsync("data-conversation-call", "false");
+        await ExpectIdleAsync();
     }
 
     private async Task AddAsync(string name, string folder)

@@ -135,4 +135,7 @@
   <data name="Denied_NotThisAgent" xml:space="preserve">
     <value>Refusé : cet outil n'est pas un de ceux de cet agent.</value>
   </data>
+  <data name="Call_Goodbye" xml:space="preserve">
+    <value>Au revoir.</value>
+  </data>
 </root>

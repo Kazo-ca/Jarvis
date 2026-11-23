@@ -246,3 +246,12 @@
     color: var(--jarvis-text);
     font: inherit;
 }
+
+.conversation-call {
+    justify-content: flex-end;
+}
+
+.conversation-call-on {
+    flex: 1 1 auto;
+    color: var(--jarvis-green);
+}

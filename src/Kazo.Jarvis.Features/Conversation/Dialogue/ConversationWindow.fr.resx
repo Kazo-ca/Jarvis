@@ -216,4 +216,16 @@
   <data name="ProjectChoice_Hint" xml:space="preserve">
     <value>Le projet dont parle une demande écrite. Une demande dite nomme son projet elle-même.</value>
   </data>
+  <data name="Call_Start" xml:space="preserve">
+    <value>Appeler</value>
+  </data>
+  <data name="Call_End" xml:space="preserve">
+    <value>Raccrocher</value>
+  </data>
+  <data name="Call_On" xml:space="preserve">
+    <value>Appel en cours avec l'agent {0}. Dites « au revoir » pour terminer.</value>
+  </data>
+  <data name="Call_Hint" xml:space="preserve">
+    <value>Pendant un appel, l'agent qui répond garde la main et Jarvis écoute la suite sans « Hey Jarvis ».</value>
+  </data>
 </root>

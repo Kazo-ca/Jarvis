@@ -118,6 +118,22 @@
             </select>
         </label>
     }
+    @if (call is not null)
+    {
+        @* The « Appel » mode (ADR 0025, section 12): the agent that answers keeps the hand, and Jarvis listens to
+           what follows a spoken turn without the wake word, until the user says goodbye or hangs up here. *@
+        <div class="conversation-agent conversation-call" data-conversation-call="@(call.Active ? "true" : "false")" data-conversation-call-agent="@(call.Agent ?? "")">
+            @if (call.Active)
+            {
+                <span class="conversation-who conversation-call-on" role="status">@T["Call_On", CallAgentName]</span>
+                <button type="button" class="conversation-button" data-conversation-call-end @onclick="() => call.End()">@T["Call_End"]</button>
+            }
+            else
+            {
+                <button type="button" class="conversation-button" data-conversation-call-start title="@T["Call_Hint"]" @onclick="StartCallAsync">@T["Call_Start"]</button>
+            }
+        </div>
+    }
     <form class="conversation-input" @onsubmit="SendAsync">
         <input type="text" class="conversation-text" data-conversation-text maxlength="4000" autocomplete="off"
                placeholder="@T["Placeholder"]" aria-label="@T["InputLabel"]" @bind="draft" @bind:event="oninput" />
@@ -154,6 +170,7 @@
     private Kazo.Jarvis.Kernel.Web.IReadingBrowser? browser;
     private Kazo.Jarvis.Kernel.Agents.IAgentCatalog? agents;
     private AgentChoice? agentChoice;
+    private CallMode? call;
     private Kazo.Jarvis.Kernel.Projects.IProjectCatalog? projects;
 
     private bool IsIdle => State.Current.Phase == AssistantPhase.Idle;
@@ -174,6 +191,12 @@
 
         agents = Services.GetService(typeof(Kazo.Jarvis.Kernel.Agents.IAgentCatalog)) as Kazo.Jarvis.Kernel.Agents.IAgentCatalog;
         agentChoice = Services.GetService(typeof(AgentChoice)) as AgentChoice;
+        call = Services.GetService(typeof(CallMode)) as CallMode;
+        if (call is not null)
+        {
+            call.Changed += OnSpendChanged;
+        }
+
         projects = Services.GetService(typeof(Kazo.Jarvis.Kernel.Projects.IProjectCatalog)) as Kazo.Jarvis.Kernel.Projects.IProjectCatalog;
         if (projects is not null)
         {
@@ -214,8 +237,25 @@
             agents.Changed -= OnSpendChanged;
         }
 
+        if (call is not null)
+        {
+            call.Changed -= OnSpendChanged;
+        }
+
         stateSubscription?.Dispose();
         loadSubscription?.Dispose();
+    }
+
+    // Who keeps the hand during the call: the Jarvis agent until it hands over.
+    private string CallAgentName => (agents?.Find(call?.Agent) ?? agents?.Main)?.Name ?? "Jarvis";
+
+    private async Task StartCallAsync()
+    {
+        // A call is spoken: Jarvis listens right away, when the microphone allows it (ADR 0005).
+        if (call!.Start())
+        {
+            await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Call));
+        }
     }
 
     private void OnSpendChanged() => _ = InvokeAsync(StateHasChanged);
