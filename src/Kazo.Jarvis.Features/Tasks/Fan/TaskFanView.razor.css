@@ -267,3 +267,10 @@
         display: none;
     }
 }
+
+/* A folder with no project waits for the user, like a decision. */
+.fan-no-project {
+    margin-top: 0.3em;
+    border-color: var(--jarvis-amber);
+    color: var(--jarvis-amber);
+}

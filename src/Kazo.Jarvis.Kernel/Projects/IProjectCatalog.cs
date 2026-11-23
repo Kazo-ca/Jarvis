@@ -21,6 +21,9 @@ public interface IProjectCatalog
     const string MemoryFileName = "JARVIS.md";
 
     /// <summary>Raised when the projects change, on any thread.</summary>
+    /// <summary>The key of the settings page where the user creates the projects and assigns the folders.</summary>
+    const string SettingsPageKey = "Projects.Catalog";
+
     event Action? Changed;
 
     /// <summary>The projects, in the order the user created them.</summary>
@@ -35,6 +38,14 @@ public interface IProjectCatalog
     /// <param name="request">The request as the user made it.</param>
     /// <returns>The project, or <see langword="null"/> when the request names none.</returns>
     ProjectDefinition? NamedIn(string? request);
+
+    /// <summary>
+    /// Whether a folder where a session works belongs to no project (ADR 0025, section 6): the user is then asked
+    /// to assign it to a project or to create one, on the page <see cref="SettingsPageKey"/>.
+    /// </summary>
+    /// <param name="folder">A local path.</param>
+    /// <returns><see langword="true"/> when the folder is known and no project holds it.</returns>
+    bool IsWithoutProject(string? folder) => false;
 
     /// <summary>
     /// What an agent is told of a project when the turn is about it: its name, its folder and its memory, the

@@ -99,4 +99,7 @@
   <data name="HideDetails" xml:space="preserve">
     <value>Masquer les détails</value>
   </data>
+  <data name="NoProject" xml:space="preserve">
+    <value>Dossier sans projet : choisir</value>
+  </data>
 </root>

@@ -144,6 +144,9 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
     // How much of a memory file is read to see whether a line is already there.
     private const int MostMemoryCharacters = 200_000;
 
+    /// <inheritdoc />
+    public bool IsWithoutProject(string? folder) => !string.IsNullOrWhiteSpace(folder) && OwnerOf(folder) is null;
+
     /// <summary>The characters a project may take in a context of <paramref name="contextLength"/> tokens: one sixteenth, at about 3 characters per token.</summary>
     /// <param name="contextLength">The context of the model, in tokens.</param>
     /// <returns>The budget, in characters.</returns>

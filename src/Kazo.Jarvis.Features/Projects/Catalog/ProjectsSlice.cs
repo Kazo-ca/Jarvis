@@ -12,7 +12,7 @@ namespace Kazo.Jarvis.Features.Projects.Catalog;
 public static class ProjectsSlice
 {
     /// <summary>The key of the « Projets » page.</summary>
-    public const string PageKey = "Projects.Catalog";
+    public const string PageKey = IProjectCatalog.SettingsPageKey;
 
     /// <summary>Adds the projects: their catalog and their page.</summary>
     /// <param name="services">The services of the host.</param>
