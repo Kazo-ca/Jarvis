@@ -48,6 +48,14 @@ public interface IProjectCatalog
     bool IsWithoutProject(string? folder) => false;
 
     /// <summary>
+    /// The path of the memory file of the project that holds a folder, so that a session started in that folder
+    /// can be told to read it (ADR 0025, section 6). The file may not exist yet.
+    /// </summary>
+    /// <param name="folder">A local path.</param>
+    /// <returns>The path, or <see langword="null"/> when no project holds the folder.</returns>
+    string? MemoryFileOf(string? folder) => null;
+
+    /// <summary>
     /// What an agent is told of a project when the turn is about it: its name, its folder and its memory, the
     /// Markdown file <see cref="MemoryFileName"/> of the folder. A delimited block that says of itself that it is
     /// data.

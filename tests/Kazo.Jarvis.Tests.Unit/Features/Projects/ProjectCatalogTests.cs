@@ -164,6 +164,8 @@ public sealed class ProjectCatalogTests
             Assert.That(afterAssign, Is.EqualTo(new[] { @"C:\Notes" }));
             Assert.That(afterEnd, Is.Empty);
             Assert.That(followed.OwnerOf(inside.Folder)?.Name, Is.EqualTo("Kazo OS"));
+            Assert.That(followed.MemoryFileOf(inside.Folder), Is.EqualTo(ProjectCatalog.MemoryPath(followed.OwnerOf(inside.Folder)!)), "A session there is told where the memory is.");
+            Assert.That(followed.MemoryFileOf(@"C:\Notes"), Is.Null);
             Assert.That(followed.Unassigned, Is.EqualTo(new[] { @"C:\Projets\KazoBar" }), "Taken back: the request returns.");
             Assert.That(followed.MoreFoldersOf("kazo-os"), Is.Empty);
             Assert.That(catalog.Unassigned, Is.Empty, "Without the board nothing is ever asked.");

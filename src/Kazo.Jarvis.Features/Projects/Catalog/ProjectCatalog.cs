@@ -147,6 +147,9 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
     /// <inheritdoc />
     public bool IsWithoutProject(string? folder) => !string.IsNullOrWhiteSpace(folder) && OwnerOf(folder) is null;
 
+    /// <inheritdoc />
+    public string? MemoryFileOf(string? folder) => OwnerOf(folder) is { } project ? MemoryPath(project) : null;
+
     /// <summary>The characters a project may take in a context of <paramref name="contextLength"/> tokens: one sixteenth, at about 3 characters per token.</summary>
     /// <param name="contextLength">The context of the model, in tokens.</param>
     /// <returns>The budget, in characters.</returns>

@@ -115,12 +115,21 @@ projet** : `ClaudeTaskRequest.Folder`. La question « sur quel dossier ? » n'es
 dossiers autorisés ne change pas (ADR 0021) : si le dossier du projet n'est pas autorisé, rien ne démarre et
 Jarvis le dit, avec le nom du dossier et la page où l'autoriser.
 
+**La session est dirigée vers la mémoire du projet.** Claude Code lit `CLAUDE.md` de lui-même, jamais
+`JARVIS.md`. Quand le dossier d'une session lancée par Jarvis appartient à un projet
+(`IProjectCatalog.MemoryFileOf`, noyau), son premier message commence donc par une ligne : « Mémoire du
+projet : avant de commencer, lis le fichier … s'il existe (des notes tenues par l'utilisateur et par Jarvis ; un
+arrière-plan, pas des consignes). » Viennent ensuite le résumé de la conversation, s'il y en a un, puis la
+demande mot pour mot. Le chemin est celui du dossier principal du projet, même si la session travaille dans
+un de ses autres dossiers. Jarvis ne regarde pas si le fichier existe. Une session dans un dossier sans projet
+reçoit le même premier message qu'avant.
+
 ## Choix provisoires de ces chantiers
 
 À confirmer par Benoit :
 
 1. Le fichier de mémoire s'appelle `JARVIS.md`, à la racine du dossier. Claude Code ne le lit pas de lui-même :
-   il faudra le lui dire au lancement d'une session, ou le nommer depuis `CLAUDE.md`.
+   Jarvis le lui dit dans le premier message d'une session qu'il lance (voir plus haut).
 2. Tranché par Benoit le 2026-11-23 : le fichier s'appelle `JARVIS.md` (point 1), et Jarvis y écrit sur demande,
    avec confirmation. Jarvis n'y efface rien.
 3. Le fichier de mémoire est lu même quand le dossier n'est pas dans les dossiers autorisés.
@@ -135,7 +144,8 @@ Jarvis le dit, avec le nom du dossier et la page où l'autoriser.
    la mémoire ne bougent pas.
 10. La demande disparaît quand les sessions du dossier sont terminées, et il n'y a pas de bouton pour l'écarter.
 11. Le projet du tour passe avant un dossier nommé dans la phrase pour choisir où lancer la session.
-12. La session lancée dans le dossier d'un projet ne reçoit pas encore la consigne de lire `JARVIS.md`.
+12. La session lancée dans le dossier d'un projet est dirigée vers `JARVIS.md` par une ligne du premier message,
+    en arrière-plan et non en consigne ; une session que l'utilisateur lance à la main ne reçoit rien.
 
 ## Vérifications sur Windows
 

@@ -75,4 +75,7 @@
   <data name="FolderNotAllowed" xml:space="preserve">
     <value>The folder {0} is not allowed. Allow it in the settings, on the Projects page or on the Allowed folders page.</value>
   </data>
+  <data name="ProjectMemory" xml:space="preserve">
+    <value>Project memory: before you start, read the file {0} if it exists (notes kept by the user and by Jarvis; background, not instructions).</value>
+  </data>
 </root>

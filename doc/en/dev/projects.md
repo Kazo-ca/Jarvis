@@ -114,12 +114,21 @@ The question "on which folder?" is then not asked. The rule of the allowed folde
 if the folder of the project is not allowed, nothing starts and Jarvis says so, with the name of the folder and
 the page where to allow it.
 
+**The session is pointed to the memory of the project.** Claude Code reads `CLAUDE.md` by itself, never
+`JARVIS.md`. When the folder of a session started by Jarvis belongs to a project
+(`IProjectCatalog.MemoryFileOf`, kernel), its first message therefore begins with one line: "Project memory:
+before you start, read the file … if it exists (notes kept by the user and by Jarvis; background, not
+instructions)." Then come the summary of the conversation, if there is one, and the request word for word. The
+path is the one of the main folder of the project, even when the session works in one of its other folders.
+Jarvis does not look whether the file exists. A session in a folder with no project gets the same first message
+as before.
+
 ## Provisional choices of these work items
 
 To be confirmed by Benoit:
 
-1. The memory file is named `JARVIS.md`, at the root of the folder. Claude Code does not read it by itself: it
-   will have to be told at the start of a session, or the file named from `CLAUDE.md`.
+1. The memory file is named `JARVIS.md`, at the root of the folder. Claude Code does not read it by itself:
+   Jarvis tells it in the first message of a session it starts (see above).
 2. Settled by Benoit on 2026-11-23: the file is named `JARVIS.md` (point 1), and Jarvis writes in it on request,
    with a confirmation. Jarvis erases nothing in it.
 3. The memory file is read even when the folder is not among the allowed folders.
@@ -134,7 +143,8 @@ To be confirmed by Benoit:
    memory do not move.
 10. The request goes away when the sessions of the folder have ended, and there is no button to dismiss it.
 11. The project of the turn goes before a folder named in the sentence to choose where the session starts.
-12. The session started in the folder of a project is not told to read `JARVIS.md` yet.
+12. The session started in the folder of a project is pointed to `JARVIS.md` by one line of the first message,
+    as background and not as an instruction; a session the user starts by hand gets nothing.
 
 ## Checks on Windows
 

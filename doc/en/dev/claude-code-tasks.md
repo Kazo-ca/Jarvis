@@ -62,7 +62,8 @@ In this order, and the first refusal stops everything with its sentence:
 
 First message of the session (ADR 0021, section 8): the summary, presented as a context, then the request
 word for word. Without an earlier exchange, or if the summary fails, the request leaves alone. **Nothing else
-of the memory leaves.**
+of the memory leaves.** In the folder of a project, a first line says where the file `JARVIS.md` of the project
+is ([projects.md](projects.md)): the path only, not its content.
 
 No confirmation is asked to start (answer 3 of ADR 0021): the session is read-only until a write is approved.
 

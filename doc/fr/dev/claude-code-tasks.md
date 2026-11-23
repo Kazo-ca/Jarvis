@@ -63,7 +63,8 @@ Dans cet ordre, et le premier refus arrête tout avec sa phrase :
 
 Premier message de la session (ADR 0021, section 8) : le résumé, présenté comme un contexte, puis la demande
 mot pour mot. Sans échange précédent, ou si le résumé échoue, la demande part seule. **Rien d'autre de la
-mémoire ne part.**
+mémoire ne part.** Dans le dossier d'un projet, une ligne en tête dit où est le fichier `JARVIS.md` du projet
+([projects.md](projects.md)) : le chemin seulement, pas son contenu.
 
 Aucune confirmation n'est demandée pour lancer (réponse n° 3 de l'ADR 0021) : la session est en lecture seule
 tant qu'une écriture n'est pas approuvée.
