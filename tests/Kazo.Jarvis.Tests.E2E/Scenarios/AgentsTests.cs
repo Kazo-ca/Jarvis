@@ -151,16 +151,14 @@ public sealed class AgentsTests : PageTest
         await Expect(Choice.Locator("option")).ToHaveCountAsync(6);
         await Choice.SelectOptionAsync("files");
 
-        await Conversation.Locator("[data-conversation-text]").FillAsync($"Lis le fichier {Documents}/notes.txt");
-        await Conversation.Locator("[data-conversation-text]").PressAsync("Enter");
+        await SendAsync($"Lis le fichier {Documents}/notes.txt");
         await Expect(Newest.Locator("[data-conversation-tool='read_file']")).ToHaveAttributeAsync("data-tool-outcome", "Done", new() { Timeout = 10_000 });
         await Expect(Newest.Locator("[data-conversation-tool='hand_to_agent']")).ToHaveCountAsync(0);
         await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-agent", new Regex("Fichiers|Files"));
         await ExpectIdleAsync();
 
         // What is not for the chosen agent goes back to the Jarvis agent, which answers.
-        await Conversation.Locator("[data-conversation-text]").FillAsync("Ceci n'est pas pour toi : donne-moi l'heure exacte.");
-        await Conversation.Locator("[data-conversation-text]").PressAsync("Enter");
+        await SendAsync("Ceci n'est pas pour toi : donne-moi l'heure exacte.");
         await Expect(Newest.Locator("[data-conversation-tool='return_to_jarvis']")).ToHaveAttributeAsync("data-tool-outcome", "Done", new() { Timeout = 10_000 });
         await Expect(Newest.Locator("[data-conversation-tool='get_datetime']")).ToHaveAttributeAsync("data-tool-outcome", "Done", new() { Timeout = 10_000 });
         await Expect(Newest.Locator("[data-conversation-meta]")).ToHaveAttributeAsync("data-conversation-agent", "Jarvis");
@@ -188,7 +186,16 @@ public sealed class AgentsTests : PageTest
         await CloseDialogsAsync();
         await Page.ClickAsync("#open-conversation");
         await Expect(Conversation.Locator("[data-conversation-window]")).ToBeVisibleAsync();
+        await SendAsync(request);
+    }
+
+    /// <summary>Sends from the open conversation window, once the window can take the request.</summary>
+    private async Task SendAsync(string request)
+    {
         await Conversation.Locator("[data-conversation-text]").FillAsync(request);
+
+        // The button is on once the window knows the text and Jarvis is idle: Enter before that is lost.
+        await Expect(Conversation.Locator("[data-conversation-send]")).ToBeEnabledAsync();
         await Conversation.Locator("[data-conversation-text]").PressAsync("Enter");
     }
 
