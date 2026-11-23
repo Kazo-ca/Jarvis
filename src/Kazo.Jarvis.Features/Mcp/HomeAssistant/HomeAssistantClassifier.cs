@@ -101,6 +101,86 @@ public sealed class HomeAssistantClassifier : IToolServerClassifier
         return aimedAt.Any(entity => IsSecurity(entity, options)) ? ActionClass.Critical : ActionClass.EverydayEffect;
     }
 
+    /// <summary>The most names told to the model after a failure.</summary>
+    internal const int MostHintNames = 40;
+
+    /// <summary>
+    /// Writes the name the model gave as Home Assistant writes it, when one exposed device, and only one, carries
+    /// the words said (<see cref="EntityNames"/>). A device of the security kind is never reached this way: its name
+    /// must be said as it is written, so that an approximate name never opens a lock.
+    /// </summary>
+    /// <inheritdoc />
+    public async ValueTask<JsonElement> ResolveAsync(ToolServerCall call, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(call);
+        if (IsRead(call.Tool) || IsScript(call.Tool.Name) || !AimsAtEntities(call.Tool) || Text(call.Arguments, "name") is not { } said)
+        {
+            return call.Arguments;
+        }
+
+        var options = settings.Read(HomeAssistantOptions.Section);
+        var candidates = Candidates(await EntitiesAsync(call, options, cancellationToken).ConfigureAwait(false), call.Arguments);
+        if (candidates.Any(entity => entity.IsNamed(said)))
+        {
+            return call.Arguments;
+        }
+
+        var everyday = candidates.Where(entity => !IsSecurity(entity, options)).ToList();
+        if (EntityNames.Match(said, everyday) is not { } name || EntityNames.Match(said, candidates) != name)
+        {
+            // No device, several, or the words also fit a security device: the name stays as the model wrote it.
+            return call.Arguments;
+        }
+
+        var resolved = new System.Text.Json.Nodes.JsonObject();
+        foreach (var argument in call.Arguments.EnumerateObject())
+        {
+            resolved[argument.Name] = argument.NameEquals("name") ? name : System.Text.Json.Nodes.JsonNode.Parse(argument.Value.GetRawText());
+        }
+
+        return JsonSerializer.SerializeToElement(resolved);
+    }
+
+    /// <summary>After « no entity matched », the names the model can choose from: the exposed devices the other arguments leave possible.</summary>
+    /// <inheritdoc />
+    public async ValueTask<string?> HintAsync(ToolServerCall call, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(call);
+        if (IsRead(call.Tool) || IsScript(call.Tool.Name) || !AimsAtEntities(call.Tool) || Text(call.Arguments, "name") is not { } said)
+        {
+            return null;
+        }
+
+        var options = settings.Read(HomeAssistantOptions.Section);
+        var candidates = Candidates(await EntitiesAsync(call, options, cancellationToken).ConfigureAwait(false), call.Arguments);
+        if (candidates.Any(entity => entity.IsNamed(said)))
+        {
+            // The name exists: the failure is about something else.
+            return null;
+        }
+
+        var names = candidates.Where(entity => entity.Names.Count > 0)
+            .Select(entity => entity.Areas.Count > 0 ? $"\"{entity.Names[0]}\" ({entity.Areas[0]})" : $"\"{entity.Names[0]}\"")
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(MostHintNames)
+            .ToList();
+        return names.Count == 0
+            ? null
+            : $"No exposed device is named \"{said}\". Call the tool again with one of these exact names, or ask the user which one: {string.Join(", ", names)}.";
+    }
+
+    /// <summary>The exposed entities the arguments other than the name leave possible (domain, device class, area).</summary>
+    private static List<HomeEntity> Candidates(IReadOnlyList<HomeEntity> entities, JsonElement arguments)
+    {
+        var area = Text(arguments, "area");
+        var domains = Texts(arguments, "domain");
+        var deviceClasses = Texts(arguments, "device_class");
+        return [.. entities
+            .Where(entity => domains.Count == 0 || domains.Contains(entity.Domain, StringComparer.OrdinalIgnoreCase))
+            .Where(entity => deviceClasses.Count == 0 || (entity.DeviceClass is { } own && deviceClasses.Contains(own, StringComparer.OrdinalIgnoreCase)))
+            .Where(entity => area is null || entity.Areas.Any(own => string.Equals(own, area, StringComparison.OrdinalIgnoreCase)))];
+    }
+
     /// <summary>
     /// The entities a call designates. When its name, its room or its floor finds nothing sure (an alias the list
     /// does not show, an approximate name, a floor, which the list does not give), every exposed entity its

@@ -66,6 +66,24 @@ whether the tool is turned on for the model or not, and reads the list of the ex
 - A class the user raised on the "MCP servers" page stays a floor: the classification never goes below it.
 - "Critical" asks for the click on the PC: the voice is not enough (ADR 0009, ADR 0023).
 
+## Name said, name written (`EntityNames`, stage 2 acceptance)
+
+Home Assistant only takes a name or an alias as it is written. The model writes what it heard: at the acceptance,
+« Éteins la lumière articulée » gave `name: "lumière articulée"` for the light named « Articulé », and Home
+Assistant found nothing. Asked by Benoit: search among the entities, then take the right name.
+
+- **Before the call** (`IToolServerClassifier.ResolveAsync`): among the exposed entities the other arguments leave
+  possible (domain, class, area), the name is rewritten when **only one** carries exactly the words said. Words
+  are compared without accent, case, article or mark of gender or number; the word that says the kind of device
+  ("lumière", "lampe", "prise"…) is ignored at the second try. Never by resemblance of letters. None, or several:
+  the name stays as it is.
+- **Never towards a security device**: a lock, the alarm, a garage door or a marked entity are only designated by
+  their written name. An approximate name opens nothing.
+- **The classification is made on the rewritten arguments**, the ones that are sent: the class and the call always
+  speak of the same devices.
+- **After a failure** (`HintAsync`): if the name does not exist, the result given to the model adds the exact
+  names possible (40 at most, with their area), so that it tries again or asks which one.
+
 ## "Security" list and "Home Assistant" page
 
 Settings section `Mcp.HomeAssistant`: `SecurityEntities` (entity names), `SecurityScripts` (names of script

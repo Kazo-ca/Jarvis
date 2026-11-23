@@ -1,15 +1,16 @@
-# Éventail des tâches et double-clic sur l'orbe
+# Éventail des tâches et gestes sur l'orbe
 
-Chantier `stage2/14-task-fan`. Décisions : [ADR 0010](adr/0010-task-fan-and-orb-click.md) (l'éventail, le
-simple clic et le double-clic), [ADR 0013](adr/0013-relais-readiness.md), section 6 (un panneau par tâche,
+Chantier `stage2/14-task-fan`. Décisions : [ADR 0010](adr/0010-task-fan-and-orb-click.md) (l'éventail),
+[ADR 0027](adr/0027-orb-gestures.md) (clic gauche, clic droit et double-clic sur l'orbe ; remplace la
+section 3 de l'ADR 0010), [ADR 0013](adr/0013-relais-readiness.md), section 6 (un panneau par tâche,
 ses sous-tâches dedans, ambre quand elle attend), [ADR 0011](adr/0011-orb-colors-and-drawing.md) (cyan,
 ambre, badge) et l'essai E11 ([résultats](../../../spikes/e11-task-fan-window/RESULTS.md)).
 
 ## Ce que voit l'utilisateur
 
-- **Un double-clic sur l'orbe** fait sortir de l'orbe les panneaux des tâches en cours, en arc, vers le
+- **Un clic droit sur l'orbe** fait sortir de l'orbe les panneaux des tâches en cours, en arc, vers le
   centre de l'écran. Un trait pointillé relie chaque panneau à l'orbe ; le bureau derrière est assombri.
-- **Un second double-clic, la touche Échap ou un clic sur le bureau assombri** les y fait rentrer.
+- **Un second clic droit, la touche Échap ou un clic sur le bureau assombri** les y fait rentrer.
 - Un panneau montre une tâche : qui travaille, sur quel projet, qui l'a lancée (Jarvis ou l'utilisateur),
   son titre, son état, l'heure de son dernier changement, son dernier message et ses sous-tâches.
 - Un panneau qui attend l'utilisateur est **ambre**, son trait aussi.
@@ -18,8 +19,11 @@ ambre, badge) et l'essai E11 ([résultats](../../../spikes/e11-task-fan-window/R
   chose.
 - Près de l'orbe, une ligne compte les tâches et les décisions en attente. Sans tâche, l'éventail s'ouvre
   quand même et dit « Aucune tâche en cours. ».
-- **Un simple clic sur l'orbe** lance toujours l'écoute, mais après le délai de double-clic de Windows (une
-  demi-seconde par défaut). Le mot d'éveil et le raccourci ne sont pas retardés.
+- **Un clic gauche sur l'orbe** lance l'écoute, comme le mot d'éveil ; pendant l'écoute, il l'annule.
+- **Un double-clic sur l'orbe** demandera la vue des projets. Elle n'est pas encore construite : pour
+  l'instant il n'y a ni double-clic ni délai, et le clic gauche agit tout de suite. Quand elle existera, le
+  clic gauche attendra le délai de double-clic de Windows (une demi-seconde par défaut) ; le mot d'éveil, le
+  raccourci et le clic droit ne sont jamais retardés.
 - **Le badge ambre de l'orbe** donne le nombre de décisions en attente, éventail ouvert ou fermé. L'orbe
   prend l'aspect « tâche longue » tant qu'une tâche travaille.
 
@@ -30,7 +34,8 @@ ouvert.
 
 | Élément | Rôle |
 | --- | --- |
-| `TaskFanToggleRequested` (`Kernel/Messages/Desktop`) | Le double-clic sur l'orbe : la tranche de l'éventail l'ouvre ou le range |
+| `TaskFanToggleRequested` (`Kernel/Messages/Desktop`) | Le clic droit sur l'orbe : la tranche de l'éventail l'ouvre ou le range |
+| `ProjectsViewRequested` (`Kernel/Messages/Desktop`) | Le double-clic sur l'orbe : la tranche de la vue des projets y répondra ; rien n'y répond encore |
 | `IPointerTimings` (`Kernel/Desktop`) | Le délai de double-clic, donné par l'hôte ; sans lui, pas de double-clic ni de délai |
 | `ITaskFanSurface`, `FanAnchor` (`Kernel/Desktop`) | La surface où l'éventail est dessiné : où est le centre de l'orbe, montrer, cacher |
 | `IOpenConfirmations`, `OpenConfirmation` (`Kernel/Permissions`) | La demande de confirmation ouverte et son clic, pour qui la montre en plus de la fenêtre |
@@ -39,13 +44,17 @@ ouvert.
 
 ## Le clic sur l'orbe (`Assistant/Orb`)
 
-`OrbActivation.ClickAsync` est appelé une fois par clic, par le composant (hôte Web) ou par la fenêtre de
-l'orbe (hôte Windows).
+`OrbActivation.ClickAsync` est appelé une fois par clic gauche et `OrbActivation.RightClickAsync` une fois
+par clic droit, par le composant (hôte Web) ou par la fenêtre de l'orbe (hôte Windows).
+
+- Un clic droit publie `TaskFanToggleRequested` tout de suite. Le composant retient le menu du navigateur ;
+  la fenêtre de l'orbe garde le clic droit pour elle, la vue web ne le reçoit pas.
 
 - Le premier clic attend le délai de `IPointerTimings`, puis publie `ActivationRequested(Click)`.
-- Un second clic dans ce délai publie `TaskFanToggleRequested` ; le premier ne publie rien. **Un double-clic
+- Un second clic dans ce délai publie `ProjectsViewRequested` ; le premier ne publie rien. **Un double-clic
   n'est jamais aussi un simple clic.**
-- Sans `IPointerTimings` (mobile), le clic agit tout de suite.
+- Sans `IPointerTimings` (mobile), ou tant qu'aucune tranche n'est enregistrée pour
+  `ProjectsViewRequested`, il n'y a pas de délai : le clic agit tout de suite.
 - `OrbView` calcule le badge : les tâches qui attendent l'utilisateur, plus la demande de confirmation ouverte
   quand elle ne vient pas d'une de ces tâches.
 
@@ -53,7 +62,7 @@ l'orbe (hôte Windows).
 
 | Fichier | Rôle |
 | --- | --- |
-| `TaskFan` | Ouvert, en fermeture ou fermé ; reçoit le double-clic ; montre et cache la surface |
+| `TaskFan` | Ouvert, en fermeture ou fermé ; reçoit le clic droit ; montre et cache la surface |
 | `FanContent` | Ce que l'éventail montre, d'après le tableau des tâches et la demande ouverte |
 | `FanLayout` | Où vont les panneaux : côté du centre de l'écran, angles par nombre de panneaux |
 | `TaskFanView` | Le dessin, dans une seule surface |
@@ -131,7 +140,8 @@ autres.
 
 ## Tests
 
-- Unitaires : `OrbDoubleClickTests` (simple clic retardé, double-clic, deux clics espacés), `TaskFanTests`
+- Unitaires : `OrbDoubleClickTests` (clic droit, simple clic retardé, double-clic, deux clics espacés, clic immédiat
+  sans vue des projets), `TaskFanTests`
   (ouverture et fermeture, réouverture pendant la fermeture, coins, panneaux qui ne se chevauchent pas,
   contenu, demande dans le panneau de sa tâche, demande à part, plus de cinq tâches, compte des tâches qui
   travaillent).
@@ -141,13 +151,13 @@ autres.
 
 À faire avec Benoit, sur son PC :
 
-1. Double-clic sur l'orbe : l'éventail sort sans retard visible, le bureau s'assombrit, Jarvis n'écoute pas.
-2. Second double-clic, Échap, clic sur le bureau assombri : l'éventail rentre ; l'application dessous ne
+1. Clic droit sur l'orbe : l'éventail sort sans retard visible, le bureau s'assombrit, Jarvis n'écoute pas.
+2. Second clic droit, Échap, clic sur le bureau assombri : l'éventail rentre ; l'application dessous ne
    reçoit pas le clic.
 3. Éventail fermé : les clics atteignent l'application dessous, partout sur l'écran.
-4. Clic sur un panneau, puis double-clic sur l'orbe : l'orbe est resté au-dessus.
+4. Clic sur un panneau, puis clic droit sur l'orbe : l'orbe est resté au-dessus.
 5. Une session lancée par Jarvis demande une écriture : « Autoriser » dans son panneau la laisse continuer.
 6. L'orbe dans chacun des quatre coins, puis sur un autre écran : l'éventail s'ouvre vers le centre.
-7. Simple clic : l'écoute commence après le délai de double-clic.
+7. Clic gauche : l'écoute commence tout de suite ; aucun menu ne s'ouvre au clic droit.
 8. Coût (méthode de l'essai E6) : éventail fermé, ouvert et immobile, pendant l'ouverture et la fermeture.
 9. Au démarrage, la fenêtre de l'éventail préparée ne se voit pas et ne prend aucun clic.

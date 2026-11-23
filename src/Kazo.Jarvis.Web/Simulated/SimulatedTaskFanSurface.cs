@@ -33,7 +33,10 @@ public sealed class SimulatedTaskFanSurface : ITaskFanSurface, IPointerTimings
     /// <inheritdoc />
     public FanAnchor Anchor => Corners[corner].Anchor;
 
-    /// <summary>Shorter than the half second of Windows, so that the scenarios do not wait; long enough for a real double click.</summary>
+    /// <summary>
+    /// Shorter than the half second of Windows, so that the scenarios do not wait; long enough for a real double
+    /// click. Not waited for as long as nothing answers a double click (ADR 0027, section 3).
+    /// </summary>
     public TimeSpan DoubleClickTime { get; } = TimeSpan.FromMilliseconds(300);
 
     /// <inheritdoc />
