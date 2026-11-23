@@ -1,0 +1,262 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Jarvis sujet</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:#5fe6ff;--a:#ffb347;--r:#ff5f6d;--g:#5fffb0;--tx:#cdeff8;--dim:#7fa6b5}
+html,body{width:1600px;height:900px;overflow:hidden;font-family:Inter,sans-serif;color:var(--tx);
+ background:radial-gradient(ellipse at 50% 0%,#0f3550 0,transparent 60%),radial-gradient(ellipse at 50% 120%,#0a2a3d 0,transparent 60%),#050b14}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,#5fe6ff08 0 1px,transparent 1px 3px);pointer-events:none}
+.mono{font-family:'DejaVu Sans Mono',monospace}
+header{height:56px;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid #5fe6ff33;gap:16px}
+header .logo{font:700 14px 'DejaVu Sans Mono';letter-spacing:6px;color:var(--c)}
+header .st{font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:2px}
+header .st b{color:var(--g)}
+header .r{margin-left:auto;display:flex;gap:18px;font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:1.5px}
+.grid{display:grid;grid-template-columns:380px 1fr 400px;gap:18px;padding:18px 24px;height:844px}
+.pan{border:1px solid #5fe6ff44;background:linear-gradient(180deg,#0b2a3e55,#06182644);border-radius:4px;position:relative;display:flex;flex-direction:column;overflow:hidden;box-shadow:inset 0 0 40px #2bb8e011}
+.pan>h2{font:700 11px 'DejaVu Sans Mono';letter-spacing:3px;color:var(--c);padding:12px 14px;border-bottom:1px solid #5fe6ff33;display:flex;align-items:center;gap:8px}
+.pan>h2 .n{margin-left:auto;background:var(--a);color:#1a1000;border-radius:10px;padding:1px 8px;font-size:11px}
+.corner{position:absolute;width:14px;height:14px;border:2px solid var(--c)}
+.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.sec{font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--dim);padding:10px 14px 4px}
+.card{margin:6px 12px;padding:10px 12px;border:1px solid #5fe6ff33;border-left:3px solid var(--c);background:#0a2333aa;border-radius:3px}
+.card.a{border-left-color:var(--a);background:#2a1d0844;border-color:#ffb34755}
+.card.r{border-left-color:var(--r);background:#2a0a1044;border-color:#ff5f6d55}
+.card.g{border-left-color:var(--g)}
+.card .k{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--dim);display:flex}
+.card .k span:last-child{margin-left:auto}
+.card.a .k b{color:var(--a)}.card.r .k b{color:var(--r)}.card.g .k b{color:var(--g)}
+.card .t{font-size:14px;font-weight:600;color:#effcff;margin:3px 0}
+.card .d{font-size:12px;color:var(--dim)}
+.btn{display:inline-block;margin:8px 6px 0 0;border:1px solid currentColor;padding:3px 9px;font:600 10px 'DejaVu Sans Mono';letter-spacing:1px;border-radius:2px}
+.card.a .btn{color:var(--a)} .card.r .btn{color:var(--r)} .card.g .btn{color:var(--c)}
+.card.sel{box-shadow:0 0 0 1px var(--a),0 0 18px #ffb34744}
+/* center */
+.center .top{display:flex;align-items:center;gap:22px;padding:16px 20px;border-bottom:1px solid #5fe6ff33}
+.orb{width:84px;height:84px;border-radius:50%;position:relative;flex:none}
+.orb::before{content:"";position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#eaffff 0,#8ef1ff 18%,#1fb6e6 45%,#0a4f78 75%,#04233a 100%);box-shadow:0 0 30px #34d4ffaa,0 0 70px #1aa8e055}
+.orb::after{content:"";position:absolute;inset:3px;border-radius:50%;border:2px solid #5fe6ff77}
+.orb .bdg{position:absolute;right:-4px;top:-2px;background:var(--a);color:#1a1000;font:700 11px Inter;border-radius:10px;padding:1px 7px;z-index:2;box-shadow:0 0 10px #ffb347}
+.center .top .tt{font-size:20px;font-weight:600;color:#fff}
+.center .top .ss{font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:1px;margin-top:4px}
+.tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid #5fe6ff22}
+.tabs span{font:10px 'DejaVu Sans Mono';letter-spacing:2px;padding:10px 12px;color:var(--dim)}
+.tabs span.on{color:var(--c);border-bottom:2px solid var(--c)}
+.body{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.msg{max-width:78%;padding:10px 14px;border-radius:4px;font-size:13.5px;line-height:1.5}
+.msg.j{background:#0b3047aa;border:1px solid #5fe6ff44}
+.msg.u{align-self:flex-end;background:#18243a;border:1px solid #33415c}
+.msg .w{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--c);margin-bottom:4px}
+.msg.u .w{color:#9aa4ba}
+.code{font:11.5px 'DejaVu Sans Mono';background:#03101aaa;border:1px solid #5fe6ff22;padding:10px 12px;border-radius:3px;color:#9fefff;line-height:1.6}
+.code .p{color:var(--g)} .code .m{color:var(--r)}
+.decide{border:1px solid var(--a);background:#2a1d0866;padding:12px 14px;border-radius:4px}
+.decide .h{font:700 11px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--a)}
+.decide .btn{color:var(--a);padding:6px 14px;font-size:11px}
+.decide .btn.p{background:var(--a);color:#1a1000}
+.input{margin:0 20px 16px;border:1px solid #5fe6ff55;border-radius:4px;padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);background:#06182699}
+.input .mic{width:26px;height:26px;border-radius:50%;border:1px solid var(--c);display:flex;align-items:center;justify-content:center;color:var(--c);font-size:12px}
+.input .k{margin-left:auto;font:10px 'DejaVu Sans Mono';letter-spacing:1px}
+/* right */
+.search{margin:12px;border:1px solid var(--c);border-radius:4px;padding:10px 12px;display:flex;gap:10px;align-items:center;background:#06263a99;box-shadow:0 0 14px #5fe6ff33;font-size:13px}
+.search .q{color:#effcff}
+.search .k{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim);border:1px solid #5fe6ff44;padding:2px 6px;border-radius:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
+.chips span{font:10px 'DejaVu Sans Mono';letter-spacing:1px;border:1px solid #5fe6ff44;padding:3px 8px;border-radius:12px;color:var(--dim)}
+.chips span.on{background:#5fe6ff22;color:var(--c);border-color:var(--c)}
+.row{display:flex;gap:10px;padding:8px 14px;align-items:flex-start;border-bottom:1px solid #5fe6ff11}
+.row .ic{width:26px;height:26px;flex:none;border:1px solid #5fe6ff55;border-radius:3px;display:flex;align-items:center;justify-content:center;font:700 10px 'DejaVu Sans Mono';color:var(--c)}
+.row .ic.cc{color:#d9a6ff;border-color:#d9a6ff66}.row .ic.ta{color:var(--g);border-color:#5fffb066}
+.row .t{font-size:13px;color:#effcff}
+.row .t mark{background:#5fe6ff33;color:#fff;padding:0 2px}
+.row .d{font:10.5px 'DejaVu Sans Mono';color:var(--dim);margin-top:2px}
+.row .h{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim);white-space:nowrap}
+.row.sel{background:#5fe6ff12}
+.ann{position:absolute;z-index:9;background:#ffffff;color:#0a1a26;font:600 12px Inter;padding:6px 10px;border-radius:14px;box-shadow:0 4px 16px #0008;white-space:nowrap}
+.ann i{font-style:normal;background:#0a1a26;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;margin-right:6px;font-size:11px}
+.grid4{display:grid;grid-template-columns:64px 330px 1fr 350px;gap:14px;padding:16px 20px;height:844px}
+.rail{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0;border:1px solid #5fe6ff33;border-radius:4px;background:#06182666}
+.ri{width:44px;height:44px;border-radius:8px;border:1px solid #5fe6ff44;display:flex;align-items:center;justify-content:center;font:700 12px 'DejaVu Sans Mono';color:var(--c);position:relative;background:#0a2333aa}
+.ri.on{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 14px #5fe6ff55;background:#0e3a55}
+.ri.on::before{content:"";position:absolute;left:-11px;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--c)}
+.ri .b{position:absolute;right:-6px;top:-6px;background:var(--a);color:#1a1000;font:700 10px Inter;border-radius:9px;padding:0 5px;box-shadow:0 0 8px #ffb347}
+.ri .b.r{background:var(--r);color:#fff;box-shadow:0 0 8px var(--r)}
+.ri.add{border-style:dashed;color:var(--dim);font-size:18px;margin-top:auto}
+.rsep{width:30px;height:1px;background:#5fe6ff33}
+.ri .lbl{display:none}
+.ph{padding:12px 14px;border-bottom:1px solid #5fe6ff33}
+.ph .n{font:700 13px 'DejaVu Sans Mono';letter-spacing:3px;color:var(--c)}
+.ph .p{font:10.5px 'DejaVu Sans Mono';color:var(--dim);margin-top:4px}
+.ph .ag{display:inline-block;margin-top:7px;font:10px 'DejaVu Sans Mono';letter-spacing:1px;color:#d9a6ff;border:1px solid #d9a6ff55;border-radius:10px;padding:1px 8px}
+.thr{margin:10px 12px 4px;padding:9px 11px;border:1px solid #5fe6ff55;border-radius:4px;background:#0b3047aa}
+.thr .k{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--c);display:flex}
+.thr .k span{margin-left:auto;color:var(--dim)}
+.thr .t{font-size:12.5px;color:#cdeff8;margin-top:4px;line-height:1.4}
+.lv{font:9px 'DejaVu Sans Mono';letter-spacing:1px;color:#0a1a26;background:var(--c);border-radius:2px;padding:0 4px;margin-right:6px}
+.lv.l2{background:#d9a6ff}
+.task{margin:4px 10px;border:1px solid #5fe6ff22;border-radius:3px;background:#0a233366}
+.task.sel{border-color:var(--c);background:#0e3a5588;box-shadow:0 0 12px #5fe6ff22}
+.task.am{border-left:3px solid var(--a)}
+.task .h{display:flex;align-items:center;gap:8px;padding:7px 10px}
+.task .h .tw{color:var(--dim);font-size:10px;width:10px}
+.task .h .t{font-size:13px;color:#effcff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task .h .s{font:10px 'DejaVu Sans Mono';color:var(--dim);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--c);box-shadow:0 0 6px var(--c)}
+.dot.a{background:var(--a);box-shadow:0 0 6px var(--a)}.dot.g{background:var(--g);box-shadow:none}.dot.r{background:var(--r);box-shadow:0 0 6px var(--r)}.dot.o{background:transparent;border:1px solid var(--dim);box-shadow:none}
+.sub{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 34px;font-size:12px;color:#b7dbe6;position:relative}
+.sub::before{content:"";position:absolute;left:22px;top:0;bottom:50%;width:8px;border-left:1px solid #5fe6ff44;border-bottom:1px solid #5fe6ff44}
+.sub.sel{background:#5fe6ff18;color:#fff}
+.sub .s{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim)}
+.tsrc{font:9px 'DejaVu Sans Mono';border:1px solid currentColor;border-radius:2px;padding:0 3px;color:#d9a6ff}
+.tsrc.gh{color:var(--c)}.tsrc.jv{color:var(--g)}
+.crumb{font:10.5px 'DejaVu Sans Mono';letter-spacing:1px;color:var(--dim);margin-bottom:6px}
+.crumb b{color:var(--c);font-weight:400}
+.agent{display:flex;align-items:center;gap:6px;font:10px 'DejaVu Sans Mono';letter-spacing:1px;color:#d9a6ff;border:1px solid #d9a6ff66;border-radius:12px;padding:3px 9px;white-space:nowrap}
+.subsum{border:1px dashed #d9a6ff66;border-radius:4px;padding:9px 12px;background:#1a10284d;font-size:12.5px}
+.subsum .w{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:#d9a6ff;margin-bottom:3px}
+.ptag{font:9.5px 'DejaVu Sans Mono';color:var(--c);border:1px solid #5fe6ff44;border-radius:2px;padding:0 4px;margin-right:4px}
+.chips span.x{color:var(--c);border-color:var(--c)}
+/* overview */
+.ov{display:grid;grid-template-columns:64px 1fr 350px;gap:14px;padding:16px 20px;height:844px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:min-content;gap:12px;padding:12px;overflow:hidden}
+.pc{border:1px solid #5fe6ff44;border-radius:4px;background:#0a2333aa;padding:11px 12px;display:flex;flex-direction:column;gap:6px}
+.pc.am{border-color:#ffb34788;box-shadow:0 0 14px #ffb34722}
+.pc .top{display:flex;align-items:center;gap:9px}
+.pc .ic{width:32px;height:32px;border-radius:6px;border:1px solid #5fe6ff66;display:flex;align-items:center;justify-content:center;font:700 11px 'DejaVu Sans Mono';color:var(--c)}
+.pc .nm{font-size:14px;font-weight:600;color:#fff}
+.pc .pa{font:10px 'DejaVu Sans Mono';color:var(--dim)}
+.cnt{display:flex;gap:6px;flex-wrap:wrap}
+.cnt span{font:10px 'DejaVu Sans Mono';border-radius:10px;padding:1px 7px;border:1px solid #5fe6ff33;color:var(--dim)}
+.cnt .a{color:var(--a);border-color:#ffb34777}.cnt .c{color:var(--c);border-color:#5fe6ff77}.cnt .g{color:var(--g);border-color:#5fffb055}.cnt .r{color:var(--r);border-color:#ff5f6d77}
+.pc .tl{display:flex;align-items:center;gap:7px;font-size:12px;color:#cdeff8}
+.pc .tl .pg{margin-left:auto;display:flex;gap:2px}
+.pc .tl .pg i{width:6px;height:6px;border-radius:1px;background:#5fe6ff33}
+.pc .tl .pg i.d{background:var(--g)}.pc .tl .pg i.w{background:var(--c)}.pc .tl .pg i.a{background:var(--a)}
+.pc .last{font-size:11.5px;color:var(--dim);border-top:1px solid #5fe6ff22;padding-top:6px;line-height:1.4}
+.pc .last b{color:var(--c);font:400 10px 'DejaVu Sans Mono';letter-spacing:1px}
+.pc.new{border-style:dashed;align-items:center;justify-content:center;color:var(--dim);min-height:120px;font:12px 'DejaVu Sans Mono';letter-spacing:2px}
+.pc.orph{border-color:var(--a);background:#2a1d0844}
+.pc.orph .k{font:700 10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--a)}
+.pc.orph .btn{color:var(--a)}
+.hl{font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--dim);padding:12px 12px 0;display:flex;gap:16px}
+.hl span.on{color:var(--c)}
+.thr .k span.lv{margin-left:0;color:#0a1a26}
+.grid5{display:grid;grid-template-columns:64px 290px 1fr 370px;gap:14px;padding:16px 20px;height:844px}
+.sj{margin:5px 10px;padding:8px 10px;border:1px solid #5fe6ff22;border-radius:3px;background:#0a233366}
+.sj.sel{border-color:var(--c);background:#0e3a5588;box-shadow:0 0 12px #5fe6ff22}
+.sj.am{border-left:3px solid var(--a)}
+.sj .t{font-size:13px;color:#effcff;display:flex;gap:6px;align-items:center}
+.sj .t .tg{margin-left:auto;font:9.5px 'DejaVu Sans Mono';color:var(--dim)}
+.sj .bar{display:flex;gap:2px;margin-top:6px}
+.sj .bar i{flex:1;height:4px;border-radius:1px;background:#5fe6ff22}
+.sj .bar i.d{background:var(--g)}.sj .bar i.w{background:var(--c)}.sj .bar i.a{background:var(--a)}
+.sj .m{font:10px 'DejaVu Sans Mono';color:var(--dim);margin-top:4px}
+.steps{padding:10px 20px 12px;border-bottom:1px solid #5fe6ff33;display:flex;flex-direction:column;gap:6px}
+.steps .lbl{font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--dim);display:flex}
+.steps .lbl span{margin-left:auto;color:var(--c)}
+.srow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.stp{font:11px 'DejaVu Sans Mono';border:1px solid #5fe6ff44;border-radius:3px;padding:3px 8px;color:var(--tx);display:flex;gap:6px;align-items:center;white-space:nowrap}
+.stp b{font-weight:700;color:var(--c)}
+.stp.d{color:#9fd9c0;border-color:#5fffb055}.stp.d b{color:var(--g)}
+.stp.w{border-color:var(--a);background:#2a1d0844;box-shadow:0 0 10px #ffb34733}.stp.w b{color:var(--a)}
+.stp.p{border-style:dashed;color:var(--dim)}.stp.p b{color:var(--dim)}
+.stp.open{outline:1px solid var(--c);outline-offset:2px}
+.subs{display:flex;gap:6px;padding-left:18px;flex-wrap:wrap}
+.subs span{font:10.5px 'DejaVu Sans Mono';color:var(--dim);display:flex;align-items:center;gap:5px}
+.irc{flex:1;padding:12px 20px;font:12.5px 'DejaVu Sans Mono';line-height:1.75;overflow:hidden}
+.l{display:flex;gap:10px}
+.l .ts{color:#4f7585;flex:none}
+.l .nk{flex:none;width:78px;text-align:right}
+.l .nk.b{color:#ffd28a}.l .nk.c{color:#d9a6ff}.l .nk.j{color:var(--c)}
+.l .tx{color:#d8f2fa;font-family:Inter,sans-serif;font-size:13px}
+.l.sys .tx{color:#6f97a6;font-style:italic;font-family:'DejaVu Sans Mono';font-size:11.5px}
+.l.sys .nk{color:#4f7585}
+.tt2{display:inline-block;font:700 11px 'DejaVu Sans Mono';color:#0a1a26;background:var(--c);border-radius:2px;padding:0 5px;margin-right:6px;text-decoration:underline;text-underline-offset:2px}
+.tt2.d{background:var(--g)}.tt2.w{background:var(--a)}
+.l.hi{background:#5fe6ff10;margin:0 -8px;padding:0 8px;border-left:2px solid var(--c)}
+.daysep{text-align:center;font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:#4f7585;margin:6px 0}
+.tf .hd{padding:12px 14px;border-bottom:1px solid #5fe6ff33}
+.tf .hd .k{font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--dim);display:flex}
+.tf .hd .k span{margin-left:auto;color:var(--c)}
+.tf .hd .t{font-size:16px;font-weight:600;color:#fff;margin-top:5px}
+.tf .hd .s{font:10.5px 'DejaVu Sans Mono';color:var(--g);margin-top:3px}
+.tf .blk{margin:10px 12px 0;padding:9px 11px;border:1px solid #5fe6ff33;border-radius:3px;background:#0a2333aa;font-size:12.5px;line-height:1.45}
+.tf .blk .w{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--c);margin-bottom:4px}
+.tf .file{display:flex;gap:8px;align-items:center;font:11px 'DejaVu Sans Mono';color:#cdeff8;padding:3px 0}
+.tf .file i{font-style:normal;color:var(--c)}
+.offer{margin:10px 12px;border:1px solid var(--c);border-radius:4px;padding:10px 12px;background:#0b3047cc;box-shadow:0 0 16px #5fe6ff33}
+.offer .h{font:700 10.5px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--c)}
+.offer .t{font-size:13px;margin:6px 0 2px;color:#effcff;line-height:1.45}
+.offer .btn{color:var(--c)}.offer .btn.p{background:var(--c);color:#0a1a26}
+.tf .sub::before{display:none}
+</style></head><body><header>
+ <div class="logo">J.A.R.V.I.S</div>
+ <div class="st">● <b>EN VEILLE</b> · « HEY JARVIS » ACTIF · QWEN3:14B LOCAL</div>
+ <div class="r"><span>5 PROJETS</span><span>CLAUDE : 3 SESSIONS</span><span>CLOUD 4,20 $ / 30 $</span><span>DIM. 22 NOV · 13:30</span><span>⚙</span></div>
+</header>
+
+<div class="grid5">
+ <div class="rail">
+  <div class="ri " title="À traiter">◆<span class="b">4</span></div>
+  <div class="ri " title="Tous les projets">▦</div>
+  <div class="rsep"></div>
+  <div class="ri on" title="Kazo.Jarvis">KJ<span class="b">2</span></div>
+  <div class="ri" title="Kazo.Bar">KB</div>
+  <div class="ri" title="Kazo OS">OS<span class="b r">1</span></div>
+  <div class="ri" title="Domotique">⌂<span class="b">1</span></div>
+  <div class="ri" title="OpenJarvis">OJ</div>
+  <div class="rsep"></div>
+  <div class="ri" title="Général (sans projet)">💬</div>
+  <div class="ri add" title="Nouveau projet">+</div>
+ </div>
+
+ <div class="pan"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <div class="ph"><div class="n">KAZO.JARVIS</div><div class="p">C:\dev\Kazo.Jarvis · Kazo-ca/Jarvis</div><span class="ag">◈ AGENT : KAZO.JARVIS</span></div>
+  <div class="thr"><div class="k"><span class="lv">PROJET</span>FIL DU PROJET<span>13:28</span></div><div class="t">Claude : « Conception vue projets : 2 tâches faites, la 3e attend vos réponses. »</div></div>
+  <div class="sec">SUJETS ACTIFS · 3</div>
+  <div class="sj sel am"><div class="t"><span class="dot a"></span>Conception vue projets<span class="tg">vue-projets</span></div><div class="bar"><i class="d"></i><i class="d"></i><i class="a"></i><i></i><i></i></div><div class="m">2 faites · 1 en cours · 2 prévues</div></div>
+  <div class="sj"><div class="t"><span class="dot"></span>Agents par type de tâche<span class="tg">PR 62</span></div><div class="bar"><i class="d"></i><i class="w"></i><i></i><i></i></div><div class="m">1 faite · 1 en cours · 2 prévues</div></div>
+  <div class="sj"><div class="t"><span class="dot"></span>Acceptation stage 2<span class="tg">PR 61</span></div><div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="w"></i><i></i></div><div class="m">3 faites · 1 en cours · 1 prévue</div></div>
+  <div class="sec">SUJETS TERMINÉS · 7 JOURS</div>
+  <div class="sj" style="opacity:.6"><div class="t"><span class="dot g"></span>Éventail des tâches<span class="tg">PR 60</span></div></div>
+  <div class="sj" style="opacity:.6"><div class="t"><span class="dot g"></span>Plafond de dépenses<span class="tg">PR 53</span></div></div>
+  <div class="sec" style="margin-top:auto;padding-bottom:12px">+ NOUVEAU SUJET · ARCHIVES ▸</div>
+ </div>
+ <div class="pan center"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <div class="top" style="padding:12px 20px"><div class="orb" style="width:64px;height:64px"><span class="bdg">4</span></div>
+   <div style="flex:1"><div class="crumb"><b>KAZO.JARVIS</b> › <span style="color:#effcff">CONCEPTION VUE PROJETS</span></div><div class="tt">Conception vue projets</div><div class="ss"><span class="lv">SUJET</span>FIL DU SUJET · BRANCHE vue-projets · DÉMARRÉ 05:17</div></div></div>
+  <div class="steps">
+   <div class="lbl">TÂCHES DU SUJET<span>TOUT VOIR (5) ▾</span></div>
+   <div class="srow"><span class="stp d"><b>✓ T1</b>Lire l'image</span><span class="stp d open"><b>✓ T2</b>Créer une maquette</span><span class="stp w"><b>● T3</b>Préparation documentation</span><span class="stp p"><b>○ T4</b>Écrire l'ADR 0026</span><span class="stp p"><b>○ T5</b>Ouvrir la PR</span></div>
+   <div class="subs"><span>T3 ›</span><span><i class="dot g"></i>Résumer les décisions</span><span><i class="dot a"></i>Poser des questions</span><span><i class="dot o"></i>Mettre à jour la maquette</span></div>
+  </div>
+  <div class="irc">
+   <div class="daysep">— DIM. 22 NOV —</div>
+   <div class="l"><span class="ts">05:17</span><span class="nk b">Benoit</span><span class="tx">Et pour l'interface où on voit tous les sujets / projets / conversations ? 📎 poste-de-commande.jpg</span></div>
+   <div class="l sys"><span class="ts">05:17</span><span class="nk">*</span><span class="tx">Claude ouvre <span class="tt2">T1</span>Lire l'image</span></div>
+   <div class="l"><span class="ts">05:18</span><span class="nk c">Claude</span><span class="tx"><span class="tt2 d">T1</span>Terminée : 3 colonnes, À traiter, élément ouvert, Retrouver.</span></div>
+   <div class="l"><span class="ts">05:20</span><span class="nk c">Claude</span><span class="tx"><span class="tt2 d">T2</span>Terminée : 2 maquettes prêtes, rail des projets et « Tous les projets ».</span></div>
+   <div class="l"><span class="ts">05:21</span><span class="nk c">Claude</span><span class="tx"><span class="tt2 w">T3</span>6 questions pour vous. « ok » prend les recommandations.</span></div>
+   <div class="daysep">— 13:27 —</div>
+   <div class="l hi"><span class="ts">13:27</span><span class="nk b">Benoit</span><span class="tx"><span class="tt2 w">T3</span>1. A, mais une liste des tâches du sujet qui ramène à chaque tâche. 2 à 6 : A.</span></div>
+   <div class="l"><span class="ts">13:28</span><span class="nk b">Benoit</span><span class="tx"><span class="tt2 d">T2</span>Oui tu as raison, on garde le rail comme ça.</span></div>
+   <div class="l"><span class="ts">13:28</span><span class="nk c">Claude</span><span class="tx"><span class="tt2 w">T3</span>Compris. Je mets à jour la maquette, puis <span style="color:var(--dim)">T4</span> l'ADR 0026.</span></div>
+  </div>
+  <div class="input"><span class="mic">🎙</span>Écrivez dans le sujet… « T3&gt; » pour répondre à une tâche<span class="agent" style="margin-left:auto">◈ KAZO.JARVIS ▾</span></div>
+ </div>
+ <div class="pan tf"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <div class="hd"><div class="k">FIL DE LA TÂCHE<span>✕ FERMER</span></div><div class="t">T2 · Créer une maquette</div><div class="s">✓ TERMINÉE 05:20 · CLAUDE CODE · 3 MIN</div></div>
+  <div class="blk"><div class="w">RÉSUMÉ</div>Rail des projets à gauche, panneau du projet avec fil et tâches, centre avec chemin et agent, vue « Tous les projets » en cartes.</div>
+  <div class="blk"><div class="w">SOUS-TÂCHES · LECTURE SEULE</div>
+   <div class="sub" style="padding-left:14px"><span class="dot g"></span>Reprendre le style du plein écran<span class="s">✓</span></div>
+   <div class="sub" style="padding-left:14px"><span class="dot g"></span>Dessiner le rail et le panneau<span class="s">✓</span></div>
+   <div class="sub" style="padding-left:14px"><span class="dot g"></span>Capturer les images<span class="s">✓</span></div></div>
+  <div class="blk"><div class="w">FICHIERS (4)</div><div class="file"><i>▣</i>1-poste-de-commande-projets.png</div><div class="file"><i>▣</i>2-tous-les-projets.png</div><div class="file"><i>‹›</i>1-poste-de-commande-projets.html</div><div class="file"><i>‹›</i>2-tous-les-projets.html</div></div>
+  <div class="blk"><div class="w">MESSAGES DE LA TÂCHE</div>
+   <div class="l" style="font:11.5px 'DejaVu Sans Mono'"><span class="ts">05:20</span><span class="nk c" style="width:50px">Claude</span><span class="tx" style="font-size:12px">2 maquettes prêtes.</span></div>
+   <div class="l" style="font:11.5px 'DejaVu Sans Mono'"><span class="ts">13:28</span><span class="nk b" style="width:50px">Benoit</span><span class="tx" style="font-size:12px">Oui tu as raison, on garde le rail comme ça.</span></div></div>
+  <div class="sec" style="margin-top:auto;padding-bottom:12px">JOURNAL COMPLET ▸ · ↩ RETOUR AU SUJET</div>
+ </div>
+</div>
+<div class="ann" style="left:640px;top:660px"><i>1</i>Faites, en cours (toujours visible), prévues</div>
+<div class="ann" style="left:850px;top:560px"><i>2</i>Répondre à une tâche : « T3&gt; … »</div>
+<div class="ann" style="left:1250px;top:690px"><i>3</i>Clic sur « T2 » : son fil</div>
+</body></html>

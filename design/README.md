@@ -14,6 +14,10 @@ Their on-screen labels are in French. The written description is the UI catalog
 | [prototypes/orb-plasma-gyroscope.html](prototypes/orb-plasma-gyroscope.html) | Plasma and rings without clouds, kept aside |
 | [prototypes/task-fan.html](prototypes/task-fan.html) | Task fan around the orb (`?v=A&s=open&c=br`, corners `tl` `tr` `bl` `br`) |
 | [prototypes/full-screen.html](prototypes/full-screen.html) | Full-screen "command post" (1600 × 900) |
+| [prototypes/projects-rail.html](prototypes/projects-rail.html) | Full screen with the project rail (ADR 0026, proposed) |
+| [prototypes/projects-all.html](prototypes/projects-all.html) | "All projects" cards (ADR 0026, proposed) |
+| [prototypes/projects-subject-thread.html](prototypes/projects-subject-thread.html) | Subject thread, task strip, "T3>" answers, task thread (ADR 0026, proposed) |
+| [prototypes/projects-general-to-project.html](prototypes/projects-general-to-project.html) | Jarvis offers to make a project of a Général subject (ADR 0026, proposed) |
 | [images/](images/) | Still captures of the three main designs |
 
 The high-quality prototype also contains earlier binary-layer modes (1 to 4); mode 5 (`window.BIN=5`) is the

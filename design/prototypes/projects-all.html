@@ -1,0 +1,210 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Jarvis projets</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:#5fe6ff;--a:#ffb347;--r:#ff5f6d;--g:#5fffb0;--tx:#cdeff8;--dim:#7fa6b5}
+html,body{width:1600px;height:900px;overflow:hidden;font-family:Inter,sans-serif;color:var(--tx);
+ background:radial-gradient(ellipse at 50% 0%,#0f3550 0,transparent 60%),radial-gradient(ellipse at 50% 120%,#0a2a3d 0,transparent 60%),#050b14}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,#5fe6ff08 0 1px,transparent 1px 3px);pointer-events:none}
+.mono{font-family:'DejaVu Sans Mono',monospace}
+header{height:56px;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid #5fe6ff33;gap:16px}
+header .logo{font:700 14px 'DejaVu Sans Mono';letter-spacing:6px;color:var(--c)}
+header .st{font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:2px}
+header .st b{color:var(--g)}
+header .r{margin-left:auto;display:flex;gap:18px;font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:1.5px}
+.grid{display:grid;grid-template-columns:380px 1fr 400px;gap:18px;padding:18px 24px;height:844px}
+.pan{border:1px solid #5fe6ff44;background:linear-gradient(180deg,#0b2a3e55,#06182644);border-radius:4px;position:relative;display:flex;flex-direction:column;overflow:hidden;box-shadow:inset 0 0 40px #2bb8e011}
+.pan>h2{font:700 11px 'DejaVu Sans Mono';letter-spacing:3px;color:var(--c);padding:12px 14px;border-bottom:1px solid #5fe6ff33;display:flex;align-items:center;gap:8px}
+.pan>h2 .n{margin-left:auto;background:var(--a);color:#1a1000;border-radius:10px;padding:1px 8px;font-size:11px}
+.corner{position:absolute;width:14px;height:14px;border:2px solid var(--c)}
+.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.sec{font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--dim);padding:10px 14px 4px}
+.card{margin:6px 12px;padding:10px 12px;border:1px solid #5fe6ff33;border-left:3px solid var(--c);background:#0a2333aa;border-radius:3px}
+.card.a{border-left-color:var(--a);background:#2a1d0844;border-color:#ffb34755}
+.card.r{border-left-color:var(--r);background:#2a0a1044;border-color:#ff5f6d55}
+.card.g{border-left-color:var(--g)}
+.card .k{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--dim);display:flex}
+.card .k span:last-child{margin-left:auto}
+.card.a .k b{color:var(--a)}.card.r .k b{color:var(--r)}.card.g .k b{color:var(--g)}
+.card .t{font-size:14px;font-weight:600;color:#effcff;margin:3px 0}
+.card .d{font-size:12px;color:var(--dim)}
+.btn{display:inline-block;margin:8px 6px 0 0;border:1px solid currentColor;padding:3px 9px;font:600 10px 'DejaVu Sans Mono';letter-spacing:1px;border-radius:2px}
+.card.a .btn{color:var(--a)} .card.r .btn{color:var(--r)} .card.g .btn{color:var(--c)}
+.card.sel{box-shadow:0 0 0 1px var(--a),0 0 18px #ffb34744}
+/* center */
+.center .top{display:flex;align-items:center;gap:22px;padding:16px 20px;border-bottom:1px solid #5fe6ff33}
+.orb{width:84px;height:84px;border-radius:50%;position:relative;flex:none}
+.orb::before{content:"";position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#eaffff 0,#8ef1ff 18%,#1fb6e6 45%,#0a4f78 75%,#04233a 100%);box-shadow:0 0 30px #34d4ffaa,0 0 70px #1aa8e055}
+.orb::after{content:"";position:absolute;inset:3px;border-radius:50%;border:2px solid #5fe6ff77}
+.orb .bdg{position:absolute;right:-4px;top:-2px;background:var(--a);color:#1a1000;font:700 11px Inter;border-radius:10px;padding:1px 7px;z-index:2;box-shadow:0 0 10px #ffb347}
+.center .top .tt{font-size:20px;font-weight:600;color:#fff}
+.center .top .ss{font:11px 'DejaVu Sans Mono';color:var(--dim);letter-spacing:1px;margin-top:4px}
+.tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid #5fe6ff22}
+.tabs span{font:10px 'DejaVu Sans Mono';letter-spacing:2px;padding:10px 12px;color:var(--dim)}
+.tabs span.on{color:var(--c);border-bottom:2px solid var(--c)}
+.body{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.msg{max-width:78%;padding:10px 14px;border-radius:4px;font-size:13.5px;line-height:1.5}
+.msg.j{background:#0b3047aa;border:1px solid #5fe6ff44}
+.msg.u{align-self:flex-end;background:#18243a;border:1px solid #33415c}
+.msg .w{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--c);margin-bottom:4px}
+.msg.u .w{color:#9aa4ba}
+.code{font:11.5px 'DejaVu Sans Mono';background:#03101aaa;border:1px solid #5fe6ff22;padding:10px 12px;border-radius:3px;color:#9fefff;line-height:1.6}
+.code .p{color:var(--g)} .code .m{color:var(--r)}
+.decide{border:1px solid var(--a);background:#2a1d0866;padding:12px 14px;border-radius:4px}
+.decide .h{font:700 11px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--a)}
+.decide .btn{color:var(--a);padding:6px 14px;font-size:11px}
+.decide .btn.p{background:var(--a);color:#1a1000}
+.input{margin:0 20px 16px;border:1px solid #5fe6ff55;border-radius:4px;padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);background:#06182699}
+.input .mic{width:26px;height:26px;border-radius:50%;border:1px solid var(--c);display:flex;align-items:center;justify-content:center;color:var(--c);font-size:12px}
+.input .k{margin-left:auto;font:10px 'DejaVu Sans Mono';letter-spacing:1px}
+/* right */
+.search{margin:12px;border:1px solid var(--c);border-radius:4px;padding:10px 12px;display:flex;gap:10px;align-items:center;background:#06263a99;box-shadow:0 0 14px #5fe6ff33;font-size:13px}
+.search .q{color:#effcff}
+.search .k{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim);border:1px solid #5fe6ff44;padding:2px 6px;border-radius:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
+.chips span{font:10px 'DejaVu Sans Mono';letter-spacing:1px;border:1px solid #5fe6ff44;padding:3px 8px;border-radius:12px;color:var(--dim)}
+.chips span.on{background:#5fe6ff22;color:var(--c);border-color:var(--c)}
+.row{display:flex;gap:10px;padding:8px 14px;align-items:flex-start;border-bottom:1px solid #5fe6ff11}
+.row .ic{width:26px;height:26px;flex:none;border:1px solid #5fe6ff55;border-radius:3px;display:flex;align-items:center;justify-content:center;font:700 10px 'DejaVu Sans Mono';color:var(--c)}
+.row .ic.cc{color:#d9a6ff;border-color:#d9a6ff66}.row .ic.ta{color:var(--g);border-color:#5fffb066}
+.row .t{font-size:13px;color:#effcff}
+.row .t mark{background:#5fe6ff33;color:#fff;padding:0 2px}
+.row .d{font:10.5px 'DejaVu Sans Mono';color:var(--dim);margin-top:2px}
+.row .h{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim);white-space:nowrap}
+.row.sel{background:#5fe6ff12}
+.ann{position:absolute;z-index:9;background:#ffffff;color:#0a1a26;font:600 12px Inter;padding:6px 10px;border-radius:14px;box-shadow:0 4px 16px #0008;white-space:nowrap}
+.ann i{font-style:normal;background:#0a1a26;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;margin-right:6px;font-size:11px}
+.grid4{display:grid;grid-template-columns:64px 330px 1fr 350px;gap:14px;padding:16px 20px;height:844px}
+.rail{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0;border:1px solid #5fe6ff33;border-radius:4px;background:#06182666}
+.ri{width:44px;height:44px;border-radius:8px;border:1px solid #5fe6ff44;display:flex;align-items:center;justify-content:center;font:700 12px 'DejaVu Sans Mono';color:var(--c);position:relative;background:#0a2333aa}
+.ri.on{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 14px #5fe6ff55;background:#0e3a55}
+.ri.on::before{content:"";position:absolute;left:-11px;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--c)}
+.ri .b{position:absolute;right:-6px;top:-6px;background:var(--a);color:#1a1000;font:700 10px Inter;border-radius:9px;padding:0 5px;box-shadow:0 0 8px #ffb347}
+.ri .b.r{background:var(--r);color:#fff;box-shadow:0 0 8px var(--r)}
+.ri.add{border-style:dashed;color:var(--dim);font-size:18px;margin-top:auto}
+.rsep{width:30px;height:1px;background:#5fe6ff33}
+.ri .lbl{display:none}
+.ph{padding:12px 14px;border-bottom:1px solid #5fe6ff33}
+.ph .n{font:700 13px 'DejaVu Sans Mono';letter-spacing:3px;color:var(--c)}
+.ph .p{font:10.5px 'DejaVu Sans Mono';color:var(--dim);margin-top:4px}
+.ph .ag{display:inline-block;margin-top:7px;font:10px 'DejaVu Sans Mono';letter-spacing:1px;color:#d9a6ff;border:1px solid #d9a6ff55;border-radius:10px;padding:1px 8px}
+.thr{margin:10px 12px 4px;padding:9px 11px;border:1px solid #5fe6ff55;border-radius:4px;background:#0b3047aa}
+.thr .k{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--c);display:flex}
+.thr .k span{margin-left:auto;color:var(--dim)}
+.thr .t{font-size:12.5px;color:#cdeff8;margin-top:4px;line-height:1.4}
+.lv{font:9px 'DejaVu Sans Mono';letter-spacing:1px;color:#0a1a26;background:var(--c);border-radius:2px;padding:0 4px;margin-right:6px}
+.lv.l2{background:#d9a6ff}
+.task{margin:4px 10px;border:1px solid #5fe6ff22;border-radius:3px;background:#0a233366}
+.task.sel{border-color:var(--c);background:#0e3a5588;box-shadow:0 0 12px #5fe6ff22}
+.task.am{border-left:3px solid var(--a)}
+.task .h{display:flex;align-items:center;gap:8px;padding:7px 10px}
+.task .h .tw{color:var(--dim);font-size:10px;width:10px}
+.task .h .t{font-size:13px;color:#effcff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task .h .s{font:10px 'DejaVu Sans Mono';color:var(--dim);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--c);box-shadow:0 0 6px var(--c)}
+.dot.a{background:var(--a);box-shadow:0 0 6px var(--a)}.dot.g{background:var(--g);box-shadow:none}.dot.r{background:var(--r);box-shadow:0 0 6px var(--r)}.dot.o{background:transparent;border:1px solid var(--dim);box-shadow:none}
+.sub{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 34px;font-size:12px;color:#b7dbe6;position:relative}
+.sub::before{content:"";position:absolute;left:22px;top:0;bottom:50%;width:8px;border-left:1px solid #5fe6ff44;border-bottom:1px solid #5fe6ff44}
+.sub.sel{background:#5fe6ff18;color:#fff}
+.sub .s{margin-left:auto;font:10px 'DejaVu Sans Mono';color:var(--dim)}
+.tsrc{font:9px 'DejaVu Sans Mono';border:1px solid currentColor;border-radius:2px;padding:0 3px;color:#d9a6ff}
+.tsrc.gh{color:var(--c)}.tsrc.jv{color:var(--g)}
+.crumb{font:10.5px 'DejaVu Sans Mono';letter-spacing:1px;color:var(--dim);margin-bottom:6px}
+.crumb b{color:var(--c);font-weight:400}
+.agent{display:flex;align-items:center;gap:6px;font:10px 'DejaVu Sans Mono';letter-spacing:1px;color:#d9a6ff;border:1px solid #d9a6ff66;border-radius:12px;padding:3px 9px;white-space:nowrap}
+.subsum{border:1px dashed #d9a6ff66;border-radius:4px;padding:9px 12px;background:#1a10284d;font-size:12.5px}
+.subsum .w{font:10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:#d9a6ff;margin-bottom:3px}
+.ptag{font:9.5px 'DejaVu Sans Mono';color:var(--c);border:1px solid #5fe6ff44;border-radius:2px;padding:0 4px;margin-right:4px}
+.chips span.x{color:var(--c);border-color:var(--c)}
+/* overview */
+.ov{display:grid;grid-template-columns:64px 1fr 350px;gap:14px;padding:16px 20px;height:844px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:min-content;gap:12px;padding:12px;overflow:hidden}
+.pc{border:1px solid #5fe6ff44;border-radius:4px;background:#0a2333aa;padding:11px 12px;display:flex;flex-direction:column;gap:6px}
+.pc.am{border-color:#ffb34788;box-shadow:0 0 14px #ffb34722}
+.pc .top{display:flex;align-items:center;gap:9px}
+.pc .ic{width:32px;height:32px;border-radius:6px;border:1px solid #5fe6ff66;display:flex;align-items:center;justify-content:center;font:700 11px 'DejaVu Sans Mono';color:var(--c)}
+.pc .nm{font-size:14px;font-weight:600;color:#fff}
+.pc .pa{font:10px 'DejaVu Sans Mono';color:var(--dim)}
+.cnt{display:flex;gap:6px;flex-wrap:wrap}
+.cnt span{font:10px 'DejaVu Sans Mono';border-radius:10px;padding:1px 7px;border:1px solid #5fe6ff33;color:var(--dim)}
+.cnt .a{color:var(--a);border-color:#ffb34777}.cnt .c{color:var(--c);border-color:#5fe6ff77}.cnt .g{color:var(--g);border-color:#5fffb055}.cnt .r{color:var(--r);border-color:#ff5f6d77}
+.pc .tl{display:flex;align-items:center;gap:7px;font-size:12px;color:#cdeff8}
+.pc .tl .pg{margin-left:auto;display:flex;gap:2px}
+.pc .tl .pg i{width:6px;height:6px;border-radius:1px;background:#5fe6ff33}
+.pc .tl .pg i.d{background:var(--g)}.pc .tl .pg i.w{background:var(--c)}.pc .tl .pg i.a{background:var(--a)}
+.pc .last{font-size:11.5px;color:var(--dim);border-top:1px solid #5fe6ff22;padding-top:6px;line-height:1.4}
+.pc .last b{color:var(--c);font:400 10px 'DejaVu Sans Mono';letter-spacing:1px}
+.pc.new{border-style:dashed;align-items:center;justify-content:center;color:var(--dim);min-height:120px;font:12px 'DejaVu Sans Mono';letter-spacing:2px}
+.pc.orph{border-color:var(--a);background:#2a1d0844}
+.pc.orph .k{font:700 10px 'DejaVu Sans Mono';letter-spacing:1.5px;color:var(--a)}
+.pc.orph .btn{color:var(--a)}
+.hl{font:10px 'DejaVu Sans Mono';letter-spacing:2px;color:var(--dim);padding:12px 12px 0;display:flex;gap:16px}
+.hl span.on{color:var(--c)}
+.thr .k span.lv{margin-left:0;color:#0a1a26}
+</style></head><body><header>
+ <div class="logo">J.A.R.V.I.S</div>
+ <div class="st">● <b>EN VEILLE</b> · « HEY JARVIS » ACTIF · QWEN3:14B LOCAL</div>
+ <div class="r"><span>5 PROJETS</span><span>CLAUDE : 3 SESSIONS</span><span>CLOUD 4,20 $ / 30 $</span><span>DIM. 22 NOV · 05:20</span><span>⚙</span></div>
+</header>
+
+<div class="ov">
+ <div class="rail">
+  <div class="ri " title="À traiter">◆<span class="b">4</span></div>
+  <div class="ri on" title="Tous les projets">▦</div>
+  <div class="rsep"></div>
+  <div class="ri " title="Kazo.Jarvis">KJ<span class="b">2</span></div>
+  <div class="ri" title="Kazo.Bar">KB</div>
+  <div class="ri" title="Kazo OS">OS<span class="b r">1</span></div>
+  <div class="ri" title="Domotique">⌂<span class="b">1</span></div>
+  <div class="ri" title="OpenJarvis">OJ</div>
+  <div class="rsep"></div>
+  <div class="ri" title="Général (sans projet)">💬</div>
+  <div class="ri add" title="Nouveau projet">+</div>
+ </div>
+
+ <div class="pan"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <h2>▦ TOUS LES PROJETS <span style="margin-left:auto;color:var(--dim);font-weight:400;letter-spacing:1px">TRI : ACTIVITÉ ▾</span></h2>
+  <div class="cards">
+   <div class="pc am"><div class="top"><div class="ic">KJ</div><div><div class="nm">Kazo.Jarvis</div><div class="pa">C:\dev\Kazo.Jarvis</div></div></div>
+    <div class="cnt"><span class="a">1 accord</span><span class="c">3 en cours</span><span class="g">1 non lu</span></div>
+    <div class="tl"><span class="dot a"></span>Vue projets et conversations<span class="pg"><i class="d"></i><i class="a"></i><i></i></span></div>
+    <div class="tl"><span class="dot"></span>Build #42 — stage2/base<span class="pg"><i class="d"></i><i class="d"></i><i class="w"></i><i></i><i></i></span></div>
+    <div class="tl"><span class="dot"></span>Agents par type de tâche<span class="pg"><i class="d"></i><i class="w"></i><i></i><i></i></span></div>
+    <div class="last"><b>FIL · 05:12</b><br>« Il reste 3 tâches ouvertes, dont une qui attend votre accord. »</div></div>
+   <div class="pc"><div class="top"><div class="ic" style="color:var(--r);border-color:#ff5f6d88">OS</div><div><div class="nm">Kazo OS</div><div class="pa">C:\dev\Kazo.Os</div></div></div>
+    <div class="cnt"><span class="r">1 erreur</span><span class="c">1 en cours</span></div>
+    <div class="tl"><span class="dot r"></span>Build #17 — 2 tests en échec<span class="pg"><i class="d"></i><i class="a" style="background:var(--r)"></i></span></div>
+    <div class="tl"><span class="dot"></span>Doc d'architecture<span class="pg"><i class="d"></i><i class="w"></i><i></i></span></div>
+    <div class="last"><b>FIL · HIER</b><br>« Dans Kazo OS, il reste quoi à faire ? » — 4 points listés.</div></div>
+   <div class="pc am"><div class="top"><div class="ic">⌂</div><div><div class="nm">Domotique</div><div class="pa">C:\jarvis\projets\domotique</div></div></div>
+    <div class="cnt"><span class="a">1 accord</span><span>agent : Domotique</span></div>
+    <div class="tl"><span class="dot a"></span>Lancer « Mode nuit » ?<span class="pg"><i class="a"></i></span></div>
+    <div class="tl"><span class="dot g"></span>Renommer « Articulé »<span class="pg"><i class="d"></i></span></div>
+    <div class="last"><b>FIL · MER.</b><br>« Couleur de l'orbe la nuit » — 6 messages</div></div>
+   <div class="pc"><div class="top"><div class="ic">KB</div><div><div class="nm">Kazo.Bar</div><div class="pa">C:\dev\Kazo.Bar</div></div></div>
+    <div class="cnt"><span class="c">1 en cours</span><span>8 terminées</span></div>
+    <div class="tl"><span class="dot"></span>Refactor — Plugins<span class="pg"><i class="d"></i><i class="d"></i><i class="w"></i></span></div>
+    <div class="last"><b>FIL · LUN.</b><br>« Chargeur de plugins en tranche verticale. »</div></div>
+   <div class="pc"><div class="top"><div class="ic">OJ</div><div><div class="nm">OpenJarvis</div><div class="pa">C:\jarvis\OpenJarvis</div></div></div>
+    <div class="cnt"><span>rien en cours</span><span>14 terminées</span></div>
+    <div class="last"><b>FIL · 12 NOV.</b><br>« Port C# décidé, ce dépôt reste en lecture. »</div></div>
+   <div class="pc"><div class="top"><div class="ic">💬</div><div><div class="nm">Général</div><div class="pa">conversations sans projet</div></div></div>
+    <div class="cnt"><span>23 conversations</span></div>
+    <div class="tl"><span class="dot g"></span>Résumé des courriels</div>
+    <div class="tl"><span class="dot g"></span>Météo de la semaine</div>
+    <div class="last"><b>DERNIÈRE · 19:12</b><br>« 7 courriels, 1 important. »</div></div>
+   <div class="pc orph"><div class="k">● DOSSIER SANS PROJET</div><div style="font-size:13px;color:#fff">Claude travaille dans <span class="mono">C:\dev\Essais\pdf</span></div><div><span class="btn">ASSIGNER À UN PROJET</span><span class="btn">CRÉER UN PROJET</span></div></div>
+   <div class="pc new">+ NOUVEAU PROJET</div>
+  </div>
+ </div>
+ <div class="pan"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+  <h2>◆ À TRAITER <span class="n">4</span></h2>
+  <div class="sec">DÉCISIONS</div>
+  <div class="card a"><div class="k"><b>● DÉCISION</b><span>il y a 2 min</span></div><div class="t">Écrire 2 fichiers dans Kazo.Jarvis</div><div class="d"><span class="ptag">KJ</span>Vue projets › Maquette HTML</div><span class="btn">AUTORISER</span><span class="btn">REFUSER</span></div>
+  <div class="card a"><div class="k"><b>● DÉCISION</b><span>il y a 22 min</span></div><div class="t">Lancer « Mode nuit » ?</div><div class="d"><span class="ptag">⌂</span>Domotique · déclencheur 21:00</div><span class="btn">OUI</span><span class="btn">PLUS TARD</span></div>
+  <div class="sec">ERREURS</div>
+  <div class="card r"><div class="k"><b>● ÉCHEC</b><span>04:41</span></div><div class="t">Build #17 — 2 tests en échec</div><div class="d"><span class="ptag">OS</span>Kazo OS · main</div><span class="btn">VOIR</span><span class="btn">CONFIER À CLAUDE</span></div>
+  <div class="sec">DOSSIER SANS PROJET</div>
+  <div class="card a"><div class="k"><b>● À CLASSER</b><span>05:02</span></div><div class="t">C:\dev\Essais\pdf</div><div class="d">Session Claude 9B04</div><span class="btn">ASSIGNER</span><span class="btn">CRÉER</span></div>
+ </div>
+</div>
+<div class="ann" style="left:110px;top:812px"><i>1</i>Chaque projet : ce qui attend, ce qui tourne, le dernier mot du fil</div>
+</body></html>
