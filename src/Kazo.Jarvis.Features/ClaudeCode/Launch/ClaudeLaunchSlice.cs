@@ -3,6 +3,7 @@ using Kazo.Jarvis.Kernel.Files;
 using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Permissions;
+using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,7 +43,8 @@ public static class ClaudeLaunchSlice
             provider.GetService<IClaudeCode>(),
             provider.GetService<IAllowedFolders>(),
             provider.GetService<ISpendCap>(),
-            provider.GetService<ILogger<ClaudeTaskRunner>>()));
+            provider.GetService<ILogger<ClaudeTaskRunner>>(),
+            provider.GetService<IProjectCatalog>()));
         services.TryAddSingleton<IClaudeTasks>(Runner);
         services.TryAddSingleton<IClaudeApprovals>(Runner);
         services.AddHostedService(Runner);

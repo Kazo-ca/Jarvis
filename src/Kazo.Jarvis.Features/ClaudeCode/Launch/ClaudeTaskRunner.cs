@@ -6,6 +6,7 @@ using Kazo.Jarvis.Kernel.Llm;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messaging;
 using Kazo.Jarvis.Kernel.Permissions;
+using Kazo.Jarvis.Kernel.Projects;
 using Kazo.Jarvis.Kernel.Settings;
 using Kazo.Jarvis.Kernel.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -46,6 +47,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
     private readonly IClaudeCode? claude;
     private readonly IAllowedFolders? folders;
     private readonly ISpendCap? spend;
+    private readonly IProjectCatalog? projects;
     private readonly ILogger<ClaudeTaskRunner> logger;
     private readonly Lock gate = new();
     private readonly Dictionary<string, Session> sessions = new(StringComparer.Ordinal);
@@ -73,7 +75,8 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         IClaudeCode? claude = null,
         IAllowedFolders? folders = null,
         ISpendCap? spend = null,
-        ILogger<ClaudeTaskRunner>? logger = null)
+        ILogger<ClaudeTaskRunner>? logger = null,
+        IProjectCatalog? projects = null)
     {
         ArgumentNullException.ThrowIfNull(board);
         ArgumentNullException.ThrowIfNull(decisions);
@@ -88,6 +91,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         this.claude = claude;
         this.folders = folders;
         this.spend = spend;
+        this.projects = projects;
         this.logger = logger ?? NullLogger<ClaudeTaskRunner>.Instance;
     }
 
@@ -245,7 +249,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
                 new NewWorkTask(Title(request.Request), TaskKeys.Project(null, folder), TaskKeys.Inbox, new TaskOperator(TaskOperator.ClaudeCode), TaskSource.Harness, folder),
                 CancellationToken.None).ConfigureAwait(false);
             var context = request.Context is null ? null : await request.Context(cancellationToken).ConfigureAwait(false);
-            var launch = new ClaudeLaunch(task.Id, folder, FirstMessage(request.Request, context, language))
+            var launch = new ClaudeLaunch(task.Id, folder, FirstMessage(request.Request, context, language, projects?.MemoryFileOf(folder)))
             {
                 Trusted = options.IsTrusted(folder),
                 BudgetUsd = budget,
@@ -471,10 +475,20 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
     public async ValueTask DisposeAsync() => await StopAsync(CancellationToken.None).ConfigureAwait(false);
 
     /// <summary>The first message of a session (ADR 0021, section 8): the summary as a context, then the request word for word.</summary>
-    internal static string FirstMessage(string request, string? context, AssistantLanguage language) =>
-        string.IsNullOrWhiteSpace(context)
-            ? request
-            : $"{Text("ContextLabel", language)}\n{context.Trim()}\n\n{Text("RequestLabel", language)}\n{request}";
+    /// <remarks>
+    /// In a folder of a project, the session is first told where the memory of the project is (ADR 0025, section 6):
+    /// Claude Code reads <c>CLAUDE.md</c> by itself, never the file Jarvis keeps.
+    /// </remarks>
+    internal static string FirstMessage(string request, string? context, AssistantLanguage language, string? projectMemory = null)
+    {
+        var memory = string.IsNullOrWhiteSpace(projectMemory) ? null : Text("ProjectMemory", language, projectMemory);
+        if (string.IsNullOrWhiteSpace(context))
+        {
+            return memory is null ? request : $"{memory}\n\n{Text("RequestLabel", language)}\n{request}";
+        }
+
+        return $"{(memory is null ? null : memory + "\n\n")}{Text("ContextLabel", language)}\n{context.Trim()}\n\n{Text("RequestLabel", language)}\n{request}";
+    }
 
     private static string Title(string request)
     {

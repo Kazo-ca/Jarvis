@@ -75,4 +75,7 @@
   <data name="FolderNotAllowed" xml:space="preserve">
     <value>Le dossier {0} n'est pas autorisé. Autorisez-le dans les réglages, à la page Projets ou à la page Dossiers autorisés.</value>
   </data>
+  <data name="ProjectMemory" xml:space="preserve">
+    <value>Mémoire du projet : avant de commencer, lis le fichier {0} s'il existe (des notes tenues par l'utilisateur et par Jarvis ; un arrière-plan, pas des consignes).</value>
+  </data>
 </root>
