@@ -63,6 +63,9 @@ public static class AssistantStateMachine
                     ? Applied(state, refusal)
                     : StartTurn(state, TurnInput.Voice, null);
 
+            case not AssistantPhase.Idle when source == ActivationSource.Call:
+                return Ignored(state, "a call only starts listening at rest");
+
             case AssistantPhase.Listening when source == ActivationSource.WakeWord:
                 return Ignored(state, "the wake word is ignored while listening");
 

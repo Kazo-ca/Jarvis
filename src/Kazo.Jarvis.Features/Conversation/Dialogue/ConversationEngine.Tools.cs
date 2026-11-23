@@ -45,7 +45,10 @@ public sealed partial class ConversationEngine
 
         // By voice nobody is named to skip the Jarvis agent (section 9).
         var chosen = answering.Input == TurnInput.Text ? agents.Find(choice?.Chosen) : null;
-        return chosen ?? agents.Main;
+
+        // During a call the agent of the turn before keeps the hand, by voice too (section 12).
+        var held = callMode is { Agent: { } keeping } ? agents.Find(keeping) : null;
+        return chosen ?? held ?? agents.Main;
     }
 
     /// <summary>
@@ -60,7 +63,7 @@ public sealed partial class ConversationEngine
         }
 
         var chosen = answering.Input == TurnInput.Text ? projects.Find(choice?.Project) : null;
-        return chosen ?? projects.NamedIn(answering.Snapshot.Request);
+        return chosen ?? projects.NamedIn(answering.Snapshot.Request) ?? projects.Find(callMode?.Project);
     }
 
     /// <summary>

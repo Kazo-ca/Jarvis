@@ -77,6 +77,7 @@ public sealed partial class ConversationEngine :
     private readonly IClaudeTasks? claudeTasks;
     private readonly IAgentCatalog? agents;
     private readonly AgentChoice? choice;
+    private readonly CallMode? callMode;
     private readonly IProjectCatalog? projects;
     private readonly Lock gate = new();
     private Answering? current;
@@ -115,8 +116,10 @@ public sealed partial class ConversationEngine :
         IClaudeTasks? claudeTasks = null,
         IAgentCatalog? agents = null,
         AgentChoice? choice = null,
-        IProjectCatalog? projects = null)
+        IProjectCatalog? projects = null,
+        CallMode? call = null)
     {
+        callMode = call;
         this.agents = agents;
         this.choice = choice;
         this.projects = projects;
@@ -366,12 +369,20 @@ public sealed partial class ConversationEngine :
 
             // « Demande à Claude… » goes straight to the target (ADR 0020, section 3): the local model is neither
             // loaded nor asked.
-            var forced = handOff?.Forced(answering.Snapshot.Request);
+            // A call (ADR 0025, section 12) ends on a goodbye, said by Jarvis without the model, and starts on a
+            // sentence like « On doit discuter de… », which is then answered like any other request.
+            var goodbye = callMode is { Active: true } && CallMode.IsGoodbye(answering.Snapshot.Request);
+            if (!goodbye && callMode is not null && answering.Input != TurnInput.Announcement && CallMode.Opens(answering.Snapshot.Request))
+            {
+                callMode.Start();
+            }
+
+            var forced = goodbye ? null : handOff?.Forced(answering.Snapshot.Request);
 
             // The answer to « sur quel dossier ? » (ADR 0021, section 1) starts the work that waited. It is asked
             // at every turn, so that anything else forgets the question; a new formula wins over it.
             var resumed = claudeTasks?.Resume(answering.Snapshot.Request);
-            if (forced is null && resumed is not null)
+            if (forced is null && resumed is not null && !goodbye)
             {
                 forced = new ForcedHandOff(HandOffKind.Task, resumed.Request);
             }
@@ -382,7 +393,7 @@ public sealed partial class ConversationEngine :
 
             var provider = model.Provider;
             IChatClient? client = null;
-            if (forced is null)
+            if (forced is null && !goodbye)
             {
                 // When Ollama freed the model, this announces the loading (the window says so) and waits for it.
                 await model.EnsureLoadedAsync(token).ConfigureAwait(false);
@@ -405,7 +416,12 @@ public sealed partial class ConversationEngine :
             var run = new TurnRun(answering, turnLanguage, recent, recall) { Project = FirstProject(answering) };
             Usage? local = null;
             started = time.GetTimestamp();
-            if (forced is not null)
+            if (goodbye)
+            {
+                await WriteAsync(run, SystemPrompt.Text("Call_Goodbye", turnLanguage)).ConfigureAwait(false);
+                callMode!.End();
+            }
+            else if (forced is not null)
             {
                 try
                 {
@@ -448,6 +464,12 @@ public sealed partial class ConversationEngine :
                     // the request as the user made it, not the calls of the agent before it.
                     agent = next;
                     run.Next = null;
+                }
+
+                // During a call the agent that answered keeps the hand, with its project, until the user goes back to Jarvis.
+                if (callMode is { Active: true })
+                {
+                    callMode.Keep(agent is null || agent.Id == agents?.Main.Id ? null : agent.Id, run.Project?.Id);
                 }
             }
 

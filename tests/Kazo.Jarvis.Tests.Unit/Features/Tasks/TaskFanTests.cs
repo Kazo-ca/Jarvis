@@ -42,7 +42,8 @@ public sealed class TaskFanTests
         });
 
         time.Advance(TaskFan.ClosingTime);
-        await WaitAsync(() => fan.Phase == FanPhase.Closed);
+        // The phase is set before the change is told: wait for both, or the count is read between the two.
+        await WaitAsync(() => fan.Phase == FanPhase.Closed && Volatile.Read(ref changes) == 3);
         Assert.Multiple(() =>
         {
             Assert.That(surface.Shown, Is.False);

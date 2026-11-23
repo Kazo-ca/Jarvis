@@ -20,6 +20,12 @@ public enum ActivationSource
 
     /// <summary>A single click on the orb. While listening, it cancels listening.</summary>
     Click,
+
+    /// <summary>
+    /// The call goes on (ADR 0025, section 12): Jarvis listens to what follows without the wake word. It only
+    /// starts listening at rest: it never cancels listening and never interrupts.
+    /// </summary>
+    Call,
 }
 
 /// <summary>Wake word, hotkey or click: starts listening, cancels it, or interrupts Jarvis.</summary>

@@ -216,4 +216,16 @@
   <data name="ProjectChoice_Hint" xml:space="preserve">
     <value>The project a typed request is about. A spoken request names its project itself.</value>
   </data>
+  <data name="Call_Start" xml:space="preserve">
+    <value>Call</value>
+  </data>
+  <data name="Call_End" xml:space="preserve">
+    <value>Hang up</value>
+  </data>
+  <data name="Call_On" xml:space="preserve">
+    <value>Call in progress with the {0} agent. Say "goodbye" to end it.</value>
+  </data>
+  <data name="Call_Hint" xml:space="preserve">
+    <value>During a call, the agent that answers keeps the hand and Jarvis listens to what follows without "Hey Jarvis".</value>
+  </data>
 </root>

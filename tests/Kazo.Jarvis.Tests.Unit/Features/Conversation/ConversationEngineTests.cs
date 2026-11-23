@@ -48,6 +48,7 @@ public sealed partial class ConversationEngineTests
     private Agents.FakeAgentFiles? agentFiles;
     private Kazo.Jarvis.Features.Agents.Catalog.AgentCatalog? agents;
     private AgentChoice? agentChoice;
+    private CallMode callMode = null!;
     private Projects.FakeLocalFiles? projectFiles;
     private Kazo.Jarvis.Features.Projects.Catalog.ProjectCatalog? projects;
     private List<IEvent> published = null!;
@@ -106,7 +107,9 @@ public sealed partial class ConversationEngineTests
             claudeTasks = TestContext.CurrentContext.Test.Properties.ContainsKey(WithClaudeTasks) ? new FakeClaudeTasks() : null,
             agents,
             agentChoice,
-            projects);
+            projects,
+            callMode = new CallMode());
+        var callListener = new CallListener(callMode, Bus);
         published = [];
         subscriptions =
         [
@@ -119,6 +122,9 @@ public sealed partial class ConversationEngineTests
             Bus.Subscribe<AnswerFinishedWithoutSpeech>(engine.HandleAsync),
             Bus.Subscribe<TurnCancelled>(engine.HandleAsync),
             Bus.Subscribe<TurnFailed>(engine.HandleAsync),
+            Bus.Subscribe<TurnStarted>(callListener.HandleAsync),
+            Bus.Subscribe<TurnCancelled>(callListener.HandleAsync),
+            Bus.Subscribe<AssistantStateChanged>(callListener.HandleAsync),
             Bus.Subscribe<IEvent>((message, _) =>
             {
                 lock (published)

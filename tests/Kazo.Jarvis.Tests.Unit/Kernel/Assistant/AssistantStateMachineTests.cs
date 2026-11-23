@@ -15,6 +15,9 @@ public sealed class AssistantStateMachineTests
 
     private static readonly ActivationSource[] AllSources = Enum.GetValues<ActivationSource>();
 
+    // What the user does: a call that goes on never interrupts (ADR 0025, section 12).
+    private static readonly ActivationSource[] UserSources = [.. AllSources.Where(source => source != ActivationSource.Call)];
+
     // Row: Idle + activation -> Listening, new turn.
     [TestCaseSource(nameof(AllSources))]
     public void Idle_activation_starts_listening_with_a_new_turn(ActivationSource source)
@@ -125,6 +128,27 @@ public sealed class AssistantStateMachineTests
         AssertIgnored(transition, listening);
     }
 
+    // ADR 0025, section 12: a call starts listening at rest, and never cancels listening nor interrupts.
+    [Test]
+    public void A_call_starts_listening_only_at_rest()
+    {
+        var idle = In(AssistantPhase.Idle);
+        var started = Apply(idle, new ActivationRequested(ActivationSource.Call));
+        var muted = Apply(idle with { MicrophoneMuted = true }, new ActivationRequested(ActivationSource.Call));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(started.State.Phase, Is.EqualTo(AssistantPhase.Listening));
+            Assert.That(muted.State.Phase, Is.EqualTo(AssistantPhase.Idle));
+            Assert.That(muted.Effects.OfType<ActivationRefused>().Single().Reason, Is.EqualTo(ActivationRefusal.MicrophoneMuted));
+        });
+        foreach (var phase in new[] { AssistantPhase.Listening, AssistantPhase.Thinking, AssistantPhase.Speaking })
+        {
+            var busy = In(phase);
+            AssertIgnored(Apply(busy, new ActivationRequested(ActivationSource.Call)), busy);
+        }
+    }
+
     // Row: Listening + microphone muted -> Idle, turn cancelled.
     [Test]
     public void Listening_microphone_muted_cancels_the_turn()
@@ -162,7 +186,7 @@ public sealed class AssistantStateMachineTests
     [Test]
     public void Thinking_or_speaking_activation_interrupts_and_starts_a_new_turn(
         [Values(AssistantPhase.Thinking, AssistantPhase.Speaking)] AssistantPhase phase,
-        [ValueSource(nameof(AllSources))] ActivationSource source)
+        [ValueSource(nameof(UserSources))] ActivationSource source)
     {
         var transition = Apply(In(phase), new ActivationRequested(source));
 

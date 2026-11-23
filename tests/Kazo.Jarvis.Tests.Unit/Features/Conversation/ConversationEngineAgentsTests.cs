@@ -1,4 +1,5 @@
 using Kazo.Jarvis.Features.Conversation.Dialogue;
+using Kazo.Jarvis.Kernel.Assistant;
 using Kazo.Jarvis.Kernel.Localization;
 using Kazo.Jarvis.Kernel.Messages.Assistant;
 using Kazo.Jarvis.Kernel.Messages.Speech;
@@ -348,6 +349,125 @@ public sealed partial class ConversationEngineTests
         await TurnStoredAsync();
 
         Assert.That(claudeTasks!.Started.Select(started => started.Request.Folder), Is.EqualTo(new[] { "/projets/kazo-os", null }), "Without a project the request names the folder, as before.");
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task During_a_call_the_agent_that_answered_keeps_the_hand_with_its_project_until_Jarvis_is_asked_back_or_goodbye_is_said()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+
+        // « On doit discuter de… » starts the call (ADR 0025, section 12); the Jarvis agent sorts as usual.
+        client.Rounds.Enqueue([Call("hand_to_agent", "call_1", ("agent", "Projet"), ("project", "Kazo OS"))]);
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("On doit discuter de Kazo OS."));
+        await TurnStoredAsync();
+        var afterOpening = (callMode.Active, callMode.Agent, callMode.Project);
+
+        // The next turn goes straight to the agent that kept the hand, with the project of the call.
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Et ensuite ?"));
+        await TurnStoredAsync();
+        var kept = client.Calls[2];
+        var second = journal.Turns[^1];
+
+        // Back to Jarvis: the call goes on, with the Jarvis agent.
+        client.Rounds.Enqueue([Call("return_to_jarvis", "call_2")]);
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Reviens à Jarvis."));
+        await TurnStoredAsync();
+        var afterReturn = (callMode.Active, callMode.Agent);
+        var asked = client.Calls.Count;
+
+        // Goodbye ends it, said by Jarvis without the model; then nothing is kept.
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Au revoir !"));
+        await TurnStoredAsync();
+        var goodbye = journal.Turns[^1];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(afterOpening, Is.EqualTo((true, "project", "kazo-os")));
+            Assert.That(client.Calls, Has.Count.EqualTo(asked), "No model for a goodbye.");
+            Assert.That(kept.Options?.Instructions, Does.Contain("Tu reçois le projet demandé").And.Contain("[Projet]\nNom : Kazo OS"));
+            Assert.That(kept.Options!.Tools!.Select(tool => tool.Name), Does.Contain("return_to_jarvis").And.Not.Contain("hand_to_agent"));
+            Assert.That((second.Agent, second.Project), Is.EqualTo(("Projet", "Kazo OS")));
+            Assert.That(afterReturn, Is.EqualTo((true, (string?)null)));
+            Assert.That((goodbye.Answer, goodbye.Outcome), Is.EqualTo(("Au revoir.", TurnOutcome.Answered)));
+            Assert.That(callMode.Active, Is.False);
+        });
+    }
+
+    [Test]
+    public async Task During_a_call_Jarvis_listens_to_what_follows_a_spoken_turn_without_the_wake_word()
+    {
+        // Outside a call, a spoken turn ends at rest.
+        var turn = await StartSpokenTurnAsync();
+        await SpeakAnswerAsync(turn, "Quelle heure est-il ?");
+        var outside = State.Current.Phase;
+
+        callMode.Start();
+        turn = await StartSpokenTurnAsync();
+        await SpeakAnswerAsync(turn, "Et demain ?");
+        var after = (State.Current.Phase, State.Current.CurrentTurn != turn);
+
+        // Nothing heard: Jarvis listens again, three times in all, then waits for the wake word or a click.
+        var silences = 0;
+        while (State.Current.Phase == AssistantPhase.Listening && silences < 10)
+        {
+            await Bus.PublishAsync<AssistantInput>(new NothingHeard(State.Current.CurrentTurn));
+            silences++;
+        }
+
+        // A typed turn does not start listening, and a listening the user cancels is not started again.
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Bonsoir"));
+        await TurnStoredAsync();
+        var afterTyped = State.Current.Phase;
+        await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Hotkey));
+        await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Hotkey));
+        var afterCancel = State.Current.Phase;
+
+        // Words heard start the count again; a muted microphone is never opened by the call.
+        turn = await StartSpokenTurnAsync();
+        await SpeakAnswerAsync(turn, "Et après ?");
+        var again = State.Current.Phase;
+        await Bus.PublishAsync<AssistantInput>(new MicrophoneMuteChanged(true));
+        await Bus.PublishAsync<AssistantInput>(new ActivationRequested(ActivationSource.Call));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(outside, Is.EqualTo(AssistantPhase.Idle));
+            Assert.That(after, Is.EqualTo((AssistantPhase.Listening, true)));
+            Assert.That(silences, Is.EqualTo(CallMode.MostSilences));
+            Assert.That(afterTyped, Is.EqualTo(AssistantPhase.Idle));
+            Assert.That(afterCancel, Is.EqualTo(AssistantPhase.Idle));
+            Assert.That(again, Is.EqualTo(AssistantPhase.Listening));
+            Assert.That(State.Current.Phase, Is.EqualTo(AssistantPhase.Idle));
+            Assert.That(callMode.Active, Is.True, "Silence never ends a call: goodbye does.");
+        });
+    }
+
+    [Test]
+    public void A_call_starts_on_a_few_sentences_and_ends_on_a_goodbye_alone()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(CallMode.Opens("Jarvis, on doit discuter du projet Kazo OS."), Is.True);
+            Assert.That(CallMode.Opens("Il faut qu'on parle du problème de réseau"), Is.True);
+            Assert.That(CallMode.Opens("We need to talk about the kitchen lights."), Is.True);
+            Assert.That(CallMode.Opens("Quelle heure est-il ?"), Is.False);
+            Assert.That(CallMode.Opens(null), Is.False);
+            Assert.That(CallMode.IsGoodbye(" Au revoir, Jarvis ! "), Is.True);
+            Assert.That(CallMode.IsGoodbye("Goodbye."), Is.True);
+            Assert.That(CallMode.IsGoodbye("Dis au revoir à Marie dans le message"), Is.False);
+            Assert.That(CallMode.IsGoodbye(string.Empty), Is.False);
+        });
+    }
+
+    private async Task SpeakAnswerAsync(TurnId turn, string heard)
+    {
+        await Bus.PublishAsync(new UtteranceTranscribed(turn, heard, AssistantLanguage.French, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(300)));
+        await engine.LastAnswer.WaitAsync(Wait);
+        await Bus.PublishAsync<AssistantInput>(new FirstSentenceReady(turn));
+        await Bus.PublishAsync<AssistantInput>(new SpeechEnded(turn));
+        await engine.LastSave.WaitAsync(Wait);
     }
 
     [Test]

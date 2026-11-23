@@ -6,8 +6,8 @@ Chantier `stage2/17-agents`. Décision : [ADR 0025](adr/0025-task-agents-and-the
 
 Ce chantier construit les agents, leurs fichiers, le tri par l'agent Jarvis et le choix de l'agent dans la
 conversation. Le chantier 18 a ajouté la mémoire de chaque agent et le choix de l'agent d'un serveur MCP (plus bas), le
-chantier 19 les projets et l'agent « Projet » ([projects.md](projects.md)). **Reste à construire :** le mode
-« Appel » (section 12).
+chantier 19 les projets et l'agent « Projet » ([projects.md](projects.md)). Le chantier 20 a construit le mode
+« Appel » (section 12, [call-mode.md](call-mode.md)).
 
 ## Ce qui est construit
 

@@ -6,8 +6,8 @@ Work item `stage2/17-agents`. Decision: [ADR 0025](adr/0025-task-agents-and-thei
 
 This work item builds the agents, their files, the sorting by the Jarvis agent and the choice of the agent in the
 conversation. Work item 18 added the memory of each agent and the choice of the agent of an MCP server (below), work item 19
-the projects and the "Project" agent ([projects.md](projects.md)). **Still to build:** the "Call" mode
-(section 12).
+the projects and the "Project" agent ([projects.md](projects.md)). Work item 20 built the "Call" mode
+(section 12, [call-mode.md](call-mode.md)).
 
 ## What is built
 
