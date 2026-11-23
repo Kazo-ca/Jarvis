@@ -3,7 +3,7 @@
 @inject IStringLocalizer<ConfirmationWindow> T
 
 @* The confirmation window (ADR 0023, section 2): who asks, the summary, the exact detail, the class, Approve
-   and Refuse. It waits as long as it takes: nothing is decided in place of the user. It follows the desk and closes with the request. Closing it is a refusal. *@
+   and Refuse. It waits as long as it takes: nothing is decided in place of the user. It follows the desk and closes with the request. Closing it is a refusal, which the desk hears from the dialog service. *@
 <div class="confirmation-window" data-confirmation-window data-confirmation-class="@(open?.Request.Class.ToString() ?? "")">
     @if (open is { } request)
     {
@@ -47,13 +47,9 @@
     /// <inheritdoc />
     public void Dispose()
     {
+        // Nothing is answered here: a view that goes away (a page of the Web host leaving, a content built again
+        // for another language) is not the user refusing. The desk hears the window itself closing.
         Desk.Changed -= OnChanged;
-
-        // A window closed by the user while its request is open is the user's refusal.
-        if (open is { } shown)
-        {
-            Desk.Click(shown.Id, false);
-        }
     }
 
     private void OnChanged() => _ = InvokeAsync(() =>

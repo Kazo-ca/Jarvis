@@ -24,6 +24,9 @@ internal sealed class WindowDialogService : IDialogService
     }
 
     /// <inheritdoc />
+    public event Action<string>? Closed;
+
+    /// <inheritdoc />
     public void Open(DialogRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -41,7 +44,11 @@ internal sealed class WindowDialogService : IDialogService
             }
 
             var window = new DialogWindow(services, request, paths.WebView);
-            window.Closed += (_, _) => open.Remove(request.Key);
+            window.Closed += (_, _) =>
+            {
+                open.Remove(request.Key);
+                Closed?.Invoke(request.Key);
+            };
             open[request.Key] = window;
             window.Show();
         });

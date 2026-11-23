@@ -10,7 +10,7 @@ In the kernel, `Kazo.Jarvis.Kernel.Desktop`. None names a platform type.
 | Contract | Used to | Windows host | Web host |
 | --- | --- | --- | --- |
 | `IOrbWindow` | Show, hide, toggle the orb | `OrbWindowService`: transparent WPF window | `SimulatedOrbWindow`: the orb in the page |
-| `IDialogService` | Open a component in its window, one per key | `WindowDialogService`: one window and web view per key, same service provider | `OverlayDialogService`: a layer over the page |
+| `IDialogService` | Open a component in its window, one per key; `Closed` says with its key that a window closed, whoever closed it | `WindowDialogService`: one window and web view per key, same service provider | `OverlayDialogService`: a layer over the page |
 | `IGlobalHotkey` | Register the global hotkey and receive its presses | `Win32GlobalHotkey`: `RegisterHotKey` on a message-only window | `SimulatedGlobalHotkey`: a button of the page |
 | `ILaunchAtLogin` | Start with Windows | `RegistryLaunchAtLogin`: value `Kazo.Jarvis` of the user's `Run` key | `InMemoryLaunchAtLogin` |
 

@@ -151,3 +151,16 @@ adapters and a time limit.
 
 Same source: an object handed out by several factory registrations (itself, its interface, the hosted
 service) is disposed once per registration. Its `DisposeAsync` must accept several calls.
+
+## The end of a component is not a gesture of the user (stage 2, fan test failing on CI only)
+
+The confirmation window refused its request in `Dispose`, reading the end of the component as "the user closed
+the window". In the Web host the dialogs live in the host: **every** connected page draws them, also a page
+whose browser is gone and whose connection the server has not dropped yet. When the server ended such a
+connection while a request was open, its components were disposed and the request was refused with no click.
+On GitHub the pages of the earlier tests were dropped later than locally, so a test failed there only: the
+window "never appeared" or was gone a moment later. The same would happen when `LanguageScope` builds the
+content again for another language.
+
+Rule: a component never answers for the user in `Dispose`. What the user closes is told by the host
+(`IDialogService.Closed`). And in the Web host, remember that a component can exist once per connected page.

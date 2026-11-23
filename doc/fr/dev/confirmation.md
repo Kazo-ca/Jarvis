@@ -52,7 +52,7 @@ résultat de l'outil, ou une phrase qui dit pourquoi l'appel est refusé.
 | Tour parlé, « Sensible », micro non coupé | Question dite, une écoute, réponse à la voix ou au clic. |
 | Tour parlé, « Sensible », micro coupé | Question dite (« Approuvez ou refusez dans la fenêtre »), clic seul. |
 | Tour parlé, « Critique » | La phrase dit que la voix ne suffit pas ; clic seul. |
-| Fenêtre fermée par l'utilisateur | Refus. |
+| Fenêtre fermée par l'utilisateur | Refus. Le guichet l'apprend par `IDialogService.Closed`, pas par la fin du composant : une vue qui disparaît (une page de l'hôte Web qui s'en va, un contenu reconstruit pour une autre langue) ne répond rien. |
 | Aucune réponse | La demande reste ouverte, le tour attend. |
 | Demande hors d'un tour | La fenêtre seule, rien n'est dit. |
 | Mot d'éveil, raccourci ou clic sur l'orbe | Le tour est annulé (ADR 0005), la demande se ferme, cause `Interrupted`. |

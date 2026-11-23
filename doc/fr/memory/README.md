@@ -364,7 +364,7 @@ ce qu'il décrit.
 - **Dépôt public :** Benoit a confirmé le 19 novembre 2026 que `Kazo-ca/Jarvis` est public ([ADR 0014](../dev/adr/0014-license-kazo-bar-rule-and-jarvis-py.md)). La
   vérification des versions (US1.18) n'a donc pas besoin de jeton ; la conséquence de l'ADR 0001 qui en
   parlait ne s'applique plus.
-- **Échecs de tests connus :** aucun.
+- **Échecs de tests connus :** aucun. Le test de l'éventail qui n'échouait que sur l'intégration continue (`TaskFanTests`, l'écriture autorisée depuis son panneau) est expliqué et corrigé (lot `stage2/17-confirmation-survives-other-views`) : la fenêtre de confirmation refusait sa demande à la fin d'un composant, et le serveur mettait fin aux pages des tests précédents à ce moment ; le refus vient maintenant de `IDialogService.Closed` ([pièges](../dev/pitfalls.md)).
 - **Vérification sur Windows du chantier 1 : faite** le 19 novembre 2026 par un agent sur le PC de Benoit
   (SDK 10.0.402) : construction sans avertissement, tests unitaires 29/29, Playwright 1/1, hôte Web en
   HTTP 200, hôte Windows ouvert, réactif et fermé sans erreur. Lancé sur une session verrouillée, l'hôte
