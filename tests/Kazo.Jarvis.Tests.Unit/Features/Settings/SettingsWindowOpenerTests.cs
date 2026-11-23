@@ -74,6 +74,13 @@ public sealed class SettingsWindowOpenerTests
     {
         public List<DialogRequest> Opened { get; } = [];
 
+        // No test here closes a window.
+        public event Action<string>? Closed
+        {
+            add { }
+            remove { }
+        }
+
         public void Open(DialogRequest request) => Opened.Add(request);
 
         public void Close(string key)

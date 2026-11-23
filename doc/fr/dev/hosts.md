@@ -10,7 +10,7 @@ Dans le noyau, `Kazo.Jarvis.Kernel.Desktop`. Aucun ne nomme un type de plateform
 | Contrat | Sert à | Hôte Windows | Hôte Web |
 | --- | --- | --- | --- |
 | `IOrbWindow` | Afficher, cacher, basculer l'orbe | `OrbWindowService` : fenêtre WPF transparente | `SimulatedOrbWindow` : l'orbe dans la page |
-| `IDialogService` | Ouvrir un composant dans sa fenêtre, une par clé | `WindowDialogService` : une fenêtre et une vue web par clé, même fournisseur de services | `OverlayDialogService` : un calque par-dessus la page |
+| `IDialogService` | Ouvrir un composant dans sa fenêtre, une par clé ; `Closed` dit avec sa clé qu'une fenêtre s'est fermée, peu importe qui l'a fermée | `WindowDialogService` : une fenêtre et une vue web par clé, même fournisseur de services | `OverlayDialogService` : un calque par-dessus la page |
 | `IGlobalHotkey` | Enregistrer le raccourci global et recevoir ses appuis | `Win32GlobalHotkey` : `RegisterHotKey` sur une fenêtre de messages | `SimulatedGlobalHotkey` : un bouton de la page |
 | `ILaunchAtLogin` | Démarrage avec Windows | `RegistryLaunchAtLogin` : valeur `Kazo.Jarvis` de la clé `Run` de l'utilisateur | `InMemoryLaunchAtLogin` |
 

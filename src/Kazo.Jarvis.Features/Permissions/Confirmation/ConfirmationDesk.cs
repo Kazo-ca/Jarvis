@@ -52,6 +52,7 @@ public sealed partial class ConfirmationDesk : IConfirmation, IOpenConfirmations
         this.state = state;
         this.language = language;
         this.logger = logger;
+        dialogs.Closed += OnDialogClosed;
     }
 
     /// <inheritdoc />
@@ -176,6 +177,7 @@ public sealed partial class ConfirmationDesk : IConfirmation, IOpenConfirmations
     /// <inheritdoc />
     public void Dispose()
     {
+        dialogs.Closed -= OnDialogClosed;
         Pending? pending;
         lock (gate)
         {
@@ -191,6 +193,26 @@ public sealed partial class ConfirmationDesk : IConfirmation, IOpenConfirmations
     {
         var text = Texts.GetString(key, language.Culture) ?? key;
         return arguments.Length == 0 ? text : string.Format(CultureInfo.InvariantCulture, text, arguments);
+    }
+
+    /// <summary>
+    /// The window closed while its request is open: the user closed it, and that is a refusal. When the desk closes
+    /// the window itself, the request is already over and nothing is open here.
+    /// </summary>
+    private void OnDialogClosed(string key)
+    {
+        if (!string.Equals(key, DialogKey, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        Pending? pending;
+        lock (gate)
+        {
+            pending = current;
+        }
+
+        pending?.Answer.TrySetResult(new ConfirmationOutcome(ConfirmationAnswer.Refused, ConfirmationChannels.Click));
     }
 
     private void Answer(Guid id, ConfirmationOutcome outcome)
