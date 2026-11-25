@@ -199,9 +199,18 @@ public sealed record ProjectsOverview(IReadOnlyList<ProjectBoard> Projects, IRea
         var projects = definitions
             .Select(project => new ProjectBoard(project.Id, project.Name, project.Folder, Subjects(byProject[project.Id], children, task => task.Topic)))
             // Outside a project, the folder or the repository of a task is the closest thing to a subject.
-            .Append(new ProjectBoard(GeneralId, string.Empty, null, Subjects(general, children, task => task.Project == TaskKeys.Inbox ? task.Topic : task.Project)))
+            .Append(new ProjectBoard(GeneralId, string.Empty, null, Subjects(general, children, GeneralKey)))
             .ToList();
         return new ProjectsOverview(projects, without);
+    }
+
+    /// <summary>The subject of a task in the built-in project: its folder or its repository, else its own subject.</summary>
+    /// <param name="task">The task.</param>
+    /// <returns>The key of the subject.</returns>
+    public static string GeneralKey(WorkTask task)
+    {
+        ArgumentNullException.ThrowIfNull(task);
+        return task.Project == TaskKeys.Inbox ? task.Topic : task.Project;
     }
 
     private static List<SubjectBoard> Subjects(List<WorkTask> tasks, ILookup<string, WorkTask> children, Func<WorkTask, string> key) =>

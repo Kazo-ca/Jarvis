@@ -165,4 +165,34 @@
   <data name="TaskMessages" xml:space="preserve">
     <value>Messages of the task</value>
   </data>
+  <data name="Offer_Title" xml:space="preserve">
+    <value>Make a project of "{0}"?</value>
+  </data>
+  <data name="Offer_Why" xml:space="preserve">
+    <value>{0} tasks and {1} messages in {2} days.</value>
+  </data>
+  <data name="Offer_Name" xml:space="preserve">
+    <value>Name of the project</value>
+  </data>
+  <data name="Offer_Folder" xml:space="preserve">
+    <value>Proposed folder: {0}</value>
+  </data>
+  <data name="Offer_Moved" xml:space="preserve">
+    <value>The subject, its tasks and their threads are moved to the new project.</value>
+  </data>
+  <data name="Offer_Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Offer_ChangeFolder" xml:space="preserve">
+    <value>Change the folder</value>
+  </data>
+  <data name="Offer_Later" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="Offer_Refuse" xml:space="preserve">
+    <value>Refuse</value>
+  </data>
+  <data name="Offer_Failed" xml:space="preserve">
+    <value>The project was not created: this name is taken or the folder is refused. "Change the folder" opens the Projects page.</value>
+  </data>
 </root>

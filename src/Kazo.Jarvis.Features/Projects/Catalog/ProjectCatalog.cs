@@ -348,6 +348,10 @@ public sealed class ProjectCatalog : IProjectCatalog, IDisposable
         return result.Outcome == SettingsWriteOutcome.Saved ? ProjectOutcome.Added : ProjectOutcome.NotSaved;
     }
 
+    /// <inheritdoc />
+    public async ValueTask<bool> CreateAsync(string name, string folder, CancellationToken cancellationToken = default) =>
+        await AddAsync(name, folder, cancellationToken).ConfigureAwait(false) == ProjectOutcome.Added;
+
     /// <summary>Assigns one more folder to a project: the sessions that work there belong to it.</summary>
     /// <param name="id">The identity of the project.</param>
     /// <param name="folder">The folder.</param>

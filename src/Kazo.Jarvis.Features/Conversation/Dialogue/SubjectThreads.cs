@@ -27,8 +27,12 @@ public sealed class SubjectThreads : ISubjectThreads, IDisposable
 
     /// <inheritdoc />
     public IReadOnlyList<ThreadMessage> Of(string project, string subject) =>
+        [.. All.Where(message => message.Address.Project == project && message.Address.Subject == subject)];
+
+    /// <inheritdoc />
+    public IReadOnlyList<ThreadMessage> All =>
         [.. journal.Turns
-            .Where(turn => turn.Thread is { } thread && thread.Project == project && thread.Subject == subject)
+            .Where(turn => turn.Thread is not null)
             .OrderBy(turn => turn.At)
             .Select(turn => new ThreadMessage(turn.Key, turn.At, turn.Request, turn.Answer, turn.Agent, turn.Thread!, turn.Outcome == TurnOutcome.Pending))];
 

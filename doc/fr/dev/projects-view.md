@@ -87,6 +87,30 @@ contexte. La fin de la session reprise est annoncée comme celle d'une session n
 demandé seulement par `ClaudeTaskRunner` une fois la session relancée ; un crochet tardif n'y arrive toujours
 pas. Une reprise qui ne démarre pas laisse la tâche telle qu'elle a fini.
 
+## Proposer de faire un projet d'un sujet de Général
+
+Chantier `stage2/28-general-project-offer` (ADR 0026, sections 6 et 11, point 3).
+
+- Dans le panneau de « Général », une carte par sujet qui a pris **4 tâches ou 30 messages en 7 jours**
+  (`ProjectOffer.For`, fonction pure). Elle propose un nom (celui du sujet, modifiable) et un dossier (celui
+  où travaillent le plus de ses tâches) et dit que le sujet, ses tâches et leurs fils sont déplacés.
+- **Créer** appelle `IProjectCatalog.CreateAsync(nom, dossier)` et ouvre le nouveau projet. **Changer le
+  dossier** ouvre la page « Projets ». **Plus tard** cache la proposition 7 jours. **Refuser** ne la repropose
+  plus pour ce sujet. Jarvis ne crée jamais un projet seul.
+- Un sujet dont aucune tâche n'a de dossier n'est pas proposé : il n'y a pas où faire le projet.
+- Les seuils et les réponses sont dans la section de réglages `Projects.View` (`ProjectsViewOptions` :
+  `OfferTasks`, `OfferMessages`, `OfferDays`, `LaterDays`, `Refused`, `Later`).
+
+**Ce qui est « déplacé ».** Les tâches suivent d'elles-mêmes : une tâche appartient au projet qui tient son
+dossier. Les messages gardent l'adresse où ils ont été écrits ; `ThreadHomes.HomeOf` dit où les montrer :
+
+1. une réponse à une tâche (`T3>`) est montrée dans le sujet où se trouve cette tâche ;
+2. un message au sujet reste là où il a été écrit tant que ce sujet existe ;
+3. quand les tâches d'un sujet de Général sont parties dans un projet, le message va avec la tâche qui était
+   la plus récente au moment où il a été écrit (la plus ancienne s'il les précède toutes).
+
+Noyau : `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
+
 ## Tranche `Projects/View`
 
 | Fichier | Rôle |
@@ -95,6 +119,9 @@ pas. Une reprise qui ne démarre pas laisse la tâche telle qu'elle a fini.
 | `ProjectsViewState` | Entrée du rail, sujet et tâche ouverts ; gardés en mémoire |
 | `ProjectsViewOpener` | Répond à `ProjectsViewRequested` : ouvre la fenêtre `Projects.View` |
 | `ProjectsView` | Le composant Razor, son CSS et ses textes |
+| `SubjectAnswer` | Le préfixe `T3>` d'un message |
+| `ProjectOffer`, `ProjectsViewOptions` | La proposition de faire un projet, ses seuils, les refus et les reports |
+| `ThreadHomes` | Dans quel sujet un message est montré aujourd'hui |
 
 Noyau : `IProjectCatalog.OwnerOf` ; `DialogRequest.Maximized`, que l'hôte Windows applique à la fenêtre et que
 l'hôte Web traduit par une couche plus large. La tranche ne référence ni `Projects/Catalog` ni `Tasks/Board` :
@@ -121,6 +148,13 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 10. `T3>` adressé à une session encore en cours est refusé avec une phrase ; le message n'est pas mis en
     attente pour être remis à la fin.
 11. Pas de choix de l'agent dans le fil, et rien à la voix (« pour la tâche 3 »).
+12. Les seuils de la proposition se règlent dans le fichier de réglages, pas encore dans une page.
+13. « Plus tard » vaut 7 jours. « Changer le dossier » mène à la page « Projets » au lieu d'un champ dans la
+    carte.
+14. Un message écrit au sujet de Général (sans `T3>`) suit, après la création du projet, la tâche la plus
+    récente au moment où il a été écrit.
+15. La proposition n'est montrée que dans le panneau de « Général » ; Jarvis ne la dit pas à voix haute et
+    l'orbe ne la signale pas.
 
 ## Pas encore construit
 
@@ -128,7 +162,6 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 - Les fichiers d'une tâche, le journal complet (section 5).
 - Le fil du projet comme conversation avec l'agent du projet (section 2).
 - « + Nouveau sujet », les archives (section 11).
-- La proposition de faire un projet d'un sujet de Général (section 6).
 
 ## Non vérifié
 
@@ -145,6 +178,8 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 - Playwright : `ProjectsViewTests` (double-clic, session sans projet, tâche qui attend, projet créé depuis la
   vue, message écrit dans le fil d'un sujet et `T1>` vers une session lancée à la main) ; `ClaudeTasksTests`
   (`T1>` reprend une session terminée lancée par Jarvis).
+- `ProjectOfferTests` (seuils, dossier proposé, refus, report, messages qui suivent les tâches) et le scénario
+  Playwright de la proposition (quatre sessions terminées, création, fil qui suit, « Plus tard »).
 - Unitaires de la reprise : `ClaudeTaskRunnerTests` (reprise, session en cours, session à la main, reprise
   qui échoue) et `ConversationEngineTests` (aucun modèle appelé, la phrase, le repli sur l'agent local).
 

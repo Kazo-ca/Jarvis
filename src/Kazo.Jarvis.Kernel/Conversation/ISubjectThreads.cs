@@ -41,4 +41,7 @@ public interface ISubjectThreads
     /// <param name="subject">The key of the subject.</param>
     /// <returns>The messages.</returns>
     IReadOnlyList<ThreadMessage> Of(string project, string subject);
+
+    /// <summary>Every message written in a thread, oldest first: who shows the threads places them (ADR 0026, section 6).</summary>
+    IReadOnlyList<ThreadMessage> All => [];
 }

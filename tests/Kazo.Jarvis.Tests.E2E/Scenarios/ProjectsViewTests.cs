@@ -200,6 +200,75 @@ public sealed class ProjectsViewTests : PageTest
         await Expect(View.Locator("[data-task-thread] [data-task-messages]")).ToContainTextAsync("oui, on fait comme ça");
     }
 
+    [Test]
+    public async Task A_subject_of_the_built_in_project_that_took_four_tasks_is_offered_as_a_project_and_its_thread_follows()
+    {
+        // Four sessions ended in the same folder, a fifth works there: the subject takes a lot of room.
+        for (var session = 0; session < 4; session++)
+        {
+            await PressAsync("#hand-session-work");
+            await PressAsync("#hand-session-end");
+        }
+
+        await PressAsync("#hand-session-work");
+        await Orb.DblClickAsync();
+        await View.Locator($"[data-rail='{General}']").ClickAsync();
+        var offer = View.Locator("[data-offer='kazo-bar']");
+        await Expect(offer.Locator("[data-offer-folder]")).ToContainTextAsync(Folder);
+        await Expect(offer.Locator("[data-offer-name]")).ToHaveValueAsync("kazo-bar");
+
+        // A message written in the thread of the subject before the project exists.
+        await View.Locator("[data-subject='kazo-bar']").ClickAsync();
+        await WriteAsync("note pour le futur projet");
+        var requests = View.Locator("[data-thread-message='request']");
+        await Expect(requests.Last).ToContainTextAsync("note pour le futur projet");
+        await Expect(View.Locator("[data-thread-message='answer']").Last).ToHaveAttributeAsync("data-thread-pending", "false", new() { Timeout = 20_000 });
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 20_000 });
+
+        // The user names the project and creates it: the view moves to it, with the tasks and what was written.
+        await offer.Locator("[data-offer-name]").FillAsync("Kazo Bar");
+        await offer.Locator("[data-offer-create]").ClickAsync();
+        await Expect(View).ToHaveAttributeAsync("data-projects-rail", "kazo-bar");
+        await Expect(View.Locator("[data-project-panel='kazo-bar'] [data-project-folder]")).ToHaveTextAsync(Folder);
+        await Expect(offer).ToHaveCountAsync(0);
+        await View.Locator("[data-project-panel='kazo-bar'] [data-subject]").First.ClickAsync();
+        await Expect(HandStep).ToHaveCountAsync(1);
+        await Expect(requests.Filter(new() { HasTextString = "note pour le futur projet" })).ToHaveCountAsync(1);
+
+        // Without the project the offer is back; put off, it leaves the panel.
+        await RestoreAsync();
+        await Orb.DblClickAsync();
+        await View.Locator($"[data-rail='{General}']").ClickAsync();
+        await Expect(offer).ToHaveCountAsync(1);
+        await offer.Locator("[data-offer-later]").ClickAsync();
+        await Expect(offer).ToHaveCountAsync(0);
+        await Expect(View.Locator("[data-subject='kazo-bar']")).ToHaveCountAsync(1);
+    }
+
+    // The end of a session is announced, and Jarvis takes a text only at rest: a message refused because Jarvis
+    // speaks stays in the input and is sent again.
+    private async Task WriteAsync(string message)
+    {
+        var text = View.Locator("[data-thread-text]");
+        await text.FillAsync(message);
+        for (var attempt = 0; attempt < 10; attempt++)
+        {
+            await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 30_000 });
+            await View.Locator("[data-thread-send]").ClickAsync();
+            try
+            {
+                await Expect(text).ToHaveValueAsync(string.Empty, new() { Timeout = 2_000 });
+                return;
+            }
+            catch (PlaywrightException)
+            {
+                await Expect(text).ToHaveValueAsync(message);
+            }
+        }
+
+        Assert.Fail("The message was never taken.");
+    }
+
     private Task PressAsync(string button) => Page.Locator(button).DispatchEventAsync("click");
 
     private async Task RestoreAsync()
