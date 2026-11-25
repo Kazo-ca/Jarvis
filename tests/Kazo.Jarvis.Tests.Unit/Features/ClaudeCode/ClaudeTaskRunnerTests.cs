@@ -504,6 +504,44 @@ public sealed class ClaudeTaskRunnerTests
     }
 
     [Test]
+    public async Task The_log_of_the_task_tells_the_tools_the_files_written_what_was_said_and_the_end()
+    {
+        var log = new FakeLog();
+        await using var logged = new ClaudeTaskRunner(board, decisions, settings, provider.GetRequiredService<IMessageBus>(), time, claude, folders, budget, log: log);
+        claude.Board = board;
+        var opening = await logged.StartAsync(Request("corrige le menu"), Say);
+        var run = claude.Runs.Single();
+        var file = Path.Combine(Bar, "a.md");
+        var input = JsonSerializer.SerializeToElement(new { file_path = file, content = "Le contenu." });
+
+        run.Emit(new ClaudeStarted("s-1", "claude-sonnet-5-5"));
+        run.Emit(new ClaudeToolUse("tu-1", "Read", input), new ClaudeToolResult("tu-1", false));
+        await logged.AskAsync(new ClaudeApprovalRequest(opening.TaskId, "Write", input, "tu-2"));
+        run.Emit(new ClaudeToolUse("tu-2", "Write", input), new ClaudeToolResult("tu-2", false));
+        run.Emit(new ClaudeToolUse("tu-3", "Edit", input), new ClaudeToolResult("tu-3", true));
+        run.Emit(new ClaudeTurnEnded("Le menu est corrigé.", 0.25m, false, 1));
+        run.Exit(0);
+        await EndedAsync(1);
+        await UntilAsync(() => log.Lines.Any(line => line.Kind == TaskLogKind.Ended));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(log.Lines.Select(line => line.TaskId).Distinct(), Is.EqualTo(new[] { opening.TaskId }));
+            Assert.That(log.Lines.Select(line => (line.Kind, line.Text, line.Path)), Is.EqualTo(new[]
+            {
+                (TaskLogKind.Started, "claude-sonnet-5-5", (string?)null),
+                (TaskLogKind.Tool, "Read " + file, null),
+                (TaskLogKind.Tool, "Write " + file, null),
+                (TaskLogKind.File, "Write", file),
+                (TaskLogKind.Tool, "Edit " + file, null),
+                (TaskLogKind.ToolFailed, "Edit", null),
+                (TaskLogKind.Said, "Le menu est corrigé.", null),
+                (TaskLogKind.Ended, "Done", null),
+            }), "A read writes no file, and a write that failed or was refused neither. The content is never kept.");
+        });
+    }
+
+    [Test]
     public async Task Closing_Jarvis_stops_every_session_and_a_task_left_by_a_crash_is_blocked_at_the_next_start()
     {
         var opening = await StartAsync("corrige le menu");
@@ -685,6 +723,38 @@ public sealed class ClaudeTaskRunnerTests
         {
             await Task.Delay(10, limit.Token);
         }
+    }
+
+    private sealed class FakeLog : ITaskLog
+    {
+        private readonly List<TaskLogEntry> lines = [];
+
+        public event Action<string>? Changed;
+
+        public IReadOnlyList<TaskLogEntry> Lines
+        {
+            get
+            {
+                lock (lines)
+                {
+                    return [.. lines];
+                }
+            }
+        }
+
+        public ValueTask AppendAsync(TaskLogEntry entry, CancellationToken cancellationToken = default)
+        {
+            lock (lines)
+            {
+                lines.Add(entry);
+            }
+
+            Changed?.Invoke(entry.TaskId);
+            return ValueTask.CompletedTask;
+        }
+
+        public ValueTask<IReadOnlyList<TaskLogEntry>> ReadAsync(string taskId, CancellationToken cancellationToken = default) =>
+            ValueTask.FromResult(Lines);
     }
 
     private sealed class FakeBudget : ISpendCap

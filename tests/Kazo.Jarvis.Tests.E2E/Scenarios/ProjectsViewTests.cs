@@ -86,6 +86,9 @@ public sealed class ProjectsViewTests : PageTest
         var thread = View.Locator("[data-task-thread]");
         await Expect(thread.Locator("[data-task-status]")).ToContainTextAsync("Claude Code");
         await Expect(thread.Locator("[data-task-subtasks]")).ToContainTextAsync("cherche les pieds de page");
+        // A session started by hand has no log: its hooks tell Jarvis its state, not its tools.
+        await Expect(thread.Locator("[data-task-log-none]")).ToHaveCountAsync(1);
+        await Expect(thread.Locator("[data-task-files]")).ToHaveCountAsync(0);
         await Expect(View.Locator("[data-projects-find]")).ToHaveCountAsync(0);
         await thread.Locator("[data-task-close]").ClickAsync();
         await Expect(thread).ToHaveCountAsync(0);
@@ -288,6 +291,22 @@ public sealed class ProjectsViewTests : PageTest
         await confirmation.Locator("[data-confirmation-approve]").ClickAsync();
         await Expect(step).ToHaveAttributeAsync("data-step-kind", "Done", new() { Timeout = 15_000 });
         await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 30_000 });
+
+        // The thread of the task lists the file the session wrote, from the folder of the task, and shows its
+        // full log on request: the tool, the file once written, what the session said and its end.
+        await step.ClickAsync();
+        var thread = View.Locator("[data-task-thread]");
+        await Expect(thread.Locator("[data-task-files] li")).ToHaveTextAsync(new[] { "NOTES.md" });
+        await Expect(thread.Locator("[data-task-log]")).ToHaveCountAsync(0);
+        await thread.Locator("[data-task-log-toggle]").ClickAsync();
+        var log = thread.Locator("[data-task-log]");
+        await Expect(log.Locator("[data-log-kind='Tool']")).ToContainTextAsync($"Write {Folder}/NOTES.md");
+        await Expect(log.Locator("[data-log-kind='File']")).ToHaveCountAsync(1);
+        await Expect(log.Locator("[data-log-kind='Said']")).ToContainTextAsync("NOTES.md");
+        await Expect(log.Locator("[data-log-kind='Ended']")).ToHaveCountAsync(1);
+        await Expect(log.Locator("li")).Not.ToContainTextAsync(new[] { "Écrit par la session simulée." });
+        await thread.Locator("[data-task-log-toggle]").ClickAsync();
+        await Expect(log).ToHaveCountAsync(0);
 
         // The folder allowed for this scenario is taken back: the host keeps its settings.
         await Page.ClickAsync("#open-settings");

@@ -529,3 +529,15 @@
     margin-top: 0.4rem;
     border-top: none;
 }
+
+.pv-file,
+.pv-log li {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+}
+
+.pv-log {
+    max-height: 18rem;
+    overflow-y: auto;
+}

@@ -26,7 +26,7 @@ writing in the thread of a subject (section 4).
   line, then the thread of the subject. "Show all" unfolds the band beyond six tasks; a task in progress always
   stays visible.
 - **On the right**, the thread of the open task (status, who works, duration, summary, read-only sub-tasks,
-  folder); otherwise "Find", which searches the titles and the summaries of the tasks of the project.
+  messages, files written, full log on request, folder); otherwise "Find", which searches the titles and the summaries of the tasks of the project.
 
 ## Where the projects, the subjects and the tasks come from
 
@@ -127,6 +127,34 @@ Work item `stage2/29-new-subject` (ADR 0026, section 11, point 2).
 - A subject made by hand stays open while it has no task; afterwards it ends like the others, when all its
   tasks are done or stopped.
 
+## The files and the log of a task
+
+ADR 0026, section 5. The thread of a task shows **the files it wrote** and, on request, its **full log**.
+
+- The log is kept by who does the work. Today: `ClaudeTaskRunner`, for the Claude Code sessions **started by
+  Jarvis**. It notes the start (and every resume), every tool used with what it works on
+  (`Write C:\src\bar\NOTES.md`, `Bash dotnet test`), every file once written, a tool that fails or is refused,
+  what the session says at the end of a turn, and the end.
+- A file is listed only after a write that **succeeded** (`Write`, `Edit`, `MultiEdit`, `NotebookEdit`): a
+  refused write writes nothing. Files created by a `Bash` command are not known.
+- The log **never keeps the content** written nor the result of a tool: only the tool and its target. A line
+  is at most 500 characters, on one line; a text that looks like a secret (`SecretShapes`) is replaced by
+  `[…]`. A log stops at 500 lines.
+- It lives in the collection `Tasks.Log` of `jarvis.db`, on this computer only, and it is erased when its task
+  leaves the board.
+- A session started **by hand** has no log: its hooks tell its state, not its tools. The thread of the task
+  says so.
+- On screen: "Files written" (each file once, path from the folder of the task), then "Full log (N)" which
+  unfolds the lines with their time, and "Fold".
+
+| Element | Where | Role |
+| --- | --- | --- |
+| `ITaskLog`, `TaskLogEntry`, `TaskLogKind` | kernel, `Tasks/` | The contract: add a line, read the log of a task |
+| `TaskLog` | slice `Tasks/Journal` | The log in `jarvis.db`: limits, mask, erasing |
+| `ToolNote` | slice `ClaudeCode/Launch` | What is kept of a tool: its name, its target, the file written |
+
+The folder of the slice is named `Journal` and not `Log`: `.gitignore` leaves out every `log/` folder.
+
 ## Slice `Projects/View`
 
 | File | Role |
@@ -175,11 +203,17 @@ To be confirmed by Benoit:
     project that was removed is no longer shown but stays in the settings.
 17. A Claude Code session started **by hand** keeps the subject of its branch: only the works Jarvis starts
     from a thread take the subject of that thread.
+18. The log of a task keeps the tool and its target, not the detail of the work (neither content written nor
+    output of the commands); at most 500 lines of 500 characters per task.
+19. A `Bash` command is noted whole in the log (cut at 500 characters), unless it looks like a secret.
+20. The files of a task are a list of paths: no link to open them, no preview.
+21. As long as the board keeps no task, the logs left are not erased (an empty board may be a board not read
+    yet).
 
 ## Not built yet
 
 - Speaking in the thread of a subject, "pour la tâche 3" (section 4); the choice of the agent.
-- The files of a task, the full log (section 5).
+- The log of a session started by hand, and the files created by a command (section 5).
 - The thread of the project as a conversation with the agent of the project (section 2).
 - The archives; renaming or removing a subject (section 11).
 
@@ -205,6 +239,11 @@ To be confirmed by Benoit:
 - Unit tests of the resume: `ClaudeTaskRunnerTests` (resume, session still running, session started by hand,
   resume that fails) and `ConversationEngineTests` (no model called, the sentence, the fallback to the local
   agent).
+
+- Log: `TaskLogTests` (order, restart, cut, mask, limit, erased with the task), `ToolNoteTests` (what is kept
+  of each tool), `ClaudeTaskRunnerTests` (the lines a session writes); the Playwright scenario of the new
+  subject opens the thread of the task (file `NOTES.md`, log unfolded then folded, content never shown) and the
+  one of the session started by hand checks "no log".
 
 ## Windows checks
 
