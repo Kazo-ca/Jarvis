@@ -85,6 +85,17 @@ public sealed class AssistantStateMachineTests
         Assert.That(transition.Effects, Is.EqualTo(new IEvent[] { new TurnStarted(Turn1, TurnInput.Text, "Quelle heure est-il ?") }));
     }
 
+    // A text written in the thread of a subject keeps its address on the turn (ADR 0026, section 4).
+    [Test]
+    public void Idle_text_written_in_a_thread_carries_the_thread_on_the_turn()
+    {
+        var thread = new Kazo.Jarvis.Kernel.Conversation.ThreadAddress("kazo-os", "branch:pilote", "task-7", "T3", "Écrire le pilote");
+
+        var transition = Apply(AssistantState.Initial, new TextSubmitted("oui") { Thread = thread });
+
+        Assert.That(transition.Effects, Is.EqualTo(new IEvent[] { new TurnStarted(Turn1, TurnInput.Text, "oui") { Thread = thread } }));
+    }
+
     // Row: Listening + end of utterance -> Thinking.
     [Test]
     public void Listening_end_of_utterance_goes_to_thinking()

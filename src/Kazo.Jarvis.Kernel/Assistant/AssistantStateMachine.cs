@@ -90,7 +90,7 @@ public static class AssistantStateMachine
 
     private static AssistantTransition SubmitText(AssistantState state, TextSubmitted text) =>
         state.Phase == AssistantPhase.Idle
-            ? StartTurn(state, TurnInput.Text, text.Text)
+            ? StartTurn(state, TurnInput.Text, text.Text, text.Thread)
             : Ignored(state, $"a text is only accepted when idle, not while {state.Phase}");
 
     private static AssistantTransition Announce(AssistantState state, AnnouncementSubmitted announcement)
@@ -145,13 +145,13 @@ public static class AssistantStateMachine
         : state.Fault?.Cause == FaultCause.MicrophoneMissing ? new ActivationRefused(source, ActivationRefusal.MicrophoneMissing)
         : null;
 
-    private static AssistantTransition StartTurn(AssistantState state, TurnInput input, string? text)
+    private static AssistantTransition StartTurn(AssistantState state, TurnInput input, string? text, Kazo.Jarvis.Kernel.Conversation.ThreadAddress? thread = null)
     {
         var turn = state.LastTurn.Next();
         var phase = input == TurnInput.Voice ? AssistantPhase.Listening : AssistantPhase.Thinking;
         return Applied(
             state with { Phase = phase, CurrentTurn = turn, LastTurn = turn, Announcing = input == TurnInput.Announcement },
-            new TurnStarted(turn, input, text));
+            new TurnStarted(turn, input, text) { Thread = thread });
     }
 
     private static AssistantTransition Cancel(AssistantState state, TurnCancelReason reason) =>

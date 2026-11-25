@@ -510,4 +510,69 @@ public sealed partial class ConversationEngineTests
             Assert.That(journal.Turns.Single().Project, Is.EqualTo("Maison"));
         });
     }
+
+    // ----- Written in the thread of a subject (ADR 0026, section 4) -----
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task A_request_written_in_the_thread_of_a_subject_goes_to_the_agent_of_the_project_with_the_project_and_the_subject()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+        var thread = new Kazo.Jarvis.Kernel.Conversation.ThreadAddress("kazo-os", "branch:pilote-reseau");
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Il nous reste quoi à faire ?") { Thread = thread });
+        await TurnStoredAsync();
+
+        var instructions = client.Calls.Single().Options?.Instructions;
+        var stored = journal.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(instructions, Does.Contain("Tu reçois le projet demandé"), "The agent of the project answers, without a hand-over.");
+            Assert.That(instructions, Does.Contain("Nom : Kazo OS").And.Contain("Reste à faire : le pilote réseau."));
+            Assert.That(instructions, Does.Contain("dans le fil du sujet « pilote-reseau » du projet."));
+            Assert.That((stored.Agent, stored.Project, stored.Thread), Is.EqualTo(("Projet", "Kazo OS", thread)));
+        });
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task An_answer_to_a_task_of_the_subject_names_the_task_and_its_title_to_the_agent()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+        var thread = new Kazo.Jarvis.Kernel.Conversation.ThreadAddress("kazo-os", "branch:pilote-reseau", "task-7", "T3", "Écrire le pilote");
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("oui, on fait comme ça") { Thread = thread });
+        await TurnStoredAsync();
+
+        Assert.That(
+            client.Calls.Single().Options?.Instructions,
+            Does.Contain("dans le fil du sujet « pilote-reseau » du projet, en réponse à sa tâche T3, dont le titre est : « Écrire le pilote »."));
+    }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    public async Task The_messages_of_a_thread_are_the_turns_written_in_it_and_no_other()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+        var thread = new Kazo.Jarvis.Kernel.Conversation.ThreadAddress("kazo-os", "branch:pilote-reseau");
+        using var threads = new SubjectThreads(journal);
+        var changes = 0;
+        threads.Changed += () => changes++;
+
+        client.Rounds.Enqueue(["Le pilote réseau."]);
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Il nous reste quoi à faire ?") { Thread = thread });
+        await TurnStoredAsync();
+
+        var message = threads.Of("kazo-os", "branch:pilote-reseau").Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That((message.Request, message.Answer, message.Agent, message.Pending), Is.EqualTo(("Il nous reste quoi à faire ?", "Le pilote réseau.", "Projet", false)));
+            Assert.That(threads.Of("kazo-os", "branch:autre"), Is.Empty);
+            Assert.That(threads.Of("maison", "branch:pilote-reseau"), Is.Empty);
+            Assert.That(changes, Is.GreaterThan(0));
+        });
+    }
 }

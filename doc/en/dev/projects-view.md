@@ -2,7 +2,8 @@
 
 Work item `stage2/24-projects-view`. Decision: [ADR 0026](adr/0026-projects-subjects-and-their-threads.md),
 sections 3, 5, 7 and 8; [ADR 0027](adr/0027-orb-gestures.md) for the double click. This first work item
-**reads** the task board and the catalog of projects: nothing is written in a thread yet.
+**reads** the task board and the catalog of projects. Work item `stage2/26-subject-thread-writing` adds
+writing in the thread of a subject (section 4).
 
 ![A project, its subject, the band of tasks and the thread of a task](../../../design/screenshots/projects-subject.png)
 
@@ -42,8 +43,30 @@ sections 3, 5, 7 and 8; [ADR 0027](adr/0027-orb-gestures.md) for the double clic
 `Pending` is "planned", `Done` "done", `Abandoned` "stopped", everything else "in progress". A subject is ended
 when all its tasks are done or stopped.
 
-**The thread of the subject** is computed for now: one line when each task starts, one when it ends with its
-summary, one when it waits for the user. The messages are not in it yet.
+**The thread of the subject** mixes, oldest first, computed lines (one when each task starts, one when it
+ends with its summary, one when it waits for the user) and the messages written in the thread.
+
+## Writing in the thread of a subject
+
+Work item `stage2/26-subject-thread-writing` (ADR 0026, section 4).
+
+- Under the thread, an input line. The message leaves as an ordinary typed request (`TextSubmitted`), with
+  the address of the thread: `ThreadAddress(Project, Subject, Task, TaskLabel, TaskTitle)`.
+- **`T3> oui, on fait comme ça`** answers the task `T3` of the subject (`SubjectAnswer.Parse`): the prefix is
+  removed, the message carries the tag `T3` in the thread and also shows in the thread of the task. A task the
+  subject does not have is refused and the text stays in the input.
+- **Who answers.** In a project of the catalog, the "Projet" agent receives the request directly, with no
+  hand-over, with the folder and the memory of the project, and one line that names the subject (and the task,
+  with its title). In General, the Jarvis agent answers as in the conversation window, with the same line.
+- **Where it is kept.** The turn goes to the journal of the conversation with its address
+  (`ConversationTurn.Thread`). `ISubjectThreads` (kernel), held by the `Conversation/Dialogue` slice, gives the
+  turns of a thread; the view does not reference the conversation. The same turn therefore also shows in the
+  conversation window.
+- The state of the assistant takes a text only at rest: during an answer, the view says to try again and keeps
+  the text.
+
+The message **is not handed to the Claude Code session** of the task: the local agent answers. Resuming the
+session with the message is the next work item.
 
 ## Slice `Projects/View`
 
@@ -74,12 +97,17 @@ To be confirmed by Benoit:
 6. "+" and the card of a folder with no project open the "Projects" page of the settings.
 7. "Find" searches the tasks of the open project only; no Ctrl+K.
 8. The agent shown is always "Project" (ADR 0025: one project agent).
+9. A message written in a thread is an ordinary turn of the conversation, tagged: there is no separate
+   conversation per subject, and the conversation memory sees it like the others.
+10. `T3>` sent to a task does not reach the Claude Code session yet: the local agent answers, knowing the
+    task.
+11. No choice of the agent in the thread, and nothing by voice ("pour la tâche 3").
 
 ## Not built yet
 
-- Writing or speaking in the thread of a subject, `T3>` and "pour la tâche 3" (section 4); the choice of the
-  agent.
-- The messages in the threads, the files of a task, the full log (section 5).
+- Handing a `T3>` message to the Claude Code session of the task (resuming it with that message).
+- Speaking in the thread of a subject, "pour la tâche 3" (section 4); the choice of the agent.
+- The files of a task, the full log (section 5).
 - The thread of the project as a conversation with the agent of the project (section 2).
 - "+ New subject", the archives (section 11).
 - The offer to make a project of a subject of General (section 6).
@@ -91,9 +119,12 @@ To be confirmed by Benoit:
 
 ## Tests
 
-- Unit: `ProjectsOverviewTests` (grouping, numbers, thread, General, folder with no project).
+- Unit: `ProjectsOverviewTests` (grouping, numbers, thread, General, folder with no project);
+  `SubjectAnswerTests` (prefix `T3>`); `ConversationEngineTests` (the "Projet" agent answers in the thread of a
+  project, the line of the subject and of the task, the messages of a thread); `AssistantStateMachineTests`
+  (the address follows the turn).
 - Playwright: `ProjectsViewTests` (double click, session with no project, task that waits, project created
-  from the view).
+  from the view, message written in the thread of a subject and `T1>`).
 
 ## Windows checks
 

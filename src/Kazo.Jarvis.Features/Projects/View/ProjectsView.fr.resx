@@ -144,4 +144,25 @@
   <data name="Status_Abandoned" xml:space="preserve">
     <value>Arrêtée</value>
   </data>
+  <data name="You" xml:space="preserve">
+    <value>Vous</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Write_Hint" xml:space="preserve">
+    <value>Écrivez dans le sujet… « T3&gt; » pour répondre à une tâche</value>
+  </data>
+  <data name="Write_Label" xml:space="preserve">
+    <value>Message dans le fil du sujet</value>
+  </data>
+  <data name="Write_NoTask" xml:space="preserve">
+    <value>Ce sujet n'a pas de tâche {0}.</value>
+  </data>
+  <data name="Write_Busy" xml:space="preserve">
+    <value>Jarvis est occupé : renvoyez quand il est au repos.</value>
+  </data>
+  <data name="TaskMessages" xml:space="preserve">
+    <value>Messages de la tâche</value>
+  </data>
 </root>

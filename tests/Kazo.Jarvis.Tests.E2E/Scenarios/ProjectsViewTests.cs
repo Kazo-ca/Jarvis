@@ -151,6 +151,52 @@ public sealed class ProjectsViewTests : PageTest
         await Expect(View).ToHaveAttributeAsync("data-projects-rail", "kazo-bar");
     }
 
+    [Test]
+    public async Task A_message_written_in_the_thread_of_a_subject_is_answered_there_and_T1_answers_a_task()
+    {
+        await PressAsync("#hand-session-work");
+        await Orb.DblClickAsync();
+        await View.Locator($"[data-rail='{General}']").ClickAsync();
+        await View.Locator("[data-subject='kazo-bar']").ClickAsync();
+        var text = View.Locator("[data-thread-text]");
+        var send = View.Locator("[data-thread-send]");
+        var requests = View.Locator("[data-thread-message='request']");
+        var answers = View.Locator("[data-thread-message='answer']");
+        await Expect(send).ToBeDisabledAsync();
+        var before = await requests.CountAsync();
+
+        // Written to the subject: the request and its answer take their place in the thread.
+        await text.FillAsync("où en est le pied de page ?");
+        await Expect(send).ToBeEnabledAsync();
+        await send.ClickAsync();
+        await Expect(requests).ToHaveCountAsync(before + 1);
+        await Expect(requests.Last).ToContainTextAsync("où en est le pied de page ?");
+        await Expect(answers.Last).ToHaveAttributeAsync("data-thread-pending", "false", new() { Timeout = 20_000 });
+        await Expect(answers.Last).Not.ToBeEmptyAsync();
+        await Expect(text).ToHaveValueAsync(string.Empty);
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 20_000 });
+
+        // A task the subject does not have is refused, and what was written is kept.
+        await text.FillAsync("T99> non");
+        await send.ClickAsync();
+        await Expect(View.Locator("[data-thread-problem]")).ToContainTextAsync("T99");
+        await Expect(text).ToHaveValueAsync("T99> non");
+        await Expect(requests).ToHaveCountAsync(before + 1);
+
+        // « T1> … » answers the task: the message carries its tag, without the prefix, and shows in the thread of the task.
+        var label = await HandStep.GetAttributeAsync("data-step");
+        await text.FillAsync($"{label}> oui, on fait comme ça");
+        await send.ClickAsync();
+        await Expect(View.Locator("[data-thread-problem]")).ToHaveCountAsync(0);
+        await Expect(requests).ToHaveCountAsync(before + 2);
+        await Expect(requests.Last.Locator("[data-thread-tag]")).ToHaveTextAsync(label!);
+        await Expect(requests.Last).ToContainTextAsync("oui, on fait comme ça");
+        await Expect(requests.Last).Not.ToContainTextAsync(">");
+        await Expect(answers.Last).ToHaveAttributeAsync("data-thread-pending", "false", new() { Timeout = 20_000 });
+        await requests.Last.Locator("[data-thread-tag]").ClickAsync();
+        await Expect(View.Locator("[data-task-thread] [data-task-messages]")).ToContainTextAsync("oui, on fait comme ça");
+    }
+
     private Task PressAsync(string button) => Page.Locator(button).DispatchEventAsync("click");
 
     private async Task RestoreAsync()

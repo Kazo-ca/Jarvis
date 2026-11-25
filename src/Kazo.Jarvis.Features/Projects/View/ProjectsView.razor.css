@@ -426,3 +426,47 @@
         grid-column: 2;
     }
 }
+
+.pv-who-user {
+    color: var(--jarvis-cyan);
+}
+
+.pv-line[data-thread-pending="true"] .pv-text {
+    color: var(--jarvis-text-muted);
+}
+
+.pv-input {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--jarvis-line);
+}
+
+.pv-input-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: var(--jarvis-input);
+    color: inherit;
+    font: inherit;
+}
+
+.pv-input-send {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--jarvis-cyan);
+    background: none;
+    color: var(--jarvis-cyan);
+    font: inherit;
+    cursor: pointer;
+}
+
+.pv-input-send:disabled {
+    border-color: var(--jarvis-line);
+    color: var(--jarvis-text-muted);
+    cursor: default;
+}
+
+.pv-problem {
+    color: var(--jarvis-amber);
+}

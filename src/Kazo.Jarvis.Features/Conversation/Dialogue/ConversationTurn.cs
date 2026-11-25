@@ -141,6 +141,9 @@ public sealed record ConversationTurn
     /// <summary>The name of the project the turn was about, when the agent that answered was told of one (ADR 0025, section 10).</summary>
     public string? Project { get; init; }
 
+    /// <summary>The thread of a subject the request was written in (ADR 0026, section 4); <see langword="null"/> for the conversation window or the voice.</summary>
+    public Kazo.Jarvis.Kernel.Conversation.ThreadAddress? Thread { get; init; }
+
     /// <summary>Code of the language of the turn (<c>fr</c>, <c>en</c>).</summary>
     public string Language { get; init; } = string.Empty;
 
