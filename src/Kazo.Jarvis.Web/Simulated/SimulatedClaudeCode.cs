@@ -9,7 +9,8 @@ namespace Kazo.Jarvis.Web.Simulated;
 /// by words of its first message: it asks to write a file of its folder through the same
 /// <see cref="IClaudeApprovals"/> the real <c>approve</c> tool reaches; with « outside » or « hors » it asks to
 /// write outside its folder; with « without asking » or « sans demander » it runs a command that never asked;
-/// with « wait » or « attends » it works until it is stopped. Then it gives its result and ends.
+/// with « wait » or « attends » it works until it is stopped. Then it gives its result and ends. A session that
+/// is resumed takes its message as an answer and ends at once.
 /// </summary>
 public sealed class SimulatedClaudeCode : IClaudeCode
 {
@@ -105,6 +106,15 @@ public sealed class SimulatedClaudeCode : IClaudeCode
             try
             {
                 events.Writer.TryWrite(new ClaudeStarted("simulated-" + launch.TaskId, launch.Model ?? "claude-sonnet-5-5"));
+                if (launch.ResumeSession is { } resumed)
+                {
+                    // A session resumed with an answer of the user (ADR 0026, section 4): it takes the answer and ends.
+                    events.Writer.TryWrite(new ClaudeTurnEnded($"Session simulée reprise ({resumed}). Réponse reçue : {message}", Cost, false, 0));
+                    events.Writer.TryWrite(new ClaudeExited(0, null));
+                    owner.Ended("done");
+                    return;
+                }
+
                 if (Says(message, "wait", "attends"))
                 {
                     await Task.Delay(Timeout.Infinite, stop.Token).ConfigureAwait(false);

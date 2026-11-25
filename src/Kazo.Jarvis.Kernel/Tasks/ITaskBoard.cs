@@ -51,4 +51,11 @@ public interface ITaskBoard
 /// <param name="Summary">The new summary.</param>
 /// <param name="Session">The session of the operator, once known.</param>
 /// <param name="Title">The new title.</param>
-public sealed record TaskChange(WorkTaskStatus? Status = null, string? Summary = null, string? Session = null, string? Title = null);
+public sealed record TaskChange(WorkTaskStatus? Status = null, string? Summary = null, string? Session = null, string? Title = null)
+{
+    /// <summary>
+    /// Brings a task that is over back to work (ADR 0026, section 4): asked only by who starts its session again
+    /// with an answer of the user. Without it a change that arrives after the end is ignored.
+    /// </summary>
+    public bool Reopen { get; init; }
+}

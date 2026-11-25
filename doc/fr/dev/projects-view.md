@@ -64,8 +64,28 @@ Chantier `stage2/26-subject-thread-writing` (ADR 0026, section 4).
 - L'état de l'assistant n'accepte un texte qu'au repos : pendant une réponse, la vue dit de réessayer et garde
   le texte.
 
-Le message **n'est pas remis à la session Claude Code** de la tâche : l'agent local répond. Reprendre la
-session avec le message est le chantier suivant.
+## Répondre à la session d'une tâche (`T3>`)
+
+Chantier `stage2/27-answer-task-session` (ADR 0026, section 4 ; réponses de Benoit du 23 novembre 2026).
+Quand le message répond à une tâche (`T3> …`), la conversation demande d'abord à
+`IClaudeTasks.ContinueAsync(tâche, message, langue)` :
+
+| La tâche | Ce qui se passe | Ce que dit Jarvis dans le fil |
+| --- | --- | --- |
+| Session lancée par Jarvis, terminée (faite ou bloquée) | La session est **reprise** avec le message (`claude --resume <session>`), dans le même dossier, avec le budget et le plafond habituels. La même tâche repasse « en cours » (`TaskChange.Reopen`), puis finit comme une autre | « Je transmets votre réponse à la session Claude Code de … » |
+| Session lancée par Jarvis, encore en cours | Rien n'est lancé : en mode sans écran une session ne lit pas de message avant d'avoir fini | Elle travaille encore ; renvoyer le message après |
+| Session lancée à la main (crochets) | Rien : ce n'est pas une session de Jarvis | Il ne peut pas lui écrire ; le message reste dans le fil |
+| Session inconnue, dossier plus autorisé, trop de sessions, plafond atteint, Claude Code introuvable | Rien | La cause |
+| Autre tâche (pas une session Claude Code) | — | L'agent local répond, comme pour un message au sujet |
+
+Dans les quatre premiers cas aucun modèle n'est appelé : la phrase est fixe, le tour est gardé avec son
+adresse et une entrée de passage de main vers « Claude Code » (échec `NotContinued` quand rien n'est repris).
+Le message part **mot pour mot**, sans résumé ni rappel de la mémoire du projet : la session a déjà son
+contexte. La fin de la session reprise est annoncée comme celle d'une session neuve.
+
+Écart : le tableau des tâches ne ramenait jamais une tâche terminée (ADR 0013). `TaskChange.Reopen` le permet,
+demandé seulement par `ClaudeTaskRunner` une fois la session relancée ; un crochet tardif n'y arrive toujours
+pas. Une reprise qui ne démarre pas laisse la tâche telle qu'elle a fini.
 
 ## Tranche `Projects/View`
 
@@ -98,13 +118,12 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 8. L'agent affiché est toujours « Projet » (ADR 0025 : un seul agent de projet).
 9. Un message écrit dans un fil est un tour ordinaire de la conversation, étiqueté : il n'y a pas une
    conversation séparée par sujet, et la mémoire de conversation le voit comme les autres.
-10. `T3>` adressé à une tâche ne touche pas encore la session Claude Code : l'agent local répond en connaissant
-    la tâche.
+10. `T3>` adressé à une session encore en cours est refusé avec une phrase ; le message n'est pas mis en
+    attente pour être remis à la fin.
 11. Pas de choix de l'agent dans le fil, et rien à la voix (« pour la tâche 3 »).
 
 ## Pas encore construit
 
-- Remettre un message `T3>` à la session Claude Code de la tâche (la reprendre avec ce message).
 - Parler dans le fil d'un sujet, « pour la tâche 3 » (section 4) ; le choix de l'agent.
 - Les fichiers d'une tâche, le journal complet (section 5).
 - Le fil du projet comme conversation avec l'agent du projet (section 2).
@@ -114,7 +133,8 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 ## Non vérifié
 
 - Rien n'a tourné sur Windows : la fenêtre agrandie, le double-clic réel et son délai.
-- Aucune session Claude Code réelle : les tâches viennent des sessions simulées de l'hôte Web.
+- Aucune session Claude Code réelle : les tâches viennent des sessions simulées de l'hôte Web. En particulier,
+  `claude --resume` avec un message n'a jamais été lancé pour de vrai depuis Jarvis.
 
 ## Tests
 
@@ -123,7 +143,10 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
   projet, la ligne du sujet et de la tâche, les messages d'un fil) ; `AssistantStateMachineTests` (l'adresse
   suit le tour).
 - Playwright : `ProjectsViewTests` (double-clic, session sans projet, tâche qui attend, projet créé depuis la
-  vue, message écrit dans le fil d'un sujet et `T1>`).
+  vue, message écrit dans le fil d'un sujet et `T1>` vers une session lancée à la main) ; `ClaudeTasksTests`
+  (`T1>` reprend une session terminée lancée par Jarvis).
+- Unitaires de la reprise : `ClaudeTaskRunnerTests` (reprise, session en cours, session à la main, reprise
+  qui échoue) et `ConversationEngineTests` (aucun modèle appelé, la phrase, le repli sur l'agent local).
 
 ## Vérifications sur Windows
 

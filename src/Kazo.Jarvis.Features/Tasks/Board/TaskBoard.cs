@@ -129,9 +129,9 @@ public sealed partial class TaskBoard : ITaskBoard, IHostedService, IDisposable
             }
 
             var before = entry.Task;
-            if (before.Ended)
+            if (before.Ended && !change.Reopen)
             {
-                // A hook that arrives after the end does not bring a task back.
+                // A hook that arrives after the end does not bring a task back; only an answer of the user does.
                 return before;
             }
 

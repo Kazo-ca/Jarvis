@@ -181,4 +181,66 @@ public sealed partial class ConversationEngineTests
             Assert.That(Published<TurnFailed>(), Is.Empty);
         });
     }
+
+    // ----- « T3> … » answers the session of a task (ADR 0026, section 4) -----
+
+    [Test]
+    [Property(WithClaudeTasks, "yes")]
+    public async Task An_answer_to_a_task_of_a_session_goes_to_the_session_and_no_model_answers()
+    {
+        claudeTasks!.Sessions["task-7"] = new ClaudeTaskOpening(true, "Je transmets votre réponse à la session Claude Code de kazo-bar, qui reprend.", "task-7");
+        var thread = new ThreadAddress("_general", "kazo-bar", "task-7", "T3", "corrige le menu");
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("oui, on fait comme ça") { Thread = thread });
+        await TurnStoredAsync();
+
+        var stored = journal.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(client.Calls, Is.Empty, "The local model is not asked.");
+            Assert.That(claudeTasks.Continued, Is.EqualTo(new[] { ("task-7", "oui, on fait comme ça") }));
+            Assert.That(claudeTasks.Started, Is.Empty, "No new session.");
+            Assert.That(stored.Answer, Does.StartWith("Je transmets votre réponse"));
+            Assert.That(stored.Outcome, Is.EqualTo(TurnOutcome.Answered));
+            Assert.That((stored.HandOff!.Kind, stored.HandOff.Target, stored.HandOff.Failure), Is.EqualTo((HandOffKind.Task, "Claude Code", (string?)null)));
+            Assert.That(stored.Thread, Is.EqualTo(thread));
+        });
+    }
+
+    [Test]
+    [Property(WithClaudeTasks, "yes")]
+    public async Task A_session_that_cannot_take_the_answer_says_why_and_the_message_stays_in_the_thread()
+    {
+        claudeTasks!.Sessions["task-7"] = new ClaudeTaskOpening(false, "Cette session Claude Code a été lancée à la main : je ne peux pas lui écrire.");
+        var thread = new ThreadAddress("_general", "kazo-bar", "task-7", "T3", "corrige le menu");
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("oui, on fait comme ça") { Thread = thread });
+        await TurnStoredAsync();
+
+        var stored = journal.Turns.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(client.Calls, Is.Empty);
+            Assert.That(stored.Answer, Does.StartWith("Cette session Claude Code a été lancée à la main"));
+            Assert.That(stored.HandOff!.Failure, Is.EqualTo("NotContinued"));
+            Assert.That((stored.Request, stored.Thread), Is.EqualTo(("oui, on fait comme ça", thread)));
+            Assert.That(Published<TurnFailed>(), Is.Empty);
+        });
+    }
+
+    [Test]
+    [Property(WithClaudeTasks, "yes")]
+    public async Task An_answer_to_a_task_no_session_does_and_a_message_to_the_subject_are_answered_by_the_model()
+    {
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("oui") { Thread = new ThreadAddress("_general", "kazo-bar", "task-9", "T1", "note") });
+        await TurnStoredAsync();
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("où en est-on ?") { Thread = new ThreadAddress("_general", "kazo-bar") });
+        await Eventually(() => journal.Turns.Count == 2 && journal.Turns.All(turn => turn.Outcome == TurnOutcome.Answered));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(client.Calls, Has.Count.EqualTo(2));
+            Assert.That(claudeTasks!.Continued, Is.EqualTo(new[] { ("task-9", "oui") }), "A message to the subject asks no session.");
+        });
+    }
 }

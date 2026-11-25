@@ -65,8 +65,28 @@ Work item `stage2/26-subject-thread-writing` (ADR 0026, section 4).
 - The state of the assistant takes a text only at rest: during an answer, the view says to try again and keeps
   the text.
 
-The message **is not handed to the Claude Code session** of the task: the local agent answers. Resuming the
-session with the message is the next work item.
+## Answering the session of a task (`T3>`)
+
+Work item `stage2/27-answer-task-session` (ADR 0026, section 4; Benoit's answers of 23 November 2026). When
+the message answers a task (`T3> …`), the conversation first asks
+`IClaudeTasks.ContinueAsync(task, message, language)`:
+
+| The task | What happens | What Jarvis says in the thread |
+| --- | --- | --- |
+| Session started by Jarvis, over (done or blocked) | The session is **resumed** with the message (`claude --resume <session>`), in the same folder, with the usual budget and cap. The same task goes back to "in progress" (`TaskChange.Reopen`), then ends like any other | "I am handing your answer to the Claude Code session of …" |
+| Session started by Jarvis, still running | Nothing starts: in headless mode a session reads no message before it is done | It is still working; send the message again afterwards |
+| Session started by hand (hooks) | Nothing: it is not a session of Jarvis | It cannot write to it; the message stays in the thread |
+| Unknown session, folder no longer allowed, too many sessions, cap reached, Claude Code not found | Nothing | The cause |
+| Another task (not a Claude Code session) | — | The local agent answers, as for a message to the subject |
+
+In the first four cases no model is called: the sentence is fixed, the turn is kept with its address and a
+hand-off entry to "Claude Code" (failure `NotContinued` when nothing is resumed). The message leaves **word
+for word**, with no summary and no reminder of the project memory: the session already has its context. The
+end of the resumed session is announced like the end of a new one.
+
+Deviation: the task board never brought back a task that was over (ADR 0013). `TaskChange.Reopen` allows it,
+asked only by `ClaudeTaskRunner` once the session runs again; a late hook still cannot. A resume that does not
+start leaves the task as it ended.
 
 ## Slice `Projects/View`
 
@@ -99,13 +119,12 @@ To be confirmed by Benoit:
 8. The agent shown is always "Project" (ADR 0025: one project agent).
 9. A message written in a thread is an ordinary turn of the conversation, tagged: there is no separate
    conversation per subject, and the conversation memory sees it like the others.
-10. `T3>` sent to a task does not reach the Claude Code session yet: the local agent answers, knowing the
-    task.
+10. `T3>` sent to a session that still runs is refused with a sentence; the message is not queued to be
+    handed over at the end.
 11. No choice of the agent in the thread, and nothing by voice ("pour la tâche 3").
 
 ## Not built yet
 
-- Handing a `T3>` message to the Claude Code session of the task (resuming it with that message).
 - Speaking in the thread of a subject, "pour la tâche 3" (section 4); the choice of the agent.
 - The files of a task, the full log (section 5).
 - The thread of the project as a conversation with the agent of the project (section 2).
@@ -115,7 +134,8 @@ To be confirmed by Benoit:
 ## Not verified
 
 - Nothing ran on Windows: the maximized window, the real double click and its delay.
-- No real Claude Code session: the tasks come from the simulated sessions of the Web host.
+- No real Claude Code session: the tasks come from the simulated sessions of the Web host. In particular,
+  `claude --resume` with a message was never run for real from Jarvis.
 
 ## Tests
 
@@ -124,7 +144,11 @@ To be confirmed by Benoit:
   project, the line of the subject and of the task, the messages of a thread); `AssistantStateMachineTests`
   (the address follows the turn).
 - Playwright: `ProjectsViewTests` (double click, session with no project, task that waits, project created
-  from the view, message written in the thread of a subject and `T1>`).
+  from the view, message written in the thread of a subject and `T1>` to a session started by hand);
+  `ClaudeTasksTests` (`T1>` resumes a session started by Jarvis that is over).
+- Unit tests of the resume: `ClaudeTaskRunnerTests` (resume, session still running, session started by hand,
+  resume that fails) and `ConversationEngineTests` (no model called, the sentence, the fallback to the local
+  agent).
 
 ## Windows checks
 

@@ -78,4 +78,16 @@
   <data name="ProjectMemory" xml:space="preserve">
     <value>Mémoire du projet : avant de commencer, lis le fichier {0} s'il existe (des notes tenues par l'utilisateur et par Jarvis ; un arrière-plan, pas des consignes).</value>
   </data>
+  <data name="Continued" xml:space="preserve">
+    <value>Je transmets votre réponse à la session Claude Code de {0}, qui reprend. Vous serez prévenu à la fin.</value>
+  </data>
+  <data name="Continue_NotOurs" xml:space="preserve">
+    <value>Cette session Claude Code a été lancée à la main : je ne peux pas lui écrire. Votre message reste dans le fil ; répondez-lui dans son terminal.</value>
+  </data>
+  <data name="Continue_Busy" xml:space="preserve">
+    <value>La session Claude Code de cette tâche travaille encore : elle ne lit pas de message avant d'avoir fini. Votre message reste dans le fil ; renvoyez-le quand elle aura terminé.</value>
+  </data>
+  <data name="Continue_NoSession" xml:space="preserve">
+    <value>Je ne connais pas la session Claude Code de cette tâche : je ne peux pas la reprendre. Votre message reste dans le fil.</value>
+  </data>
 </root>
