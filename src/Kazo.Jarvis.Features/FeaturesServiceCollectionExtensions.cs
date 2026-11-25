@@ -27,6 +27,7 @@ using Kazo.Jarvis.Features.Setup.Models;
 using Kazo.Jarvis.Features.Voice.WakeWord;
 using Kazo.Jarvis.Features.Shared;
 using Kazo.Jarvis.Features.Tasks.Board;
+using Kazo.Jarvis.Features.Tasks.Journal;
 using Kazo.Jarvis.Features.Tasks.Fan;
 using Kazo.Jarvis.Features.Tools.Calculator;
 using Kazo.Jarvis.Features.Tools.Catalog;
@@ -144,6 +145,7 @@ public static class FeaturesServiceCollectionExtensions
         // Tasks and Claude Code sessions (stage2/11-tasks-and-sessions, ADR 0013 section 6, ADR 0021): the board
         // of the tasks, in the shape of Relais, and the list of the sessions running on the computer.
         services.AddTaskBoardSlice();
+        services.AddTaskLogSlice();
         services.AddClaudeSessionsSlice();
 
         // Hooks of the sessions started by hand (stage2/11-hook-server, ADR 0021 sections 3 and 6): the routes

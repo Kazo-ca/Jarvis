@@ -86,6 +86,9 @@ public sealed class ProjectsViewTests : PageTest
         var thread = View.Locator("[data-task-thread]");
         await Expect(thread.Locator("[data-task-status]")).ToContainTextAsync("Claude Code");
         await Expect(thread.Locator("[data-task-subtasks]")).ToContainTextAsync("cherche les pieds de page");
+        // A session started by hand has no log: its hooks tell Jarvis its state, not its tools.
+        await Expect(thread.Locator("[data-task-log-none]")).ToHaveCountAsync(1);
+        await Expect(thread.Locator("[data-task-files]")).ToHaveCountAsync(0);
         await Expect(View.Locator("[data-projects-find]")).ToHaveCountAsync(0);
         await thread.Locator("[data-task-close]").ClickAsync();
         await Expect(thread).ToHaveCountAsync(0);
@@ -243,6 +246,73 @@ public sealed class ProjectsViewTests : PageTest
         await offer.Locator("[data-offer-later]").ClickAsync();
         await Expect(offer).ToHaveCountAsync(0);
         await Expect(View.Locator("[data-subject='kazo-bar']")).ToHaveCountAsync(1);
+    }
+
+    [Test]
+    public async Task A_subject_the_user_makes_has_a_thread_at_once_and_a_work_asked_there_is_its_task()
+    {
+        // A project whose folder Claude Code may work in.
+        await PressAsync("#hand-session-work");
+        await Orb.DblClickAsync();
+        await View.Locator($"[data-folder-card='{Folder}']").ClickAsync();
+        var request = Settings.Locator($"[data-project-request='{Folder}']");
+        await request.Locator("[data-project-request-name]").FillAsync("Kazo Bar");
+        await request.Locator("[data-project-request-create]").ClickAsync();
+        var entry = Settings.Locator("[data-project='kazo-bar']");
+        await entry.Locator("[data-project-allow]").ClickAsync();
+        await entry.Locator("[data-project-allow-confirm]").ClickAsync();
+        await Expect(entry).ToHaveAttributeAsync("data-project-allowed", "true");
+        await Settings.Locator(".dialog-close").ClickAsync();
+        await View.Locator("[data-rail='kazo-bar']").ClickAsync();
+
+        // « + Nouveau sujet »: a name is enough, the subject opens with no task and a thread to write in.
+        var name = "Refonte du menu " + Guid.NewGuid().ToString("N")[..6];
+        await View.Locator("[data-subject-new]").ClickAsync();
+        await Expect(View.Locator("[data-subject-new-create]")).ToBeDisabledAsync();
+        await View.Locator("[data-subject-new-name]").FillAsync(name);
+        await View.Locator("[data-subject-new-create]").ClickAsync();
+        await Expect(View.Locator("[data-subject-title]")).ToHaveTextAsync(name);
+        await Expect(View.Locator("[data-steps-none]")).ToHaveCountAsync(1);
+        await Expect(View.Locator("[data-step]")).ToHaveCountAsync(0);
+        await Expect(View.Locator("[data-subject][aria-current='true']")).ToContainTextAsync(name);
+
+        await WriteAsync("que reste-t-il pour le menu ?");
+        await Expect(View.Locator("[data-thread-message='request']")).ToHaveTextAsync(new System.Text.RegularExpressions.Regex("que reste-t-il pour le menu"));
+        await Expect(View.Locator("[data-thread-message='answer']").Last).ToHaveAttributeAsync("data-thread-pending", "false", new() { Timeout = 20_000 });
+
+        // A work handed to Claude Code from this thread starts in the folder of the project and is a task of the subject.
+        await WriteAsync("Ask Claude Code to write the notes");
+        var step = View.Locator("[data-step]").Filter(new() { HasTextString = "write the notes" });
+        await Expect(step).ToHaveCountAsync(1, new() { Timeout = 15_000 });
+        await Expect(step).ToHaveAttributeAsync("data-step", "T1");
+        await Expect(View.Locator("[data-steps-none]")).ToHaveCountAsync(0);
+        var confirmation = Page.Locator("[data-dialog-key='Permissions.Confirmation']");
+        await Expect(confirmation.Locator("[data-confirmation-summary]")).ToContainTextAsync($"{Folder}/NOTES.md", new() { Timeout = 15_000 });
+        await confirmation.Locator("[data-confirmation-approve]").ClickAsync();
+        await Expect(step).ToHaveAttributeAsync("data-step-kind", "Done", new() { Timeout = 15_000 });
+        await Expect(Root).ToHaveAttributeAsync("data-phase", "Idle", new() { Timeout = 30_000 });
+
+        // The thread of the task lists the file the session wrote, from the folder of the task, and shows its
+        // full log on request: the tool, the file once written, what the session said and its end.
+        await step.ClickAsync();
+        var thread = View.Locator("[data-task-thread]");
+        await Expect(thread.Locator("[data-task-files] li")).ToHaveTextAsync(new[] { "NOTES.md" });
+        await Expect(thread.Locator("[data-task-log]")).ToHaveCountAsync(0);
+        await thread.Locator("[data-task-log-toggle]").ClickAsync();
+        var log = thread.Locator("[data-task-log]");
+        await Expect(log.Locator("[data-log-kind='Tool']")).ToContainTextAsync($"Write {Folder}/NOTES.md");
+        await Expect(log.Locator("[data-log-kind='File']")).ToHaveCountAsync(1);
+        await Expect(log.Locator("[data-log-kind='Said']")).ToContainTextAsync("NOTES.md");
+        await Expect(log.Locator("[data-log-kind='Ended']")).ToHaveCountAsync(1);
+        await Expect(log.Locator("li")).Not.ToContainTextAsync(new[] { "Écrit par la session simulée." });
+        await thread.Locator("[data-task-log-toggle]").ClickAsync();
+        await Expect(log).ToHaveCountAsync(0);
+
+        // The folder allowed for this scenario is taken back: the host keeps its settings.
+        await Page.ClickAsync("#open-settings");
+        await Settings.Locator("[data-settings-page='Tools.Files']").ClickAsync();
+        await Settings.Locator($"[data-allowed-folder='{Folder}'] [data-allowed-folder-remove]").ClickAsync();
+        await Expect(Settings.Locator($"[data-allowed-folder='{Folder}']")).ToHaveCountAsync(0);
     }
 
     // The end of a session is announced, and Jarvis takes a text only at rest: a message refused because Jarvis

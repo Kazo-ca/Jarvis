@@ -195,4 +195,55 @@
   <data name="Offer_Failed" xml:space="preserve">
     <value>Le projet n'a pas été créé : ce nom est pris ou le dossier est refusé. « Changer le dossier » ouvre la page Projets.</value>
   </data>
+  <data name="NewSubject" xml:space="preserve">
+    <value>+ Nouveau sujet</value>
+  </data>
+  <data name="NewSubject_Name" xml:space="preserve">
+    <value>Nom du sujet</value>
+  </data>
+  <data name="NewSubject_Create" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="NewSubject_Failed" xml:space="preserve">
+    <value>Le sujet n'a pas été créé : il faut un nom de 60 caractères au plus, et les réglages doivent pouvoir être écrits.</value>
+  </data>
+  <data name="NoTaskYet" xml:space="preserve">
+    <value>Ce sujet n'a pas encore de tâche. Écrivez ci-dessous : l'agent du projet répond ici.</value>
+  </data>
+  <data name="Files" xml:space="preserve">
+    <value>Fichiers écrits</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Journal</value>
+  </data>
+  <data name="Log_Show" xml:space="preserve">
+    <value>Journal complet ({0})</value>
+  </data>
+  <data name="Log_Hide" xml:space="preserve">
+    <value>Replier</value>
+  </data>
+  <data name="Log_None" xml:space="preserve">
+    <value>Pas de journal : Jarvis tient le journal des sessions qu'il lance lui-même.</value>
+  </data>
+  <data name="Log_Started" xml:space="preserve">
+    <value>Session démarrée ({0})</value>
+  </data>
+  <data name="Log_File" xml:space="preserve">
+    <value>{0} : {1} écrit</value>
+  </data>
+  <data name="Log_ToolFailed" xml:space="preserve">
+    <value>{0} : échec ou refus</value>
+  </data>
+  <data name="Log_Said" xml:space="preserve">
+    <value>Réponse : {0}</value>
+  </data>
+  <data name="Log_Ended_Done" xml:space="preserve">
+    <value>Session terminée</value>
+  </data>
+  <data name="Log_Ended_Blocked" xml:space="preserve">
+    <value>Session bloquée</value>
+  </data>
+  <data name="Log_Ended_Abandoned" xml:space="preserve">
+    <value>Session arrêtée</value>
+  </data>
 </root>

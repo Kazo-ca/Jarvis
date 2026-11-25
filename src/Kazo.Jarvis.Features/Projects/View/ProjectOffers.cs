@@ -30,9 +30,26 @@ public sealed record ProjectsViewOptions
     /// <summary>The subjects whose offer was put off, and until when.</summary>
     public IReadOnlyDictionary<string, DateTimeOffset> Later { get; init; } = new Dictionary<string, DateTimeOffset>();
 
+    /// <summary>The most subjects the user may make.</summary>
+    public const int MostSubjects = 200;
+
+    /// <summary>The most characters in the name of a subject.</summary>
+    public const int MostNameCharacters = 60;
+
+    /// <summary>The subjects the user made with « + Nouveau sujet » (ADR 0026, section 11, point 2).</summary>
+    public IReadOnlyList<UserSubject> Subjects { get; init; } = [];
+
     private static IReadOnlyList<string> Validate(ProjectsViewOptions value)
     {
         var problems = new List<string>();
+        if (value.Subjects is null || value.Subjects.Count > MostSubjects
+            || value.Subjects.Any(subject => subject is null || string.IsNullOrWhiteSpace(subject.Project) || string.IsNullOrWhiteSpace(subject.Key)
+                || string.IsNullOrWhiteSpace(subject.Name) || subject.Name.Length > MostNameCharacters)
+            || value.Subjects.Select(subject => (subject?.Project, subject?.Key)).Distinct().Count() != value.Subjects.Count)
+        {
+            problems.Add($"At most {MostSubjects} subjects, each with a project, a key of its own and a name of 1 to {MostNameCharacters} characters.");
+        }
+
         if (value.OfferTasks is < 1 or > 1000 || value.OfferMessages is < 1 or > 10000)
         {
             problems.Add("A project is offered from 1 to 1000 tasks or from 1 to 10000 messages.");

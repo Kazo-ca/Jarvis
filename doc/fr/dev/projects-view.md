@@ -26,7 +26,7 @@ l'écriture dans le fil d'un sujet (section 4).
   ligne, puis le fil du sujet. « Tout voir » déplie la bande au-delà de six tâches ; une tâche en cours reste
   toujours visible.
 - **À droite**, le fil de la tâche ouverte (statut, qui travaille, durée, résumé, sous-tâches en lecture
-  seule, dossier) ; sinon « Retrouver », qui cherche dans les titres et les résumés des tâches du projet.
+  seule, messages, fichiers écrits, journal complet sur demande, dossier) ; sinon « Retrouver », qui cherche dans les titres et les résumés des tâches du projet.
 
 ## D'où viennent les projets, les sujets et les tâches
 
@@ -111,6 +111,50 @@ dossier. Les messages gardent l'adresse où ils ont été écrits ; `ThreadHomes
 
 Noyau : `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
 
+## « + Nouveau sujet »
+
+Chantier `stage2/29-new-subject` (ADR 0026, section 11, point 2).
+
+- Sous les sujets actifs d'un projet (et de « Général »), « + Nouveau sujet » demande un nom. Le sujet existe
+  aussitôt, sans tâche, avec son fil : on y écrit et l'agent du projet répond.
+- Il est gardé dans les réglages `Projects.View` (`UserSubject` : projet, clé `subject:<nom>`, nom, date). La
+  clé vient du nom, sans accents, et reste unique dans le projet.
+- **Ses tâches.** Un travail remis à Claude Code depuis le fil d'un sujet d'un projet devient une tâche de ce
+  sujet : `ClaudeTaskRequest.Topic` porte la clé du sujet, et la tâche est créée avec ce sujet. Cela vaut pour
+  tout sujet d'un projet, pas seulement ceux faits à la main. Dans « Général », le sujet d'une session reste
+  son dossier.
+- Un sujet fait à la main reste ouvert tant qu'il n'a pas de tâche ; ensuite il se termine comme les autres,
+  quand toutes ses tâches sont faites ou arrêtées.
+
+## Les fichiers et le journal d'une tâche
+
+ADR 0026, section 5. Le fil d'une tâche montre **les fichiers qu'elle a écrits** et, sur demande, son
+**journal complet**.
+
+- Le journal est tenu par qui fait le travail. Aujourd'hui : `ClaudeTaskRunner`, pour les sessions Claude Code
+  **lancées par Jarvis**. Il note le démarrage (et chaque reprise), chaque outil utilisé avec ce sur quoi il
+  porte (`Write C:\src\bar\NOTES.md`, `Bash dotnet test`), chaque fichier une fois écrit, un outil qui échoue
+  ou qui est refusé, ce que la session dit à la fin d'un tour, et la fin.
+- Un fichier n'est listé qu'après une écriture **réussie** (`Write`, `Edit`, `MultiEdit`, `NotebookEdit`) : une
+  écriture refusée n'écrit rien. Les fichiers créés par une commande `Bash` ne sont pas connus.
+- Le journal ne garde **jamais le contenu** écrit ni le résultat d'un outil : seulement l'outil et sa cible.
+  Une ligne fait au plus 500 caractères, sur une seule ligne ; un texte qui ressemble à un secret
+  (`SecretShapes`) est remplacé par `[…]`. Un journal s'arrête à 500 lignes.
+- Il vit dans la collection `Tasks.Log` de `jarvis.db`, sur cet ordinateur seulement, et il est effacé quand
+  sa tâche quitte le tableau.
+- Une session lancée **à la main** n'a pas de journal : ses hooks disent son état, pas ses outils. Le fil de
+  la tâche le dit.
+- À l'écran : « Fichiers écrits » (chaque fichier une fois, chemin depuis le dossier de la tâche), puis
+  « Journal complet (N) » qui déplie les lignes avec leur heure, et « Replier ».
+
+| Élément | Où | Rôle |
+| --- | --- | --- |
+| `ITaskLog`, `TaskLogEntry`, `TaskLogKind` | noyau, `Tasks/` | Le contrat : ajouter une ligne, lire le journal d'une tâche |
+| `TaskLog` | tranche `Tasks/Journal` | Le journal dans `jarvis.db` : limites, masque, effacement |
+| `ToolNote` | tranche `ClaudeCode/Launch` | Ce qu'on garde d'un outil : son nom, sa cible, le fichier écrit |
+
+Le dossier de la tranche s'appelle `Journal` et non `Log` : `.gitignore` écarte tout dossier `log/`.
+
 ## Tranche `Projects/View`
 
 | Fichier | Rôle |
@@ -122,6 +166,7 @@ Noyau : `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
 | `SubjectAnswer` | Le préfixe `T3>` d'un message |
 | `ProjectOffer`, `ProjectsViewOptions` | La proposition de faire un projet, ses seuils, les refus et les reports |
 | `ThreadHomes` | Dans quel sujet un message est montré aujourd'hui |
+| `UserSubject` | Un sujet fait par l'utilisateur, et sa clé |
 
 Noyau : `IProjectCatalog.OwnerOf` ; `DialogRequest.Maximized`, que l'hôte Windows applique à la fenêtre et que
 l'hôte Web traduit par une couche plus large. La tranche ne référence ni `Projects/Catalog` ni `Tasks/Board` :
@@ -155,13 +200,24 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
     récente au moment où il a été écrit.
 15. La proposition n'est montrée que dans le panneau de « Général » ; Jarvis ne la dit pas à voix haute et
     l'orbe ne la signale pas.
+16. Un sujet fait à la main ne se renomme pas et ne se supprime pas encore (les archives ne sont pas
+    construites) ; un sujet d'un projet supprimé n'est plus montré mais reste dans les réglages.
+17. Une session Claude Code lancée **à la main** garde le sujet de sa branche : seuls les travaux lancés par
+    Jarvis depuis un fil prennent le sujet de ce fil.
+18. Le journal d'une tâche garde l'outil et sa cible, pas le détail du travail (ni contenu écrit, ni sortie des
+    commandes) ; 500 lignes de 500 caractères au plus par tâche.
+19. Une commande `Bash` est notée en entier dans le journal (coupée à 500 caractères), sauf si elle ressemble
+    à un secret.
+20. Les fichiers d'une tâche sont une liste de chemins : pas de lien pour les ouvrir, pas d'aperçu.
+21. Tant que le tableau ne garde aucune tâche, les journaux restants ne sont pas effacés (un tableau vide peut
+    être un tableau pas encore lu).
 
 ## Pas encore construit
 
 - Parler dans le fil d'un sujet, « pour la tâche 3 » (section 4) ; le choix de l'agent.
-- Les fichiers d'une tâche, le journal complet (section 5).
+- Le journal d'une session lancée à la main, et les fichiers créés par une commande (section 5).
 - Le fil du projet comme conversation avec l'agent du projet (section 2).
-- « + Nouveau sujet », les archives (section 11).
+- Les archives ; renommer ou supprimer un sujet (section 11).
 
 ## Non vérifié
 
@@ -178,10 +234,17 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 - Playwright : `ProjectsViewTests` (double-clic, session sans projet, tâche qui attend, projet créé depuis la
   vue, message écrit dans le fil d'un sujet et `T1>` vers une session lancée à la main) ; `ClaudeTasksTests`
   (`T1>` reprend une session terminée lancée par Jarvis).
+- `UserSubjectTests` (clé, sujet sans tâche, tâches de sa clé) et le scénario Playwright du nouveau sujet
+  (création, message, travail remis à Claude Code qui devient sa tâche T1).
 - `ProjectOfferTests` (seuils, dossier proposé, refus, report, messages qui suivent les tâches) et le scénario
   Playwright de la proposition (quatre sessions terminées, création, fil qui suit, « Plus tard »).
 - Unitaires de la reprise : `ClaudeTaskRunnerTests` (reprise, session en cours, session à la main, reprise
   qui échoue) et `ConversationEngineTests` (aucun modèle appelé, la phrase, le repli sur l'agent local).
+
+- Journal : `TaskLogTests` (ordre, redémarrage, coupe, masque, limite, effacement avec la tâche),
+  `ToolNoteTests` (ce qu'on garde de chaque outil), `ClaudeTaskRunnerTests` (les lignes écrites par une
+  session) ; le scénario Playwright du nouveau sujet ouvre le fil de la tâche (fichier `NOTES.md`, journal
+  déplié puis replié, contenu jamais montré) et celui de la session à la main vérifie « pas de journal ».
 
 ## Vérifications sur Windows
 

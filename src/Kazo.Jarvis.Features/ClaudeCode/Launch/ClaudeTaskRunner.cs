@@ -48,6 +48,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
     private readonly IAllowedFolders? folders;
     private readonly ISpendCap? spend;
     private readonly IProjectCatalog? projects;
+    private readonly ITaskLog? log;
     private readonly ILogger<ClaudeTaskRunner> logger;
     private readonly Lock gate = new();
     private readonly Dictionary<string, Session> sessions = new(StringComparer.Ordinal);
@@ -66,6 +67,8 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
     /// <param name="folders">The allowed folders, when the host has files.</param>
     /// <param name="spend">The spending cap, when a spending slice is there.</param>
     /// <param name="logger">The log. Never what a session wrote.</param>
+    /// <param name="projects">The projects, when the host has them.</param>
+    /// <param name="log">The log of the tasks, when the host keeps one (ADR 0026, section 5).</param>
     public ClaudeTaskRunner(
         ITaskBoard board,
         IPermissionDecision decisions,
@@ -76,7 +79,8 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         IAllowedFolders? folders = null,
         ISpendCap? spend = null,
         ILogger<ClaudeTaskRunner>? logger = null,
-        IProjectCatalog? projects = null)
+        IProjectCatalog? projects = null,
+        ITaskLog? log = null)
     {
         ArgumentNullException.ThrowIfNull(board);
         ArgumentNullException.ThrowIfNull(decisions);
@@ -92,6 +96,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
         this.folders = folders;
         this.spend = spend;
         this.projects = projects;
+        this.log = log;
         this.logger = logger ?? NullLogger<ClaudeTaskRunner>.Instance;
     }
 
@@ -246,7 +251,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
 
             // 5. The task exists before the launch (ADR 0013, section 7).
             task = await board.CreateAsync(
-                new NewWorkTask(Title(request.Request), TaskKeys.Project(null, folder), TaskKeys.Inbox, new TaskOperator(TaskOperator.ClaudeCode), TaskSource.Harness, folder),
+                new NewWorkTask(Title(request.Request), TaskKeys.Project(null, folder), string.IsNullOrWhiteSpace(request.Topic) ? TaskKeys.Inbox : request.Topic, new TaskOperator(TaskOperator.ClaudeCode), TaskSource.Harness, folder),
                 CancellationToken.None).ConfigureAwait(false);
             var context = request.Context is null ? null : await request.Context(cancellationToken).ConfigureAwait(false);
             var launch = new ClaudeLaunch(task.Id, folder, FirstMessage(request.Request, context, language, projects?.MemoryFileOf(folder)))
@@ -657,22 +662,48 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
                 {
                     case ClaudeStarted started:
                         await StatusAsync(session, waits: 0, started.SessionId).ConfigureAwait(false);
+                        await NoteAsync(session, TaskLogKind.Started, started.Model ?? string.Empty).ConfigureAwait(false);
                         break;
 
-                    case ClaudeToolUse use when SessionRules.WritesOrRuns(use.Name):
-                        session.Uses[use.ToolUseId] = use.Name;
+                    case ClaudeToolUse use:
+                        if (SessionRules.WritesOrRuns(use.Name))
+                        {
+                            session.Uses[use.ToolUseId] = use.Name;
+                        }
+
+                        var (about, path) = ToolNote.Of(use.Name, use.Input);
+                        session.Named[use.ToolUseId] = (use.Name, path);
+                        await NoteAsync(session, TaskLogKind.Tool, about).ConfigureAwait(false);
                         break;
 
-                    case ClaudeToolResult { IsError: false } done when session.Uses.Remove(done.ToolUseId, out var tool) && !session.WasAsked(done.ToolUseId, tool):
-                        // A write or a command ran and « approve » never saw it: the permissions do not arrive, so
-                        // the session is stopped rather than left writing (ADR 0021, section 1).
-                        LogUnasked(session.TaskId, tool);
-                        session.End(ClaudeTaskEnd.Blocked, Text("Blocked_Watchdog", session.Language, tool));
-                        await session.Run.StopAsync().ConfigureAwait(false);
+                    case ClaudeToolResult ran:
+                        if (session.Named.Remove(ran.ToolUseId, out var named))
+                        {
+                            // A file is listed once its write is done: a refused write wrote nothing.
+                            if (ran.IsError)
+                            {
+                                await NoteAsync(session, TaskLogKind.ToolFailed, named.Name).ConfigureAwait(false);
+                            }
+                            else if (named.Path is not null)
+                            {
+                                await NoteAsync(session, TaskLogKind.File, named.Name, named.Path).ConfigureAwait(false);
+                            }
+                        }
+
+                        if (!ran.IsError && session.Uses.Remove(ran.ToolUseId, out var tool) && !session.WasAsked(ran.ToolUseId, tool))
+                        {
+                            // A write or a command ran and « approve » never saw it: the permissions do not arrive, so
+                            // the session is stopped rather than left writing (ADR 0021, section 1).
+                            LogUnasked(session.TaskId, tool);
+                            session.End(ClaudeTaskEnd.Blocked, Text("Blocked_Watchdog", session.Language, tool));
+                            await session.Run.StopAsync().ConfigureAwait(false);
+                        }
+
                         break;
 
                     case ClaudeTurnEnded turn:
                         (last, cost, result, failed) = (turn.Text ?? last, turn.CostUsd ?? cost, true, turn.IsError);
+                        await NoteAsync(session, TaskLogKind.Said, turn.Text ?? string.Empty).ConfigureAwait(false);
                         if (!session.Ended)
                         {
                             await board.ChangeAsync(session.TaskId, new TaskChange(WorkTaskStatus.Idle, Cut(turn.Text)), CancellationToken.None).ConfigureAwait(false);
@@ -713,6 +744,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
                 _ => WorkTaskStatus.Blocked,
             };
             await board.ChangeAsync(session.TaskId, new TaskChange(status, Cut(summary)), CancellationToken.None).ConfigureAwait(false);
+            await NoteAsync(session, TaskLogKind.Ended, end.ToString()).ConfigureAwait(false);
             await bus.PublishAsync(new ClaudeTaskEnded(session.TaskId, session.Folder, end, Cut(summary), cost, session.Language, time.GetUtcNow()), CancellationToken.None).ConfigureAwait(false);
         }
         catch (Exception exception)
@@ -722,6 +754,15 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
 
         await session.Run.DisposeAsync().ConfigureAwait(false);
         Changed?.Invoke();
+    }
+
+    // The log of the task (ADR 0026, section 5). It never holds the work: a line that cannot be kept is dropped.
+    private async ValueTask NoteAsync(Session session, TaskLogKind kind, string text, string? path = null)
+    {
+        if (log is not null)
+        {
+            await log.AppendAsync(new TaskLogEntry(session.TaskId, time.GetUtcNow(), kind, text, path), CancellationToken.None).ConfigureAwait(false);
+        }
     }
 
     private static string? Cut(string? text) =>
@@ -775,6 +816,9 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
 
         /// <summary>The write and command tools seen in the stream, not yet run. Touched by the following loop only.</summary>
         public Dictionary<string, string> Uses { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>Every tool in use, with the file it writes: the log names it when it ran or failed.</summary>
+        public Dictionary<string, (string Name, string? Path)> Named { get; } = new(StringComparer.Ordinal);
 
         public Task? Following { get; set; }
 

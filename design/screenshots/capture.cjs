@@ -59,6 +59,11 @@ await request.locator('[data-project-request-name]').fill('Kazo Bar');
 await request.locator('[data-project-request-create]').click();
 await request.waitFor({ state: 'detached' });
 await settings.screenshot({ path: shot('projects-page') });
+// Claude Code may work in the folder of the project: needed further down for a session Jarvis starts itself.
+const entry = settings.locator("[data-project='kazo-bar']");
+await entry.locator('[data-project-allow]').click();
+await entry.locator('[data-project-allow-confirm]').click();
+await settings.locator("[data-project='kazo-bar'][data-project-allowed='true']").waitFor();
 await settings.locator('.dialog-close').click();
 await view.locator("[data-rail='kazo-bar']").click();
 // A message written in the thread of the subject: the agent of the project answers. Jarvis takes a text only
@@ -75,6 +80,21 @@ await view.screenshot({ path: shot('projects-subject') });
 await view.locator("[data-rail='_attention']").click();
 await view.locator('[data-attention]').waitFor();
 await view.screenshot({ path: shot('projects-attention') });
+
+// A work handed to Claude Code from the thread of the subject: the thread of its task lists the file written
+// and unfolds its full log (ADR 0026, section 5).
+await view.locator("[data-rail='kazo-bar']").click();
+await page.locator('#jarvis-root[data-phase="Idle"]').waitFor({ timeout: 60000 });
+await view.locator('[data-thread-text]').fill('Ask Claude Code to write the notes');
+await view.locator('[data-thread-send]').click();
+const confirmation = page.locator("[data-dialog-key='Permissions.Confirmation']");
+await confirmation.locator('[data-confirmation-approve]').click({ timeout: 60000 });
+const written = view.locator('[data-step][data-step-kind="Done"]').filter({ hasText: 'write the notes' });
+await written.click({ timeout: 60000 });
+await view.locator('[data-task-log-toggle]').click();
+await view.locator("[data-task-log] [data-log-kind='Ended']").waitFor();
+await page.locator('#jarvis-root[data-phase="Idle"]').waitFor({ timeout: 60000 });
+await view.screenshot({ path: shot('projects-task-log') });
 
 await browser.close();
 })();

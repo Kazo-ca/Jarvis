@@ -44,7 +44,10 @@ public sealed partial class ConversationEngine
         if (asked.Kind == HandOffKind.Task && claudeTasks is not null)
         {
             // A turn about a project starts the session in the folder of that project (ADR 0025, section 6).
-            return await DelegateAsync(run, resumed ?? new ClaudeTaskRequest(forcedRequest ?? before.Request, language) { Folder = run.Project?.Folder }, entry, token).ConfigureAwait(false);
+            // Asked in the thread of a subject of a project, the work is a task of that subject (ADR 0026, section 11).
+            var topic = ThreadProject(answering) is null ? null : before.Thread?.Subject;
+            var work = resumed ?? new ClaudeTaskRequest(forcedRequest ?? before.Request, language) { Folder = run.Project?.Folder };
+            return await DelegateAsync(run, work with { Topic = work.Topic ?? topic }, entry, token).ConfigureAwait(false);
         }
 
         var opening = handOff!.Open(asked.Kind);

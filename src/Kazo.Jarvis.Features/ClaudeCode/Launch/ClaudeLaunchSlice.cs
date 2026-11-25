@@ -44,7 +44,8 @@ public static class ClaudeLaunchSlice
             provider.GetService<IAllowedFolders>(),
             provider.GetService<ISpendCap>(),
             provider.GetService<ILogger<ClaudeTaskRunner>>(),
-            provider.GetService<IProjectCatalog>()));
+            provider.GetService<IProjectCatalog>(),
+            provider.GetService<ITaskLog>()));
         services.TryAddSingleton<IClaudeTasks>(Runner);
         services.TryAddSingleton<IClaudeApprovals>(Runner);
         services.AddHostedService(Runner);

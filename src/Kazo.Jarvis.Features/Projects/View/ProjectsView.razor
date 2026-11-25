@@ -155,6 +155,26 @@
             {
                 @SubjectRow(project, item, subject)
             }
+            @if (settings is not null)
+            {
+                @* « + Nouveau sujet » (ADR 0026, section 11, point 2): a name is enough, the thread exists at once. *@
+                @if (newSubjectIn == project.Id)
+                {
+                    <form class="pv-input pv-subject-new" @onsubmit="() => MakeSubjectAsync(project)">
+                        <input type="text" class="pv-input-text" data-subject-new-name maxlength="@ProjectsViewOptions.MostNameCharacters" autocomplete="off"
+                               placeholder="@T["NewSubject_Name"]" aria-label="@T["NewSubject_Name"]" @bind="newSubjectName" @bind:event="oninput" />
+                        <button type="submit" class="pv-input-send" data-subject-new-create disabled="@string.IsNullOrWhiteSpace(newSubjectName)">@T["NewSubject_Create"]</button>
+                    </form>
+                    @if (newSubjectProblem)
+                    {
+                        <p class="pv-note pv-problem" role="alert" data-subject-new-problem>@T["NewSubject_Failed"]</p>
+                    }
+                }
+                else
+                {
+                    <button type="button" class="pv-offer-button pv-subject-add" data-subject-new @onclick="() => OpenNewSubject(project)">@T["NewSubject"]</button>
+                }
+            }
             @if (Finished(project) is { Count: > 0 } finished)
             {
                 <p class="pv-label">@T["EndedSubjects"]</p>
@@ -183,6 +203,10 @@
                             <button type="button" class="pv-link" data-steps-all aria-expanded="@Flag(allSteps)" @onclick="() => allSteps = !allSteps">@T[allSteps ? "ShowLess" : "ShowAll", subject.Steps.Count]</button>
                         }
                     </p>
+                    @if (subject.Steps.Count == 0)
+                    {
+                        <p class="pv-note" data-steps-none>@T["NoTaskYet"]</p>
+                    }
                     <div class="pv-step-row">
                         @foreach (var step in Shown(subject))
                         {
@@ -287,6 +311,37 @@
                             }
                         </ul>
                     }
+                    @if (LogOf(opened.Task) is { Count: > 0 } lines)
+                    {
+                        @if (Files(lines, opened.Task) is { Count: > 0 } files)
+                        {
+                            <p class="pv-label">@T["Files"]</p>
+                            <ul class="pv-side-list" data-task-files>
+                                @foreach (var file in files)
+                                {
+                                    <li @key="file" class="pv-file">@file</li>
+                                }
+                            </ul>
+                        }
+                        <p class="pv-label">
+                            @T["Log"]
+                            <button type="button" class="pv-link" data-task-log-toggle aria-expanded="@Flag(fullLog)" @onclick="() => fullLog = !fullLog">@T[fullLog ? "Log_Hide" : "Log_Show", lines.Count]</button>
+                        </p>
+                        @if (fullLog)
+                        {
+                            <ol class="pv-side-list pv-log" data-task-log>
+                                @foreach (var (line, index) in lines.Select((line, index) => (line, index)))
+                                {
+                                    <li @key="index" data-log-kind="@line.Kind">@Clock(line.At) · @Sentence(line)</li>
+                                }
+                            </ol>
+                        }
+                    }
+                    else if (opened.Task.Operator.Account == TaskOperator.ClaudeCode)
+                    {
+                        <p class="pv-label">@T["Log"]</p>
+                        <p class="pv-side-text" data-task-log-none>@T["Log_None"]</p>
+                    }
                     @if (opened.Task.Folder is { } folder)
                     {
                         <p class="pv-label">@T["Folder"]</p>
@@ -329,10 +384,17 @@
     private ProjectsViewOptions options = new();
     private readonly Dictionary<string, string> offerNames = new(StringComparer.Ordinal);
     private string? offerProblem;
+    private string? newSubjectIn;
+    private string newSubjectName = string.Empty;
+    private bool newSubjectProblem;
     private string draft = string.Empty;
     private string? problem;
     private ProjectsOverview overview = new([new ProjectBoard(ProjectsOverview.GeneralId, string.Empty, null, [])], []);
     private bool allSteps;
+    private ITaskLog? taskLog;
+    private string? logTask;
+    private IReadOnlyList<TaskLogEntry> log = [];
+    private bool fullLog;
     private string find = string.Empty;
 
     private ProjectBoard? Selected => overview.Find(State.Rail);
@@ -359,6 +421,12 @@
             });
         }
 
+        taskLog = Services.GetService<ITaskLog>();
+        if (taskLog is not null)
+        {
+            taskLog.Changed += OnLogChanged;
+        }
+
         Board.Changed += OnChanged;
         State.Changed += OnChanged;
         if (catalog is not null)
@@ -367,6 +435,7 @@
         }
 
         Read();
+        _ = ReadLogAsync();
     }
 
     /// <inheritdoc />
@@ -375,6 +444,11 @@
         watching?.Dispose();
         Board.Changed -= OnChanged;
         State.Changed -= OnChanged;
+        if (taskLog is not null)
+        {
+            taskLog.Changed -= OnLogChanged;
+        }
+
         if (threads is not null)
         {
             threads.Changed -= OnChanged;
@@ -389,10 +463,71 @@
     private void OnChanged() => _ = InvokeAsync(() =>
     {
         Read();
+        if (State.Task != logTask)
+        {
+            _ = ReadLogAsync();
+        }
+
         StateHasChanged();
     });
 
-    private void Read() => overview = ProjectsOverview.From(Board.Tasks, catalog);
+    private void OnLogChanged(string task) => _ = InvokeAsync(() => task == State.Task ? ReadLogAsync() : Task.CompletedTask);
+
+    // The log of the open task (ADR 0026, section 5). Read again when the task changes or writes a line.
+    private async Task ReadLogAsync()
+    {
+        var task = State.Task;
+        if (task != logTask)
+        {
+            (logTask, log, fullLog) = (task, [], false);
+        }
+
+        if (taskLog is null || task is null)
+        {
+            return;
+        }
+
+        var lines = await taskLog.ReadAsync(task);
+        if (State.Task == task)
+        {
+            log = lines;
+            StateHasChanged();
+        }
+    }
+
+    private IReadOnlyList<TaskLogEntry> LogOf(WorkTask task) => task.Id == logTask ? log : [];
+
+    // The files the task wrote, each once, in the order of the first write; under its folder, the path from the folder.
+    private static List<string> Files(IReadOnlyList<TaskLogEntry> lines, WorkTask task) =>
+        [.. lines
+            .Where(line => line.Kind == TaskLogKind.File && line.Path is not null)
+            .Select(line => Short(line.Path!, task.Folder))
+            .Distinct(StringComparer.Ordinal)];
+
+    private static string Short(string path, string? folder)
+    {
+        if (folder is not { Length: > 0 })
+        {
+            return path;
+        }
+
+        var root = folder.TrimEnd('/', '\\');
+        return path.Length > root.Length + 1 && path.StartsWith(root, StringComparison.OrdinalIgnoreCase) && path[root.Length] is '/' or '\\'
+            ? path[(root.Length + 1)..]
+            : path;
+    }
+
+    private string Sentence(TaskLogEntry line) => line.Kind switch
+    {
+        TaskLogKind.Started => T["Log_Started", line.Text],
+        TaskLogKind.File => T["Log_File", line.Text, line.Path ?? string.Empty],
+        TaskLogKind.ToolFailed => T["Log_ToolFailed", line.Text],
+        TaskLogKind.Said => T["Log_Said", line.Text],
+        TaskLogKind.Ended => T["Log_Ended_" + line.Text],
+        _ => line.Text,
+    };
+
+    private void Read() => overview = ProjectsOverview.From(Board.Tasks, catalog, options.Subjects);
 
     private async Task LoadThreadsAsync(Kazo.Jarvis.Kernel.Conversation.ISubjectThreads source)
     {
@@ -432,6 +567,24 @@
             // Its tasks now belong to the project: the view follows them.
             State.Show(created.Id);
         }
+    }
+
+    private void OpenNewSubject(ProjectBoard project) => (newSubjectIn, newSubjectName, newSubjectProblem) = (project.Id, string.Empty, false);
+
+    private async Task MakeSubjectAsync(ProjectBoard project)
+    {
+        var made = UserSubject.Make(project.Id, newSubjectName, project.Subjects.Select(subject => subject.Key), Time.GetUtcNow());
+        var result = made is null ? null : await settings!.WriteAsync(ProjectsViewOptions.Section, options with { Subjects = [.. options.Subjects, made] });
+        if (made is null || result?.Outcome != Kazo.Jarvis.Kernel.Settings.SettingsWriteOutcome.Saved)
+        {
+            newSubjectProblem = true;
+            return;
+        }
+
+        options = settings!.Read(ProjectsViewOptions.Section);
+        (newSubjectIn, newSubjectName, newSubjectProblem) = (null, string.Empty, false);
+        Read();
+        State.Show(project.Id, made.Key);
     }
 
     private Task LaterAsync(ProjectOffer offer) =>

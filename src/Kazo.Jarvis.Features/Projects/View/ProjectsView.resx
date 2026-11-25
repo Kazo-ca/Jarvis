@@ -195,4 +195,55 @@
   <data name="Offer_Failed" xml:space="preserve">
     <value>The project was not created: this name is taken or the folder is refused. "Change the folder" opens the Projects page.</value>
   </data>
+  <data name="NewSubject" xml:space="preserve">
+    <value>+ New subject</value>
+  </data>
+  <data name="NewSubject_Name" xml:space="preserve">
+    <value>Name of the subject</value>
+  </data>
+  <data name="NewSubject_Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="NewSubject_Failed" xml:space="preserve">
+    <value>The subject was not created: it needs a name of at most 60 characters, and the settings must be writable.</value>
+  </data>
+  <data name="NoTaskYet" xml:space="preserve">
+    <value>This subject has no task yet. Write below: the agent of the project answers here.</value>
+  </data>
+  <data name="Files" xml:space="preserve">
+    <value>Files written</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="Log_Show" xml:space="preserve">
+    <value>Full log ({0})</value>
+  </data>
+  <data name="Log_Hide" xml:space="preserve">
+    <value>Fold</value>
+  </data>
+  <data name="Log_None" xml:space="preserve">
+    <value>No log: Jarvis keeps the log of the sessions it starts itself.</value>
+  </data>
+  <data name="Log_Started" xml:space="preserve">
+    <value>Session started ({0})</value>
+  </data>
+  <data name="Log_File" xml:space="preserve">
+    <value>{0}: {1} written</value>
+  </data>
+  <data name="Log_ToolFailed" xml:space="preserve">
+    <value>{0}: failed or refused</value>
+  </data>
+  <data name="Log_Said" xml:space="preserve">
+    <value>Answer: {0}</value>
+  </data>
+  <data name="Log_Ended_Done" xml:space="preserve">
+    <value>Session ended</value>
+  </data>
+  <data name="Log_Ended_Blocked" xml:space="preserve">
+    <value>Session blocked</value>
+  </data>
+  <data name="Log_Ended_Abandoned" xml:space="preserve">
+    <value>Session stopped</value>
+  </data>
 </root>
