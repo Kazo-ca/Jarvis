@@ -33,6 +33,17 @@ public sealed class SimulatedHandSession
 
     /// <summary>The session starts a sub-agent: a sub-task of its task, shown inside its panel of the fan.</summary>
     /// <returns>A task that completes when the board is moved.</returns>
+    /// <summary>
+    /// The session is over: its task is done, and the next press starts another session in the same folder. The
+    /// task takes a title of its own, so that the session in progress stays the only one of its title.
+    /// </summary>
+    /// <returns>A task that ends once the board changed.</returns>
+    public async Task EndAsync()
+    {
+        var current = await CurrentAsync();
+        await board.ChangeAsync(current.Id, new TaskChange(WorkTaskStatus.Done, "Le pied de page est corrigé.", Title: "session terminée " + sessions));
+    }
+
     public async Task SubTaskAsync()
     {
         var parent = await CurrentAsync();

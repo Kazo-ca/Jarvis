@@ -96,10 +96,10 @@ public sealed class ProjectsOverviewTests
         });
     }
 
-    private static WorkTask Task(string id, string title, WorkTaskStatus status, int created, int updated, string project = TaskKeys.Inbox, string topic = TaskKeys.Inbox, string? folder = null, string? parent = null, string? summary = null) =>
+    internal static WorkTask Task(string id, string title, WorkTaskStatus status, int created, int updated, string project = TaskKeys.Inbox, string topic = TaskKeys.Inbox, string? folder = null, string? parent = null, string? summary = null) =>
         new(id, parent, project, topic, title, summary, new TaskOperator(TaskOperator.ClaudeCode), TaskSource.Hook, status, Start.AddMinutes(created), Start.AddMinutes(updated), folder);
 
-    private sealed class Catalog(params ProjectDefinition[] projects) : IProjectCatalog
+    internal sealed class Catalog(params ProjectDefinition[] projects) : IProjectCatalog
     {
         public event Action? Changed
         {

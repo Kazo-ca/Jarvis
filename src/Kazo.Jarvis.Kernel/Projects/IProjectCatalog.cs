@@ -53,6 +53,16 @@ public interface IProjectCatalog
     bool IsWithoutProject(string? folder) => false;
 
     /// <summary>
+    /// Creates a project at the request of the user (ADR 0026, section 6: the offer of the projects view). Jarvis
+    /// never calls it by itself.
+    /// </summary>
+    /// <param name="name">Its name.</param>
+    /// <param name="folder">Its local folder.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>Whether the project exists now; <see langword="false"/> when the name or the folder is refused.</returns>
+    ValueTask<bool> CreateAsync(string name, string folder, CancellationToken cancellationToken = default) => ValueTask.FromResult(false);
+
+    /// <summary>
     /// The path of the memory file of the project that holds a folder, so that a session started in that folder
     /// can be told to read it (ADR 0025, section 6). The file may not exist yet.
     /// </summary>

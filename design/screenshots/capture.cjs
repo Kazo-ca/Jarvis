@@ -21,7 +21,13 @@ const settings = page.locator("[data-dialog-key='Settings.Window']");
 // The orb at rest.
 await page.locator('.orb-frame').screenshot({ path: shot('orb') });
 
-// A session started by hand works in a folder, starts a sub-agent and waits for a permission.
+// Four sessions started by hand ended in the same folder: the subject takes a lot of room in « Général ».
+for (let ended = 0; ended < 4; ended++) {
+  await press(page, '#hand-session-work');
+  await press(page, '#hand-session-end');
+}
+
+// A fifth one works in that folder, starts a sub-agent and waits for a permission.
 await press(page, '#hand-session-work');
 await press(page, '#hand-session-subtask');
 await press(page, '#hand-session-wait');
@@ -40,6 +46,12 @@ await orb.dblclick();
 await view.locator('[data-projects-all]').waitFor();
 await view.screenshot({ path: shot('projects-all') });
 
+// « Général » offers to make a project of the subject (ADR 0026, section 6).
+await view.locator("[data-rail='_general']").click();
+await view.locator('[data-offer]').waitFor();
+await view.screenshot({ path: shot('projects-offer') });
+await view.locator("[data-rail='_all']").click();
+
 // The folder gets its project; the view shows the project, its subject, the band of tasks and the task thread.
 await view.locator('[data-folder-card]').click();
 const request = settings.locator('[data-project-request]');
@@ -49,11 +61,13 @@ await request.waitFor({ state: 'detached' });
 await settings.screenshot({ path: shot('projects-page') });
 await settings.locator('.dialog-close').click();
 await view.locator("[data-rail='kazo-bar']").click();
-// A message written in the thread of the subject answers its first task.
-await view.locator('[data-thread-text]').fill('T1> oui, garde le même pied de page partout');
+// A message written in the thread of the subject: the agent of the project answers. Jarvis takes a text only
+// at rest, and the ends of the sessions are announced first.
+await page.locator('#jarvis-root[data-phase="Idle"]').waitFor({ timeout: 60000 });
+await view.locator('[data-thread-text]').fill('où en est le pied de page ?');
 await view.locator('[data-thread-send]').click();
 await view.locator("[data-thread-message='answer'][data-thread-pending='false']").waitFor();
-await view.locator('[data-step]').first().click();
+await view.locator('[data-step][data-step-kind="Active"]').first().click();
 await view.locator('[data-task-thread]').waitFor();
 await view.screenshot({ path: shot('projects-subject') });
 

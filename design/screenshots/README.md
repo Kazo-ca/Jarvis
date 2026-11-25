@@ -18,4 +18,5 @@ Run the script against a host that was just started: the host keeps its tasks an
 | [projects-all.png](projects-all.png) | Projects view, "All projects", with the card of a folder with no project |
 | [projects-subject.png](projects-subject.png) | Projects view: a project, its subject, the band of tasks, the thread of a task |
 | [projects-attention.png](projects-attention.png) | Projects view, "To handle" |
+| [projects-offer.png](projects-offer.png) | Projects view, "General": the offer to make a project of a subject |
 | [projects-page.png](projects-page.png) | "Projects" page of the settings |

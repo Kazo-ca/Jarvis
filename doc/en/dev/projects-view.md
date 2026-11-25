@@ -88,6 +88,30 @@ Deviation: the task board never brought back a task that was over (ADR 0013). `T
 asked only by `ClaudeTaskRunner` once the session runs again; a late hook still cannot. A resume that does not
 start leaves the task as it ended.
 
+## Offering to make a project of a subject of General
+
+Work item `stage2/28-general-project-offer` (ADR 0026, sections 6 and 11, point 3).
+
+- In the panel of "General", one card per subject that took **4 tasks or 30 messages in 7 days**
+  (`ProjectOffer.For`, a pure function). It proposes a name (the one of the subject, editable) and a folder
+  (the one most of its tasks work in) and says that the subject, its tasks and their threads are moved.
+- **Create** calls `IProjectCatalog.CreateAsync(name, folder)` and opens the new project. **Change the
+  folder** opens the "Projects" page. **Later** hides the offer for 7 days. **Refuse** never offers it again
+  for this subject. Jarvis never creates a project by itself.
+- A subject none of whose tasks has a folder is not offered: there is nowhere to make the project.
+- The thresholds and the answers are in the settings section `Projects.View` (`ProjectsViewOptions`:
+  `OfferTasks`, `OfferMessages`, `OfferDays`, `LaterDays`, `Refused`, `Later`).
+
+**What is "moved".** The tasks follow by themselves: a task belongs to the project that holds its folder. The
+messages keep the address they were written at; `ThreadHomes.HomeOf` says where to show them:
+
+1. an answer to a task (`T3>`) is shown in the subject where that task is;
+2. a message to the subject stays where it was written as long as that subject exists;
+3. when the tasks of a subject of General left for a project, the message goes with the task that was the
+   newest when it was written (the oldest one when it comes before them all).
+
+Kernel: `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
+
 ## Slice `Projects/View`
 
 | File | Role |
@@ -96,6 +120,9 @@ start leaves the task as it ended.
 | `ProjectsViewState` | Entry of the rail, open subject and task; kept in memory |
 | `ProjectsViewOpener` | Answers `ProjectsViewRequested`: opens the window `Projects.View` |
 | `ProjectsView` | The Razor component, its CSS and its texts |
+| `SubjectAnswer` | The prefix `T3>` of a message |
+| `ProjectOffer`, `ProjectsViewOptions` | The offer to make a project, its thresholds, the refusals and the postponements |
+| `ThreadHomes` | In which subject a message is shown today |
 
 Kernel: `IProjectCatalog.OwnerOf`; `DialogRequest.Maximized`, which the Windows host applies to the window and
 the Web host turns into a wider layer. The slice references neither `Projects/Catalog` nor `Tasks/Board`: it
@@ -122,6 +149,12 @@ To be confirmed by Benoit:
 10. `T3>` sent to a session that still runs is refused with a sentence; the message is not queued to be
     handed over at the end.
 11. No choice of the agent in the thread, and nothing by voice ("pour la tâche 3").
+12. The thresholds of the offer are set in the settings file, not on a page yet.
+13. "Later" means 7 days. "Change the folder" leads to the "Projects" page instead of a field in the card.
+14. A message written to the subject of General (with no `T3>`) follows, once the project is created, the
+    task that was the newest when it was written.
+15. The offer is shown only in the panel of "General"; Jarvis does not say it aloud and the orb does not
+    signal it.
 
 ## Not built yet
 
@@ -129,7 +162,6 @@ To be confirmed by Benoit:
 - The files of a task, the full log (section 5).
 - The thread of the project as a conversation with the agent of the project (section 2).
 - "+ New subject", the archives (section 11).
-- The offer to make a project of a subject of General (section 6).
 
 ## Not verified
 
@@ -146,6 +178,8 @@ To be confirmed by Benoit:
 - Playwright: `ProjectsViewTests` (double click, session with no project, task that waits, project created
   from the view, message written in the thread of a subject and `T1>` to a session started by hand);
   `ClaudeTasksTests` (`T1>` resumes a session started by Jarvis that is over).
+- `ProjectOfferTests` (thresholds, proposed folder, refusal, postponement, messages that follow the tasks) and
+  the Playwright scenario of the offer (four sessions over, creation, thread that follows, "Later").
 - Unit tests of the resume: `ClaudeTaskRunnerTests` (resume, session still running, session started by hand,
   resume that fails) and `ConversationEngineTests` (no model called, the sentence, the fallback to the local
   agent).

@@ -470,3 +470,51 @@
 .pv-problem {
     color: var(--jarvis-amber);
 }
+
+/* The offer to make a project of a subject of « Général » (ADR 0026, section 6). */
+.pv-offer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0.6rem 0;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--jarvis-line-strong);
+    border-left: 3px solid var(--jarvis-amber);
+}
+
+.pv-offer-title {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.pv-offer-why,
+.pv-offer-folder {
+    margin: 0;
+    color: var(--jarvis-text-muted);
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+}
+
+.pv-offer-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.8rem;
+}
+
+.pv-offer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.pv-offer-button {
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--jarvis-line-strong);
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
