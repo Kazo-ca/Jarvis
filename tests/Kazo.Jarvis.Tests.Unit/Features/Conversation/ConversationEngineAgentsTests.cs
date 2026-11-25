@@ -575,4 +575,24 @@ public sealed partial class ConversationEngineTests
             Assert.That(changes, Is.GreaterThan(0));
         });
     }
+
+    [Test]
+    [Property(WithAgents, "yes")]
+    [Property(WithClaudeTasks, "yes")]
+    public async Task A_work_handed_to_Claude_Code_from_the_thread_of_a_subject_of_a_project_is_a_task_of_that_subject()
+    {
+        RegisterClockAndSearch();
+        await CreateKazoOsAsync();
+
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Demande à Claude Code de corriger le pilote.") { Thread = new Kazo.Jarvis.Kernel.Conversation.ThreadAddress("kazo-os", "subject:pilote") });
+        await TurnStoredAsync();
+        await Bus.PublishAsync<AssistantInput>(new TextSubmitted("Demande à Claude Code de ranger le dépôt.") { Thread = new Kazo.Jarvis.Kernel.Conversation.ThreadAddress("_general", "kazo-bar") });
+        await Eventually(() => claudeTasks!.Started.Count == 2);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That((claudeTasks!.Started[0].Request.Topic, claudeTasks.Started[0].Request.Folder), Is.EqualTo(("subject:pilote", "/projets/kazo-os")));
+            Assert.That(claudeTasks.Started[1].Request.Topic, Is.Null, "Outside a project the folder of the work is its subject.");
+        });
+    }
 }

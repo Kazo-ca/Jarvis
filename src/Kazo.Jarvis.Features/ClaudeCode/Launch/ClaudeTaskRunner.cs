@@ -246,7 +246,7 @@ public sealed partial class ClaudeTaskRunner : IClaudeTasks, IClaudeApprovals, I
 
             // 5. The task exists before the launch (ADR 0013, section 7).
             task = await board.CreateAsync(
-                new NewWorkTask(Title(request.Request), TaskKeys.Project(null, folder), TaskKeys.Inbox, new TaskOperator(TaskOperator.ClaudeCode), TaskSource.Harness, folder),
+                new NewWorkTask(Title(request.Request), TaskKeys.Project(null, folder), string.IsNullOrWhiteSpace(request.Topic) ? TaskKeys.Inbox : request.Topic, new TaskOperator(TaskOperator.ClaudeCode), TaskSource.Harness, folder),
                 CancellationToken.None).ConfigureAwait(false);
             var context = request.Context is null ? null : await request.Context(cancellationToken).ConfigureAwait(false);
             var launch = new ClaudeLaunch(task.Id, folder, FirstMessage(request.Request, context, language, projects?.MemoryFileOf(folder)))

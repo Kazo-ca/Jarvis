@@ -525,6 +525,19 @@ public sealed class ClaudeTaskRunnerTests
         });
     }
 
+    [Test]
+    public async Task A_work_asked_in_the_thread_of_a_subject_is_a_task_of_that_subject()
+    {
+        var inSubject = await runner.StartAsync(new ClaudeTaskRequest("corrige le menu", AssistantLanguage.French) { Topic = "subject:menu" }, Say);
+        var without = await StartAsync("corrige le pied de page");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(board.Find(inSubject.TaskId!)!.Topic, Is.EqualTo("subject:menu"));
+            Assert.That(board.Find(without.TaskId!)!.Topic, Is.EqualTo(TaskKeys.Inbox));
+        });
+    }
+
     // ----- An answer of the user resumes the session of a task (ADR 0026, section 4) -----
 
     private async Task<(ClaudeTaskOpening Opening, FakeRun Run)> DoneSessionAsync()

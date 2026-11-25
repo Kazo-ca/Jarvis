@@ -72,6 +72,9 @@ public sealed record ThreadLine(DateTimeOffset At, ThreadLineKind Kind, TaskStep
 /// <param name="Steps">Its tasks, numbered.</param>
 public sealed record SubjectBoard(string Key, string? Name, IReadOnlyList<TaskStep> Steps)
 {
+    /// <summary>When the user made the subject with « + Nouveau sujet »; <see langword="null"/> for a subject that comes from its tasks.</summary>
+    public DateTimeOffset? MadeAt { get; init; }
+
     /// <summary>How many tasks are done or stopped.</summary>
     public int Done => Steps.Count(step => step.Kind is StepKind.Done or StepKind.Stopped);
 
@@ -81,14 +84,14 @@ public sealed record SubjectBoard(string Key, string? Name, IReadOnlyList<TaskSt
     /// <summary>How many tasks are planned.</summary>
     public int Planned => Steps.Count(step => step.Kind == StepKind.Planned);
 
-    /// <summary>Whether every task of the subject is over.</summary>
-    public bool Ended => Done == Steps.Count;
+    /// <summary>Whether every task of the subject is over. A subject the user made stays open while it has no task.</summary>
+    public bool Ended => Steps.Count > 0 && Done == Steps.Count;
 
     /// <summary>How many tasks wait for the user.</summary>
     public int Waiting => Steps.Count(step => step.Waits);
 
     /// <summary>The last change of one of its tasks.</summary>
-    public DateTimeOffset UpdatedAt => Steps.Max(step => step.Task.UpdatedAt);
+    public DateTimeOffset UpdatedAt => Steps.Count == 0 ? MadeAt ?? DateTimeOffset.MinValue : Steps.Max(step => step.Task.UpdatedAt);
 
     /// <summary>The thread of the subject, oldest line first.</summary>
     public IReadOnlyList<ThreadLine> Lines
@@ -164,8 +167,9 @@ public sealed record ProjectsOverview(IReadOnlyList<ProjectBoard> Projects, IRea
     /// <summary>Reads the board.</summary>
     /// <param name="tasks">The tasks of the board.</param>
     /// <param name="catalog">The projects, when the host has them.</param>
+    /// <param name="subjects">The subjects the user made (ADR 0026, section 11, point 2); those of a project that is gone are left out.</param>
     /// <returns>What the view shows.</returns>
-    public static ProjectsOverview From(IReadOnlyList<WorkTask> tasks, IProjectCatalog? catalog)
+    public static ProjectsOverview From(IReadOnlyList<WorkTask> tasks, IProjectCatalog? catalog, IReadOnlyList<UserSubject>? subjects = null)
     {
         ArgumentNullException.ThrowIfNull(tasks);
         var children = tasks.Where(task => task.ParentId is not null).ToLookup(task => task.ParentId!);
@@ -197,9 +201,9 @@ public sealed record ProjectsOverview(IReadOnlyList<ProjectBoard> Projects, IRea
         }
 
         var projects = definitions
-            .Select(project => new ProjectBoard(project.Id, project.Name, project.Folder, Subjects(byProject[project.Id], children, task => task.Topic)))
+            .Select(project => new ProjectBoard(project.Id, project.Name, project.Folder, Subjects(byProject[project.Id], children, task => task.Topic, Made(subjects, project.Id))))
             // Outside a project, the folder or the repository of a task is the closest thing to a subject.
-            .Append(new ProjectBoard(GeneralId, string.Empty, null, Subjects(general, children, GeneralKey)))
+            .Append(new ProjectBoard(GeneralId, string.Empty, null, Subjects(general, children, GeneralKey, Made(subjects, GeneralId))))
             .ToList();
         return new ProjectsOverview(projects, without);
     }
@@ -213,16 +217,26 @@ public sealed record ProjectsOverview(IReadOnlyList<ProjectBoard> Projects, IRea
         return task.Project == TaskKeys.Inbox ? task.Topic : task.Project;
     }
 
-    private static List<SubjectBoard> Subjects(List<WorkTask> tasks, ILookup<string, WorkTask> children, Func<WorkTask, string> key) =>
+    private static List<UserSubject> Made(IReadOnlyList<UserSubject>? subjects, string project) =>
+        [.. (subjects ?? []).Where(subject => subject.Project == project)];
+
+    private static List<SubjectBoard> Subjects(List<WorkTask> tasks, ILookup<string, WorkTask> children, Func<WorkTask, string> key, List<UserSubject> made) =>
         [.. tasks
             .GroupBy(key, StringComparer.Ordinal)
             .Select(group => new SubjectBoard(
                 group.Key,
-                Name(group.Key),
+                made.FirstOrDefault(subject => subject.Key == group.Key)?.Name ?? Name(group.Key),
                 [.. group
                     .OrderBy(task => task.CreatedAt)
                     .ThenBy(task => task.Id, StringComparer.Ordinal)
-                    .Select((task, index) => new TaskStep(index + 1, task, [.. children[task.Id].OrderBy(child => child.CreatedAt)]))]))
+                    .Select((task, index) => new TaskStep(index + 1, task, [.. children[task.Id].OrderBy(child => child.CreatedAt)]))])
+                {
+                    MadeAt = made.FirstOrDefault(subject => subject.Key == group.Key)?.MadeAt,
+                })
+            // A subject the user made is shown before it has a task.
+            .Concat(made
+                .Where(subject => !tasks.Any(task => key(task) == subject.Key))
+                .Select(subject => new SubjectBoard(subject.Key, subject.Name, []) { MadeAt = subject.MadeAt }))
             .OrderBy(subject => subject.Ended)
             .ThenByDescending(subject => subject.UpdatedAt)];
 

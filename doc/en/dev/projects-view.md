@@ -112,6 +112,21 @@ messages keep the address they were written at; `ThreadHomes.HomeOf` says where 
 
 Kernel: `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
 
+## "+ New subject"
+
+Work item `stage2/29-new-subject` (ADR 0026, section 11, point 2).
+
+- Under the active subjects of a project (and of "General"), "+ New subject" asks for a name. The subject
+  exists at once, with no task, with its thread: one writes in it and the agent of the project answers.
+- It is kept in the settings `Projects.View` (`UserSubject`: project, key `subject:<name>`, name, date). The
+  key comes from the name, without accents, and stays unique in the project.
+- **Its tasks.** A work handed to Claude Code from the thread of a subject of a project becomes a task of
+  that subject: `ClaudeTaskRequest.Topic` carries the key of the subject, and the task is created with it.
+  This holds for every subject of a project, not only those made by hand. In "General", the subject of a
+  session stays its folder.
+- A subject made by hand stays open while it has no task; afterwards it ends like the others, when all its
+  tasks are done or stopped.
+
 ## Slice `Projects/View`
 
 | File | Role |
@@ -123,6 +138,7 @@ Kernel: `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
 | `SubjectAnswer` | The prefix `T3>` of a message |
 | `ProjectOffer`, `ProjectsViewOptions` | The offer to make a project, its thresholds, the refusals and the postponements |
 | `ThreadHomes` | In which subject a message is shown today |
+| `UserSubject` | A subject made by the user, and its key |
 
 Kernel: `IProjectCatalog.OwnerOf`; `DialogRequest.Maximized`, which the Windows host applies to the window and
 the Web host turns into a wider layer. The slice references neither `Projects/Catalog` nor `Tasks/Board`: it
@@ -155,13 +171,17 @@ To be confirmed by Benoit:
     task that was the newest when it was written.
 15. The offer is shown only in the panel of "General"; Jarvis does not say it aloud and the orb does not
     signal it.
+16. A subject made by hand cannot be renamed or removed yet (the archives are not built); a subject of a
+    project that was removed is no longer shown but stays in the settings.
+17. A Claude Code session started **by hand** keeps the subject of its branch: only the works Jarvis starts
+    from a thread take the subject of that thread.
 
 ## Not built yet
 
 - Speaking in the thread of a subject, "pour la tâche 3" (section 4); the choice of the agent.
 - The files of a task, the full log (section 5).
 - The thread of the project as a conversation with the agent of the project (section 2).
-- "+ New subject", the archives (section 11).
+- The archives; renaming or removing a subject (section 11).
 
 ## Not verified
 
@@ -178,6 +198,8 @@ To be confirmed by Benoit:
 - Playwright: `ProjectsViewTests` (double click, session with no project, task that waits, project created
   from the view, message written in the thread of a subject and `T1>` to a session started by hand);
   `ClaudeTasksTests` (`T1>` resumes a session started by Jarvis that is over).
+- `UserSubjectTests` (key, subject with no task, tasks of its key) and the Playwright scenario of the new
+  subject (creation, message, work handed to Claude Code that becomes its task T1).
 - `ProjectOfferTests` (thresholds, proposed folder, refusal, postponement, messages that follow the tasks) and
   the Playwright scenario of the offer (four sessions over, creation, thread that follows, "Later").
 - Unit tests of the resume: `ClaudeTaskRunnerTests` (resume, session still running, session started by hand,

@@ -111,6 +111,21 @@ dossier. Les messages gardent l'adresse où ils ont été écrits ; `ThreadHomes
 
 Noyau : `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
 
+## « + Nouveau sujet »
+
+Chantier `stage2/29-new-subject` (ADR 0026, section 11, point 2).
+
+- Sous les sujets actifs d'un projet (et de « Général »), « + Nouveau sujet » demande un nom. Le sujet existe
+  aussitôt, sans tâche, avec son fil : on y écrit et l'agent du projet répond.
+- Il est gardé dans les réglages `Projects.View` (`UserSubject` : projet, clé `subject:<nom>`, nom, date). La
+  clé vient du nom, sans accents, et reste unique dans le projet.
+- **Ses tâches.** Un travail remis à Claude Code depuis le fil d'un sujet d'un projet devient une tâche de ce
+  sujet : `ClaudeTaskRequest.Topic` porte la clé du sujet, et la tâche est créée avec ce sujet. Cela vaut pour
+  tout sujet d'un projet, pas seulement ceux faits à la main. Dans « Général », le sujet d'une session reste
+  son dossier.
+- Un sujet fait à la main reste ouvert tant qu'il n'a pas de tâche ; ensuite il se termine comme les autres,
+  quand toutes ses tâches sont faites ou arrêtées.
+
 ## Tranche `Projects/View`
 
 | Fichier | Rôle |
@@ -122,6 +137,7 @@ Noyau : `IProjectCatalog.CreateAsync`, `ISubjectThreads.All`.
 | `SubjectAnswer` | Le préfixe `T3>` d'un message |
 | `ProjectOffer`, `ProjectsViewOptions` | La proposition de faire un projet, ses seuils, les refus et les reports |
 | `ThreadHomes` | Dans quel sujet un message est montré aujourd'hui |
+| `UserSubject` | Un sujet fait par l'utilisateur, et sa clé |
 
 Noyau : `IProjectCatalog.OwnerOf` ; `DialogRequest.Maximized`, que l'hôte Windows applique à la fenêtre et que
 l'hôte Web traduit par une couche plus large. La tranche ne référence ni `Projects/Catalog` ni `Tasks/Board` :
@@ -155,13 +171,17 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
     récente au moment où il a été écrit.
 15. La proposition n'est montrée que dans le panneau de « Général » ; Jarvis ne la dit pas à voix haute et
     l'orbe ne la signale pas.
+16. Un sujet fait à la main ne se renomme pas et ne se supprime pas encore (les archives ne sont pas
+    construites) ; un sujet d'un projet supprimé n'est plus montré mais reste dans les réglages.
+17. Une session Claude Code lancée **à la main** garde le sujet de sa branche : seuls les travaux lancés par
+    Jarvis depuis un fil prennent le sujet de ce fil.
 
 ## Pas encore construit
 
 - Parler dans le fil d'un sujet, « pour la tâche 3 » (section 4) ; le choix de l'agent.
 - Les fichiers d'une tâche, le journal complet (section 5).
 - Le fil du projet comme conversation avec l'agent du projet (section 2).
-- « + Nouveau sujet », les archives (section 11).
+- Les archives ; renommer ou supprimer un sujet (section 11).
 
 ## Non vérifié
 
@@ -178,6 +198,8 @@ elle passe par `IProjectCatalog`, `ITaskBoard` et `SettingsWindowRequested`.
 - Playwright : `ProjectsViewTests` (double-clic, session sans projet, tâche qui attend, projet créé depuis la
   vue, message écrit dans le fil d'un sujet et `T1>` vers une session lancée à la main) ; `ClaudeTasksTests`
   (`T1>` reprend une session terminée lancée par Jarvis).
+- `UserSubjectTests` (clé, sujet sans tâche, tâches de sa clé) et le scénario Playwright du nouveau sujet
+  (création, message, travail remis à Claude Code qui devient sa tâche T1).
 - `ProjectOfferTests` (seuils, dossier proposé, refus, report, messages qui suivent les tâches) et le scénario
   Playwright de la proposition (quatre sessions terminées, création, fil qui suit, « Plus tard »).
 - Unitaires de la reprise : `ClaudeTaskRunnerTests` (reprise, session en cours, session à la main, reprise

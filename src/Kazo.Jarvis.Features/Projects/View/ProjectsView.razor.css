@@ -518,3 +518,14 @@
     font-size: 0.8rem;
     cursor: pointer;
 }
+
+/* « + Nouveau sujet » (ADR 0026, section 11). */
+.pv-subject-add {
+    align-self: flex-start;
+    margin-top: 0.4rem;
+}
+
+.pv-subject-new {
+    margin-top: 0.4rem;
+    border-top: none;
+}

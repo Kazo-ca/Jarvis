@@ -195,4 +195,19 @@
   <data name="Offer_Failed" xml:space="preserve">
     <value>Le projet n'a pas été créé : ce nom est pris ou le dossier est refusé. « Changer le dossier » ouvre la page Projets.</value>
   </data>
+  <data name="NewSubject" xml:space="preserve">
+    <value>+ Nouveau sujet</value>
+  </data>
+  <data name="NewSubject_Name" xml:space="preserve">
+    <value>Nom du sujet</value>
+  </data>
+  <data name="NewSubject_Create" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="NewSubject_Failed" xml:space="preserve">
+    <value>Le sujet n'a pas été créé : il faut un nom de 60 caractères au plus, et les réglages doivent pouvoir être écrits.</value>
+  </data>
+  <data name="NoTaskYet" xml:space="preserve">
+    <value>Ce sujet n'a pas encore de tâche. Écrivez ci-dessous : l'agent du projet répond ici.</value>
+  </data>
 </root>

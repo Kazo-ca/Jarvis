@@ -69,6 +69,12 @@ public sealed record ClaudeTaskRequest(string Request, AssistantLanguage Languag
 
     /// <summary>The folder, once chosen; <see langword="null"/> to let the request name it.</summary>
     public string? Folder { get; init; }
+
+    /// <summary>
+    /// The subject the work belongs to, when it was asked in the thread of a subject of a project (ADR 0026,
+    /// section 11): the topic of its task. <see langword="null"/> for a work with no subject yet.
+    /// </summary>
+    public string? Topic { get; init; }
 }
 
 /// <summary>The answer of <see cref="IClaudeTasks.StartAsync"/>.</summary>

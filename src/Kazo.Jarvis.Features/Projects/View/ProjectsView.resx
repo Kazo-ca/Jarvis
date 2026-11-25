@@ -195,4 +195,19 @@
   <data name="Offer_Failed" xml:space="preserve">
     <value>The project was not created: this name is taken or the folder is refused. "Change the folder" opens the Projects page.</value>
   </data>
+  <data name="NewSubject" xml:space="preserve">
+    <value>+ New subject</value>
+  </data>
+  <data name="NewSubject_Name" xml:space="preserve">
+    <value>Name of the subject</value>
+  </data>
+  <data name="NewSubject_Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="NewSubject_Failed" xml:space="preserve">
+    <value>The subject was not created: it needs a name of at most 60 characters, and the settings must be writable.</value>
+  </data>
+  <data name="NoTaskYet" xml:space="preserve">
+    <value>This subject has no task yet. Write below: the agent of the project answers here.</value>
+  </data>
 </root>
