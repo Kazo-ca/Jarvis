@@ -160,6 +160,9 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
         {
             using var detector = await LoadAsync(token).ConfigureAwait(false);
             using var subscription = microphone.Subscribe(samples => queue.Writer.TryWrite(samples.ToArray()));
+
+            // Said only once the microphone is listened to: who waits for this status may speak at once.
+            SetStatus(WakeWordStatus.Paused);
             await ListenAsync(detector, token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
@@ -190,7 +193,6 @@ public sealed partial class WakeWordListener : IHostedService, IDisposable
                     LogLoadedAfterAll();
                 }
 
-                SetStatus(WakeWordStatus.Paused);
                 return detector;
             }
             catch (WakeWordModelMissingException exception)
